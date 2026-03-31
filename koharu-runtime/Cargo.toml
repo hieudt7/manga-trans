@@ -1,0 +1,29 @@
+[package]
+name = "koharu-runtime"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+authors.workspace = true
+readme.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+publish.workspace = true
+
+[dependencies]
+koharu-http = { workspace = true }
+anyhow = { workspace = true }
+dirs = { workspace = true }
+serde_json = { workspace = true }
+zip = { workspace = true }
+tokio = { workspace = true }
+libloading = { workspace = true }
+flate2 = { workspace = true }
+tar = "0.4"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
