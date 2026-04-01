@@ -282,7 +282,7 @@ pub const LATIN_MAX_FONT_SIZE: f32 = 30.0;
 pub fn balloon_bounds_from_image(block: &TextBlock, image: &GrayImage) -> Option<LayoutBox> {
     /// Pixels brighter than this are considered balloon interior.
     const INTERIOR_THRESHOLD: u8 = 200;
-    const TEXT_PADDING: i32 = 6;
+    const TEXT_PADDING: i32 = 12;
 
     let img_w = image.width() as i32;
     let img_h = image.height() as i32;
