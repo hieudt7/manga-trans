@@ -1,0 +1,438 @@
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { motion } from 'motion/react'
+import {
+  ScanIcon,
+  ScanTextIcon,
+  Wand2Icon,
+  TypeIcon,
+  LoaderCircleIcon,
+  LanguagesIcon,
+  ZapIcon,
+} from 'lucide-react'
+import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { useLlmUiStore } from '@/lib/stores/llmUiStore'
+import { useEditorUiStore } from '@/lib/stores/editorUiStore'
+import {
+  useLlmModelsQuery,
+  useLlmReadyQuery,
+  LOCAL_LLM_PRESET_LABELS,
+} from '@/lib/query/hooks'
+import { useDocumentMutations, useLlmMutations } from '@/lib/query/mutations'
+import { useOperationStore } from '@/lib/stores/operationStore'
+import { usePreferencesStore } from '@/lib/stores/preferencesStore'
+import { getProviderDisplayName } from '@/lib/providers'
+
+export function CanvasToolbar() {
+  return (
+    <div className='border-border/60 bg-card text-foreground flex items-center gap-2 border-b px-3 py-2 text-xs'>
+      <div className='flex min-w-0 flex-1 items-center overflow-x-auto'>
+        <WorkflowButtons />
+      </div>
+      <LlmStatusPopover />
+    </div>
+  )
+}
+
+function WorkflowButtons() {
+  const { inpaint, detect, ocr, render, saveRendered } = useDocumentMutations()
+  const { llmGenerate } = useLlmMutations()
+  const { data: llmReady = false } = useLlmReadyQuery()
+  const [generating, setGenerating] = useState(false)
+  const [processingAll, setProcessingAll] = useState(false)
+  const { t } = useTranslation()
+  const operation = useOperationStore((state) => state.operation)
+
+  const isDetecting =
+    operation?.type === 'process-current' && operation?.step === 'detect'
+  const isOcr =
+    operation?.type === 'process-current' && operation?.step === 'ocr'
+  const isInpainting =
+    operation?.type === 'process-current' && operation?.step === 'inpaint'
+  const isRendering =
+    operation?.type === 'process-current' && operation?.step === 'render'
+
+  const isBusy =
+    processingAll ||
+    isDetecting ||
+    isOcr ||
+    isInpainting ||
+    isRendering ||
+    generating
+
+  const handleTranslate = async () => {
+    setGenerating(true)
+    try {
+      await llmGenerate(null)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const handleProcessAll = async () => {
+    const { totalPages, setCurrentDocumentIndex } = useEditorUiStore.getState()
+    setProcessingAll(true)
+    try {
+      for (let i = 0; i < totalPages; i++) {
+        setCurrentDocumentIndex(i)
+        await detect(null, i).catch(console.error)
+        await ocr(null, i).catch(console.error)
+        if (llmReady) {
+          await llmGenerate(null, i).catch(console.error)
+        }
+        await inpaint(null, i).catch(console.error)
+        await render(null, i).catch(console.error)
+        await saveRendered(null, i).catch(console.error)
+      }
+    } finally {
+      setProcessingAll(false)
+    }
+  }
+
+  return (
+    <div className='flex items-center gap-0.5'>
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={detect}
+        data-testid='toolbar-detect'
+        disabled={isBusy}
+      >
+        {isDetecting ? (
+          <LoaderCircleIcon className='size-4 animate-spin' />
+        ) : (
+          <ScanIcon className='size-4' />
+        )}
+        {t('processing.detect')}
+      </Button>
+
+      <Separator orientation='vertical' className='mx-0.5 h-4' />
+
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={ocr}
+        data-testid='toolbar-ocr'
+        disabled={isBusy}
+      >
+        {isOcr ? (
+          <LoaderCircleIcon className='size-4 animate-spin' />
+        ) : (
+          <ScanTextIcon className='size-4' />
+        )}
+        {t('processing.ocr')}
+      </Button>
+
+      <Separator orientation='vertical' className='mx-0.5 h-4' />
+
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={handleTranslate}
+        disabled={!llmReady || isBusy}
+        data-testid='toolbar-translate'
+      >
+        {generating ? (
+          <LoaderCircleIcon className='size-4 animate-spin' />
+        ) : (
+          <LanguagesIcon className='size-4' />
+        )}
+        {t('llm.generate')}
+      </Button>
+
+      <Separator orientation='vertical' className='mx-0.5 h-4' />
+
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={inpaint}
+        data-testid='toolbar-inpaint'
+        disabled={isBusy}
+      >
+        {isInpainting ? (
+          <LoaderCircleIcon className='size-4 animate-spin' />
+        ) : (
+          <Wand2Icon className='size-4' />
+        )}
+        {t('mask.inpaint')}
+      </Button>
+
+      <Separator orientation='vertical' className='mx-0.5 h-4' />
+
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={render}
+        data-testid='toolbar-render'
+        disabled={isBusy}
+      >
+        {isRendering ? (
+          <LoaderCircleIcon className='size-4 animate-spin' />
+        ) : (
+          <TypeIcon className='size-4' />
+        )}
+        {t('llm.render')}
+      </Button>
+
+      <Separator orientation='vertical' className='mx-0.5 h-4' />
+
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={handleProcessAll}
+        data-testid='toolbar-process-all'
+        disabled={isBusy}
+        className='text-rose-500 hover:text-rose-600'
+      >
+        {processingAll ? (
+          <LoaderCircleIcon className='size-4 animate-spin' />
+        ) : (
+          <ZapIcon className='size-4' />
+        )}
+        {t('processing.processAll')}
+      </Button>
+    </div>
+  )
+}
+
+function LlmStatusPopover() {
+  const { data: llmModels = [] } = useLlmModelsQuery()
+  const llmSelectedModel = useLlmUiStore((state) => state.selectedModel)
+  const llmSelectedLanguage = useLlmUiStore((state) => state.selectedLanguage)
+  const llmLoading = useLlmUiStore((state) => state.loading)
+  const { data: llmReady = false } = useLlmReadyQuery()
+  const { llmSetSelectedModel, llmSetSelectedLanguage, llmToggleLoadUnload } =
+    useLlmMutations()
+  const { t } = useTranslation()
+  const apiKeys = usePreferencesStore((state) => state.apiKeys)
+  const localLlm = usePreferencesStore((state) => state.localLlm)
+
+  const selectedModelInfo = useMemo(
+    () => llmModels.find((m) => m.id === llmSelectedModel),
+    [llmModels, llmSelectedModel],
+  )
+  const isApiModel =
+    selectedModelInfo?.source !== 'local' &&
+    selectedModelInfo?.source !== undefined
+  const apiKeyMissing =
+    isApiModel &&
+    selectedModelInfo?.source !== 'openai-compatible' &&
+    !apiKeys[selectedModelInfo!.source]
+
+  const activeLanguages = useMemo(
+    () => selectedModelInfo?.languages ?? [],
+    [selectedModelInfo],
+  )
+
+  useEffect(() => {
+    if (llmModels.length === 0) return
+    const hasCurrent = llmModels.some((model) => model.id === llmSelectedModel)
+    const nextModel = hasCurrent ? llmSelectedModel : llmModels[0]?.id
+    if (!nextModel) return
+    const languages =
+      llmModels.find((model) => model.id === nextModel)?.languages ?? []
+    const nextLanguage =
+      llmSelectedLanguage && languages.includes(llmSelectedLanguage)
+        ? llmSelectedLanguage
+        : languages[0]
+    const currentState = useLlmUiStore.getState()
+    if (
+      currentState.selectedModel === nextModel &&
+      currentState.selectedLanguage === nextLanguage
+    ) {
+      return
+    }
+    useLlmUiStore.setState((state) => ({
+      selectedModel: nextModel,
+      selectedLanguage: nextLanguage,
+      loading: state.loading,
+    }))
+  }, [llmModels, llmSelectedLanguage, llmSelectedModel])
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          data-testid='llm-trigger'
+          data-llm-ready={llmReady ? 'true' : 'false'}
+          data-llm-loading={llmLoading ? 'true' : 'false'}
+          className={`flex h-6 cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-[11px] font-medium shadow-sm transition hover:opacity-80 ${
+            llmReady
+              ? 'bg-rose-400 text-white ring-1 ring-rose-400/30'
+              : 'bg-muted text-muted-foreground ring-border/50 ring-1'
+          }`}
+        >
+          <motion.span
+            className={`size-1.5 rounded-full ${
+              llmReady ? 'bg-white' : 'bg-muted-foreground/40'
+            }`}
+            animate={llmReady ? { opacity: [1, 0.5, 1] } : { opacity: 1 }}
+            transition={
+              llmReady
+                ? { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                : {}
+            }
+          />
+          LLM
+          {llmReady && selectedModelInfo?.source === 'openai-compatible' && (
+            <span className='max-w-[80px] truncate text-[10px] opacity-80'>
+              {selectedModelInfo.id.split(':')[1] ?? selectedModelInfo.id}
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align='end' className='w-72' data-testid='llm-popover'>
+        <div className='space-y-3 text-sm'>
+          <p className='text-muted-foreground text-xs font-medium uppercase'>
+            {t('panels.llm')}
+          </p>
+
+          <Select value={llmSelectedModel} onValueChange={llmSetSelectedModel}>
+            <SelectTrigger data-testid='llm-model-select' className='w-full'>
+              <SelectValue placeholder={t('llm.selectPlaceholder')} />
+            </SelectTrigger>
+            <SelectContent position='popper'>
+              {llmModels.map((model, index) => (
+                <SelectItem
+                  key={model.id}
+                  value={model.id}
+                  data-testid={`llm-model-option-${index}`}
+                >
+                  <span className='flex items-center gap-2'>
+                    {model.source === 'openai-compatible' &&
+                    model.origin === 'local-llm' ? (
+                      <span className='rounded bg-emerald-500/10 px-1 py-0.5 text-[10px] leading-none font-semibold text-emerald-600 uppercase dark:text-emerald-400'>
+                        {LOCAL_LLM_PRESET_LABELS[localLlm.preset] ?? 'Local'}
+                      </span>
+                    ) : model.source === 'openai-compatible' ? (
+                      <span className='rounded bg-teal-500/10 px-1 py-0.5 text-[10px] leading-none font-semibold text-teal-600 uppercase dark:text-teal-400'>
+                        OpenAI-like
+                      </span>
+                    ) : model.source !== 'local' ? (
+                      <span className='bg-primary/10 text-primary rounded px-1 py-0.5 text-[10px] leading-none font-semibold uppercase'>
+                        {getProviderDisplayName(model.source)}
+                      </span>
+                    ) : null}
+                    {model.id.includes(':') ? model.id.split(':')[1] : model.id}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* API key warning */}
+          {apiKeyMissing && (
+            <p className='text-xs text-amber-500'>
+              {t('llm.apiKeyMissing', {
+                provider: getProviderDisplayName(selectedModelInfo!.source),
+              })}
+            </p>
+          )}
+
+          {/* Loaded model info card */}
+          {llmReady && selectedModelInfo?.source === 'openai-compatible' && (
+            <div
+              className={`rounded-md px-2.5 py-2 text-xs ${
+                selectedModelInfo.origin === 'local-llm'
+                  ? 'border border-emerald-500/20 bg-emerald-500/5'
+                  : 'border border-teal-500/20 bg-teal-500/5'
+              }`}
+            >
+              <div className='flex items-center gap-1.5'>
+                <span
+                  className={`size-1.5 rounded-full ${
+                    selectedModelInfo.origin === 'local-llm'
+                      ? 'bg-emerald-500'
+                      : 'bg-teal-500'
+                  }`}
+                />
+                <span
+                  className={`font-medium ${
+                    selectedModelInfo.origin === 'local-llm'
+                      ? 'text-emerald-700 dark:text-emerald-400'
+                      : 'text-teal-700 dark:text-teal-400'
+                  }`}
+                >
+                  {t('llm.localModelActive')}
+                </span>
+              </div>
+              <p className='text-muted-foreground mt-1'>
+                {t('llm.localModelName', {
+                  name:
+                    selectedModelInfo.id.split(':')[1] ?? selectedModelInfo.id,
+                })}
+              </p>
+              <p className='text-muted-foreground mt-0.5'>
+                {selectedModelInfo.origin === 'local-llm'
+                  ? (LOCAL_LLM_PRESET_LABELS[localLlm.preset] ?? 'Local')
+                  : 'OpenAI-like'}
+                {localLlm.temperature != null &&
+                  ` · temp ${localLlm.temperature}`}
+                {localLlm.maxTokens != null &&
+                  ` · ${localLlm.maxTokens} tokens`}
+              </p>
+            </div>
+          )}
+
+          {activeLanguages.length > 0 && (
+            <Select
+              value={llmSelectedLanguage ?? activeLanguages[0]}
+              onValueChange={llmSetSelectedLanguage}
+            >
+              <SelectTrigger
+                data-testid='llm-language-select'
+                className='w-full'
+              >
+                <SelectValue placeholder={t('llm.languagePlaceholder')} />
+              </SelectTrigger>
+              <SelectContent position='popper'>
+                {activeLanguages.map((language, index) => (
+                  <SelectItem
+                    key={language}
+                    value={language}
+                    data-testid={`llm-language-option-${index}`}
+                  >
+                    {t(`llm.languages.${language}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          <Button
+            data-testid='llm-load-toggle'
+            data-llm-ready={llmReady ? 'true' : 'false'}
+            data-llm-loading={llmLoading ? 'true' : 'false'}
+            variant='outline'
+            size='sm'
+            onClick={llmToggleLoadUnload}
+            disabled={!llmSelectedModel || llmLoading}
+            className='w-full gap-1.5 text-xs'
+          >
+            {llmLoading && (
+              <LoaderCircleIcon className='size-3.5 animate-spin' />
+            )}
+            {!llmReady ? t('llm.load') : t('llm.unload')}
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
