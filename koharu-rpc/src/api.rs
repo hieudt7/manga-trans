@@ -67,6 +67,7 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
             get(get_document_layer),
         )
         .route("/documents/{document_id}/detect", post(detect_document))
+        .route("/documents/{document_id}/detect-balloon", post(detect_balloon_document))
         .route("/documents/{document_id}/ocr", post(ocr_document))
         .route("/documents/{document_id}/inpaint", post(inpaint_document))
         .route("/documents/{document_id}/render", post(render_document))
@@ -335,6 +336,16 @@ async fn ocr_document(
     let resources = state.resources()?;
     let (index, _) = find_document(&resources, &document_id).await?;
     operations::ocr(resources, IndexPayload { index }).await?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+async fn detect_balloon_document(
+    State(state): State<ApiState>,
+    Path(document_id): Path<String>,
+) -> ApiResult<StatusCode> {
+    let resources = state.resources()?;
+    let (index, _) = find_document(&resources, &document_id).await?;
+    operations::detect_balloon(resources, IndexPayload { index }).await?;
     Ok(StatusCode::NO_CONTENT)
 }
 

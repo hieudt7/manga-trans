@@ -454,6 +454,25 @@ export const useDocumentMutations = () => {
     [queryClient, startOperation, finishOperation],
   )
 
+  const detectBalloon = useCallback(
+    async (_?: any, index?: number) => {
+      const resolvedIndex =
+        index ?? useEditorUiStore.getState().currentDocumentIndex
+      startOperation({
+        type: 'process-current',
+        step: 'detect-balloon',
+        cancellable: true,
+      })
+      try {
+        await api.detectBalloon(resolvedIndex)
+        await invalidateCurrentDocument(queryClient, resolvedIndex)
+      } finally {
+        finishOperation()
+      }
+    },
+    [queryClient, startOperation, finishOperation],
+  )
+
   const inpaint = useCallback(
     async (_?: any, index?: number) => {
       const resolvedIndex =
@@ -681,6 +700,7 @@ export const useDocumentMutations = () => {
     openExternal,
     detect,
     ocr,
+    detectBalloon,
     inpaint,
     render,
     processImage,

@@ -2,7 +2,10 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::{Document, FontPrediction, TextBlock, TextShaderEffect, TextStrokeStyle, TextStyle};
+use crate::{
+    BalloonDetection, Document, FontPrediction, TextBlock, TextShaderEffect, TextStrokeStyle,
+    TextStyle,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
@@ -34,6 +37,7 @@ pub struct DocumentSummary {
     pub has_brush_layer: bool,
     pub has_rendered: bool,
     pub text_block_count: usize,
+    pub balloon_count: usize,
 }
 
 impl From<&Document> for DocumentSummary {
@@ -49,6 +53,7 @@ impl From<&Document> for DocumentSummary {
             has_brush_layer: document.brush_layer.is_some(),
             has_rendered: document.rendered.is_some(),
             text_block_count: document.text_blocks.len(),
+            balloon_count: document.balloons.len(),
         }
     }
 }
@@ -111,6 +116,7 @@ pub struct DocumentDetail {
     pub height: u32,
     pub revision: u64,
     pub text_blocks: Vec<TextBlockDetail>,
+    pub balloons: Vec<BalloonDetection>,
 }
 
 impl From<&Document> for DocumentDetail {
@@ -127,6 +133,7 @@ impl From<&Document> for DocumentDetail {
                 .iter()
                 .map(TextBlockDetail::from)
                 .collect(),
+            balloons: document.balloons.clone(),
         }
     }
 }

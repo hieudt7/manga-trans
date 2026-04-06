@@ -310,6 +310,7 @@ export const api = {
         inpainted,
         brushLayer,
         rendered,
+        balloons: detail.balloons,
       }
     })
   },
@@ -510,6 +511,16 @@ export const api = {
     return withRpcError('ocr', async () => {
       const summary = await getDocumentSummaryAtIndex(index)
       await fetchJson<void>(`/documents/${summary.id}/ocr`, { method: 'POST' })
+      documentDetailCache.delete(summary.id)
+    })
+  },
+
+  async detectBalloon(index: number): Promise<void> {
+    return withRpcError('detect_balloon', async () => {
+      const summary = await getDocumentSummaryAtIndex(index)
+      await fetchJson<void>(`/documents/${summary.id}/detect-balloon`, {
+        method: 'POST',
+      })
       documentDetailCache.delete(summary.id)
     })
   },

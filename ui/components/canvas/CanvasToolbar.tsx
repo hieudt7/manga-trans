@@ -6,6 +6,7 @@ import { motion } from 'motion/react'
 import {
   ScanIcon,
   ScanTextIcon,
+  MessageCircleIcon,
   Wand2Icon,
   TypeIcon,
   LoaderCircleIcon,
@@ -50,7 +51,8 @@ export function CanvasToolbar() {
 }
 
 function WorkflowButtons() {
-  const { inpaint, detect, ocr, render, saveRendered } = useDocumentMutations()
+  const { inpaint, detect, ocr, detectBalloon, render, saveRendered } =
+    useDocumentMutations()
   const { llmGenerate } = useLlmMutations()
   const { data: llmReady = false } = useLlmReadyQuery()
   const [generating, setGenerating] = useState(false)
@@ -62,6 +64,9 @@ function WorkflowButtons() {
     operation?.type === 'process-current' && operation?.step === 'detect'
   const isOcr =
     operation?.type === 'process-current' && operation?.step === 'ocr'
+  const isDetectingBalloon =
+    operation?.type === 'process-current' &&
+    operation?.step === 'detect-balloon'
   const isInpainting =
     operation?.type === 'process-current' && operation?.step === 'inpaint'
   const isRendering =
@@ -94,6 +99,7 @@ function WorkflowButtons() {
         setCurrentDocumentIndex(i)
         await detect(null, i).catch(console.error)
         await ocr(null, i).catch(console.error)
+        await detectBalloon(null, i).catch(console.error)
         if (llmReady) {
           await llmGenerate(null, i).catch(console.error)
         }
@@ -138,6 +144,23 @@ function WorkflowButtons() {
           <ScanTextIcon className='size-4' />
         )}
         {t('processing.ocr')}
+      </Button>
+
+      <Separator orientation='vertical' className='mx-0.5 h-4' />
+
+      <Button
+        variant='ghost'
+        size='xs'
+        onClick={detectBalloon}
+        data-testid='toolbar-detect-balloon'
+        disabled={isBusy}
+      >
+        {isDetectingBalloon ? (
+          <LoaderCircleIcon className='size-4 animate-spin' />
+        ) : (
+          <MessageCircleIcon className='size-4' />
+        )}
+        {t('processing.detectBalloon')}
       </Button>
 
       <Separator orientation='vertical' className='mx-0.5 h-4' />

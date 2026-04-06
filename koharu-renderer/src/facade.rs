@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
-use image::{DynamicImage, GrayImage, imageops};
+use image::{DynamicImage, imageops};
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
 use koharu_types::{
@@ -14,12 +14,7 @@ use crate::{
     layout::{LayoutRun, TextLayout, WritingMode},
     renderer::{RenderOptions, RenderStrokeOptions, TinySkiaRenderer},
     text::{
-        latin::{
-            LATIN_MAX_FONT_SIZE, LayoutBox, balloon_bounds_from_image,
-            expand_latin_layout_box_relaxed, expand_latin_layout_box_strict,
-            is_expanded_layout_box, latin_layout_underfilled, latin_width_overflow_factor,
-            layout_box_area, layout_box_from_block, pick_better_latin_candidate,
-        },
+        latin::{LayoutBox, layout_box_from_block},
         script::{
             font_families_for_text, is_latin_only, normalize_translation_for_layout,
             writing_mode_for_block,
@@ -74,11 +69,6 @@ impl Renderer {
         stroke: Option<TextStrokeStyle>,
         font_family: Option<&str>,
     ) -> Result<()> {
-        let bubble_map = if let Some(inpainted) = &document.inpainted {
-            inpainted.to_luma8()
-        } else {
-            document.image.to_luma8()
-        };
         let mut text_blocks = match text_block_index {
             Some(index) => document
                 .text_blocks
@@ -89,13 +79,7 @@ impl Renderer {
         };
 
         text_blocks.par_iter_mut().for_each(|text_block| {
-            let _ = self.render_text_block(
-                text_block,
-                effect,
-                stroke.clone(),
-                font_family,
-                Some(&bubble_map),
-            );
+            let _ = self.render_text_block(text_block, effect, stroke.clone(), font_family);
         });
 
         if let Some(inpainted) = &document.inpainted
@@ -130,7 +114,6 @@ impl Renderer {
         effect: TextShaderEffect,
         global_stroke: Option<TextStrokeStyle>,
         font_family: Option<&str>,
-        bubble_map: Option<&GrayImage>,
     ) -> Result<()> {
         let Some(translation) = text_block.translation.as_ref().cloned() else {
             return Ok(());
@@ -170,110 +153,23 @@ impl Renderer {
             .map(|style| style.color)
             .unwrap_or([0, 0, 0, 255]);
         let writing_mode = writing_mode_for_block(&layout_source_block);
-        let english_layout =
-            english_layout_behavior(text_block, &normalized_translation, writing_mode);
-        let english_horizontal_layout = english_layout != EnglishLayoutBehavior::Disabled;
-        let auto_expand_english_layout = english_layout == EnglishLayoutBehavior::AutoExpand;
-        let text_align = style.text_align.unwrap_or({
-            if english_horizontal_layout {
-                TextAlign::Center
-            } else {
-                TextAlign::Left
-            }
-        });
-        let original_layout_box = layout_box_from_block(&layout_source_block);
-
-        // Try to find actual balloon bounds by scanning from block centre to
-        // the balloon border in the inpainted image.  Fall back to the
-        // visual-expand heuristic when balloon detection fails.
-        let balloon_box = if auto_expand_english_layout {
-            bubble_map.and_then(|map| balloon_bounds_from_image(text_block, map))
+        let is_horizontal_latin =
+            writing_mode == WritingMode::Horizontal && is_latin_only(&normalized_translation);
+        let text_align = style.text_align.unwrap_or(if is_horizontal_latin {
+            TextAlign::Center
         } else {
-            None
-        };
-        let use_balloon = balloon_box.is_some();
-        let mut layout_box = balloon_box.unwrap_or_else(|| {
-            if auto_expand_english_layout {
-                bubble_map
-                    .map(|map| expand_latin_layout_box_strict(&layout_source_block, map))
-                    .unwrap_or(original_layout_box)
-            } else {
-                original_layout_box
-            }
+            TextAlign::Left
         });
+        let layout_box = layout_box_from_block(&layout_source_block);
 
-        let build_layout = |box_for_layout: LayoutBox, allow_expanded_overflow: bool| {
-            let max_width = if use_balloon {
-                // Balloon bounds already reflect true balloon width — use exact.
-                box_for_layout.width
-            } else {
-                let expanded_box = is_expanded_layout_box(box_for_layout, original_layout_box);
-                let overflow = if english_horizontal_layout {
-                    if expanded_box {
-                        latin_width_overflow_factor(true, allow_expanded_overflow)
-                    } else {
-                        latin_width_overflow_factor(false, allow_expanded_overflow)
-                    }
-                } else {
-                    1.0
-                };
-                if box_for_layout.width.is_finite() && box_for_layout.width > 0.0 {
-                    box_for_layout.width * overflow
-                } else {
-                    box_for_layout.width
-                }
-            };
+        let mut layout = TextLayout::new(&font, None)
+            .with_fallback_fonts(&self.symbol_fallbacks)
+            .with_max_height(layout_box.height)
+            .with_max_width(layout_box.width)
+            .with_writing_mode(writing_mode)
+            .run(&normalized_translation)?;
 
-            TextLayout::new(&font, None)
-                .with_fallback_fonts(&self.symbol_fallbacks)
-                .with_max_height(box_for_layout.height)
-                .with_max_width(max_width)
-                .with_writing_mode(writing_mode)
-                .run(&normalized_translation)
-        };
-
-        let mut layout = build_layout(layout_box, false)?;
-        if auto_expand_english_layout {
-            if !use_balloon {
-                // Balloon detection failed: try underfill expansion as before.
-                let underfilled = latin_layout_underfilled(&layout, layout_box.height);
-                if underfilled {
-                    let relaxed_box = bubble_map
-                        .map(|map| expand_latin_layout_box_relaxed(&layout_source_block, map))
-                        .unwrap_or(layout_box);
-                    let relaxed_candidate =
-                        if layout_box_area(relaxed_box) > layout_box_area(layout_box) * 1.06 {
-                            build_layout(relaxed_box, true)
-                                .ok()
-                                .map(|layout| (layout, relaxed_box))
-                        } else {
-                            None
-                        };
-
-                    let overflow_candidate = build_layout(layout_box, true)
-                        .ok()
-                        .map(|layout| (layout, layout_box));
-                    if let Some((candidate_layout, candidate_box)) =
-                        pick_better_latin_candidate(&layout, relaxed_candidate, overflow_candidate)
-                    {
-                        layout = candidate_layout;
-                        layout_box = candidate_box;
-                    }
-                }
-            } else if layout.font_size > LATIN_MAX_FONT_SIZE {
-                // Balloon detected but font is oversized (short text in large balloon).
-                // Re-render at capped size so the text stays at a readable scale.
-                if let Ok(capped) = TextLayout::new(&font, Some(LATIN_MAX_FONT_SIZE))
-                    .with_fallback_fonts(&self.symbol_fallbacks)
-                    .with_max_height(layout_box.height)
-                    .with_max_width(layout_box.width)
-                    .with_writing_mode(writing_mode)
-                    .run(&normalized_translation)
-                {
-                    layout = capped;
-                }
-            }
-
+        if is_horizontal_latin {
             center_layout_vertically(&mut layout, layout_box.height);
         }
         align_layout_horizontally(&mut layout, writing_mode, layout_box.width, text_align);
@@ -331,31 +227,6 @@ impl Renderer {
                 anyhow::anyhow!("no font found for candidates: {:?}", style.font_families)
             })?;
         fontbook.query(&post_script_name)
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum EnglishLayoutBehavior {
-    Disabled,
-    AutoExpand,
-    LockedToManualSize,
-}
-
-fn english_layout_behavior(
-    text_block: &TextBlock,
-    normalized_translation: &str,
-    writing_mode: WritingMode,
-) -> EnglishLayoutBehavior {
-    let is_english_horizontal =
-        writing_mode == WritingMode::Horizontal && is_latin_only(normalized_translation);
-    if !is_english_horizontal {
-        return EnglishLayoutBehavior::Disabled;
-    }
-
-    if text_block.lock_layout_box {
-        EnglishLayoutBehavior::LockedToManualSize
-    } else {
-        EnglishLayoutBehavior::AutoExpand
     }
 }
 

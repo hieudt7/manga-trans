@@ -11,4 +11,5 @@ export type DocumentSummary = {
   hasBrushLayer: boolean
   hasRendered: boolean
   textBlockCount: number
+  balloonCount: number
 }

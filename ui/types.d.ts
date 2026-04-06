@@ -70,6 +70,14 @@ export type TextBlock = {
   rendered?: Uint8Array
 }
 
+export type BalloonDetection = {
+  x: number
+  y: number
+  width: number
+  height: number
+  score: number
+}
+
 export type ToolMode = 'select' | 'block' | 'brush' | 'repairBrush' | 'eraser'
 
 export type InpaintRegion = {
@@ -92,4 +100,5 @@ export type Document = {
   inpainted?: Uint8Array
   brushLayer?: Uint8Array
   rendered?: Uint8Array
+  balloons?: BalloonDetection[]
 }

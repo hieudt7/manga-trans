@@ -70,3 +70,16 @@ pub async fn render(state: AppResources, payload: RenderPayload) -> anyhow::Resu
 pub async fn list_font_families(state: AppResources) -> anyhow::Result<Vec<FontFaceInfo>> {
     state.renderer.available_fonts()
 }
+
+#[instrument(level = "info", skip_all)]
+pub async fn detect_balloon(state: AppResources, payload: IndexPayload) -> anyhow::Result<()> {
+    let mut snapshot = state_tx::read_doc(&state.state, payload.index).await?;
+    state.ml.detect_balloons(&mut snapshot).await?;
+    state_tx::update_doc(
+        &state.state,
+        payload.index,
+        snapshot,
+        &[ChangedField::Balloons, ChangedField::TextBlocks],
+    )
+    .await
+}

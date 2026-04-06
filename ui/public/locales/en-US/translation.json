@@ -78,6 +78,7 @@
     "detectTooltip": "Run text detection on current page",
     "ocr": "OCR",
     "ocrTooltip": "Recognize text for detected regions",
+    "detectBalloon": "Balloon",
     "render": "Render",
     "processAll": "Process All",
     "renderAll": "Render All"

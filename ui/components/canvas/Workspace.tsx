@@ -19,6 +19,7 @@ import {
 } from '@/components/canvas/canvasViewport'
 import { ToolRail } from '@/components/canvas/ToolRail'
 import { CanvasToolbar } from '@/components/canvas/CanvasToolbar'
+import { BalloonAnnotations } from '@/components/canvas/BalloonAnnotations'
 import { TextBlockAnnotations } from '@/components/canvas/TextBlockAnnotations'
 import { TextBlockSpriteLayer } from '@/components/canvas/TextBlockSpriteLayer'
 import { useCanvasZoom } from '@/hooks/useCanvasZoom'
@@ -346,6 +347,7 @@ export function Workspace() {
                             style={{ zIndex: 30 }}
                           />
                         )}
+                        <BalloonAnnotations style={{ zIndex: 25 }} />
                         {currentDocument.rendered && showRenderedImage && (
                           <Image
                             data-testid='workspace-rendered-image'

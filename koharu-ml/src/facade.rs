@@ -9,6 +9,7 @@ use koharu_llm::paddleocr_vl::{self as paddleocr_vl_llm, PaddleOcrVl, PaddleOcrV
 use koharu_llm::safe::llama_backend::LlamaBackend;
 use koharu_types::{Document, FontPrediction, SerializableDynamicImage, TextBlock, TextDirection};
 
+use crate::comic_bubble_detector::{self as bubble_det, ComicBubbleDetector};
 use crate::comic_text_detector::{self, ComicTextDetector, crop_text_block_bbox};
 use crate::font_detector::{self, FontDetector};
 use crate::lama::{self, Lama};
@@ -84,16 +85,28 @@ pub struct Model {
     ocr: Mutex<PaddleOcrVl>,
     lama: Lama,
     font_detector: FontDetector,
+    bubble_detector: Option<ComicBubbleDetector>,
 }
 
 impl Model {
     pub async fn new(cpu: bool, backend: Arc<LlamaBackend>) -> Result<Self> {
+        let bubble_detector = match ComicBubbleDetector::load().await {
+            Ok(d) => {
+                tracing::info!("ComicBubbleDetector loaded");
+                Some(d)
+            }
+            Err(e) => {
+                tracing::warn!(error = %e, "ComicBubbleDetector not available");
+                None
+            }
+        };
         Ok(Self {
             layout_detector: PPDocLayoutV3::load(cpu).await?,
             segmenter: ComicTextDetector::load_segmentation_only(cpu).await?,
             ocr: Mutex::new(PaddleOcrVl::load(cpu, backend).await?),
             lama: Lama::load(cpu).await?,
             font_detector: FontDetector::load(cpu).await?,
+            bubble_detector,
         })
     }
 
@@ -221,6 +234,36 @@ impl Model {
         Ok(result.into())
     }
 
+    pub async fn detect_balloons(&self, doc: &mut Document) -> Result<()> {
+        let Some(detector) = &self.bubble_detector else {
+            tracing::warn!("bubble_detector not loaded, skipping balloon detection");
+            return Ok(());
+        };
+        let started = Instant::now();
+        let detections = detector.detect(&doc.image)?;
+
+        doc.balloons = detections
+            .iter()
+            .map(|d| koharu_types::BalloonDetection {
+                x: d.x,
+                y: d.y,
+                width: d.width,
+                height: d.height,
+                score: d.score,
+            })
+            .collect();
+
+        // Refit each text block to the Maximum Inscribed Rectangle of its balloon mask.
+        refit_text_blocks_to_balloons(&mut doc.text_blocks, &detections);
+
+        tracing::info!(
+            count = doc.balloons.len(),
+            elapsed_ms = started.elapsed().as_millis(),
+            "detect_balloons done"
+        );
+        Ok(())
+    }
+
     pub async fn detect_font(&self, image: &DynamicImage, top_k: usize) -> Result<FontPrediction> {
         let mut results = self
             .detect_fonts(std::slice::from_ref(image), top_k)
@@ -251,6 +294,7 @@ pub async fn prefetch() -> Result<()> {
     paddleocr_vl_llm::prefetch().await?;
     lama::prefetch().await?;
     font_detector::prefetch().await?;
+    // bubble_detector loads from local path, no prefetch needed
 
     Ok(())
 }
@@ -346,6 +390,184 @@ fn overlap_area(a: [f32; 4], b: [f32; 4]) -> f32 {
     } else {
         (x2 - x1) * (y2 - y1)
     }
+}
+
+// ─── Balloon MIR pipeline ─────────────────────────────────────────────────────
+
+/// Erosion radius in pixels applied before the largest-rectangle sweep.
+const MIR_EROSION_RADIUS: u32 = 4;
+/// Inset ratio applied to the bbox fallback on each side.
+const MIR_BBOX_INSET: f32 = 0.08;
+
+/// For each balloon, find all text blocks whose center lies inside the balloon bbox,
+/// then refit those text blocks to the MIR of the balloon's mask.
+///
+/// Workflow: Detect → OCR → Balloon (calls this) → Translate → Inpaint → Render
+fn refit_text_blocks_to_balloons(
+    text_blocks: &mut Vec<TextBlock>,
+    balloons: &[bubble_det::BubbleBox],
+) {
+    // Snapshot original centers before any mutation to avoid cascade matching.
+    let orig_centers: Vec<(f32, f32)> = text_blocks
+        .iter()
+        .map(|b| (b.x + b.width / 2.0, b.y + b.height / 2.0))
+        .collect();
+
+    let mut refit_count = 0usize;
+
+    for (bi, balloon) in balloons.iter().enumerate() {
+        // Collect all text blocks whose original center is inside this balloon bbox.
+        let inside_indices: Vec<usize> = orig_centers
+            .iter()
+            .enumerate()
+            .filter(|(_, center)| {
+                let (cx, cy) = **center;
+                cx >= balloon.x
+                    && cx <= balloon.x + balloon.width
+                    && cy >= balloon.y
+                    && cy <= balloon.y + balloon.height
+            })
+            .map(|(i, _)| i)
+            .collect();
+
+        if inside_indices.is_empty() {
+            continue;
+        }
+
+        // Adjacent/merged balloons: if multiple text blocks share this balloon, skip refitting
+        // and keep their original detected positions.
+        if inside_indices.len() > 1 {
+            tracing::debug!(
+                balloon = bi, inside_count = inside_indices.len(),
+                "multiple text blocks in balloon — skipping refit"
+            );
+            continue;
+        }
+
+        let ti = inside_indices[0];
+        let mir = match &balloon.mask {
+            Some(mask) => {
+                let r = mir_from_mask(mask, balloon.x, balloon.y, balloon.width, balloon.height);
+                if r[2] > 2.0 && r[3] > 2.0 { r } else { bbox_inset(balloon) }
+            }
+            None => bbox_inset(balloon),
+        };
+
+        tracing::info!(
+            balloon = bi, block = ti,
+            mir_x = mir[0], mir_y = mir[1], mir_w = mir[2], mir_h = mir[3],
+            "refit"
+        );
+
+        let block = &mut text_blocks[ti];
+        block.x = mir[0];
+        block.y = mir[1];
+        block.width = mir[2];
+        block.height = mir[3];
+        // Clear seed layout so the renderer uses the new refit coordinates,
+        // not the stale pre-balloon values.
+        block.layout_seed_x = None;
+        block.layout_seed_y = None;
+        block.layout_seed_width = None;
+        block.layout_seed_height = None;
+        // Prevent the renderer from re-scanning the image for balloon bounds
+        // or auto-expanding the layout box — the MIR coordinates are authoritative.
+        block.lock_layout_box = true;
+        refit_count += 1;
+    }
+
+    tracing::info!(refit = refit_count, total = text_blocks.len(), "text blocks refit to balloon MIR");
+}
+
+/// Compute the Maximum Inscribed Rectangle from a binary mask via the classical
+/// "largest rectangle in histogram" algorithm applied row-by-row (O(w×h)).
+/// Operates on the eroded mask to stay safely inside the balloon boundary.
+/// All returned coordinates are in full-image space.
+/// Falls back to zeros if no usable region found (caller uses bbox_inset).
+fn mir_from_mask(mask: &image::GrayImage, bx: f32, by: f32, bw: f32, bh: f32) -> [f32; 4] {
+    let (img_w, img_h) = mask.dimensions();
+
+    // 1. Crop mask to balloon bounding box.
+    let cx0 = (bx as u32).min(img_w.saturating_sub(1));
+    let cy0 = (by as u32).min(img_h.saturating_sub(1));
+    let cx1 = ((bx + bw) as u32).min(img_w);
+    let cy1 = ((by + bh) as u32).min(img_h);
+    if cx1 <= cx0 || cy1 <= cy0 {
+        return [0.0, 0.0, 0.0, 0.0];
+    }
+    let cw = cx1 - cx0;
+    let ch = cy1 - cy0;
+    let cropped = image::imageops::crop_imm(mask, cx0, cy0, cw, ch).to_image();
+
+    // 2. Erode for safe margin — removes thin tails/protrusions.
+    let safe = bubble_det::erode_binary(&cropped, MIR_EROSION_RADIUS);
+
+    // 3. Largest Rectangle in Binary Image via histogram sweep.
+    //    heights[x] = number of consecutive foreground rows ending at current row.
+    let w = cw as usize;
+    let h = ch as usize;
+    let mut heights = vec![0u32; w];
+    let mut best_area = 0u32;
+    let mut best: (u32, u32, u32, u32) = (0, 0, 0, 0); // (lx, ly, lw, lh) local coords
+
+    for y in 0..h {
+        // Update column heights.
+        for x in 0..w {
+            if safe.get_pixel(x as u32, y as u32)[0] >= 128 {
+                heights[x] += 1;
+            } else {
+                heights[x] = 0;
+            }
+        }
+
+        // Largest rectangle in this histogram row (stack-based, O(w)).
+        let mut stack: Vec<(usize, u32)> = Vec::new(); // (x_start, height)
+        for x in 0..=w {
+            let cur_h = if x < w { heights[x] } else { 0 };
+            let mut x_start = x;
+            while let Some(&(sx, sh)) = stack.last() {
+                if sh <= cur_h {
+                    break;
+                }
+                stack.pop();
+                let rect_w = (x - sx) as u32;
+                let area = sh * rect_w;
+                if area > best_area {
+                    best_area = area;
+                    // Bottom of rect is row y (inclusive), height is sh.
+                    best = (sx as u32, y as u32 + 1 - sh, rect_w, sh);
+                }
+                x_start = sx;
+            }
+            stack.push((x_start, cur_h));
+        }
+    }
+
+    if best_area == 0 {
+        return [0.0, 0.0, 0.0, 0.0];
+    }
+
+    let (lx, ly, lw, lh) = best;
+
+    let ltx = lx as f32;
+    let lty = ly as f32;
+    let tw = lw as f32;
+    let th = lh as f32;
+
+    // 5. Offset back to full-image coordinates.
+    [cx0 as f32 + ltx, cy0 as f32 + lty, tw, th]
+}
+
+/// Fallback: balloon bounding box with a small inset on each side.
+fn bbox_inset(balloon: &bubble_det::BubbleBox) -> [f32; 4] {
+    let ix = balloon.width * MIR_BBOX_INSET;
+    let iy = balloon.height * MIR_BBOX_INSET;
+    [
+        balloon.x + ix,
+        balloon.y + iy,
+        (balloon.width - 2.0 * ix).max(1.0),
+        (balloon.height - 2.0 * iy).max(1.0),
+    ]
 }
 
 #[cfg(test)]

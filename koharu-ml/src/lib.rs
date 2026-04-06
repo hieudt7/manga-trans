@@ -1,5 +1,6 @@
 mod hf_hub;
 
+pub mod comic_bubble_detector;
 pub mod comic_text_detector;
 pub mod facade;
 pub mod font_detector;

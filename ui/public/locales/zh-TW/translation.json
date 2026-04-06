@@ -78,6 +78,7 @@
     "detectTooltip": "在目前頁面執行文字偵測",
     "ocr": "辨識",
     "ocrTooltip": "辨識已偵測區域中的文字",
+    "detectBalloon": "氣泡",
     "render": "渲染",
     "processAll": "處理全部",
     "renderAll": "渲染全部"

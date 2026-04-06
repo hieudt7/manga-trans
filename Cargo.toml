@@ -129,6 +129,8 @@ tower-http = { version = "0.6", features = ["cors"] }
 criterion = { version = "0.8", features = ["html_reports"] }
 git-version = "0.3"
 keyring = "3.6"
+ort = { version = "2.0.0-rc.12", features = ["ndarray"] }
+ndarray = "0.17"
 
 [patch.crates-io]
 candle-transformers = { git = "https://github.com/mayocream/candle", branch = "cuda-dynamic-loading" }

@@ -28,6 +28,17 @@ fn new_text_block_id() -> String {
     Uuid::new_v4().to_string()
 }
 
+#[derive(Default, Debug, Clone, Serialize, Deserialize, TS, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct BalloonDetection {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+    pub score: f32,
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TextBlock {
@@ -165,6 +176,8 @@ pub struct Document {
     pub inpainted: Option<SerializableDynamicImage>,
     pub rendered: Option<SerializableDynamicImage>,
     pub brush_layer: Option<SerializableDynamicImage>,
+    #[serde(default)]
+    pub balloons: Vec<BalloonDetection>,
 }
 
 impl Document {

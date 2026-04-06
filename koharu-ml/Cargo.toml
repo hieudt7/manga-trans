@@ -37,6 +37,9 @@ rayon = { workspace = true }
 libloading = { workspace = true }
 minijinja = { workspace = true }
 keyring = { workspace = true }
+ort = { workspace = true }
+ndarray = { workspace = true }
+dirs = { workspace = true }
 cudarc = { workspace = true, optional = true }
 objc2 = { workspace = true, optional = true }
 objc2-metal = { workspace = true, optional = true }
@@ -73,7 +76,6 @@ metal = [
 ]
 
 [dev-dependencies]
-dirs = { workspace = true }
 
 [[bin]]
 name = "comic-text-detector"

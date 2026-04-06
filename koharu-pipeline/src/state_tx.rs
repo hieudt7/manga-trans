@@ -17,6 +17,8 @@ pub enum ChangedField {
     Inpainted,
     #[strum(serialize = "rendered")]
     Rendered,
+    #[strum(serialize = "balloons")]
+    Balloons,
 }
 
 #[derive(Debug, Clone)]

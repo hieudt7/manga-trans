@@ -78,6 +78,7 @@
     "detectTooltip": "对当前页面运行文本检测",
     "ocr": "识别",
     "ocrTooltip": "识别已检测区域中的文本",
+    "detectBalloon": "气泡",
     "render": "渲染",
     "processAll": "处理全部",
     "renderAll": "渲染全部"
