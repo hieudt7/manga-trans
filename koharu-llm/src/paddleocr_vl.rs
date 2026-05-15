@@ -86,6 +86,22 @@ struct PromptMessage {
     content: String,
 }
 
+// Cached llama context kept alive between `inference_images` calls to avoid
+// Metal context recreation crashes on macOS (ggml_metal_free → ggml_metal_init cycle).
+struct CachedCtx {
+    // SAFETY: created from PaddleOcrVl::model. Drop impl frees this before model.
+    ctx: std::mem::ManuallyDrop<crate::safe::context::LlamaContext<'static>>,
+    n_ctx: u32,
+}
+
+impl Drop for CachedCtx {
+    fn drop(&mut self) {
+        unsafe { std::mem::ManuallyDrop::drop(&mut self.ctx) }
+    }
+}
+
+unsafe impl Send for CachedCtx {}
+
 pub struct PaddleOcrVl {
     backend: Arc<LlamaBackend>,
     model: LlamaModel,
@@ -94,6 +110,14 @@ pub struct PaddleOcrVl {
     eos_token_text: String,
     mtmd: MtmdContext,
     eos_token: LlamaToken,
+    cached_ctx: Option<CachedCtx>,
+}
+
+impl Drop for PaddleOcrVl {
+    fn drop(&mut self) {
+        // Free the cached context BEFORE model is freed to satisfy llama.cpp invariants.
+        self.cached_ctx = None;
+    }
 }
 
 impl PaddleOcrVl {
@@ -166,6 +190,7 @@ impl PaddleOcrVl {
             eos_token_text,
             mtmd,
             eos_token,
+            cached_ctx: None,
         })
     }
 
@@ -183,9 +208,30 @@ impl PaddleOcrVl {
         task: PaddleOcrVlTask,
         max_new_tokens: usize,
     ) -> Result<PaddleOcrVlOutput> {
-        let started = Instant::now();
-        let original_width = image.width();
-        let original_height = image.height();
+        let (chunks, bitmap) = self.prepare_chunks(image, task)?;
+        let batch_tokens = max_chunk_tokens(&chunks).max(1);
+        let prompt_positions =
+            usize::try_from(chunks.total_positions()).context("prompt positions overflow usize")?;
+        let prompt_total_tokens = chunks.total_tokens();
+        let ctx_params = context_params(
+            &self.mtmd,
+            prompt_positions,
+            prompt_total_tokens,
+            batch_tokens,
+            max_new_tokens,
+        )?;
+        let mut ctx = self
+            .model
+            .new_context(self.backend.as_ref(), ctx_params)
+            .context("unable to create PaddleOCR-VL llama.cpp context")?;
+        self.run_inference_with_context(&mut ctx, image, &bitmap, &chunks, task, max_new_tokens)
+    }
+
+    fn prepare_chunks(
+        &mut self,
+        image: &DynamicImage,
+        task: PaddleOcrVlTask,
+    ) -> Result<(crate::safe::mtmd::MtmdInputChunks, crate::safe::mtmd::MtmdBitmap)> {
         let bitmap = bitmap_from_image(image)?;
         let prompt = self.render_prompt(task)?;
         let chunks = self
@@ -202,23 +248,26 @@ impl PaddleOcrVl {
         if chunks.is_empty() {
             bail!("multimodal tokenization produced no chunks");
         }
+        Ok((chunks, bitmap))
+    }
 
-        let batch_tokens = max_chunk_tokens(&chunks).max(1);
+    fn run_inference_with_context(
+        &self,
+        ctx: &mut crate::safe::context::LlamaContext<'_>,
+        image: &DynamicImage,
+        _bitmap: &crate::safe::mtmd::MtmdBitmap,
+        chunks: &crate::safe::mtmd::MtmdInputChunks,
+        task: PaddleOcrVlTask,
+        max_new_tokens: usize,
+    ) -> Result<PaddleOcrVlOutput> {
+        let started = Instant::now();
+        let original_width = image.width();
+        let original_height = image.height();
+        let batch_tokens = max_chunk_tokens(chunks).max(1);
         let prompt_positions =
             usize::try_from(chunks.total_positions()).context("prompt positions overflow usize")?;
         let prompt_total_tokens = chunks.total_tokens();
-        let num_image_tokens = image_chunk_tokens(&chunks);
-        let ctx_params = context_params(
-            &self.mtmd,
-            prompt_positions,
-            prompt_total_tokens,
-            batch_tokens,
-            max_new_tokens,
-        )?;
-        let mut ctx = self
-            .model
-            .new_context(self.backend.as_ref(), ctx_params)
-            .context("unable to create PaddleOCR-VL llama.cpp context")?;
+        let num_image_tokens = image_chunk_tokens(chunks);
         let n_batch = i32::try_from(batch_tokens).context("batch size exceeds i32")?;
 
         let prompt_started = Instant::now();
@@ -301,11 +350,91 @@ impl PaddleOcrVl {
         task: PaddleOcrVlTask,
         max_new_tokens: usize,
     ) -> Result<Vec<PaddleOcrVlOutput>> {
-        let started = Instant::now();
-        let mut outputs = Vec::with_capacity(images.len());
-        for image in images {
-            outputs.push(self.inference_with_max_new_tokens(image, task, max_new_tokens)?);
+        if images.is_empty() {
+            return Ok(vec![]);
         }
+        let started = Instant::now();
+
+        // Pre-tokenize all images to find the largest context size needed.
+        type Prepared = (crate::safe::mtmd::MtmdInputChunks, crate::safe::mtmd::MtmdBitmap);
+        let mut prepared: Vec<Prepared> = Vec::with_capacity(images.len());
+        let mut max_batch_tokens = 1usize;
+        let mut max_prompt_positions = 1usize;
+        let mut max_prompt_total_tokens = 1usize;
+        for image in images {
+            let (chunks, bitmap) = self.prepare_chunks(image, task)?;
+            let batch_tokens = max_chunk_tokens(&chunks).max(1);
+            let prompt_positions = usize::try_from(chunks.total_positions())
+                .context("prompt positions overflow usize")?;
+            let prompt_total_tokens = chunks.total_tokens();
+            max_batch_tokens = max_batch_tokens.max(batch_tokens);
+            max_prompt_positions = max_prompt_positions.max(prompt_positions);
+            max_prompt_total_tokens = max_prompt_total_tokens.max(prompt_total_tokens);
+            prepared.push((chunks, bitmap));
+        }
+
+        // Reuse cached context if it is large enough; recreate only when we must.
+        // Avoids ggml_metal_free → ggml_metal_init cycles that crash on macOS.
+        let required_n_ctx = {
+            let p = context_params(
+                &self.mtmd,
+                max_prompt_positions,
+                max_prompt_total_tokens,
+                max_batch_tokens,
+                max_new_tokens,
+            )?;
+            p.context_params.n_ctx
+        };
+
+        let needs_new = self
+            .cached_ctx
+            .as_ref()
+            .map(|c| c.n_ctx < required_n_ctx)
+            .unwrap_or(true);
+
+        if needs_new {
+            self.cached_ctx = None; // drop before creating a new one
+            let ctx_params = context_params(
+                &self.mtmd,
+                max_prompt_positions,
+                max_prompt_total_tokens,
+                max_batch_tokens,
+                max_new_tokens,
+            )?;
+            let ctx = self
+                .model
+                .new_context(self.backend.as_ref(), ctx_params)
+                .context("unable to create shared PaddleOCR-VL context")?;
+            // SAFETY: ctx was created from self.model. PaddleOcrVl::drop frees
+            // cached_ctx before model, so the borrow outliving 'model is safe here.
+            let ctx_static: crate::safe::context::LlamaContext<'static> =
+                unsafe { std::mem::transmute(ctx) };
+            self.cached_ctx = Some(CachedCtx {
+                ctx: std::mem::ManuallyDrop::new(ctx_static),
+                n_ctx: required_n_ctx,
+            });
+        }
+
+        // Use a raw pointer so we can reborrow &self in run_inference_with_context
+        // while the context (owned by self.cached_ctx) stays borrowed.
+        // SAFETY: run_inference_with_context never touches self.cached_ctx.
+        let ctx_ptr: *mut crate::safe::context::LlamaContext<'_> =
+            &mut *self.cached_ctx.as_mut().unwrap().ctx;
+
+        let mut outputs = Vec::with_capacity(images.len());
+        for (i, (chunks, bitmap)) in prepared.iter().enumerate() {
+            let ctx = unsafe { &mut *ctx_ptr };
+            ctx.clear_kv_cache();
+            outputs.push(self.run_inference_with_context(
+                ctx,
+                &images[i],
+                bitmap,
+                chunks,
+                task,
+                max_new_tokens,
+            )?);
+        }
+
         tracing::info!(
             images = images.len(),
             total_ms = started.elapsed().as_millis(),

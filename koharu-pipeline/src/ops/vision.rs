@@ -37,6 +37,7 @@ pub async fn ocr(state: AppResources, payload: IndexPayload) -> anyhow::Result<(
 pub async fn inpaint(state: AppResources, payload: IndexPayload) -> anyhow::Result<()> {
     let mut snapshot = state_tx::read_doc(&state.state, payload.index).await?;
     state.ml.inpaint(&mut snapshot).await?;
+    tokio::task::block_in_place(koharu_ml::lama::clear_fft_plans_on_current_thread);
     state_tx::update_doc(
         &state.state,
         payload.index,

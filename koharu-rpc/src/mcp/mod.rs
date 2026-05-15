@@ -462,6 +462,9 @@ impl KoharuMcp {
                 shader_effect: effect,
                 shader_stroke: None,
                 font_family: p.font_family,
+                export_tiff: false,
+                export_psd: false,
+                process_with_character: false,
             },
         )
         .await

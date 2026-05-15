@@ -3,6 +3,8 @@
 import { create } from 'zustand'
 import { RenderEffect, RenderStroke, ToolMode } from '@/types'
 
+export type ScanPanel = { x: number; y: number; width: number; height: number }
+
 type EditorUiState = {
   totalPages: number
   documentsVersion: number
@@ -18,6 +20,8 @@ type EditorUiState = {
   autoFitEnabled: boolean
   renderEffect: RenderEffect
   renderStroke: RenderStroke
+  scanPanels: ScanPanel[]
+  setScanPanels: (panels: ScanPanel[]) => void
   setTotalPages: (count: number) => void
   setCurrentDocumentIndex: (index: number) => void
   setScale: (scale: number) => void
@@ -47,6 +51,7 @@ const initialState = {
   mode: 'select' as ToolMode,
   selectedBlockIndex: undefined,
   autoFitEnabled: true,
+  scanPanels: [] as ScanPanel[],
   renderEffect: {
     italic: false,
     bold: false,
@@ -85,6 +90,7 @@ export const useEditorUiStore = create<EditorUiState>((set, get) => ({
   setShowBrushLayer: (show) => set({ showBrushLayer: show }),
   setShowRenderedImage: (show) => set({ showRenderedImage: show }),
   setShowTextBlocksOverlay: (show) => set({ showTextBlocksOverlay: show }),
+  setScanPanels: (panels) => set({ scanPanels: panels }),
   setMode: (mode) => {
     set({ mode })
 

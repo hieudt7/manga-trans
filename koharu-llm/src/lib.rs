@@ -12,6 +12,7 @@ use std::path::PathBuf;
 
 use strum::{EnumProperty, IntoEnumIterator};
 
+pub use facade::is_sfx_description;
 pub use language::{Language, language_from_tag, supported_locales};
 pub use model::{GenerateOptions, Llm};
 pub use prompt::{ChatMessage, ChatRole};

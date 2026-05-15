@@ -12,6 +12,7 @@ import {
   LoaderCircleIcon,
   LanguagesIcon,
   ZapIcon,
+  UsersIcon,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
@@ -38,6 +39,23 @@ import { useDocumentMutations, useLlmMutations } from '@/lib/query/mutations'
 import { useOperationStore } from '@/lib/stores/operationStore'
 import { usePreferencesStore } from '@/lib/stores/preferencesStore'
 import { getProviderDisplayName } from '@/lib/providers'
+import { api } from '@/lib/api'
+
+const TRANSLATION_INCOMPLETE_PREFIX = 'TRANSLATION_INCOMPLETE:'
+
+function parseTranslationIncomplete(
+  error: unknown,
+): { received: number; expected: number } | null {
+  const msg = error instanceof Error ? error.message : String(error)
+  const idx = msg.indexOf(TRANSLATION_INCOMPLETE_PREFIX)
+  if (idx === -1) return null
+  const [received, expected] = msg
+    .slice(idx + TRANSLATION_INCOMPLETE_PREFIX.length)
+    .split('/')
+    .map(Number)
+  if (isNaN(received) || isNaN(expected)) return null
+  return { received, expected }
+}
 
 export function CanvasToolbar() {
   return (
@@ -85,7 +103,17 @@ function WorkflowButtons() {
     try {
       await llmGenerate(null)
     } catch (error) {
-      console.error(error)
+      const incomplete = parseTranslationIncomplete(error)
+      if (incomplete) {
+        window.alert(
+          t('llm.translationIncomplete', {
+            received: incomplete.received,
+            expected: incomplete.expected,
+          }),
+        )
+      } else {
+        console.error(error)
+      }
     } finally {
       setGenerating(false)
     }
@@ -101,7 +129,23 @@ function WorkflowButtons() {
         await ocr(null, i).catch(console.error)
         await detectBalloon(null, i).catch(console.error)
         if (llmReady) {
-          await llmGenerate(null, i).catch(console.error)
+          try {
+            await llmGenerate(null, i)
+          } catch (error) {
+            const incomplete = parseTranslationIncomplete(error)
+            if (incomplete) {
+              const shouldContinue = window.confirm(
+                t('llm.translationIncompleteConfirm', {
+                  page: i + 1,
+                  received: incomplete.received,
+                  expected: incomplete.expected,
+                }),
+              )
+              if (!shouldContinue) break
+            } else {
+              console.error(error)
+            }
+          }
         }
         await inpaint(null, i).catch(console.error)
         await render(null, i).catch(console.error)
@@ -182,6 +226,10 @@ function WorkflowButtons() {
 
       <Separator orientation='vertical' className='mx-0.5 h-4' />
 
+      <CharacterDebugPopover />
+
+      <Separator orientation='vertical' className='mx-0.5 h-4' />
+
       <Button
         variant='ghost'
         size='xs'
@@ -232,6 +280,297 @@ function WorkflowButtons() {
         {t('processing.processAll')}
       </Button>
     </div>
+  )
+}
+
+type BlockSpeaker = {
+  textBlockId: string
+  x: number
+  y: number
+  width: number
+  height: number
+  name: string | null
+  traits: string[]
+  confidence: number
+  isKnown: boolean
+}
+
+type PanelCharacter = {
+  name: string
+  traits: string[]
+  isKnown: boolean
+}
+
+type PanelInfo = {
+  x: number
+  y: number
+  width: number
+  height: number
+  characters: PanelCharacter[]
+}
+
+function CharacterDebugPopover() {
+  const { t } = useTranslation()
+  const currentIndex = useEditorUiStore((s) => s.currentDocumentIndex)
+  const totalPages = useEditorUiStore((s) => s.totalPages)
+  const [blocks, setBlocks] = useState<BlockSpeaker[] | null>(null)
+  const [panels, setPanels] = useState<PanelInfo[]>([])
+  const [panelMode, setPanelMode] = useState<'ml' | 'heuristic' | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+
+  const scan = async () => {
+    setLoading(true)
+    try {
+      const result = await api.scanCharacters(currentIndex)
+      setBlocks(result.blocks)
+      setPanels(result.panels ?? [])
+      setPanelMode(result.panelMode)
+      useEditorUiStore.getState().setScanPanels(result.panels ?? [])
+    } catch (e) {
+      setBlocks([])
+      setPanels([])
+      useEditorUiStore.getState().setScanPanels([])
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const noPage = totalPages === 0
+
+  const blockList = blocks?.map((b, i) => ({ ...b, idx: i + 1 })) ?? []
+
+  // Group blocks by panel using center-point containment
+  const panelBlocks: (typeof blockList)[] = panels.map((panel) =>
+    blockList.filter((b) => {
+      const cx = b.x + b.width / 2
+      const cy = b.y + b.height / 2
+      return (
+        cx >= panel.x &&
+        cx <= panel.x + panel.width &&
+        cy >= panel.y &&
+        cy <= panel.y + panel.height
+      )
+    }),
+  )
+  const assignedBlockIds = new Set(panelBlocks.flat().map((b) => b.textBlockId))
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant='ghost' size='xs'>
+          <UsersIcon className='size-4' />
+          {t('characters.title')}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align='start' className='w-80'>
+        <div className='space-y-3 text-sm'>
+          <div className='flex items-center justify-between'>
+            <p className='text-muted-foreground text-xs font-medium uppercase'>
+              {t('characters.title')}
+            </p>
+            <button
+              type='button'
+              onClick={() => void scan()}
+              disabled={loading || noPage}
+              className='text-primary hover:text-primary/80 disabled:text-muted-foreground text-xs font-medium disabled:cursor-not-allowed'
+            >
+              {loading ? (
+                <span className='flex items-center gap-1'>
+                  <LoaderCircleIcon className='size-3 animate-spin' />
+                  Scanning…
+                </span>
+              ) : (
+                'Scan page'
+              )}
+            </button>
+          </div>
+
+          {panels.length > 0 && (
+            <p className='text-muted-foreground text-[11px]'>
+              <span className='text-foreground font-mono font-medium'>
+                {panels.length}
+              </span>{' '}
+              panel{panels.length !== 1 ? 's' : ''} detected
+              {panelMode && (
+                <span
+                  className={`ml-1.5 rounded px-1 py-0.5 text-[10px] font-semibold uppercase ${
+                    panelMode === 'ml'
+                      ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                      : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                  }`}
+                >
+                  {panelMode}
+                </span>
+              )}
+            </p>
+          )}
+
+          {noPage && (
+            <p className='text-muted-foreground text-xs'>No page open.</p>
+          )}
+
+          {!loading && blocks === null && !noPage && (
+            <p className='text-muted-foreground text-xs'>
+              Click <strong>Scan page</strong> to detect characters and
+              speakers.
+            </p>
+          )}
+
+          {!loading &&
+            blocks !== null &&
+            blocks.length === 0 &&
+            panels.every((p) => p.characters.length === 0) && (
+              <p className='text-muted-foreground text-xs'>
+                No characters detected. Add characters in{' '}
+                <strong>File → Characters</strong> first.
+              </p>
+            )}
+
+          {panels.length > 0 && (
+            <div className='max-h-80 space-y-3 overflow-y-auto'>
+              {panels.map((panel, pi) => (
+                <div key={pi} className='space-y-1'>
+                  <p className='text-muted-foreground text-[10px] font-semibold tracking-wide uppercase'>
+                    Panel {pi + 1}
+                  </p>
+
+                  {/* All characters in panel */}
+                  {panel.characters.length > 0 && (
+                    <div className='space-y-0.5'>
+                      {panel.characters.map((char, ci) => (
+                        <div
+                          key={ci}
+                          className='bg-muted flex items-center gap-2 rounded px-2 py-1'
+                        >
+                          <span
+                            className={`flex-1 truncate text-xs font-medium ${
+                              char.isKnown
+                                ? 'text-foreground'
+                                : 'text-muted-foreground'
+                            }`}
+                          >
+                            {char.name}
+                          </span>
+                          {char.traits.length > 0 && (
+                            <span className='text-muted-foreground truncate text-[10px]'>
+                              {char.traits.slice(0, 2).join(', ')}
+                            </span>
+                          )}
+                          {char.isKnown && (
+                            <span className='shrink-0 rounded bg-green-500/10 px-1 py-0.5 text-[9px] font-semibold text-green-600 dark:text-green-400'>
+                              known
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Speaker blocks in this panel */}
+                  {panelBlocks[pi].length > 0 && (
+                    <div className='space-y-0.5 pl-2'>
+                      {panelBlocks[pi].map((b) => (
+                        <div
+                          key={b.textBlockId}
+                          className='flex items-center gap-2 rounded border-l-2 border-blue-400 px-2 py-0.5'
+                        >
+                          <span className='text-muted-foreground w-5 font-mono text-[11px]'>
+                            #{b.idx}
+                          </span>
+                          <span className='text-foreground flex-1 truncate text-[11px]'>
+                            {b.name}
+                          </span>
+                          <span
+                            className={`shrink-0 font-mono text-[10px] ${
+                              b.confidence >= 0.8
+                                ? 'text-green-500'
+                                : b.confidence >= 0.7
+                                  ? 'text-yellow-500'
+                                  : 'text-muted-foreground'
+                            }`}
+                          >
+                            {Math.round(b.confidence * 100)}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {panel.characters.length === 0 && (
+                    <p className='text-muted-foreground px-2 text-[11px]'>
+                      No faces detected
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {/* Blocks not matched to any panel */}
+              {blockList.filter((b) => !assignedBlockIds.has(b.textBlockId))
+                .length > 0 && (
+                <div className='space-y-1'>
+                  <p className='text-muted-foreground text-[10px] font-semibold tracking-wide uppercase'>
+                    Unassigned
+                  </p>
+                  {blockList
+                    .filter((b) => !assignedBlockIds.has(b.textBlockId))
+                    .map((b) => (
+                      <div
+                        key={b.textBlockId}
+                        className='bg-muted flex items-center gap-2 rounded px-2 py-1'
+                      >
+                        <span className='text-muted-foreground w-5 font-mono text-[11px]'>
+                          #{b.idx}
+                        </span>
+                        <span className='text-muted-foreground flex-1 truncate text-xs'>
+                          —
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Fallback: no panel data yet but have blocks */}
+          {panels.length === 0 && blockList.length > 0 && (
+            <div className='max-h-64 space-y-1 overflow-y-auto'>
+              {blockList.map((b) => (
+                <div
+                  key={b.textBlockId}
+                  className={`flex items-center gap-2 rounded px-2 py-1 ${
+                    b.isKnown ? 'bg-accent' : 'bg-muted'
+                  }`}
+                >
+                  <span className='text-muted-foreground w-5 font-mono text-[11px]'>
+                    #{b.idx}
+                  </span>
+                  <span
+                    className={`flex-1 truncate text-xs font-medium ${
+                      b.isKnown ? 'text-foreground' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {b.name ?? '—'}
+                  </span>
+                  <span
+                    className={`shrink-0 font-mono text-[11px] ${
+                      b.confidence >= 0.8
+                        ? 'text-green-500'
+                        : b.confidence >= 0.7
+                          ? 'text-yellow-500'
+                          : 'text-muted-foreground'
+                    }`}
+                  >
+                    {Math.round(b.confidence * 100)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 

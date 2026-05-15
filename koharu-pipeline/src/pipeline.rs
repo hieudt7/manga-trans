@@ -32,6 +32,10 @@ fn emit(progress: PipelineProgress) {
     let _ = PIPELINE_TX.send(progress);
 }
 
+pub fn emit_progress(progress: PipelineProgress) {
+    emit(progress);
+}
+
 fn compute_percent(doc: usize, step: usize, total_docs: usize, total_steps: usize) -> u8 {
     let done_units = doc * total_steps + step;
     let total_units = total_docs * total_steps;
@@ -184,36 +188,194 @@ async fn run_pipeline_inner(
 
             match step {
                 PipelineStep::Detect => res.ml.detect(&mut snapshot).await?,
-                PipelineStep::Ocr => res.ml.ocr(&mut snapshot).await?,
-                PipelineStep::Inpaint => res.ml.inpaint(&mut snapshot).await?,
+                PipelineStep::Ocr => {
+                    if !snapshot.text_blocks.is_empty() {
+                        res.ml.ocr(&mut snapshot).await?;
+                    }
+                }
+                PipelineStep::DetectBalloon => res.ml.detect_balloons(&mut snapshot).await?,
                 PipelineStep::LlmGenerate => {
-                    res.llm
-                        .translate(&mut snapshot, req.language.as_deref())
-                        .await?;
+                    if res.llm.ready().await && !snapshot.text_blocks.is_empty() {
+                        tracing::info!(
+                            doc_index = doc_index,
+                            process_with_character = req.process_with_character,
+                            text_block_count = snapshot.text_blocks.len(),
+                            "LlmGenerate step"
+                        );
+                        let ctx = if req.process_with_character {
+                            let page_ctx = res.ml.scan_for_character_context(&snapshot.image);
+                            tracing::info!(
+                                has_page_ctx = page_ctx.is_some(),
+                                page_ctx = ?page_ctx,
+                                "scan_for_character_context result"
+                            );
+                            let pronoun_ctx = res.ml.scan_pronoun_context(&snapshot, req.llm_custom_system_prompt.as_deref());
+                            tracing::info!(
+                                has_pronoun_ctx = pronoun_ctx.is_some(),
+                                pronoun_ctx = ?pronoun_ctx,
+                                "scan_pronoun_context result"
+                            );
+                            match (page_ctx.as_deref(), pronoun_ctx.as_deref()) {
+                                (Some(p), Some(c)) => Some(format!("{p}\n\n{c}")),
+                                (Some(p), None) => Some(p.to_string()),
+                                (None, Some(c)) => Some(c.to_string()),
+                                (None, None) => None,
+                            }
+                        } else {
+                            None
+                        };
+                        tracing::info!(has_ctx = ctx.is_some(), "sending to LLM with context");
+                        res.llm
+                            .translate_with_context(
+                                &mut snapshot,
+                                req.language.as_deref(),
+                                ctx.as_deref(),
+                            )
+                            .await?;
+
+                        // Retry any blocks that came back empty from the batch translation.
+                        // Separate SFX blocks (were parenthetical descriptions) from truly empty ones
+                        // so we can add a targeted SFX hint on retry.
+                        const SFX_RETRY_HINT: &str =
+                            "IMPORTANT: This block is a sound effect / onomatopoeia. \
+                             Output ONLY a Vietnamese sound word (e.g. RẦM!, BỊCH!, BÙNG!, ROẠT!). \
+                             Do NOT write any description or use parentheses.";
+
+                        // We detect sfx by checking if the block text is short and katakana-heavy,
+                        // or if the raw translation was a parenthetical (translation now empty after strip).
+                        let (sfx_raw, empty_raw): (Vec<_>, Vec<_>) = snapshot.text_blocks
+                            .iter()
+                            .enumerate()
+                            .filter(|(_, b)| b.text.as_deref().map(|t| !t.trim().is_empty()).unwrap_or(false)
+                                && b.translation.as_deref().map(|t| t.trim().is_empty()).unwrap_or(true))
+                            .partition(|(_, b)| {
+                                let src = b.text.as_deref().unwrap_or("");
+                                src.chars().count() <= 12
+                                    && src.chars().any(|c| ('\u{30A0}'..='\u{30FF}').contains(&c)
+                                        || ('\u{3040}'..='\u{309F}').contains(&c))
+                            });
+                        let sfx_indices: Vec<usize> = sfx_raw.into_iter().map(|(i, _)| i).collect();
+                        let empty_indices: Vec<usize> = empty_raw.into_iter().map(|(i, _)| i).collect();
+
+                        if !sfx_indices.is_empty() || !empty_indices.is_empty() {
+                            tracing::warn!(
+                                sfx_count = sfx_indices.len(),
+                                empty_count = empty_indices.len(),
+                                "retrying blocks: sfx={:?} empty={:?}", sfx_indices, empty_indices
+                            );
+                        }
+
+                        for i in sfx_indices {
+                            let sfx_ctx = Some(match block_retry_ctx(ctx.as_deref(), i) {
+                                Some(c) => format!("{c}\n\n{SFX_RETRY_HINT}"),
+                                None => SFX_RETRY_HINT.to_string(),
+                            });
+                            res.llm
+                                .translate_with_context(
+                                    &mut snapshot.text_blocks[i],
+                                    req.language.as_deref(),
+                                    sfx_ctx.as_deref(),
+                                )
+                                .await?;
+                        }
+
+                        for i in empty_indices {
+                            let retry_ctx = block_retry_ctx(ctx.as_deref(), i);
+                            res.llm
+                                .translate_with_context(
+                                    &mut snapshot.text_blocks[i],
+                                    req.language.as_deref(),
+                                    retry_ctx.as_deref(),
+                                )
+                                .await?;
+                        }
+
+                        // After all retries, fill any block that still has no translation
+                        // with a silence marker so the renderer has something to place.
+                        for block in &mut snapshot.text_blocks {
+                            let has_source = block.text.as_deref()
+                                .map(|t| !t.trim().is_empty())
+                                .unwrap_or(false);
+                            let still_empty = block.translation.as_deref()
+                                .map(|t| t.trim().is_empty())
+                                .unwrap_or(true);
+                            if has_source && still_empty {
+                                block.translation = Some(".\n.\n.".to_string());
+                            }
+                        }
+                    } else {
+                        let llm_ready = res.llm.ready().await;
+                        tracing::info!(
+                            llm_ready,
+                            text_block_count = snapshot.text_blocks.len(),
+                            "LlmGenerate skipped"
+                        );
+                    }
+                }
+                PipelineStep::Inpaint => {
+                    if snapshot.segment.is_some() && !snapshot.text_blocks.is_empty() {
+                        res.ml.inpaint(&mut snapshot).await?;
+                    }
+                    tokio::task::block_in_place(koharu_ml::lama::clear_fft_plans_on_current_thread);
                 }
                 PipelineStep::Render => {
-                    res.renderer.render(
-                        &mut snapshot,
-                        None,
-                        req.shader_effect.unwrap_or_default(),
-                        req.shader_stroke.clone(),
-                        req.font_family.as_deref(),
-                    )?;
+                    if !snapshot.text_blocks.is_empty() {
+                        res.renderer.render(
+                            &mut snapshot,
+                            None,
+                            req.shader_effect.unwrap_or_default(),
+                            req.shader_stroke.clone(),
+                            req.font_family.as_deref(),
+                        )?;
+                    }
                 }
             }
 
             let changed = match step {
                 PipelineStep::Detect => &[ChangedField::TextBlocks, ChangedField::Segment][..],
                 PipelineStep::Ocr => &[ChangedField::TextBlocks][..],
-                PipelineStep::Inpaint => &[ChangedField::Inpainted][..],
+                PipelineStep::DetectBalloon => &[ChangedField::Segment][..],
                 PipelineStep::LlmGenerate => &[ChangedField::TextBlocks][..],
+                PipelineStep::Inpaint => &[ChangedField::Inpainted][..],
                 PipelineStep::Render => &[ChangedField::TextBlocks, ChangedField::Rendered][..],
             };
+            let has_rendered = *step == PipelineStep::Render && snapshot.rendered.is_some();
             state_tx::update_doc(&res.state, doc_index, snapshot, changed).await?;
+
+            if has_rendered {
+                let payload = koharu_types::commands::IndexPayload { index: doc_index };
+                if req.export_tiff {
+                    crate::operations::save_rendered_tiff(res.clone(), payload).await?;
+                } else if req.export_psd {
+                    crate::operations::save_rendered_psd(res.clone(), payload).await?;
+                } else {
+                    crate::operations::save_rendered(res.clone(), payload).await?;
+                }
+            }
         }
     }
 
     Ok(())
+}
+
+/// Build a single-block pronoun context for retrying block `idx`.
+///
+/// The full batch context contains lines like:
+///   `<block id="3"> speaker=... → use "tôi" for I/me, "cô" for you`
+///
+/// When retrying a single TextBlock, `get_source()` always emits `<block id="0">`.
+/// If we pass the original context verbatim, the LLM sees id="3" in the rules but
+/// id="0" in the source and echoes back id="3" — which `parse_tagged_blocks` ignores.
+///
+/// This function extracts the header line plus the one rule for `idx`, remapping
+/// `<block id="idx">` → `<block id="0">` so both sides agree.
+fn block_retry_ctx(full_ctx: Option<&str>, idx: usize) -> Option<String> {
+    let ctx = full_ctx?;
+    let target = format!("<block id=\"{idx}\">");
+    let matching_line = ctx.lines().find(|l| l.trim_start().starts_with(&target))?;
+    let remapped = matching_line.replacen(&target, "<block id=\"0\">", 1);
+    let header = ctx.lines().next()?;
+    Some(format!("{header}\n{remapped}"))
 }
 
 #[cfg(test)]

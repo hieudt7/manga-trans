@@ -4016,6 +4016,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -4027,7 +4028,9 @@ dependencies = [
  "imageproc",
  "koharu-llm",
  "koharu-ml",
+ "koharu-psd",
  "koharu-renderer",
+ "koharu-tiff",
  "koharu-types",
  "once_cell",
  "open",
@@ -4086,8 +4089,10 @@ dependencies = [
  "image",
  "imageproc",
  "koharu-http",
+ "koharu-ml",
  "koharu-pipeline",
  "koharu-psd",
+ "koharu-tiff",
  "koharu-types",
  "rmcp",
  "rmp-serde",
@@ -4114,6 +4119,16 @@ dependencies = [
  "tokio",
  "windows-sys 0.61.2",
  "zip 8.2.0",
+]
+
+[[package]]
+name = "koharu-tiff"
+version = "0.40.1"
+dependencies = [
+ "image",
+ "koharu-psd",
+ "koharu-types",
+ "thiserror 2.0.18",
 ]
 
 [[package]]

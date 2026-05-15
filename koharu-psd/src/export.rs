@@ -69,6 +69,24 @@ struct TextLayerMetadata {
     box_height: f64,
 }
 
+/// Export the inner layer info bytes for TIFF embedding, the merged composite,
+/// and the document's resolution in DPI.
+///
+/// Returns `(layer_info, composite, resolution_dpi)` where `layer_info` is the
+/// raw `[i16 count] + [records] + [channel data]` block — exactly what goes
+/// inside the "Layr" block of TIFF tag 37724 (ImageSourceData).
+pub fn export_layer_data(
+    document: &Document,
+    options: &PsdExportOptions,
+) -> Result<(Vec<u8>, image::RgbaImage, u32), PsdExportError> {
+    let (width, height) = document_dimensions(document)?;
+    let layers = collect_layers(document, options)?;
+    let composite = merged_composite(document, &layers, width, height);
+    let layers_refs: Vec<&ExportLayer> = layers.iter().collect();
+    let layer_info = build_layer_info(&layers_refs)?;
+    Ok((layer_info, composite, document.resolution_dpi))
+}
+
 pub fn export_document(
     document: &Document,
     options: &PsdExportOptions,
@@ -86,14 +104,19 @@ pub fn write_document<W: Write>(
     let (width, height) = document_dimensions(document)?;
     let layers_bottom_to_top = collect_layers(document, options)?;
     let composite = merged_composite(document, &layers_bottom_to_top, width, height);
-    let layers_top_to_bottom: Vec<&ExportLayer> = layers_bottom_to_top.iter().rev().collect();
+    // PSD format stores layers bottom-to-top (first record = bottommost layer).
+    let layers_refs: Vec<&ExportLayer> = layers_bottom_to_top.iter().collect();
 
     let mut psd = PsdWriter::new();
     write_header(&mut psd, width, height);
+    // Section 2: Color mode data (empty for RGB)
     psd.write_u32(0);
-    psd.write_u32(0);
+    // Section 3: Image Resources — write ResolutionInfo (0x03ED)
+    let image_resources = build_image_resources(document.resolution_dpi);
+    psd.write_u32(image_resources.len() as u32);
+    psd.write_bytes(&image_resources);
 
-    let layer_mask_info = build_layer_and_mask_info(&layers_top_to_bottom)?;
+    let layer_mask_info = build_layer_and_mask_info(&layers_refs)?;
     psd.write_u32(layer_mask_info.len() as u32);
     psd.write_bytes(&layer_mask_info);
 
@@ -124,6 +147,45 @@ fn document_dimensions(document: &Document) -> Result<(u32, u32), PsdExportError
     }
 
     Ok((width, height))
+}
+
+/// Build the PSD Image Resources section (Section 3) containing ResolutionInfo.
+///
+/// ResolutionInfo resource ID = 0x03ED, format (14 bytes):
+///   hRes     4 bytes  fixed-point 16.16  horizontal resolution
+///   hResUnit 2 bytes  1 = pixels/inch, 2 = pixels/cm
+///   wUnit    2 bytes  display unit (1 = inch)
+///   vRes     4 bytes  fixed-point 16.16  vertical resolution
+///   vResUnit 2 bytes  same as hResUnit
+///   hUnit    2 bytes  display unit (1 = inch)
+fn build_image_resources(resolution_dpi: u32) -> Vec<u8> {
+    // fixed-point 16.16: integer part in high 16 bits, fractional in low 16 bits
+    let res_fixed: u32 = resolution_dpi << 16;
+
+    let mut data = PsdWriter::new();
+    // hRes (4 bytes big-endian fixed-point)
+    data.write_u32(res_fixed);
+    // hResUnit = 1 (pixels per inch)
+    data.write_u16(1);
+    // widthUnit = 1 (inches)
+    data.write_u16(1);
+    // vRes
+    data.write_u32(res_fixed);
+    // vResUnit = 1
+    data.write_u16(1);
+    // heightUnit = 1
+    data.write_u16(1);
+    let res_data = data.into_inner();
+
+    // Wrap in 8BIM block: "8BIM" + id(2) + pascal_name(2) + length(4) + data
+    let mut block = PsdWriter::new();
+    block.write_signature("8BIM");
+    block.write_u16(0x03ED); // ResolutionInfo resource ID
+    block.write_u8(0);       // pascal name length = 0
+    block.write_u8(0);       // pad to even
+    block.write_u32(res_data.len() as u32);
+    block.write_bytes(&res_data);
+    block.into_inner()
 }
 
 fn write_header(writer: &mut PsdWriter, width: u32, height: u32) {
@@ -208,9 +270,13 @@ fn collect_layers(
         });
     }
 
+    // Base image used as pixel fallback for text layers that have no rendered content.
+    // Prefer inpainted (clean background) over original.
+    let text_base = document.inpainted.as_ref().unwrap_or(&document.image);
+
     let mut text_index = 1i32;
     for block in &document.text_blocks {
-        if let Some(layer) = text_layer(block, text_index, options.text_layer_mode)? {
+        if let Some(layer) = text_layer(block, text_index, options.text_layer_mode, text_base)? {
             layers.push(layer);
             text_index += 1;
         }
@@ -223,6 +289,7 @@ fn text_layer(
     block: &TextBlock,
     index: i32,
     mode: TextLayerMode,
+    base_image: &SerializableDynamicImage,
 ) -> Result<Option<ExportLayer>, PsdExportError> {
     let text = block.translation.clone().unwrap_or_default();
     let trimmed = text.trim();
@@ -236,9 +303,19 @@ fn text_layer(
     let pixels = if let Some(rendered) = block.rendered.as_ref() {
         dynamic_to_rgba(rendered)
     } else {
-        let width = block.width.ceil().max(1.0) as u32;
-        let height = block.height.ceil().max(1.0) as u32;
-        RgbaImage::from_pixel(width, height, Rgba([0, 0, 0, 0]))
+        // No rendered image: crop the base image (inpainted or original) at the
+        // block bounds so the layer has a visible background in the PSD.
+        let bx = block.x.max(0.0).trunc() as u32;
+        let by = block.y.max(0.0).trunc() as u32;
+        let bw = block.width.ceil().max(1.0) as u32;
+        let bh = block.height.ceil().max(1.0) as u32;
+        let img_w = base_image.width();
+        let img_h = base_image.height();
+        let safe_x = bx.min(img_w.saturating_sub(1));
+        let safe_y = by.min(img_h.saturating_sub(1));
+        let safe_w = bw.min(img_w.saturating_sub(safe_x)).max(1);
+        let safe_h = bh.min(img_h.saturating_sub(safe_y)).max(1);
+        base_image.crop_imm(safe_x, safe_y, safe_w, safe_h).to_rgba8()
     };
     validate_layer_pixels(&block.id, &pixels)?;
 
@@ -377,7 +454,12 @@ fn place_on_canvas(image: &RgbaImage, width: u32, height: u32) -> RgbaImage {
     canvas
 }
 
-fn build_layer_and_mask_info(layers: &[&ExportLayer]) -> Result<Vec<u8>, PsdExportError> {
+/// Build the inner layer info bytes: `[i16 count] + [records] + [channel data]`.
+///
+/// This is what goes inside the "Layr" block in TIFF tag 37724
+/// (ImageSourceData), and also wrapped inside the Layer and Mask Information
+/// section of a PSD file.
+fn build_layer_info(layers: &[&ExportLayer]) -> Result<Vec<u8>, PsdExportError> {
     let mut layer_info = PsdWriter::new();
     if layers.is_empty() {
         layer_info.write_i16(0);
@@ -466,10 +548,14 @@ fn build_layer_and_mask_info(layers: &[&ExportLayer]) -> Result<Vec<u8>, PsdExpo
         }
     }
     layer_info.pad_to_multiple(4);
+    Ok(layer_info.into_inner())
+}
 
+fn build_layer_and_mask_info(layers: &[&ExportLayer]) -> Result<Vec<u8>, PsdExportError> {
+    let layer_info = build_layer_info(layers)?;
     let mut full = PsdWriter::new();
     full.write_u32(layer_info.len() as u32);
-    full.write_bytes(&layer_info.into_inner());
+    full.write_bytes(&layer_info);
     full.write_u32(0);
     Ok(full.into_inner())
 }

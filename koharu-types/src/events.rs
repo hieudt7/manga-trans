@@ -25,8 +25,9 @@ pub struct DownloadProgress {
 pub enum PipelineStep {
     Detect,
     Ocr,
-    Inpaint,
+    DetectBalloon,
     LlmGenerate,
+    Inpaint,
     Render,
 }
 
@@ -34,8 +35,9 @@ impl PipelineStep {
     pub const ALL: &[PipelineStep] = &[
         PipelineStep::Detect,
         PipelineStep::Ocr,
-        PipelineStep::Inpaint,
+        PipelineStep::DetectBalloon,
         PipelineStep::LlmGenerate,
+        PipelineStep::Inpaint,
         PipelineStep::Render,
     ];
 }

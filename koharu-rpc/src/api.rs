@@ -16,20 +16,22 @@ use axum::{
     },
     routing::{delete, get, patch, post, put},
 };
-use image::ImageFormat;
+use image::{ImageFormat, codecs::jpeg::JpegEncoder};
+use koharu_ml;
 use koharu_pipeline::{
     AppResources, operations,
     state_tx::{self, ChangedField},
 };
 use koharu_psd::{PsdExportOptions, TextLayerMode};
+use koharu_tiff;
 use koharu_types::{
     ApiKeyGetPayload, ApiKeyResponse, ApiKeySetPayload, ApiKeyValue, CreateTextBlock, Document,
-    DocumentDetail, DocumentSummary, ExportLayer, ExportResult, FileEntry, FontFaceInfo,
-    IndexPayload, InpaintPartialPayload, InpaintRegion, JobState, JobStatus, LlmLoadPayload,
-    LlmLoadRequest, LlmModelInfo, LlmPingRequest, LlmPingResponse, MaskRegionRequest, MetaInfo,
-    OpenDocumentsPayload, PipelineJobRequest, Region, RenderPayload, RenderRequest,
-    SerializableDynamicImage, TextBlock, TextBlockDetail, TextBlockPatch, TranslateRequest,
-    UpdateBrushLayerPayload, UpdateInpaintMaskPayload,
+    DocumentDetail, DocumentSummary, ExportLayer, ExportResult, FileEntry, FolderPipelineJobRequest,
+    FolderSessionInfo, FontFaceInfo, IndexPayload, InpaintPartialPayload, InpaintRegion, JobState,
+    JobStatus, LlmLoadPayload, LlmLoadRequest, LlmModelInfo, LlmPingRequest, LlmPingResponse,
+    MaskRegionRequest, MetaInfo, OpenDocumentsPayload, PipelineJobRequest, Region, RenderPayload,
+    RenderRequest, SerializableDynamicImage, TextBlock, TextBlockDetail, TextBlockPatch,
+    TranslateRequest, UpdateBrushLayerPayload, UpdateInpaintMaskPayload,
 };
 use serde::Deserialize;
 
@@ -99,6 +101,7 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
             "/documents/{document_id}/text-blocks/{text_block_id}",
             patch(patch_text_block).delete(delete_text_block),
         )
+        .route("/documents/{document_id}/scan-characters", post(scan_characters_in_document))
         .route("/documents/{document_id}/save-rendered", post(save_rendered_document))
         .route("/documents/{document_id}/export", get(export_document))
         .route(
@@ -108,6 +111,10 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
         .route(
             "/documents/{document_id}/export/psd",
             get(export_document_psd),
+        )
+        .route(
+            "/documents/{document_id}/export/tiff",
+            get(export_document_tiff),
         )
         .route("/llm/models", get(list_llm_models))
         .route("/llm/state", get(get_llm_state))
@@ -119,9 +126,17 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
             get(get_api_key).put(set_api_key),
         )
         .route("/jobs/pipeline", post(start_pipeline_job))
+        .route("/jobs/pipeline-folder", post(start_folder_pipeline_job))
         .route("/jobs/{job_id}", delete(cancel_pipeline_job))
+        .route("/folder/open", post(open_folder_session))
+        .route("/folder/open-path", post(open_folder_session_by_path))
+        .route("/folder/session", get(get_folder_session))
+        .route("/folder/images/{index}", get(get_folder_image))
+        .route("/folder/results/{index}", get(get_folder_result))
         .route("/exports", post(export_all))
         .route("/events", get(events_stream))
+        .route("/characters", get(list_characters).post(add_character))
+        .route("/characters/{character_id}", delete(remove_character))
         .layer(DefaultBodyLimit::max(MAX_BODY_SIZE))
         .with_state(state)
 }
@@ -698,6 +713,9 @@ async fn start_pipeline_job(
             shader_effect: request.shader_effect,
             shader_stroke: request.shader_stroke,
             font_family: request.font_family,
+            export_tiff: request.export_tiff,
+            export_psd: request.export_psd,
+            process_with_character: request.process_with_character,
         },
     )
     .await?;
@@ -811,7 +829,7 @@ async fn export_document(
         .and_then(|value| value.to_str())
         .unwrap_or("jpg")
         .to_ascii_lowercase();
-    let data = encode_image(image, &ext)?;
+    let data = encode_image_with_dpi(image, &ext, document.resolution_dpi)?;
     let content_type = mime_from_ext(&ext);
     Ok(binary_response(data, content_type, Some(filename)))
 }
@@ -828,6 +846,21 @@ async fn export_document_psd(
         data,
         "image/vnd.adobe.photoshop",
         Some(psd_export_filename(&document)),
+    ))
+}
+
+async fn export_document_tiff(
+    State(state): State<ApiState>,
+    Path(document_id): Path<String>,
+) -> ApiResult<Response> {
+    let resources = state.resources()?;
+    let (_, document) = find_document(&resources, &document_id).await?;
+    let data = koharu_tiff::export_document(&document, &app_psd_export_options())
+        .map_err(|error| ApiError::bad_request(error.to_string()))?;
+    Ok(binary_response(
+        data,
+        "image/tiff",
+        Some(format!("{}_koharu.tiff", document.name)),
     ))
 }
 
@@ -886,6 +919,129 @@ fn sse_event<T: serde::Serialize>(name: &str, payload: &T) -> Event {
     Event::default().event(name).data(data)
 }
 
+async fn scan_characters_in_document(
+    State(state): State<ApiState>,
+    Path(document_id): Path<String>,
+) -> ApiResult<Json<serde_json::Value>> {
+    #[derive(serde::Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct BlockSpeaker {
+        text_block_id: String,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        name: Option<String>,
+        traits: Vec<String>,
+        confidence: f32,
+        is_known: bool,
+    }
+
+    #[derive(serde::Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct PanelCharacter {
+        name: String,
+        traits: Vec<String>,
+        is_known: bool,
+    }
+
+    #[derive(serde::Serialize)]
+    struct PanelBox {
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        characters: Vec<PanelCharacter>,
+    }
+
+    let resources = state.resources()?;
+    let (_, document) = find_document(&resources, &document_id).await?;
+
+    let blocks: Vec<(String, f32, f32, f32, f32)> = document
+        .text_blocks
+        .iter()
+        .map(|b| (b.id.clone(), b.x, b.y, b.width, b.height))
+        .collect();
+
+    let balloons: Vec<(f32, f32, f32, f32)> = document
+        .balloons
+        .iter()
+        .map(|b| (b.x, b.y, b.width, b.height))
+        .collect();
+
+    let panel_mode = if resources.ml.character_lib.has_panel_detector() { "ml" } else { "heuristic" };
+    let panels = resources.ml.character_lib.detect_panels(&document.image);
+
+    let assignments = resources
+        .ml
+        .character_lib
+        .assign_speakers_to_blocks(&document.image, &blocks, &balloons, &panels);
+
+    let panel_characters = resources
+        .ml
+        .character_lib
+        .detect_panel_characters(&document.image, &panels);
+
+    let block_positions: std::collections::HashMap<String, (f32, f32, f32, f32)> = blocks
+        .iter()
+        .map(|(id, x, y, w, h)| (id.clone(), (*x, *y, *w, *h)))
+        .collect();
+
+    let speaker_blocks: Vec<BlockSpeaker> = assignments
+        .into_iter()
+        .map(|(id, speaker)| {
+            let (x, y, w, h) = block_positions.get(&id).copied().unwrap_or_default();
+            match speaker {
+                Some(m) => BlockSpeaker {
+                    text_block_id: id,
+                    x,
+                    y,
+                    width: w,
+                    height: h,
+                    name: Some(m.name),
+                    traits: m.traits,
+                    confidence: m.confidence,
+                    is_known: m.is_known,
+                },
+                None => BlockSpeaker {
+                    text_block_id: id,
+                    x,
+                    y,
+                    width: w,
+                    height: h,
+                    name: None,
+                    traits: Vec::new(),
+                    confidence: 0.0,
+                    is_known: false,
+                },
+            }
+        })
+        .collect();
+
+    let panel_boxes: Vec<PanelBox> = panels
+        .iter()
+        .zip(panel_characters.into_iter())
+        .map(|((x, y, w, h), chars)| PanelBox {
+            x: *x,
+            y: *y,
+            width: *w,
+            height: *h,
+            characters: chars.into_iter().map(|m| PanelCharacter {
+                name: m.name,
+                traits: m.traits,
+                is_known: m.is_known,
+            }).collect(),
+        })
+        .collect();
+
+    Ok(Json(serde_json::json!({
+        "panelCount": panels.len(),
+        "panelMode": panel_mode,
+        "panels": panel_boxes,
+        "blocks": speaker_blocks,
+    })))
+}
+
 async fn find_document(
     resources: &AppResources,
     document_id: &str,
@@ -937,15 +1093,201 @@ fn encode_webp(image: &SerializableDynamicImage) -> ApiResult<Vec<u8>> {
     encode_image(image, "webp")
 }
 
+// ─── Character library handlers ───────────────────────────────────────────────
+
+async fn list_characters(
+    State(state): State<ApiState>,
+) -> ApiResult<Json<Vec<koharu_ml::character_library::CharacterInfo>>> {
+    let resources = state.resources()?;
+    Ok(Json(resources.ml.character_lib.list()))
+}
+
+async fn add_character(
+    State(state): State<ApiState>,
+    mut multipart: Multipart,
+) -> ApiResult<Json<serde_json::Value>> {
+    let resources = state.resources()?;
+
+    let mut name: Option<String> = None;
+    let mut traits: Vec<String> = Vec::new();
+    let mut relations: Vec<String> = Vec::new();
+    let mut face_bytes_list: Vec<Vec<u8>> = Vec::new();
+
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|e| ApiError::bad_request(e.to_string()))?
+    {
+        match field.name() {
+            Some("name") => {
+                name = Some(
+                    field
+                        .text()
+                        .await
+                        .map_err(|e| ApiError::bad_request(e.to_string()))?,
+                );
+            }
+            Some("traits") => {
+                let text = field
+                    .text()
+                    .await
+                    .map_err(|e| ApiError::bad_request(e.to_string()))?;
+                traits = serde_json::from_str(&text)
+                    .unwrap_or_else(|_| vec![text]);
+            }
+            Some("relations") => {
+                let text = field
+                    .text()
+                    .await
+                    .map_err(|e| ApiError::bad_request(e.to_string()))?;
+                relations = serde_json::from_str(&text)
+                    .unwrap_or_else(|_| vec![text]);
+            }
+            Some("face") | None => {
+                face_bytes_list.push(
+                    field
+                        .bytes()
+                        .await
+                        .map_err(|e| ApiError::bad_request(e.to_string()))?
+                        .to_vec(),
+                );
+            }
+            _ => {}
+        }
+    }
+
+    let name = name.ok_or_else(|| ApiError::bad_request("'name' field is required"))?;
+    if face_bytes_list.is_empty() {
+        return Err(ApiError::bad_request("at least one 'face' image field is required"));
+    }
+
+    let face_images: Result<Vec<_>, _> = face_bytes_list
+        .iter()
+        .map(|b| image::load_from_memory(b).map_err(|e| ApiError::bad_request(format!("invalid face image: {e}"))))
+        .collect();
+    let face_images = face_images?;
+
+    let id = resources
+        .ml
+        .character_lib
+        .add_character(name, traits, relations, &face_images)
+        .map_err(ApiError::from)?;
+
+    Ok(Json(serde_json::json!({ "id": id })))
+}
+
+async fn remove_character(
+    State(state): State<ApiState>,
+    Path(character_id): Path<String>,
+) -> ApiResult<StatusCode> {
+    let resources = state.resources()?;
+    resources
+        .ml
+        .character_lib
+        .remove_character(&character_id)
+        .map_err(ApiError::from)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
 fn encode_image(image: &SerializableDynamicImage, ext: &str) -> ApiResult<Vec<u8>> {
+    encode_image_with_dpi(image, ext, 0)
+}
+
+fn encode_image_with_dpi(
+    image: &SerializableDynamicImage,
+    ext: &str,
+    dpi: u32,
+) -> ApiResult<Vec<u8>> {
     let format = ImageFormat::from_extension(ext).unwrap_or(ImageFormat::Jpeg);
     let mut cursor = Cursor::new(Vec::new());
-    image
-        .0
-        .write_to(&mut cursor, format)
-        .with_context(|| format!("failed to encode image as {ext}"))
-        .map_err(ApiError::internal)?;
-    Ok(cursor.into_inner())
+    match format {
+        ImageFormat::Jpeg => {
+            let encoder = JpegEncoder::new_with_quality(&mut cursor, 95);
+            image
+                .0
+                .write_with_encoder(encoder)
+                .with_context(|| format!("failed to encode image as {ext}"))
+                .map_err(ApiError::internal)?;
+        }
+        _ => {
+            image
+                .0
+                .write_to(&mut cursor, format)
+                .with_context(|| format!("failed to encode image as {ext}"))
+                .map_err(ApiError::internal)?;
+        }
+    }
+    let bytes = cursor.into_inner();
+    if dpi == 0 {
+        return Ok(bytes);
+    }
+    Ok(match ext {
+        "jpg" | "jpeg" => inject_dpi_jpeg(bytes, dpi),
+        "png" => inject_dpi_png(bytes, dpi),
+        _ => bytes,
+    })
+}
+
+fn inject_dpi_jpeg(bytes: Vec<u8>, dpi: u32) -> Vec<u8> {
+    if bytes.len() < 2 || bytes[0] != 0xFF || bytes[1] != 0xD8 {
+        return bytes;
+    }
+    let dpi = dpi.min(65535) as u16;
+    let app0: [u8; 18] = [
+        0xFF, 0xE0, 0x00, 0x10,
+        b'J', b'F', b'I', b'F', 0x00,
+        0x01, 0x01, 0x01,
+        (dpi >> 8) as u8, (dpi & 0xFF) as u8,
+        (dpi >> 8) as u8, (dpi & 0xFF) as u8,
+        0x00, 0x00,
+    ];
+    let mut out = Vec::with_capacity(bytes.len() + app0.len());
+    out.extend_from_slice(&bytes[0..2]);
+    out.extend_from_slice(&app0);
+    out.extend_from_slice(&bytes[2..]);
+    out
+}
+
+fn inject_dpi_png(bytes: Vec<u8>, dpi: u32) -> Vec<u8> {
+    const PNG_SIG: &[u8] = b"\x89PNG\r\n\x1a\n";
+    if bytes.len() < 8 || &bytes[0..8] != PNG_SIG {
+        return bytes;
+    }
+    let ppm = (dpi as f64 * 39.3701).round() as u32;
+    let mut phys_data = [0u8; 9];
+    phys_data[0..4].copy_from_slice(&ppm.to_be_bytes());
+    phys_data[4..8].copy_from_slice(&ppm.to_be_bytes());
+    phys_data[8] = 1;
+    let mut crc_input = [0u8; 13];
+    crc_input[0..4].copy_from_slice(b"pHYs");
+    crc_input[4..13].copy_from_slice(&phys_data);
+    let crc = png_crc32(&crc_input);
+    let mut phys_chunk = Vec::with_capacity(21);
+    phys_chunk.extend_from_slice(&9u32.to_be_bytes());
+    phys_chunk.extend_from_slice(b"pHYs");
+    phys_chunk.extend_from_slice(&phys_data);
+    phys_chunk.extend_from_slice(&crc.to_be_bytes());
+    let ihdr_end = 33usize;
+    if bytes.len() < ihdr_end {
+        return bytes;
+    }
+    let mut out = Vec::with_capacity(bytes.len() + phys_chunk.len());
+    out.extend_from_slice(&bytes[..ihdr_end]);
+    out.extend_from_slice(&phys_chunk);
+    out.extend_from_slice(&bytes[ihdr_end..]);
+    out
+}
+
+fn png_crc32(data: &[u8]) -> u32 {
+    let mut crc: u32 = 0xFFFFFFFF;
+    for &b in data {
+        let mut c = crc ^ (b as u32);
+        for _ in 0..8 {
+            c = if c & 1 != 0 { 0xEDB88320 ^ (c >> 1) } else { c >> 1 };
+        }
+        crc = c;
+    }
+    !crc
 }
 
 fn binary_response(data: Vec<u8>, content_type: &str, filename: Option<String>) -> Response {
@@ -966,6 +1308,7 @@ fn mime_from_ext(ext: &str) -> &'static str {
         "png" => "image/png",
         "jpg" | "jpeg" => "image/jpeg",
         "webp" => "image/webp",
+        "tif" | "tiff" => "image/tiff",
         _ => "application/octet-stream",
     }
 }
@@ -1078,6 +1421,124 @@ fn apply_text_block_patch(block: &mut TextBlock, patch: TextBlockPatch) {
         block.rendered = None;
         block.rendered_direction = None;
     }
+}
+
+// ─── Folder session handlers ──────────────────────────────────────────────────
+
+async fn open_folder_session(
+    State(state): State<ApiState>,
+) -> ApiResult<Json<FolderSessionInfo>> {
+    let resources = state.resources()?;
+    let info = operations::open_folder_session(resources)
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(info))
+}
+
+#[derive(serde::Deserialize)]
+struct OpenFolderByPathRequest {
+    path: String,
+}
+
+async fn open_folder_session_by_path(
+    State(state): State<ApiState>,
+    Json(body): Json<OpenFolderByPathRequest>,
+) -> ApiResult<Json<FolderSessionInfo>> {
+    let resources = state.resources()?;
+    let info = operations::open_folder_session_by_path(resources, std::path::PathBuf::from(body.path))
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(info))
+}
+
+async fn get_folder_session(
+    State(state): State<ApiState>,
+) -> ApiResult<Json<Option<FolderSessionInfo>>> {
+    let resources = state.resources()?;
+    let info = operations::get_folder_session(resources)
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(info))
+}
+
+async fn get_folder_image(
+    State(state): State<ApiState>,
+    Path(index): Path<usize>,
+) -> ApiResult<Response> {
+    let resources = state.resources()?;
+    let raw = operations::get_folder_image_bytes(resources, index)
+        .await
+        .map_err(ApiError::from)?;
+    // Decode and re-encode as WebP for consistent delivery to the frontend.
+    let img = image::load_from_memory(&raw).map_err(|e| ApiError::internal(anyhow::anyhow!(e)))?;
+    let webp = encode_webp(&SerializableDynamicImage(img))?;
+    Ok(binary_response(webp, "image/webp", None))
+}
+
+async fn get_folder_result(
+    State(state): State<ApiState>,
+    Path(index): Path<usize>,
+) -> ApiResult<Response> {
+    let resources = state.resources()?;
+    let raw = operations::get_folder_result_bytes(resources, index)
+        .await
+        .map_err(ApiError::from)?;
+    let img = image::load_from_memory(&raw).map_err(|e| ApiError::internal(anyhow::anyhow!(e)))?;
+    let webp = encode_webp(&SerializableDynamicImage(img))?;
+    Ok(binary_response(webp, "image/webp", None))
+}
+
+async fn start_folder_pipeline_job(
+    State(state): State<ApiState>,
+    Json(request): Json<FolderPipelineJobRequest>,
+) -> ApiResult<Json<JobState>> {
+    let resources = state.resources()?;
+
+    let total_documents = {
+        let guard = resources.state.read().await;
+        guard.folder_session.as_ref().map(|s| s.files.len()).unwrap_or(0)
+    };
+    if total_documents == 0 {
+        return Err(ApiError::bad_request("No folder session active or folder is empty"));
+    }
+
+    let job_id = operations::start_folder_pipeline(
+        resources.clone(),
+        koharu_types::ProcessRequest {
+            index: None,
+            llm_model_id: request.llm_model_id,
+            llm_api_key: request.llm_api_key,
+            llm_base_url: request.llm_base_url,
+            llm_temperature: request.llm_temperature,
+            llm_max_tokens: request.llm_max_tokens,
+            llm_custom_system_prompt: request.llm_custom_system_prompt,
+            language: request.language,
+            shader_effect: request.shader_effect,
+            shader_stroke: request.shader_stroke,
+            font_family: request.font_family,
+            export_tiff: false,
+            export_psd: false,
+            process_with_character: request.process_with_character,
+        },
+    )
+    .await
+    .map_err(ApiError::from)?;
+
+    let job = JobState {
+        id: job_id,
+        kind: "pipeline-folder".to_string(),
+        status: JobStatus::Running,
+        step: None,
+        current_document: 0,
+        total_documents,
+        current_step_index: 0,
+        total_steps: koharu_types::PipelineStep::ALL.len(),
+        overall_percent: 0,
+        error: None,
+    };
+    state.events.publish_job(job.clone()).await;
+
+    Ok(Json(job))
 }
 
 #[cfg(test)]

@@ -39,6 +39,7 @@ async fn llm_generates_text_for_all_models() -> anyhow::Result<()> {
             split_prompt: false,
             repeat_penalty: 1.0,
             repeat_last_n: 64,
+            story_context: None,
         };
 
         let generated = llm.generate(prompt, &opts, Language::English)?;

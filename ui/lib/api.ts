@@ -20,6 +20,27 @@ import type {
   MetaInfo,
   TextBlockPatch,
 } from '@/lib/protocol'
+
+export type CharacterInfo = {
+  id: string
+  name: string
+  traits: string[]
+  relations: string[]
+}
+
+export type FolderFileInfo = {
+  index: number
+  name: string
+  width: number
+  height: number
+  hasResult: boolean
+}
+
+export type FolderSessionInfo = {
+  root: string
+  resultDir: string
+  files: FolderFileInfo[]
+}
 import {
   Document,
   InpaintRegion,
@@ -429,6 +450,21 @@ export const api = {
     })
   },
 
+  async exportTiffDocument(index: number): Promise<void> {
+    return withRpcError('export_tiff_document', async () => {
+      const summary = await getDocumentSummaryAtIndex(index)
+      const file = await fetchBinary(`/documents/${summary.id}/export/tiff`)
+      const blob = new Blob([toArrayBuffer(file.data)], {
+        type: file.contentType,
+      })
+      try {
+        await fileSave(blob, {
+          fileName: file.filename ?? `${summary.name}_koharu.tiff`,
+        })
+      } catch {}
+    })
+  },
+
   async exportDocumentJson(index: number): Promise<void> {
     return withRpcError('export_document_json', async () => {
       const summary = await getDocumentSummaryAtIndex(index)
@@ -804,6 +840,9 @@ export const api = {
     shaderEffect?: RenderEffect
     shaderStroke?: RenderStroke
     fontFamily?: string
+    exportTiff?: boolean
+    exportPsd?: boolean
+    processWithCharacter?: boolean
   }): Promise<void> {
     return withRpcError('process', async () => {
       const documentId =
@@ -826,6 +865,9 @@ export const api = {
           shaderEffect: options.shaderEffect,
           shaderStroke: options.shaderStroke,
           fontFamily: options.fontFamily,
+          exportTiff: options.exportTiff ?? false,
+          exportPsd: options.exportPsd ?? false,
+          processWithCharacter: options.processWithCharacter ?? false,
         }),
       })
       setActivePipelineJobId(job.id)
@@ -836,6 +878,126 @@ export const api = {
     const jobId = getActivePipelineJobId()
     if (!jobId) return
     await fetchJson<void>(`/jobs/${jobId}`, { method: 'DELETE' })
+  },
+
+  async scanCharacters(index: number): Promise<{
+    panelCount: number
+    panelMode: 'ml' | 'heuristic'
+    panels: Array<{
+      x: number
+      y: number
+      width: number
+      height: number
+      characters: Array<{ name: string; traits: string[]; isKnown: boolean }>
+    }>
+    blocks: Array<{
+      textBlockId: string
+      x: number
+      y: number
+      width: number
+      height: number
+      name: string | null
+      traits: string[]
+      confidence: number
+      isKnown: boolean
+    }>
+  }> {
+    const summary = await getDocumentSummaryAtIndex(index)
+    return fetchJson(`/documents/${summary.id}/scan-characters`, {
+      method: 'POST',
+    })
+  },
+
+  async listCharacters(): Promise<CharacterInfo[]> {
+    return fetchJson<CharacterInfo[]>('/characters')
+  },
+
+  async addCharacter(data: {
+    name: string
+    faces: File[]
+    traits: string[]
+    relations: string[]
+  }): Promise<{ id: string }> {
+    const form = new FormData()
+    data.faces.forEach((f) => form.append('face', f, f.name))
+    form.append('name', data.name)
+    form.append('traits', JSON.stringify(data.traits))
+    form.append('relations', JSON.stringify(data.relations))
+    return fetchJson<{ id: string }>('/characters', {
+      method: 'POST',
+      body: form,
+    })
+  },
+
+  async removeCharacter(id: string): Promise<void> {
+    await fetchJson<void>(`/characters/${id}`, { method: 'DELETE' })
+  },
+
+  // ── Folder mode ─────────────────────────────────────────────────────────────
+
+  async openFolderSession(): Promise<FolderSessionInfo> {
+    return withRpcError('open_folder_session', () =>
+      fetchJson<FolderSessionInfo>('/folder/open', { method: 'POST' }),
+    )
+  },
+
+  async openFolderSessionByPath(path: string): Promise<FolderSessionInfo> {
+    return withRpcError('open_folder_session_by_path', () =>
+      fetchJson<FolderSessionInfo>('/folder/open-path', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path }),
+      }),
+    )
+  },
+
+  async getFolderSession(): Promise<FolderSessionInfo | null> {
+    return withRpcError('get_folder_session', () =>
+      fetchJson<FolderSessionInfo | null>('/folder/session'),
+    )
+  },
+
+  getFolderImageUrl(index: number): string {
+    return `/folder/images/${index}`
+  },
+
+  getFolderResultUrl(index: number): string {
+    return `/folder/results/${index}`
+  },
+
+  async startFolderPipeline(options: {
+    llmModelId?: string
+    llmApiKey?: string
+    llmBaseUrl?: string
+    llmTemperature?: number
+    llmMaxTokens?: number
+    llmCustomSystemPrompt?: string
+    language?: string
+    shaderEffect?: RenderEffect
+    shaderStroke?: RenderStroke
+    fontFamily?: string
+    processWithCharacter?: boolean
+  }): Promise<void> {
+    return withRpcError('start_folder_pipeline', async () => {
+      const job = await fetchJson<JobState>('/jobs/pipeline-folder', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          llmModelId: options.llmModelId,
+          llmApiKey: options.llmApiKey,
+          llmBaseUrl: options.llmBaseUrl,
+          llmTemperature: options.llmTemperature ?? undefined,
+          llmMaxTokens: options.llmMaxTokens ?? undefined,
+          llmCustomSystemPrompt: options.llmCustomSystemPrompt || undefined,
+          language: options.language,
+          shaderEffect: options.shaderEffect,
+          shaderStroke: options.shaderStroke,
+          fontFamily: options.fontFamily,
+          processWithCharacter: options.processWithCharacter ?? false,
+        }),
+      })
+      setActivePipelineJobId(job.id)
+    })
   },
 }
 

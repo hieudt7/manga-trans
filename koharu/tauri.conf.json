@@ -4,7 +4,7 @@
   "build": {
     "beforeDevCommand": "bun --cwd ui dev",
     "beforeBuildCommand": "bun --cwd ui build",
-    "devUrl": "http://localhost:3000",
+    "devUrl": "http://localhost:4000",
     "frontendDist": "../ui/out"
   },
   "app": {

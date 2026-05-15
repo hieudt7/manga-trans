@@ -50,8 +50,8 @@ const BLOCK_TAG_INSTRUCTIONS: &str = "If the input contains <block id=\"N\">...<
 
 pub fn system_prompt(target_language: Language) -> String {
     format!(
-        "You are a professional manga translator. Translate Japanese manga dialogue into natural {} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, emphasis, and sound effects naturally. Keep the wording concise. Do not add notes, explanations, or romanization. {BLOCK_TAG_INSTRUCTIONS}",
-        target_language
+        "You are a professional manga translator. Translate Japanese manga dialogue into natural {} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, and emphasis. Keep the wording concise.\n\nFor sound effects (SFX / onomatopoeia): output ONLY the sound word itself in {}, nothing else — no parentheses, no descriptions, no explanations. WRONG: \"(Tiếng búa đập)\" or \"BỊCH! (Tiếng búa đập)\". CORRECT: \"BỊCH!\". More examples: \"ドン\" → \"BÙNG!\", \"ガン\" → \"BANG!\", \"ザー\" → \"ÀO ÀO\", \"トン\" → \"THÌNH!\", \"キーン\" → \"VÙN!\".\n\nOutput ONLY the translated text — never prefix or suffix with character names, speaker labels, colons, or any metadata. WRONG: \"SAEBA: Xin chào\". CORRECT: \"Xin chào\". {BLOCK_TAG_INSTRUCTIONS}",
+        target_language, target_language
     )
 }
 
@@ -121,7 +121,30 @@ impl PromptRenderer {
         prompt: String,
         target_language: Language,
     ) -> anyhow::Result<String> {
-        let messages = self.messages(prompt, target_language);
+        self.format_chat_prompt_with_context(prompt, target_language, None)
+    }
+
+    pub fn format_chat_prompt_with_context(
+        &self,
+        prompt: String,
+        target_language: Language,
+        story_context: Option<&str>,
+    ) -> anyhow::Result<String> {
+        let messages = if let Some(ctx) = story_context.filter(|s| !s.trim().is_empty()) {
+            let mut msgs = self.messages(prompt, target_language);
+            // Inject story context into the system message (first message).
+            if let Some(first) = msgs.first_mut() {
+                if matches!(first.role, ChatRole::System) {
+                    first.content = format!(
+                        "{}\n\nAdditional context about the story and characters:\n{}",
+                        first.content, ctx
+                    );
+                }
+            }
+            msgs
+        } else {
+            self.messages(prompt, target_language)
+        };
         let tmpl = self.env.template_from_str(&self.template)?;
 
         let prompt = tmpl

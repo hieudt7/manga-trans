@@ -41,8 +41,12 @@ export function MenuBar() {
     processImage,
     inpaintAndRenderImage,
     processAllImages,
+    processAllImagesAsTiff,
+    processAllImagesAsPsd,
+    processAllImagesWithCharacter,
     exportDocument,
     exportPsdDocument,
+    exportTiffDocument,
     exportDocumentJson,
     importDocumentJson,
     exportAllInpainted,
@@ -79,6 +83,11 @@ export function MenuBar() {
       label: t('menu.exportPsd'),
       onSelect: exportPsdDocument,
       testId: 'menu-file-export-psd',
+    },
+    {
+      label: t('menu.exportTiff'),
+      onSelect: exportTiffDocument,
+      testId: 'menu-file-export-tiff',
     },
     {
       label: t('menu.exportJson'),
@@ -128,6 +137,21 @@ export function MenuBar() {
           label: t('menu.processAll'),
           onSelect: processAllImages,
           testId: 'menu-process-all',
+        },
+        {
+          label: t('menu.processAllAsTiff'),
+          onSelect: processAllImagesAsTiff,
+          testId: 'menu-process-all-tiff',
+        },
+        {
+          label: t('menu.processAllAsPsd'),
+          onSelect: processAllImagesAsPsd,
+          testId: 'menu-process-all-psd',
+        },
+        {
+          label: t('menu.processAllWithCharacter'),
+          onSelect: processAllImagesWithCharacter,
+          testId: 'menu-process-all-character',
         },
       ],
     },
@@ -196,6 +220,16 @@ export function MenuBar() {
               </MenubarItem>
             ))}
             <MenubarSeparator />
+            <MenubarItem className='text-[13px]' asChild>
+              <Link href='/folder' prefetch={false}>
+                {t('menu.folderMode')}
+              </Link>
+            </MenubarItem>
+            <MenubarItem className='text-[13px]' asChild>
+              <Link href='/characters' prefetch={false}>
+                {t('menu.characters')}
+              </Link>
+            </MenubarItem>
             <MenubarItem className='text-[13px]' asChild>
               <Link href='/settings' prefetch={false}>
                 {t('menu.settings')}

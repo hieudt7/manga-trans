@@ -82,6 +82,22 @@ thread_local! {
     static COMMAND_QUEUES: RefCell<HashMap<DeviceId, Retained<ProtocolObject<dyn objc2_metal::MTLCommandQueue>>>> = RefCell::new(HashMap::new());
 }
 
+/// Drop all cached MPSGraph objects on the calling thread.
+///
+/// MPSGraph holds open file descriptors to its compiled-shader temp files in
+/// `$TMPDIR/com.apple.MetalPerformanceShadersGraph/`. Dropping the `MPSGraph`
+/// objects causes Metal to close those FDs, which frees the on-disk space
+/// immediately (the directory entries are cleaned up by Metal on FD close).
+/// Must be called from the same thread that ran the FFT inference.
+pub fn clear_fft_plans_on_current_thread() {
+    FFT_PLANS.with(|plans| {
+        let mut map = plans.borrow_mut();
+        let count = map.len();
+        map.clear();
+        tracing::info!(thread_id = ?std::thread::current().id(), cleared = count, "FFT_PLANS cleared on thread");
+    });
+}
+
 fn shared_command_queue(
     device: &candle_core::metal_backend::MetalDevice,
 ) -> Result<Retained<ProtocolObject<dyn objc2_metal::MTLCommandQueue>>> {

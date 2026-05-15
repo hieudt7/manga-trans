@@ -373,6 +373,30 @@ pub struct PipelineJobRequest {
     pub shader_effect: Option<TextShaderEffect>,
     pub shader_stroke: Option<TextStrokeStyle>,
     pub font_family: Option<String>,
+    #[serde(default)]
+    pub export_tiff: bool,
+    #[serde(default)]
+    pub export_psd: bool,
+    #[serde(default)]
+    pub process_with_character: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct FolderPipelineJobRequest {
+    pub llm_model_id: Option<String>,
+    pub llm_api_key: Option<String>,
+    pub llm_base_url: Option<String>,
+    pub llm_temperature: Option<f64>,
+    pub llm_max_tokens: Option<u32>,
+    pub llm_custom_system_prompt: Option<String>,
+    pub language: Option<String>,
+    pub shader_effect: Option<TextShaderEffect>,
+    pub shader_stroke: Option<TextStrokeStyle>,
+    pub font_family: Option<String>,
+    #[serde(default)]
+    pub process_with_character: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]

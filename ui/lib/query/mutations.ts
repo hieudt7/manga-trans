@@ -632,6 +632,153 @@ export const useDocumentMutations = () => {
     }
   }, [clearProgress])
 
+  const processAllImagesAsTiff = useCallback(async () => {
+    const { selectedModel, selectedLanguage } = useLlmUiStore.getState()
+    const { renderEffect, renderStroke, totalPages } =
+      useEditorUiStore.getState()
+    const { fontFamily } = usePreferencesStore.getState()
+    const { startOperation, finishOperation } = useOperationStore.getState()
+    if (!totalPages) return
+    startOperation({
+      type: 'process-all',
+      cancellable: true,
+      current: 0,
+      total: totalPages,
+    })
+    try {
+      const models = getCachedLlmModels(queryClient)
+      const modelInfo = models.find((m) => m.id === selectedModel)
+      const language = selectedLanguage
+      const llmApiKey =
+        modelInfo && modelInfo.source !== 'local'
+          ? usePreferencesStore.getState().apiKeys[modelInfo.source]
+          : undefined
+      const llmBaseUrl =
+        modelInfo?.source === 'openai-compatible'
+          ? getBaseUrlForModel(selectedModel!)
+          : undefined
+      const localLlm = usePreferencesStore.getState().localLlm
+      const isLocalCompat = modelInfo?.source === 'openai-compatible'
+      await api.process({
+        llmModelId: selectedModel,
+        llmApiKey,
+        llmBaseUrl,
+        llmTemperature: isLocalCompat ? localLlm.temperature : undefined,
+        llmMaxTokens: isLocalCompat ? localLlm.maxTokens : undefined,
+        llmCustomSystemPrompt: isLocalCompat
+          ? localLlm.customSystemPrompt
+          : undefined,
+        language,
+        shaderEffect: renderEffect,
+        shaderStroke: renderStroke,
+        fontFamily,
+        exportTiff: true,
+      })
+    } catch (error) {
+      console.error('Failed to start processing:', error)
+      finishOperation()
+      await clearProgress()
+    }
+  }, [clearProgress])
+
+  const processAllImagesAsPsd = useCallback(async () => {
+    const { selectedModel, selectedLanguage } = useLlmUiStore.getState()
+    const { renderEffect, renderStroke, totalPages } =
+      useEditorUiStore.getState()
+    const { fontFamily } = usePreferencesStore.getState()
+    const { startOperation, finishOperation } = useOperationStore.getState()
+    if (!totalPages) return
+    startOperation({
+      type: 'process-all',
+      cancellable: true,
+      current: 0,
+      total: totalPages,
+    })
+    try {
+      const models = getCachedLlmModels(queryClient)
+      const modelInfo = models.find((m) => m.id === selectedModel)
+      const language = selectedLanguage
+      const llmApiKey =
+        modelInfo && modelInfo.source !== 'local'
+          ? usePreferencesStore.getState().apiKeys[modelInfo.source]
+          : undefined
+      const llmBaseUrl =
+        modelInfo?.source === 'openai-compatible'
+          ? getBaseUrlForModel(selectedModel!)
+          : undefined
+      const localLlm = usePreferencesStore.getState().localLlm
+      const isLocalCompat = modelInfo?.source === 'openai-compatible'
+      await api.process({
+        llmModelId: selectedModel,
+        llmApiKey,
+        llmBaseUrl,
+        llmTemperature: isLocalCompat ? localLlm.temperature : undefined,
+        llmMaxTokens: isLocalCompat ? localLlm.maxTokens : undefined,
+        llmCustomSystemPrompt: isLocalCompat
+          ? localLlm.customSystemPrompt
+          : undefined,
+        language,
+        shaderEffect: renderEffect,
+        shaderStroke: renderStroke,
+        fontFamily,
+        exportPsd: true,
+      })
+    } catch (error) {
+      console.error('Failed to start processing:', error)
+      finishOperation()
+      await clearProgress()
+    }
+  }, [clearProgress])
+
+  const processAllImagesWithCharacter = useCallback(async () => {
+    const { selectedModel, selectedLanguage } = useLlmUiStore.getState()
+    const { renderEffect, renderStroke, totalPages } =
+      useEditorUiStore.getState()
+    const { fontFamily } = usePreferencesStore.getState()
+    const { startOperation, finishOperation } = useOperationStore.getState()
+    if (!totalPages) return
+    startOperation({
+      type: 'process-all',
+      cancellable: true,
+      current: 0,
+      total: totalPages,
+    })
+    try {
+      const models = getCachedLlmModels(queryClient)
+      const modelInfo = models.find((m) => m.id === selectedModel)
+      const language = selectedLanguage
+      const llmApiKey =
+        modelInfo && modelInfo.source !== 'local'
+          ? usePreferencesStore.getState().apiKeys[modelInfo.source]
+          : undefined
+      const llmBaseUrl =
+        modelInfo?.source === 'openai-compatible'
+          ? getBaseUrlForModel(selectedModel!)
+          : undefined
+      const localLlm = usePreferencesStore.getState().localLlm
+      const isLocalCompat = modelInfo?.source === 'openai-compatible'
+      await api.process({
+        llmModelId: selectedModel,
+        llmApiKey,
+        llmBaseUrl,
+        llmTemperature: isLocalCompat ? localLlm.temperature : undefined,
+        llmMaxTokens: isLocalCompat ? localLlm.maxTokens : undefined,
+        llmCustomSystemPrompt: isLocalCompat
+          ? localLlm.customSystemPrompt
+          : undefined,
+        language,
+        shaderEffect: renderEffect,
+        shaderStroke: renderStroke,
+        fontFamily,
+        processWithCharacter: true,
+      })
+    } catch (error) {
+      console.error('Failed to start processing:', error)
+      finishOperation()
+      await clearProgress()
+    }
+  }, [clearProgress])
+
   const exportDocument = useCallback(async () => {
     const { currentDocumentIndex } = useEditorUiStore.getState()
     await api.exportDocument(currentDocumentIndex)
@@ -640,6 +787,11 @@ export const useDocumentMutations = () => {
   const exportPsdDocument = useCallback(async () => {
     const { currentDocumentIndex } = useEditorUiStore.getState()
     await api.exportPsdDocument(currentDocumentIndex)
+  }, [])
+
+  const exportTiffDocument = useCallback(async () => {
+    const { currentDocumentIndex } = useEditorUiStore.getState()
+    await api.exportTiffDocument(currentDocumentIndex)
   }, [])
 
   const saveRendered = useCallback(
@@ -691,6 +843,66 @@ export const useDocumentMutations = () => {
     await api.processCancel().catch(() => {})
   }, [])
 
+  const openFolderSession = useCallback(async () => {
+    const { startOperation, finishOperation } = useOperationStore.getState()
+    startOperation({ type: 'load-khr', cancellable: false })
+    try {
+      const session = await api.openFolderSession()
+      return session
+    } finally {
+      finishOperation()
+    }
+  }, [])
+
+  const startFolderPipeline = useCallback(async () => {
+    const { selectedModel, selectedLanguage } = useLlmUiStore.getState()
+    const { renderEffect, renderStroke, totalPages } =
+      useEditorUiStore.getState()
+    const { fontFamily, localLlm, apiKeys } = usePreferencesStore.getState()
+    const { startOperation, finishOperation } = useOperationStore.getState()
+    const models = getCachedLlmModels(queryClient)
+    const modelInfo = models.find((m) => m.id === selectedModel)
+    const llmApiKey =
+      modelInfo && modelInfo.source !== 'local'
+        ? apiKeys[modelInfo.source]
+        : undefined
+    const llmBaseUrl =
+      modelInfo?.source === 'openai-compatible'
+        ? getBaseUrlForModel(selectedModel!)
+        : undefined
+    const isLocalCompat = modelInfo?.source === 'openai-compatible'
+    startOperation({
+      type: 'process-all',
+      cancellable: true,
+      current: 0,
+      total: totalPages,
+    })
+    try {
+      await api.startFolderPipeline({
+        llmModelId: selectedModel,
+        llmApiKey,
+        llmBaseUrl,
+        llmTemperature: isLocalCompat
+          ? (localLlm.temperature ?? undefined)
+          : undefined,
+        llmMaxTokens: isLocalCompat
+          ? (localLlm.maxTokens ?? undefined)
+          : undefined,
+        llmCustomSystemPrompt: isLocalCompat
+          ? localLlm.customSystemPrompt
+          : undefined,
+        language: selectedLanguage,
+        shaderEffect: renderEffect,
+        shaderStroke: renderStroke,
+        fontFamily,
+      })
+    } catch (error) {
+      console.error('Failed to start folder pipeline:', error)
+      finishOperation()
+      await clearProgress()
+    }
+  }, [clearProgress, queryClient])
+
   return {
     refreshCurrentDocument,
     addDocuments,
@@ -705,9 +917,13 @@ export const useDocumentMutations = () => {
     render,
     processImage,
     processAllImages,
+    processAllImagesAsTiff,
+    processAllImagesAsPsd,
+    processAllImagesWithCharacter,
     inpaintAndRenderImage,
     exportDocument,
     exportPsdDocument,
+    exportTiffDocument,
     saveRendered,
     deleteDocument,
     exportDocumentJson,
@@ -717,6 +933,8 @@ export const useDocumentMutations = () => {
     cancelOperation,
     setProgress,
     clearProgress,
+    openFolderSession,
+    startFolderPipeline,
   }
 }
 

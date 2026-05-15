@@ -84,11 +84,37 @@ pub async fn replace_docs(state: &AppState, mut documents: Vec<Document>) -> Res
     }
 
     let count = documents.len();
-    let mut guard = state.write().await;
-    guard.documents = documents;
-    drop(guard);
+
+    // Swap old docs out while holding the write lock, then drop them *outside*
+    // the lock so heavy image buffers are freed without blocking other readers.
+    let old_docs = {
+        let mut guard = state.write().await;
+        std::mem::replace(&mut guard.documents, documents)
+        // write lock released here
+    };
+
+    // Explicitly clear heavy image fields before dropping so allocator can
+    // reclaim them immediately and in a predictable order.
+    drop_doc_images(old_docs);
+
     emit(StateEvent::DocumentsChanged);
     Ok(count)
+}
+
+/// Release all large image buffers from a list of documents, then drop them.
+fn drop_doc_images(mut docs: Vec<Document>) {
+    for doc in &mut docs {
+        doc.segment = None;
+        doc.inpainted = None;
+        doc.rendered = None;
+        doc.brush_layer = None;
+        doc.balloons.clear();
+        doc.balloons.shrink_to_fit();
+        for block in &mut doc.text_blocks {
+            block.rendered = None;
+        }
+    }
+    // docs (including original images) are dropped here
 }
 
 pub async fn append_docs(state: &AppState, mut documents: Vec<Document>) -> Result<usize> {

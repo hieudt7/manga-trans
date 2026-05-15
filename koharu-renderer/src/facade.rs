@@ -14,7 +14,7 @@ use crate::{
     layout::{LayoutRun, TextLayout, WritingMode},
     renderer::{RenderOptions, RenderStrokeOptions, TinySkiaRenderer},
     text::{
-        latin::{LayoutBox, layout_box_from_block},
+        latin::layout_box_from_block,
         script::{
             font_families_for_text, is_latin_only, normalize_translation_for_layout,
             writing_mode_for_block,

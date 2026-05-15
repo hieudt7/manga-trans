@@ -70,12 +70,28 @@ pub async fn ensure_provider_success(
 }
 
 pub trait AnyProvider: Send + Sync {
+    /// Translate `source` with an optional per-page character context that is
+    /// appended to the provider's configured story_context for this call only.
     fn translate<'a>(
         &'a self,
         source: &'a str,
         target_language: Language,
+        page_context: Option<&'a str>,
         model: &'a str,
     ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>>;
+}
+
+/// Combine a stored story context with a per-page character context.
+pub fn extend_story_context(story: Option<&str>, page: Option<&str>) -> Option<String> {
+    match (
+        story.filter(|s| !s.trim().is_empty()),
+        page.filter(|p| !p.trim().is_empty()),
+    ) {
+        (Some(s), Some(p)) => Some(format!("{s}\n\n{p}")),
+        (Some(s), None) => Some(s.to_string()),
+        (None, Some(p)) => Some(p.to_string()),
+        (None, None) => None,
+    }
 }
 
 pub struct ProviderConfig {

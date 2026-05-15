@@ -614,6 +614,13 @@ fn stddev3(values: [f64; 3]) -> f64 {
     variance.sqrt()
 }
 
+/// Drop all cached MPSGraph objects on the calling thread to release compiled
+/// shader temp file FDs and free their on-disk space immediately.
+/// Must be called from the same thread that ran Lama inference.
+pub fn clear_fft_plans_on_current_thread() {
+    fft::clear_fft_plans_on_current_thread();
+}
+
 #[cfg(test)]
 mod tests {
     use super::{

@@ -7,7 +7,7 @@ use koharu_http::http::http_client;
 
 use crate::{Language, prompt::build_system_prompt};
 
-use super::{AnyProvider, ensure_provider_success};
+use super::{AnyProvider, ensure_provider_success, extend_story_context};
 
 pub struct OpenAiProvider {
     pub api_key: String,
@@ -31,15 +31,17 @@ impl AnyProvider for OpenAiProvider {
         &'a self,
         source: &'a str,
         target_language: Language,
+        page_context: Option<&'a str>,
         model: &'a str,
     ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>> {
         Box::pin(async move {
+            let combined = extend_story_context(self.story_context.as_deref(), page_context);
             let body = ChatRequest {
                 model,
                 messages: vec![
                     ChatMessage {
                         role: "system",
-                        content: build_system_prompt(target_language, None, self.story_context.as_deref()),
+                        content: build_system_prompt(target_language, None, combined.as_deref()),
                     },
                     ChatMessage {
                         role: "user",

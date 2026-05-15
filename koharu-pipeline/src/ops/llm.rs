@@ -146,26 +146,99 @@ pub async fn llm_generate(state: AppResources, payload: LlmGeneratePayload) -> a
     let mut updated = state_tx::read_doc(&state.state, payload.index).await?;
     let target_language = payload.language.as_deref();
 
+    // Scan the page for known characters and inject context into the translation prompt.
+    let page_context = state.ml.scan_for_character_context(&updated.image);
+    if let Some(ctx) = &page_context {
+        tracing::debug!(context_len = ctx.len(), "character context injected into translate");
+    }
+
     match payload.text_block_index {
         Some(block_index) => {
             let text_block = updated
                 .text_blocks
                 .get_mut(block_index)
                 .ok_or_else(|| anyhow::anyhow!("Text block not found"))?;
-            state.llm.translate(text_block, target_language).await?;
+            state
+                .llm
+                .translate_with_context(text_block, target_language, page_context.as_deref())
+                .await?;
+            state_tx::update_doc(
+                &state.state,
+                payload.index,
+                updated,
+                &[ChangedField::TextBlocks],
+            )
+            .await
         }
         None => {
-            state.llm.translate(&mut updated, target_language).await?;
+            const MAX_BATCH_RETRIES: usize = 3;
+            let has_source = |b: &koharu_types::TextBlock| {
+                b.text.as_deref().map(|t| !t.trim().is_empty()).unwrap_or(false)
+            };
+            let has_translation = |b: &koharu_types::TextBlock| {
+                b.translation.as_deref().map(|t| !t.trim().is_empty()).unwrap_or(false)
+            };
+            let expected = updated.text_blocks.iter().filter(|b| has_source(b)).count();
+
+            // ── Batch translate with retry ────────────────────────────────────────
+            for attempt in 1..=MAX_BATCH_RETRIES {
+                state
+                    .llm
+                    .translate_with_context(&mut updated, target_language, page_context.as_deref())
+                    .await?;
+
+                let received = updated.text_blocks.iter().filter(|b| has_translation(b)).count();
+                if received >= expected {
+                    tracing::info!(attempt, received, expected, "translation complete");
+                    break;
+                }
+                tracing::warn!(attempt, received, expected, "translation incomplete, retrying batch");
+            }
+
+            // ── Per-block retry for any remaining empty blocks ────────────────────
+            let empty_indices: Vec<usize> = updated
+                .text_blocks
+                .iter()
+                .enumerate()
+                .filter(|(_, b)| has_source(b) && !has_translation(b))
+                .map(|(i, _)| i)
+                .collect();
+
+            if !empty_indices.is_empty() {
+                tracing::warn!(count = empty_indices.len(), "retrying empty blocks individually");
+                for i in empty_indices {
+                    state
+                        .llm
+                        .translate_with_context(
+                            &mut updated.text_blocks[i],
+                            target_language,
+                            page_context.as_deref(),
+                        )
+                        .await?;
+                }
+            }
+
+            // ── Fill anything still empty with silence marker ─────────────────────
+            for block in &mut updated.text_blocks {
+                if has_source(block) && !has_translation(block) {
+                    block.translation = Some(".\n.\n.".to_string());
+                }
+            }
+
+            let received_final = updated.text_blocks.iter().filter(|b| has_translation(b)).count();
+            if received_final < expected {
+                tracing::warn!(received_final, expected, "some blocks remain untranslated after all retries");
+            }
+
+            state_tx::update_doc(
+                &state.state,
+                payload.index,
+                updated,
+                &[ChangedField::TextBlocks],
+            )
+            .await
         }
     }
-
-    state_tx::update_doc(
-        &state.state,
-        payload.index,
-        updated,
-        &[ChangedField::TextBlocks],
-    )
-    .await
 }
 
 pub async fn llm_ping(

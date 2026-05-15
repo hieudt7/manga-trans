@@ -576,6 +576,7 @@ pub async fn inpaint_partial(
         .ml
         .inpaint_raw(&image_crop, &mask_crop, Some(&localized_blocks))
         .await?;
+    tokio::task::block_in_place(koharu_ml::lama::clear_fft_plans_on_current_thread);
 
     let mut stitched = snapshot
         .inpainted

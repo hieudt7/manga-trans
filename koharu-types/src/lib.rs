@@ -28,6 +28,165 @@ fn new_text_block_id() -> String {
     Uuid::new_v4().to_string()
 }
 
+fn default_resolution() -> u32 {
+    72
+}
+
+/// Parse DPI from an EXIF block (the bytes after the "Exif\0\0" header).
+/// Reads XResolution (tag 0x011A), YResolution (0x011B), ResolutionUnit (0x0128)
+/// from the TIFF IFD embedded in the EXIF segment. Returns None if not found.
+fn extract_dpi_from_exif(exif: &[u8]) -> Option<u32> {
+    if exif.len() < 8 {
+        return None;
+    }
+    // TIFF header: byte order mark ("II" = LE, "MM" = BE) + magic 42 + IFD offset
+    let little_endian = match &exif[0..2] {
+        b"II" => true,
+        b"MM" => false,
+        _ => return None,
+    };
+    let read_u16 = |buf: &[u8], off: usize| -> Option<u16> {
+        if off + 2 > buf.len() { return None; }
+        Some(if little_endian {
+            u16::from_le_bytes([buf[off], buf[off + 1]])
+        } else {
+            u16::from_be_bytes([buf[off], buf[off + 1]])
+        })
+    };
+    let read_u32 = |buf: &[u8], off: usize| -> Option<u32> {
+        if off + 4 > buf.len() { return None; }
+        Some(if little_endian {
+            u32::from_le_bytes([buf[off], buf[off + 1], buf[off + 2], buf[off + 3]])
+        } else {
+            u32::from_be_bytes([buf[off], buf[off + 1], buf[off + 2], buf[off + 3]])
+        })
+    };
+
+    if read_u16(exif, 2)? != 42 {
+        return None; // not a valid TIFF
+    }
+    let ifd_offset = read_u32(exif, 4)? as usize;
+    if ifd_offset + 2 > exif.len() {
+        return None;
+    }
+    let entry_count = read_u16(exif, ifd_offset)? as usize;
+
+    let mut x_res_num: Option<u32> = None;
+    let mut x_res_den: Option<u32> = None;
+    let mut res_unit: u32 = 2; // default = inch
+
+    for e in 0..entry_count {
+        let entry_off = ifd_offset + 2 + e * 12;
+        if entry_off + 12 > exif.len() {
+            break;
+        }
+        let tag = read_u16(exif, entry_off)?;
+        let value_off = entry_off + 8;
+
+        match tag {
+            0x011A => {
+                // XResolution: RATIONAL (numerator/denominator), both u32
+                let offset = read_u32(exif, value_off)? as usize;
+                x_res_num = read_u32(exif, offset);
+                x_res_den = read_u32(exif, offset + 4);
+            }
+            0x0128 => {
+                // ResolutionUnit: SHORT — 1=no unit, 2=inch, 3=cm
+                res_unit = read_u16(exif, value_off)? as u32;
+            }
+            _ => {}
+        }
+    }
+
+    let num = x_res_num?;
+    let den = x_res_den.unwrap_or(1).max(1);
+    let resolution = num as f64 / den as f64;
+    if resolution <= 0.0 {
+        return None;
+    }
+    let dpi = match res_unit {
+        2 => resolution,               // already in inches
+        3 => resolution * 2.54,        // cm → inch
+        _ => return None,
+    };
+    Some(dpi.round() as u32)
+}
+
+/// Try to extract DPI from raw image bytes.
+/// Handles JPEG (JFIF APP0, EXIF APP1), PNG (pHYs), and TIFF (IFD tags). Falls back to 72.
+fn extract_dpi(bytes: &[u8]) -> u32 {
+    // TIFF: header is a TIFF IFD — reuse the same EXIF parser directly.
+    // "II" = little-endian (magic = 42 LE), "MM" = big-endian (magic = 42 BE).
+    if bytes.len() >= 8 {
+        let is_le_tiff = &bytes[0..2] == b"II" && bytes[2] == 42 && bytes[3] == 0;
+        let is_be_tiff = &bytes[0..2] == b"MM" && bytes[2] == 0  && bytes[3] == 42;
+        if is_le_tiff || is_be_tiff {
+            if let Some(dpi) = extract_dpi_from_exif(bytes) {
+                return dpi;
+            }
+        }
+    }
+
+    // JPEG: scan APP markers for JFIF APP0 or EXIF APP1
+    if bytes.len() >= 20 && bytes[0] == 0xFF && bytes[1] == 0xD8 {
+        let mut i = 2;
+        while i + 3 < bytes.len() {
+            if bytes[i] != 0xFF {
+                break;
+            }
+            let marker = bytes[i + 1];
+            if i + 3 >= bytes.len() {
+                break;
+            }
+            let seg_len = u16::from_be_bytes([bytes[i + 2], bytes[i + 3]]) as usize;
+            // APP0 = 0xE0 — JFIF header
+            if marker == 0xE0 && i + 13 < bytes.len() && &bytes[i + 4..i + 9] == b"JFIF\0" {
+                let unit = bytes[i + 11];
+                let xdpi = u16::from_be_bytes([bytes[i + 12], bytes[i + 13]]) as u32;
+                if xdpi > 0 {
+                    return match unit {
+                        1 => xdpi,                                  // pixels per inch
+                        2 => (xdpi as f64 * 2.54).round() as u32, // pixels per cm → ppi
+                        _ => 72,
+                    };
+                }
+            }
+            // APP1 = 0xE1 — EXIF data
+            if marker == 0xE1 && seg_len >= 8 && i + 4 + 6 <= bytes.len()
+                && &bytes[i + 4..i + 10] == b"Exif\0\0"
+            {
+                if let Some(dpi) = extract_dpi_from_exif(&bytes[i + 10..i + 2 + seg_len]) {
+                    return dpi;
+                }
+            }
+            if seg_len < 2 {
+                break;
+            }
+            i += 2 + seg_len;
+        }
+    }
+    // PNG: look for pHYs chunk (pixels per unit)
+    if bytes.len() >= 8 && &bytes[0..8] == b"\x89PNG\r\n\x1a\n" {
+        let mut i = 8;
+        while i + 12 <= bytes.len() {
+            let chunk_len = u32::from_be_bytes([bytes[i], bytes[i+1], bytes[i+2], bytes[i+3]]) as usize;
+            let chunk_type = &bytes[i+4..i+8];
+            if chunk_type == b"pHYs" && i + 12 + chunk_len <= bytes.len() && chunk_len >= 9 {
+                let xpu = u32::from_be_bytes([bytes[i+8], bytes[i+9], bytes[i+10], bytes[i+11]]);
+                let unit = bytes[i + 16]; // 1 = metre
+                if unit == 1 && xpu > 0 {
+                    return (xpu as f64 / 39.3701).round() as u32;
+                }
+            }
+            if chunk_type == b"IDAT" || chunk_type == b"IEND" {
+                break;
+            }
+            i += 12 + chunk_len;
+        }
+    }
+    72
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize, TS, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
@@ -171,6 +330,9 @@ pub struct Document {
     pub height: u32,
     #[serde(default)]
     pub revision: u64,
+    /// Resolution in pixels per inch (DPI). Read from the source image on load.
+    #[serde(default = "default_resolution")]
+    pub resolution_dpi: u32,
     pub text_blocks: Vec<TextBlock>,
     pub segment: Option<SerializableDynamicImage>,
     pub inpainted: Option<SerializableDynamicImage>,
@@ -205,6 +367,7 @@ impl Document {
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
+        let resolution_dpi = extract_dpi(&bytes);
         Ok(Document {
             id,
             path,
@@ -212,6 +375,7 @@ impl Document {
             image: SerializableDynamicImage(img),
             width,
             height,
+            resolution_dpi,
             ..Default::default()
         })
     }
@@ -234,9 +398,46 @@ impl Document {
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct State {
     pub documents: Vec<Document>,
+    pub folder_session: Option<FolderSession>,
 }
 
 pub type AppState = Arc<RwLock<State>>;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderFile {
+    pub path: PathBuf,
+    pub name: String,
+    pub width: u32,
+    pub height: u32,
+    pub has_result: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderSession {
+    pub root: PathBuf,
+    pub result_dir: PathBuf,
+    pub files: Vec<FolderFile>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderFileInfo {
+    pub index: usize,
+    pub name: String,
+    pub width: u32,
+    pub height: u32,
+    pub has_result: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderSessionInfo {
+    pub root: String,
+    pub result_dir: String,
+    pub files: Vec<FolderFileInfo>,
+}
 
 #[cfg(test)]
 mod tests {

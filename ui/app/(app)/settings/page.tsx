@@ -891,6 +891,18 @@ export default function SettingsPage() {
             {/* Divider */}
             <div className='border-border mb-8 border-t' />
 
+            {/* Characters Link */}
+            <Link
+              href='/characters'
+              prefetch={false}
+              className='hover:bg-accent flex w-full items-center justify-between rounded-lg px-3 py-3 text-left transition'
+            >
+              <span className='text-foreground text-sm font-medium'>
+                {t('characters.title')}
+              </span>
+              <ChevronRightIcon className='text-muted-foreground size-5' />
+            </Link>
+
             {/* About Link */}
             <Link
               href='/about'

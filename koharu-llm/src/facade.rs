@@ -123,6 +123,44 @@ fn strip_wrapping_quotes(text: &str) -> String {
     strip_incomplete_corner_quotes(current)
 }
 
+/// Strip parenthetical SFX descriptions like "(Tiếng búa đập)" that LLMs
+/// sometimes produce instead of translating the onomatopoeia directly.
+/// If the ENTIRE translation is a parenthetical → strip the parens, leaving
+/// the inner text (e.g. "Tiếng búa đập") which is still more useful than nothing.
+pub fn is_sfx_description(text: &str) -> bool {
+    let t = text.trim();
+    t.starts_with('(') && t.ends_with(')') && !t[1..t.len()-1].contains('(')
+}
+
+fn strip_sfx_description(text: &str) -> String {
+    if is_sfx_description(text) {
+        tracing::warn!(original = %text.trim(), "discarded SFX parenthetical description");
+        return String::new();
+    }
+    text.to_string()
+}
+
+/// Strip "Speaker name: " prefix that LLMs sometimes add despite instructions.
+/// Only strips if the prefix is a short name-like string (no newlines, no block tags).
+fn strip_speaker_prefix(text: &str) -> String {
+    // Try each line — prefix may only be on the first line.
+    if let Some(colon_pos) = text.find(": ") {
+        let prefix = &text[..colon_pos];
+        // Valid name prefix: short, no newline, no XML/angle brackets, no digits at start.
+        let looks_like_name = prefix.len() <= 50
+            && !prefix.contains('\n')
+            && !prefix.contains('<')
+            && !prefix.contains('>')
+            && !prefix.trim_start().starts_with(|c: char| c.is_ascii_digit());
+        if looks_like_name {
+            let stripped = text[colon_pos + 2..].trim().to_string();
+            tracing::warn!(prefix = %prefix, "stripped speaker prefix from translation");
+            return stripped;
+        }
+    }
+    text.to_string()
+}
+
 fn strip_incomplete_corner_quotes(text: &str) -> String {
     let mut current = text.trim();
 
@@ -173,39 +211,15 @@ fn parse_tagged_blocks(
 
     let mut blocks = vec![String::new(); expected_blocks];
     let mut cursor = translation;
-    let mut found_any = false;
     let mut parsed_count = 0usize;
-    let mut ignored_count = 0usize;
 
     while let Some(start_tag) = find_next_block_start_tag(cursor) {
-        found_any = true;
         cursor = &cursor[start_tag.offset + start_tag.len..];
 
         let id = start_tag.id;
-        if id >= expected_blocks {
-            ignored_count += 1;
-            tracing::warn!("Ignoring translated block id {id} for {expected_blocks} source blocks");
-            let closing_tag = find_next_block_end_tag(cursor);
-            let boundary = block_boundary(cursor, closing_tag.map(|tag| tag.offset));
-            cursor = if closing_tag.map(|tag| tag.offset) == Some(boundary) {
-                let closing_len = closing_tag.map(|tag| tag.len).unwrap_or(0);
-                &cursor[boundary + closing_len..]
-            } else {
-                &cursor[boundary..]
-            };
-            continue;
-        }
-
         let closing_tag = find_next_block_end_tag(cursor);
         let block_end = block_boundary(cursor, closing_tag.map(|tag| tag.offset));
         let content = unescape_block_text(cursor[..block_end].trim());
-
-        if blocks[id].is_empty() {
-            parsed_count += 1;
-        } else {
-            tracing::warn!("Translated block id {id} appeared more than once, keeping latest");
-        }
-        blocks[id] = content;
 
         cursor = if closing_tag.map(|tag| tag.offset) == Some(block_end) {
             let closing_len = closing_tag.map(|tag| tag.len).unwrap_or(0);
@@ -213,19 +227,96 @@ fn parse_tagged_blocks(
         } else {
             &cursor[block_end..]
         };
+
+        if id >= expected_blocks {
+            tracing::warn!(id, expected_blocks, "ignoring out-of-range block id");
+            continue;
+        }
+
+        if blocks[id].is_empty() {
+            parsed_count += 1;
+        }
+        blocks[id] = content;
     }
 
-    if !found_any {
-        return Ok(None);
-    }
-
-    if parsed_count != expected_blocks || ignored_count != 0 {
-        tracing::warn!(
-            "Translated block count mismatch: expected {expected_blocks}, got {parsed_count}, ignored {ignored_count}"
-        );
+    if parsed_count < expected_blocks {
+        tracing::warn!(parsed_count, expected_blocks, "Gemini returned fewer blocks than expected");
     }
 
     Ok(Some(blocks))
+}
+
+/// Parse numbered-list responses that some API providers return instead of block tags:
+///
+/// ```text
+/// 0
+/// Translation for block 0.
+///
+/// 1
+/// Translation for block 1.
+/// ```
+///
+/// Returns `None` if the text doesn't look like numbered list format.
+fn parse_numbered_list_blocks(translation: &str, expected_blocks: usize) -> Option<Vec<String>> {
+    let mut blocks: Vec<Option<String>> = vec![None; expected_blocks];
+    let mut last_id: Option<usize> = None;
+    let mut found_count = 0usize;
+
+    for section in translation.split("\n\n") {
+        let section_trimmed = section.trim();
+        if section_trimmed.is_empty() {
+            continue;
+        }
+
+        let mut lines = section_trimmed.lines();
+        let first_line = lines.next().unwrap_or("").trim();
+        let rest_content: String = lines.collect::<Vec<_>>().join("\n");
+
+        if let Ok(id) = first_line.parse::<usize>() {
+            if id < expected_blocks {
+                let content = rest_content.trim().to_string();
+                if blocks[id].is_none() {
+                    found_count += 1;
+                }
+                blocks[id] = Some(content);
+                last_id = Some(id);
+            } else {
+                // Number out of range — treat as continuation of the previous block
+                if let Some(prev_id) = last_id {
+                    if let Some(ref mut existing) = blocks[prev_id] {
+                        existing.push_str("\n\n");
+                        existing.push_str(section_trimmed);
+                    }
+                } else {
+                    return None;
+                }
+            }
+        } else {
+            // First line is not a number
+            if let Some(prev_id) = last_id {
+                // Paragraph break within a translation
+                if let Some(ref mut existing) = blocks[prev_id] {
+                    if !existing.is_empty() {
+                        existing.push_str("\n\n");
+                    }
+                    existing.push_str(section_trimmed);
+                }
+            } else {
+                // No numbered block seen yet — not numbered list format
+                return None;
+            }
+        }
+    }
+
+    if found_count == 0 {
+        return None;
+    }
+
+    if found_count < expected_blocks {
+        tracing::warn!(found_count, expected_blocks, "numbered list: fewer blocks than expected");
+    }
+
+    Some(blocks.into_iter().map(|b| b.unwrap_or_default()).collect())
 }
 
 fn split_legacy_lines(translation: &str, expected_blocks: usize) -> anyhow::Result<Vec<String>> {
@@ -400,13 +491,28 @@ impl Translatable for Document {
     }
 
     fn set_translation(&mut self, translation: String) -> anyhow::Result<()> {
-        let translations = match parse_tagged_blocks(&translation, self.text_blocks.len())? {
+        let expected = self.text_blocks.len();
+        let translations = match parse_tagged_blocks(&translation, expected)? {
             Some(blocks) => blocks,
-            None => split_legacy_lines(&translation, self.text_blocks.len())?,
+            None => {
+                if expected == 1 {
+                    split_legacy_lines(&translation, 1)?
+                } else if let Some(blocks) = parse_numbered_list_blocks(&translation, expected) {
+                    tracing::debug!(expected, "parsed numbered list blocks from LLM response");
+                    blocks
+                } else {
+                    tracing::warn!(
+                        expected,
+                        "LLM response had no block tags, will retry each block individually"
+                    );
+                    return Ok(());
+                }
+            }
         };
 
-        for (block, translation) in self.text_blocks.iter_mut().zip(translations) {
-            block.translation = Some(strip_wrapping_quotes(&translation));
+        for (block, trans) in self.text_blocks.iter_mut().zip(translations) {
+            let clean = strip_sfx_description(&strip_speaker_prefix(&strip_wrapping_quotes(&trans)));
+            block.translation = Some(clean);
         }
         Ok(())
     }
@@ -431,7 +537,7 @@ impl Translatable for TextBlock {
             Some(blocks) => blocks.into_iter().next().unwrap_or_default(),
             None => translation,
         };
-        self.translation = Some(strip_wrapping_quotes(&translation));
+        self.translation = Some(strip_sfx_description(&strip_speaker_prefix(&strip_wrapping_quotes(&translation))));
         Ok(())
     }
 }
@@ -539,26 +645,45 @@ impl Model {
         doc: &mut impl Translatable,
         target_language: Option<&str>,
     ) -> anyhow::Result<()> {
+        self.translate_with_context(doc, target_language, None).await
+    }
+
+    /// Like `translate`, but injects `page_context` into the system prompt for
+    /// API providers. For local (llama.cpp) models the context is currently ignored.
+    pub async fn translate_with_context(
+        &self,
+        doc: &mut impl Translatable,
+        target_language: Option<&str>,
+        page_context: Option<&str>,
+    ) -> anyhow::Result<()> {
         let target_language = target_language
             .and_then(Language::parse)
             .unwrap_or(Language::English);
         let source = doc.get_source()?;
+        block_debug_write(&format!("=== SEND ===\n{source}\n"));
         let mut guard = self.state.write().await;
         let translation = match &mut *guard {
             State::Ready(llm) => {
-                llm.generate(&source, &GenerateOptions::default(), target_language)
+                llm.generate(&source, &GenerateOptions {
+                    story_context: page_context.map(str::to_owned),
+                    ..GenerateOptions::default()
+                }, target_language)
             }
             State::ApiReady {
                 provider, model, ..
             } => {
                 let model = model.clone();
-                provider.translate(&source, target_language, &model).await
+                provider
+                    .translate(&source, target_language, page_context, &model)
+                    .await
             }
             State::Loading { .. } => Err(anyhow::anyhow!("Model is still loading")),
             State::Failed(e) => Err(anyhow::anyhow!("Model failed to load: {e}")),
             State::Empty => Err(anyhow::anyhow!("No model is loaded")),
         }?;
-        doc.set_translation(translation.trim().to_string())
+        let trimmed = translation.trim().to_string();
+        block_debug_write(&format!("=== RECV ===\n{trimmed}\n"));
+        doc.set_translation(trimmed)
     }
 }
 
@@ -596,6 +721,25 @@ fn snapshot_from_state(state: &State) -> LlmState {
             source: None,
             error: Some(error.clone()),
         },
+    }
+}
+
+fn block_debug_write(content: &str) {
+    use std::io::Write;
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| {
+            let s = d.as_secs();
+            format!("{:02}:{:02}:{:02}", (s / 3600) % 24, (s / 60) % 60, s % 60)
+        })
+        .unwrap_or_default();
+    let debug_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap_or(std::path::Path::new("."))
+        .join("debug-scan/debug_block.txt");
+    let _ = std::fs::create_dir_all(debug_path.parent().unwrap());
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&debug_path) {
+        let _ = writeln!(f, "[{ts}] {content}");
     }
 }
 
@@ -672,19 +816,16 @@ mod tests {
     }
 
     #[test]
-    fn document_translation_pads_mismatched_legacy_lines() -> anyhow::Result<()> {
+    fn document_translation_ignores_no_tag_response_for_multi_block() -> anyhow::Result<()> {
         let mut doc = Document {
             text_blocks: vec![TextBlock::default(), TextBlock::default()],
             ..Default::default()
         };
 
+        // No block tags in response → both blocks stay None (retry will handle them)
         doc.set_translation("only one line".to_string())?;
-
-        assert_eq!(
-            doc.text_blocks[0].translation.as_deref(),
-            Some("only one line")
-        );
-        assert_eq!(doc.text_blocks[1].translation.as_deref(), Some(""));
+        assert_eq!(doc.text_blocks[0].translation, None);
+        assert_eq!(doc.text_blocks[1].translation, None);
 
         Ok(())
     }
@@ -795,6 +936,47 @@ mod tests {
         );
         assert_eq!(doc.text_blocks[1].translation.as_deref(), Some(""));
 
+        Ok(())
+    }
+
+    #[test]
+    fn document_translation_parses_numbered_list_format() -> anyhow::Result<()> {
+        let mut doc = Document {
+            text_blocks: vec![
+                TextBlock { text: Some("A".to_string()), ..Default::default() },
+                TextBlock { text: Some("B".to_string()), ..Default::default() },
+                TextBlock { text: Some("C".to_string()), ..Default::default() },
+            ],
+            ..Default::default()
+        };
+
+        doc.set_translation(
+            "0\nFirst translation\n\n1\nSecond translation\n\n2\nThird translation".to_string(),
+        )?;
+
+        assert_eq!(doc.text_blocks[0].translation.as_deref(), Some("First translation"));
+        assert_eq!(doc.text_blocks[1].translation.as_deref(), Some("Second translation"));
+        assert_eq!(doc.text_blocks[2].translation.as_deref(), Some("Third translation"));
+        Ok(())
+    }
+
+    #[test]
+    fn document_translation_parses_numbered_list_with_single_char_block() -> anyhow::Result<()> {
+        let mut doc = Document {
+            text_blocks: vec![
+                TextBlock { text: Some("Hello".to_string()), ..Default::default() },
+                TextBlock { text: Some("?".to_string()), ..Default::default() },
+                TextBlock { text: Some("END".to_string()), ..Default::default() },
+            ],
+            ..Default::default()
+        };
+
+        // Mirrors Gemini returning "?" as a valid 1-char translation
+        doc.set_translation("0\nXin chào\n\n1\n?\n\n2\nKết thúc".to_string())?;
+
+        assert_eq!(doc.text_blocks[0].translation.as_deref(), Some("Xin chào"));
+        assert_eq!(doc.text_blocks[1].translation.as_deref(), Some("?"));
+        assert_eq!(doc.text_blocks[2].translation.as_deref(), Some("Kết thúc"));
         Ok(())
     }
 

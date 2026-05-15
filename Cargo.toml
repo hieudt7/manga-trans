@@ -6,6 +6,7 @@ members = [
     "koharu-ml",
     "koharu-runtime",
     "koharu-psd",
+    "koharu-tiff",
     "koharu-renderer",
     "koharu-pipeline",
     "koharu-rpc",
@@ -38,6 +39,7 @@ koharu-psd = { path = "koharu-psd", default-features = false }
 koharu-renderer = { path = "koharu-renderer", default-features = false }
 koharu-pipeline = { path = "koharu-pipeline", default-features = false }
 koharu-rpc = { path = "koharu-rpc", default-features = false }
+koharu-tiff = { path = "koharu-tiff", default-features = false }
 koharu-types = { path = "koharu-types", default-features = false }
 candle-transformers = "=0.9.2"
 candle-core = "=0.9.2"

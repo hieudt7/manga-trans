@@ -65,6 +65,13 @@ impl CustomOp1 for Irfft2 {
     }
 }
 
+/// Drop all cached MPSGraph objects on the calling thread to release compiled
+/// shader temp file FDs. Must be called from the same thread that ran Lama FFT.
+pub fn clear_fft_plans_on_current_thread() {
+    #[cfg(feature = "metal")]
+    metal::clear_fft_plans_on_current_thread();
+}
+
 pub fn rfft2(xs: &Tensor) -> candle_core::Result<Tensor> {
     let xs = xs.contiguous()?;
     let op = Rfft2;

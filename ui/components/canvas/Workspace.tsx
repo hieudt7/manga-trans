@@ -20,6 +20,7 @@ import {
 import { ToolRail } from '@/components/canvas/ToolRail'
 import { CanvasToolbar } from '@/components/canvas/CanvasToolbar'
 import { BalloonAnnotations } from '@/components/canvas/BalloonAnnotations'
+import { PanelAnnotations } from '@/components/canvas/PanelAnnotations'
 import { TextBlockAnnotations } from '@/components/canvas/TextBlockAnnotations'
 import { TextBlockSpriteLayer } from '@/components/canvas/TextBlockSpriteLayer'
 import { useCanvasZoom } from '@/hooks/useCanvasZoom'
@@ -256,6 +257,7 @@ export function Workspace() {
             }}
             data-testid='workspace-viewport'
             className='grid size-full place-content-center-safe'
+            style={{ touchAction: 'none' }}
           >
             {currentDocument ? (
               <ContextMenu
@@ -347,6 +349,7 @@ export function Workspace() {
                             style={{ zIndex: 30 }}
                           />
                         )}
+                        <PanelAnnotations style={{ zIndex: 20 }} />
                         <BalloonAnnotations style={{ zIndex: 25 }} />
                         {currentDocument.rendered && showRenderedImage && (
                           <Image

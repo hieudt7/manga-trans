@@ -9,6 +9,7 @@ use koharu_llm::paddleocr_vl::{self as paddleocr_vl_llm, PaddleOcrVl, PaddleOcrV
 use koharu_llm::safe::llama_backend::LlamaBackend;
 use koharu_types::{Document, FontPrediction, SerializableDynamicImage, TextBlock, TextDirection};
 
+use crate::character_library::{self as character_library, CharacterLibrary};
 use crate::comic_bubble_detector::{self as bubble_det, ComicBubbleDetector};
 use crate::comic_text_detector::{self, ComicTextDetector, crop_text_block_bbox};
 use crate::font_detector::{self, FontDetector};
@@ -86,6 +87,7 @@ pub struct Model {
     lama: Lama,
     font_detector: FontDetector,
     bubble_detector: Option<ComicBubbleDetector>,
+    pub character_lib: CharacterLibrary,
 }
 
 impl Model {
@@ -100,6 +102,12 @@ impl Model {
                 None
             }
         };
+
+        let character_lib = CharacterLibrary::load().unwrap_or_else(|e| {
+            tracing::warn!(error = %e, "CharacterLibrary load failed, starting empty");
+            CharacterLibrary::empty()
+        });
+
         Ok(Self {
             layout_detector: PPDocLayoutV3::load(cpu).await?,
             segmenter: ComicTextDetector::load_segmentation_only(cpu).await?,
@@ -107,6 +115,7 @@ impl Model {
             lama: Lama::load(cpu).await?,
             font_detector: FontDetector::load(cpu).await?,
             bubble_detector,
+            character_lib,
         })
     }
 
@@ -264,6 +273,102 @@ impl Model {
         Ok(())
     }
 
+    /// Scan `image` for known characters and return a context string suitable for
+    /// injection into the LLM system prompt, or `None` if the library is empty.
+    pub fn scan_for_character_context(&self, image: &DynamicImage) -> Option<String> {
+        self.character_lib.scan_and_build_context(image)
+    }
+
+    /// Per-block Vietnamese pronoun assignment using the existing tested speaker detection pipeline.
+    /// For each block: detect panels → find the face nearest to each balloon (face det + WD Tagger)
+    /// → derive pronouns from speaker/listener demographics.
+    pub fn scan_pronoun_context(&self, doc: &Document, custom_system_prompt: Option<&str>) -> Option<String> {
+        if doc.text_blocks.is_empty() {
+            return None;
+        }
+
+        let image = &doc.image.0;
+
+        let panels = self.character_lib.detect_panels(image);
+
+        let blocks: Vec<(String, f32, f32, f32, f32)> = doc.text_blocks.iter()
+            .map(|b| (b.id.clone(), b.x, b.y, b.width, b.height))
+            .collect();
+        let balloons: Vec<(f32, f32, f32, f32)> = doc.balloons.iter()
+            .map(|b| (b.x, b.y, b.width, b.height))
+            .collect();
+
+        // Reuse the existing tested pipeline: face detection per panel → nearest face to balloon
+        // → WD Tagger for age/gender on unknown characters.
+        let speaker_assignments = self.character_lib.assign_speakers_to_blocks(
+            image, &blocks, &balloons, &panels,
+        );
+
+        if speaker_assignments.iter().all(|(_, m)| m.is_none()) {
+            return None;
+        }
+
+        // Build id → speaker label map.
+        let speaker_labels: std::collections::HashMap<&str, String> = speaker_assignments.iter()
+            .filter_map(|(id, m)| m.as_ref().map(|f| (id.as_str(), face_label(f))))
+            .collect();
+
+        let mut lines: Vec<String> = Vec::new();
+
+        for (i, block) in doc.text_blocks.iter().enumerate() {
+            let speaker_label = match speaker_labels.get(block.id.as_str()) {
+                Some(l) => l.as_str(),
+                None => continue,
+            };
+
+            // Listener = nearest block (by index) whose speaker has different demographics.
+            let listener_label_owned: String = speaker_assignments.iter()
+                .enumerate()
+                .filter(|(j, (_, m))| {
+                    *j != i && m.as_ref()
+                        .map(|f| face_label(f) != speaker_label)
+                        .unwrap_or(false)
+                })
+                .min_by_key(|(j, _)| j.abs_diff(i))
+                .and_then(|(_, (_, m))| m.as_ref())
+                .map(face_label)
+                .unwrap_or_else(|| "Unknown".to_string());
+            let listener_label = listener_label_owned.as_str();
+
+            let (self_pron, other_pron) = suggest_vn_pronoun_pair(speaker_label, listener_label);
+            let speaker_desc = demographic_desc(speaker_label);
+            let listener_desc = demographic_desc(listener_label);
+
+            tracing::info!(
+                block = i,
+                speaker = speaker_label,
+                listener = listener_label,
+                self_pronoun = self_pron,
+                other_pronoun = other_pron,
+                "pronoun assignment"
+            );
+
+            lines.push(format!(
+                "<block id=\"{i}\"> speaker={speaker_desc}, listener={listener_desc} → use \"{self_pron}\" for I/me, \"{other_pron}\" for you"
+            ));
+        }
+
+        if lines.is_empty() {
+            return None;
+        }
+
+        let header = if let Some(prompt) = custom_system_prompt.filter(|p| !p.trim().is_empty()) {
+            format!(
+                "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block (story context: \"{}\"). Do NOT include block tags or any metadata in translation output:",
+                prompt.trim()
+            )
+        } else {
+            "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block. Do NOT include block tags or any metadata in translation output:".to_string()
+        };
+        lines.insert(0, header);
+        Some(lines.join("\n"))
+    }
+
     pub async fn detect_font(&self, image: &DynamicImage, top_k: usize) -> Result<FontPrediction> {
         let mut results = self
             .detect_fonts(std::slice::from_ref(image), top_k)
@@ -286,6 +391,168 @@ impl Model {
         }
         Ok(predictions)
     }
+}
+
+fn face_label(f: &character_library::FaceMatch) -> String {
+    if f.traits.is_empty() {
+        f.name.clone()
+    } else {
+        format!("{} {}", f.name, f.traits.join(" "))
+    }
+}
+
+/// Return a demographic description (age + gender) from a face label.
+fn demographic_desc(label: &str) -> String {
+    let (age, gender) = parse_age_gender(label);
+    let age_str = match age {
+        Age::Young => "young",
+        Age::Adult => "adult",
+        Age::Old => "elderly",
+        Age::Unknown => "unknown age",
+    };
+    let gender_str = match gender {
+        Gender::Male => "male",
+        Gender::Female => "female",
+        Gender::Unknown => "unknown gender",
+    };
+    format!("{age_str} {gender_str}")
+}
+
+/// Detect family-role keywords in a label.
+fn family_role(label: &str) -> Option<FamilyRole> {
+    let l = label.to_lowercase();
+    if l.contains("father") || l.contains("dad") || l.contains("bố") || l.contains("ba ") || l == "ba" || l.contains("papa") {
+        Some(FamilyRole::Father)
+    } else if l.contains("mother") || l.contains("mom") || l.contains("mẹ") || l.contains("mama") || l.contains("mum") {
+        Some(FamilyRole::Mother)
+    } else if l.contains("son") || l.contains("daughter") || l.contains("child") || l.contains("kid") {
+        Some(FamilyRole::Child)
+    } else if l.contains("grandfather") || l.contains("grandpa") || l.contains("ông nội") || l.contains("ông ngoại") {
+        Some(FamilyRole::Grandfather)
+    } else if l.contains("grandmother") || l.contains("grandma") || l.contains("bà nội") || l.contains("bà ngoại") {
+        Some(FamilyRole::Grandmother)
+    } else if l.contains("older brother") || l.contains("anh trai") {
+        Some(FamilyRole::OlderBrother)
+    } else if l.contains("older sister") || l.contains("chị gái") {
+        Some(FamilyRole::OlderSister)
+    } else {
+        None
+    }
+}
+
+#[derive(PartialEq, Eq)]
+enum FamilyRole { Father, Mother, Child, Grandfather, Grandmother, OlderBrother, OlderSister }
+
+/// Suggest Vietnamese first-person and second-person pronouns based on speaker/listener labels.
+/// Labels come either from WD Tagger ("Young Male", "Adult Female", …) or known character traits.
+fn suggest_vn_pronoun_pair(speaker_label: &str, listener_label: &str) -> (&'static str, &'static str) {
+    // Family relationship takes priority over age/gender heuristic.
+    if let (Some(sp_role), _) = (family_role(speaker_label), family_role(listener_label)) {
+        return match sp_role {
+            FamilyRole::Father => ("bố", "con"),
+            FamilyRole::Mother => ("mẹ", "con"),
+            FamilyRole::Grandfather => ("ông", "con/cháu"),
+            FamilyRole::Grandmother => ("bà", "con/cháu"),
+            FamilyRole::OlderBrother => ("anh", "em"),
+            FamilyRole::OlderSister => ("chị", "em"),
+            FamilyRole::Child => {
+                // Child speaking — need to know who they're talking to
+                match family_role(listener_label) {
+                    Some(FamilyRole::Father) => ("con", "bố"),
+                    Some(FamilyRole::Mother) => ("con", "mẹ"),
+                    Some(FamilyRole::Grandfather) => ("cháu", "ông"),
+                    Some(FamilyRole::Grandmother) => ("cháu", "bà"),
+                    _ => ("con", "bố/mẹ"),
+                }
+            }
+        };
+    }
+    // Listener is a parent — child is speaking
+    if let Some(ls_role) = family_role(listener_label) {
+        return match ls_role {
+            FamilyRole::Father => ("con", "bố"),
+            FamilyRole::Mother => ("con", "mẹ"),
+            FamilyRole::Grandfather => ("cháu", "ông"),
+            FamilyRole::Grandmother => ("cháu", "bà"),
+            FamilyRole::OlderBrother => ("em", "anh"),
+            FamilyRole::OlderSister => ("em", "chị"),
+            FamilyRole::Child => ("bố/mẹ", "con"),
+        };
+    }
+
+    let (sp_age, sp_gen) = parse_age_gender(speaker_label);
+    let (ls_age, ls_gen) = parse_age_gender(listener_label);
+
+    // Khi một trong hai bên không rõ tuổi → chỉ dùng ngôi theo giới tính, không đổi ngôi
+    if sp_age == Age::Unknown || ls_age == Age::Unknown {
+        return match (sp_gen, ls_gen) {
+            (Gender::Male,    Gender::Female)  => ("tôi", "cô"),
+            (Gender::Male,    Gender::Male)    => ("tôi", "cậu"),
+            (Gender::Female,  Gender::Male)    => ("tôi", "anh"),
+            (Gender::Female,  Gender::Female)  => ("tôi", "cô"),
+            (Gender::Unknown, Gender::Female)  => ("tôi", "cô"),
+            (Gender::Unknown, Gender::Male)    => ("tôi", "anh"),
+            _                                  => ("tôi", "cậu"),
+        };
+    }
+
+    // Cả hai đều biết tuổi → xét chênh lệch già/trẻ để đổi ngôi
+    match (sp_age, sp_gen, ls_age, ls_gen) {
+        // Người già nói chuyện
+        (Age::Old, Gender::Male,   _, _) => ("ông", "cháu"),
+        (Age::Old, Gender::Female, _, _) => ("bà",  "cháu"),
+
+        // Người trẻ nói với người già
+        (_, _, Age::Old, Gender::Male)   => ("cháu", "ông"),
+        (_, _, Age::Old, Gender::Female) => ("cháu", "bà"),
+
+        // Lớn hơn (Adult) nói với nhỏ hơn (Young)
+        (Age::Adult, Gender::Male,   Age::Young, _) => ("anh", "em"),
+        (Age::Adult, Gender::Female, Age::Young, _) => ("chị", "em"),
+
+        // Nhỏ hơn (Young) nói với lớn hơn (Adult)
+        (Age::Young, _, Age::Adult, Gender::Male)   => ("em", "anh"),
+        (Age::Young, _, Age::Adult, Gender::Female) => ("em", "chị"),
+
+        // Cùng tầm tuổi → theo giới tính
+        (_, Gender::Male,    _, Gender::Female)  => ("tôi", "cô"),
+        (_, Gender::Male,    _, Gender::Male)    => ("tôi", "cậu"),
+        (_, Gender::Female,  _, Gender::Male)    => ("tôi", "anh"),
+        (_, Gender::Female,  _, Gender::Female)  => ("tôi", "cô"),
+        (_, Gender::Unknown, _, Gender::Female)  => ("tôi", "cô"),
+        (_, Gender::Unknown, _, Gender::Male)    => ("tôi", "anh"),
+        _                                        => ("tôi", "cậu"),
+    }
+}
+
+#[derive(PartialEq, Eq)]
+enum Age { Young, Adult, Old, Unknown }
+
+#[derive(PartialEq, Eq)]
+enum Gender { Male, Female, Unknown }
+
+fn parse_age_gender(label: &str) -> (Age, Gender) {
+    let l = label.to_lowercase();
+
+    let age = if l.contains("old") || l.contains("elder") || l.contains("senior") || l.contains("grandfather") || l.contains("grandmother") {
+        Age::Old
+    } else if l.contains("young") || l.contains("teen") || l.contains("child") || l.contains("kid") || l.contains("boy") || l.contains("girl") {
+        Age::Young
+    } else if l.contains("adult") || l.contains("man") || l.contains("woman") {
+        Age::Adult
+    } else {
+        Age::Unknown
+    };
+
+    let gender = if l.contains("female") || l.contains("woman") || l.contains("girl") {
+        Gender::Female
+    } else if l.contains("male") || l.contains("man") || l.contains("boy") {
+        Gender::Male
+    } else {
+        Gender::Unknown
+    };
+
+    (age, gender)
 }
 
 pub async fn prefetch() -> Result<()> {
@@ -398,6 +665,10 @@ fn overlap_area(a: [f32; 4], b: [f32; 4]) -> f32 {
 const MIR_EROSION_RADIUS: u32 = 4;
 /// Inset ratio applied to the bbox fallback on each side.
 const MIR_BBOX_INSET: f32 = 0.08;
+/// Additional padding (px) subtracted from each side of the MIR/bbox-inset
+/// result before assigning to the text block, so rendered text stays clear of
+/// the balloon border.
+const MIR_TEXT_PADDING: f32 = 6.0;
 
 /// For each balloon, find all text blocks whose center lies inside the balloon bbox,
 /// then refit those text blocks to the MIR of the balloon's mask.
@@ -460,10 +731,11 @@ fn refit_text_blocks_to_balloons(
         );
 
         let block = &mut text_blocks[ti];
-        block.x = mir[0];
-        block.y = mir[1];
-        block.width = mir[2];
-        block.height = mir[3];
+        let pad = MIR_TEXT_PADDING;
+        block.x = mir[0] + pad;
+        block.y = mir[1] + pad;
+        block.width = (mir[2] - 2.0 * pad).max(1.0);
+        block.height = (mir[3] - 2.0 * pad).max(1.0);
         // Clear seed layout so the renderer uses the new refit coordinates,
         // not the stale pre-balloon values.
         block.layout_seed_x = None;

@@ -29,3 +29,5 @@ tokio = { workspace = true }
 tracing = { workspace = true }
 uuid = { workspace = true }
 koharu-llm = { workspace = true }
+koharu-psd = { workspace = true }
+koharu-tiff = { workspace = true }

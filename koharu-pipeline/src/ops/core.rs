@@ -7,9 +7,9 @@ use koharu_types::commands::{
 };
 use rfd::FileDialog;
 
-use crate::{AppResources, state_tx};
+use crate::{AppResources, state_tx::{self, ChangedField}};
 
-use super::utils::{encode_image, load_documents, mime_from_ext};
+use super::utils::{encode_image_with_dpi, load_documents, mime_from_ext};
 
 fn next_available_path(output_dir: &Path, stem: &str, ext: &str) -> PathBuf {
     let mut candidate = output_dir.join(format!("{stem}.{ext}"));
@@ -51,7 +51,7 @@ fn export_documents_matching(
         let ext = document_ext(document);
         let output_path =
             next_available_path(output_dir, &format!("{}_{}", document.name, suffix), &ext);
-        let bytes = encode_image(image, &ext)?;
+        let bytes = encode_image_with_dpi(image, &ext, document.resolution_dpi)?;
         std::fs::write(&output_path, bytes)?;
         exported += 1;
     }
@@ -166,7 +166,7 @@ pub async fn export_document(
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("No rendered image found"))?;
 
-    let bytes = encode_image(rendered, &ext)?;
+    let bytes = encode_image_with_dpi(rendered, &ext, document.resolution_dpi)?;
     let filename = format!("{}_koharu.{}", document.name, ext);
     let content_type = mime_from_ext(&ext).to_string();
 
@@ -192,10 +192,108 @@ pub async fn save_rendered(state: AppResources, payload: IndexPayload) -> anyhow
 
     let ext = document_ext(&document);
     let output_path = render_dir.join(format!("{}.{}", document.name, ext));
-    let bytes = encode_image(rendered, &ext)?;
+    let bytes = encode_image_with_dpi(rendered, &ext, document.resolution_dpi)?;
     std::fs::write(&output_path, bytes)?;
 
-    Ok(())
+    // Release heavyweight image buffers now that the page is saved to disk.
+    // Keeps memory low during long Process All runs.
+    release_page_resources(state, payload).await
+}
+
+/// Maximum long-edge size for the downscaled preview image kept after a page
+/// is saved.  Anything larger is replaced with a thumbnail so that processed
+/// pages don't accumulate full-resolution originals in memory during long
+/// batch runs (e.g. 100–200 page Process All).
+const THUMB_MAX_PX: u32 = 500;
+
+/// Drop all heavyweight image buffers after a page has been saved to disk.
+/// The original `image` is replaced with a small thumbnail so that processed
+/// pages stay in memory at ~100 KB instead of ~10 MB each.
+/// `get_thumbnail` works fine with the thumbnail; full-res is on disk.
+pub async fn release_page_resources(
+    state: AppResources,
+    payload: IndexPayload,
+) -> anyhow::Result<()> {
+    state_tx::mutate_doc(
+        &state.state,
+        payload.index,
+        &[ChangedField::Rendered],
+        |doc| {
+            doc.segment = None;
+            doc.inpainted = None;
+            doc.rendered = None;
+            doc.brush_layer = None;
+            doc.balloons.clear();
+            doc.balloons.shrink_to_fit();
+            for block in &mut doc.text_blocks {
+                block.rendered = None;
+            }
+
+            // Downscale the original image to a small preview.  The source
+            // file is unchanged on disk; re-open to re-process this page.
+            let (w, h) = (doc.image.width(), doc.image.height());
+            if w > THUMB_MAX_PX || h > THUMB_MAX_PX {
+                let thumb = doc.image.thumbnail(THUMB_MAX_PX, THUMB_MAX_PX);
+                doc.image = thumb.into();
+            }
+
+            tracing::debug!(
+                index = payload.index,
+                orig_w = w, orig_h = h,
+                "page resources released"
+            );
+            Ok(())
+        },
+    )
+    .await
+}
+
+pub async fn save_rendered_psd(state: AppResources, payload: IndexPayload) -> anyhow::Result<()> {
+    let document = state_tx::read_doc(&state.state, payload.index).await?;
+
+    if document.rendered.is_none() {
+        anyhow::bail!("No rendered image for document '{}'", document.name);
+    }
+
+    let home = std::env::var("HOME")
+        .map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
+    let render_dir = std::path::Path::new(&home).join("Documents").join("AI_Trans");
+    std::fs::create_dir_all(&render_dir)?;
+
+    let output_path = render_dir.join(format!("{}.psd", document.name));
+    let options = koharu_psd::PsdExportOptions {
+        text_layer_mode: koharu_psd::TextLayerMode::Editable,
+        ..koharu_psd::PsdExportOptions::default()
+    };
+    let bytes = koharu_psd::export_document(&document, &options)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    std::fs::write(&output_path, bytes)?;
+
+    release_page_resources(state, payload).await
+}
+
+pub async fn save_rendered_tiff(state: AppResources, payload: IndexPayload) -> anyhow::Result<()> {
+    let document = state_tx::read_doc(&state.state, payload.index).await?;
+
+    if document.rendered.is_none() {
+        anyhow::bail!("No rendered image for document '{}'", document.name);
+    }
+
+    let home = std::env::var("HOME")
+        .map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
+    let render_dir = std::path::Path::new(&home).join("Documents").join("AI_Trans");
+    std::fs::create_dir_all(&render_dir)?;
+
+    let output_path = render_dir.join(format!("{}.tif", document.name));
+    let options = koharu_psd::PsdExportOptions {
+        text_layer_mode: koharu_psd::TextLayerMode::Editable,
+        ..koharu_psd::PsdExportOptions::default()
+    };
+    let bytes = koharu_tiff::export_document(&document, &options)
+        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    std::fs::write(&output_path, bytes)?;
+
+    release_page_resources(state, payload).await
 }
 
 pub async fn export_all_inpainted(state: AppResources) -> anyhow::Result<usize> {

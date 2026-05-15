@@ -147,6 +147,16 @@ pub struct ProcessRequest {
     pub shader_effect: Option<TextShaderEffect>,
     pub shader_stroke: Option<TextStrokeStyle>,
     pub font_family: Option<String>,
+    /// If true, export each page as TIFF (with Photoshop layers) instead of saving as JPEG/PNG.
+    #[serde(default)]
+    pub export_tiff: bool,
+    /// If true, export each page as PSD instead of saving as JPEG/PNG.
+    #[serde(default)]
+    pub export_psd: bool,
+    /// If true, run character/face detection per block and inject explicit Vietnamese pronoun
+    /// assignments so the LLM outputs correct forms (anh/em, chị/em, etc.).
+    #[serde(default)]
+    pub process_with_character: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

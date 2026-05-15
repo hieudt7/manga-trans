@@ -217,7 +217,9 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
       applyDocumentsSnapshot(payload.documents)
       applyLlmSnapshot(payload.llm)
       const pipelineJob =
-        payload.jobs.find((job) => job.kind === 'pipeline') ?? null
+        payload.jobs.find(
+          (job) => job.kind === 'pipeline' || job.kind === 'pipeline-folder',
+        ) ?? null
       updatePipelineUi(pipelineJob)
     })
 
@@ -235,7 +237,7 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
     })
 
     const unsubscribeJobs = subscribeJobChanged((job) => {
-      if (job.kind !== 'pipeline') return
+      if (job.kind !== 'pipeline' && job.kind !== 'pipeline-folder') return
       updatePipelineUi(job)
       queryClient.invalidateQueries({
         queryKey: queryKeys.documents.currentRoot,

@@ -41,6 +41,7 @@ pub struct GenerateOptions {
     pub split_prompt: bool,
     pub repeat_penalty: f32,
     pub repeat_last_n: usize,
+    pub story_context: Option<String>,
 }
 
 impl Default for GenerateOptions {
@@ -54,6 +55,7 @@ impl Default for GenerateOptions {
             split_prompt: false,
             repeat_penalty: 1.1,
             repeat_last_n: 64,
+            story_context: None,
         }
     }
 }
@@ -117,7 +119,7 @@ impl Llm {
 
         let prompt = self
             .prompt_renderer
-            .format_chat_prompt(prompt.to_string(), target_language)?;
+            .format_chat_prompt_with_context(prompt.to_string(), target_language, opts.story_context.as_deref())?;
         tracing::info!("Generating with prompt:\n{}", prompt);
 
         let prompt_tokens = self
