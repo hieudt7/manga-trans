@@ -62,6 +62,7 @@ pub async fn run_pipeline(
         Ok(()) if cancel.load(Ordering::Relaxed) => {
             emit(PipelineProgress {
                 job_id: job_id.clone(),
+                kind: "pipeline".to_string(),
                 status: PipelineStatus::Cancelled,
                 step: None,
                 current_document: total_docs,
@@ -74,6 +75,7 @@ pub async fn run_pipeline(
         Ok(()) => {
             emit(PipelineProgress {
                 job_id: job_id.clone(),
+                kind: "pipeline".to_string(),
                 status: PipelineStatus::Completed,
                 step: None,
                 current_document: total_docs,
@@ -87,6 +89,7 @@ pub async fn run_pipeline(
             tracing::error!("Pipeline failed: {err:#}");
             emit(PipelineProgress {
                 job_id: job_id.clone(),
+                kind: "pipeline".to_string(),
                 status: PipelineStatus::Failed(err.to_string()),
                 step: None,
                 current_document: 0,
@@ -175,6 +178,7 @@ async fn run_pipeline_inner(
             let overall = compute_percent(doc_ordinal, step_ordinal, total_docs, total_steps);
             emit(PipelineProgress {
                 job_id: job_id.to_string(),
+                kind: "pipeline".to_string(),
                 status: PipelineStatus::Running,
                 step: Some(*step),
                 current_document: doc_ordinal,

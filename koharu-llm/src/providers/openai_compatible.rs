@@ -156,6 +156,59 @@ impl AnyProvider for OpenAiCompatibleProvider {
             Ok(text)
         })
     }
+
+    fn complete<'a>(
+        &'a self,
+        system_prompt: &'a str,
+        user_prompt: &'a str,
+        model: &'a str,
+    ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>> {
+        Box::pin(async move {
+            let body = ChatRequest {
+                model,
+                messages: vec![
+                    ChatMessage {
+                        role: "system",
+                        content: system_prompt.to_string(),
+                    },
+                    ChatMessage {
+                        role: "user",
+                        content: user_prompt.to_string(),
+                    },
+                ],
+                temperature: self.temperature,
+                max_tokens: self.max_tokens,
+            };
+
+            let endpoint = format!("{}/chat/completions", normalized_base_url(&self.base_url)?);
+            let mut request = http_client().post(endpoint);
+            if let Some(api_key) = self
+                .api_key
+                .as_deref()
+                .filter(|value| !value.trim().is_empty())
+            {
+                request = request.bearer_auth(api_key);
+            }
+
+            let response = request
+                .header("content-type", "application/json")
+                .body(serde_json::to_vec(&body)?)
+                .send()
+                .await?;
+
+            let resp: serde_json::Value = ensure_provider_success("openai-compatible", response)
+                .await?
+                .json()
+                .await?;
+
+            let text = resp["choices"][0]["message"]["content"]
+                .as_str()
+                .ok_or_else(|| anyhow::anyhow!("OpenAI-compatible provider returned no content"))?
+                .to_string();
+
+            Ok(text)
+        })
+    }
 }
 
 #[cfg(test)]

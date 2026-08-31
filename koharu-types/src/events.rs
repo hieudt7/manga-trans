@@ -55,6 +55,7 @@ pub enum PipelineStatus {
 #[serde(rename_all = "camelCase")]
 pub struct PipelineProgress {
     pub job_id: String,
+    pub kind: String,
     pub status: PipelineStatus,
     pub step: Option<PipelineStep>,
     pub current_document: usize,
@@ -98,6 +99,7 @@ mod tests {
         });
         round_trip(&PipelineProgress {
             job_id: "job-1".to_string(),
+            kind: "pipeline".to_string(),
             status: PipelineStatus::Running,
             step: Some(PipelineStep::Inpaint),
             current_document: 1,
@@ -108,6 +110,7 @@ mod tests {
         });
         round_trip(&PipelineProgress {
             job_id: "job-2".to_string(),
+            kind: "pipeline-folder".to_string(),
             status: PipelineStatus::Failed("boom".to_string()),
             step: Some(PipelineStep::Render),
             current_document: 2,

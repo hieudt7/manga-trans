@@ -111,6 +111,18 @@ pub trait AnyProvider: Send + Sync {
         page_context: Option<&'a str>,
         model: &'a str,
     ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>>;
+
+    /// Plain single-shot "system prompt + user prompt → text" call, with none of
+    /// `translate`'s manga-translation shaping (no `build_system_prompt` persona,
+    /// no story/page context, no SFX/quote post-processing). Used by callers that
+    /// need a generic LLM completion, e.g. the Character Scanner's relationship
+    /// labeling.
+    fn complete<'a>(
+        &'a self,
+        system_prompt: &'a str,
+        user_prompt: &'a str,
+        model: &'a str,
+    ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>>;
 }
 
 /// Combine a stored story context with a per-page character context.

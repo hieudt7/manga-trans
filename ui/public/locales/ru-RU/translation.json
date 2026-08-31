@@ -28,6 +28,7 @@
     "processAllWithCharacter": "Обработать все изображения с персонажами",
     "help": "Справка",
     "characters": "Персонажи",
+    "characterScanner": "Сканер персонажей",
     "settings": "Настройки",
     "discord": "Discord",
     "github": "GitHub",
@@ -312,5 +313,61 @@
     "saving": "Добавление...",
     "cancel": "Отмена",
     "confirm": "Добавить персонажа"
+  },
+  "characterScanner": {
+    "title": "Сканер персонажей",
+    "pickFolder": "Открыть папку",
+    "startScan": "Начать сканирование",
+    "rescan": "Сканировать снова",
+    "cancelScan": "Отмена",
+    "loading": "Загрузка...",
+    "progress": "Изображение {{current}} / {{total}}",
+    "noResult": "Персонажи пока не найдены",
+    "noResultHint": "Запустите сканирование, чтобы обнаружить повторяющихся персонажей и их отношения в этой папке.",
+    "emptyHint": "Откройте папку, чтобы обнаружить повторяющихся персонажей, подсчитать их реплики и построить дерево отношений.",
+    "genders": {
+      "male": "Мужской",
+      "female": "Женский"
+    },
+    "ageGroups": {
+      "child": "Ребёнок",
+      "teen": "Подросток",
+      "young_adult": "Молодой взрослый",
+      "adult": "Взрослый",
+      "middle_age": "Средних лет",
+      "elder": "Пожилой"
+    },
+    "hubView": {
+      "noRelations": "Явных отношений пока не обнаружено",
+      "coOccurrence_one": "Появлялись вместе {{count}} раз",
+      "coOccurrence_other": "Появлялись вместе {{count}} раз(а)"
+    },
+    "generateRelationships": {
+      "button": "Сгенерировать через LLM",
+      "generating": "Генерация...",
+      "allLabeled": "Все отношения уже подписаны"
+    },
+    "faceManager": {
+      "title": "Управление лицами",
+      "name": "Имя",
+      "gender": "Пол",
+      "ageGroup": "Возрастная группа",
+      "unknown": "Неизвестно",
+      "faces_one": "{{count}} фото лица",
+      "faces_other": "{{count}} фото лиц",
+      "addFace": "Добавить фото",
+      "uploading": "Загрузка...",
+      "deleteFace": "Удалить фото",
+      "noFaces": "Пока нет фото",
+      "cancel": "Отмена",
+      "save": "Сохранить"
+    },
+    "export": {
+      "button": "Экспорт",
+      "exporting": "Экспорт..."
+    },
+    "syncToLibrary": {
+      "button": "Синхронизировать с библиотекой персонажей"
+    }
   }
 }

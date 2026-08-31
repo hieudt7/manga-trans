@@ -137,6 +137,28 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
         .route("/events", get(events_stream))
         .route("/characters", get(list_characters).post(add_character))
         .route("/characters/{character_id}", delete(remove_character))
+        .route(
+            "/jobs/character-scan-folder",
+            post(start_character_scan_job),
+        )
+        .route("/character-scan/result", get(get_character_scan_result))
+        .route(
+            "/character-scan/faces/{character_id}/{file}",
+            get(get_character_scan_face),
+        )
+        .route(
+            "/character-scan/faces/{character_id}",
+            post(add_character_scan_face),
+        )
+        .route(
+            "/character-scan/generate-relationships",
+            post(generate_character_scan_relationships),
+        )
+        .route("/character-scan/export", post(export_character_scan))
+        .route(
+            "/character-scan/sync-to-library",
+            post(sync_character_scan_to_library),
+        )
         .layer(DefaultBodyLimit::max(MAX_BODY_SIZE))
         .with_state(state)
 }
@@ -1189,6 +1211,194 @@ async fn remove_character(
         .remove_character(&character_id)
         .map_err(ApiError::from)?;
     Ok(StatusCode::NO_CONTENT)
+}
+
+// ─── Character Scanner handlers ────────────────────────────────────────────────
+
+async fn start_character_scan_job(State(state): State<ApiState>) -> ApiResult<Json<JobState>> {
+    let resources = state.resources()?;
+
+    let (job_id, total_documents) = operations::start_character_scan_job(resources.clone())
+        .await
+        .map_err(ApiError::from)?;
+
+    let job = JobState {
+        id: job_id,
+        kind: "character-scan-folder".to_string(),
+        status: JobStatus::Running,
+        step: None,
+        current_document: 0,
+        total_documents,
+        current_step_index: 0,
+        total_steps: 1,
+        overall_percent: 0,
+        error: None,
+    };
+    state.events.publish_job(job.clone()).await;
+
+    Ok(Json(job))
+}
+
+async fn get_character_scan_result(
+    State(state): State<ApiState>,
+) -> ApiResult<Json<Option<koharu_ml::character_library::scanner::ScanResult>>> {
+    let resources = state.resources()?;
+    let result = operations::get_character_scan_result(resources)
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(result))
+}
+
+async fn get_character_scan_face(
+    State(state): State<ApiState>,
+    Path((character_id, file)): Path<(String, String)>,
+) -> ApiResult<Response> {
+    let resources = state.resources()?;
+    let path = operations::get_character_scan_face_path(resources, &character_id, &file)
+        .await
+        .map_err(ApiError::from)?;
+    let bytes = tokio::fs::read(&path)
+        .await
+        .map_err(|e| ApiError::internal(anyhow::anyhow!(e)))?;
+    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("png");
+    Ok(binary_response(bytes, mime_from_ext(ext), None))
+}
+
+async fn add_character_scan_face(
+    State(state): State<ApiState>,
+    Path(character_id): Path<String>,
+    mut multipart: Multipart,
+) -> ApiResult<Json<serde_json::Value>> {
+    let resources = state.resources()?;
+
+    let mut bytes: Option<Vec<u8>> = None;
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|e| ApiError::bad_request(e.to_string()))?
+    {
+        if matches!(field.name(), Some("face") | None) {
+            bytes = Some(
+                field
+                    .bytes()
+                    .await
+                    .map_err(|e| ApiError::bad_request(e.to_string()))?
+                    .to_vec(),
+            );
+        }
+    }
+    let bytes = bytes.ok_or_else(|| ApiError::bad_request("'face' image field is required"))?;
+
+    let path = operations::add_character_scan_face(resources, &character_id, bytes)
+        .await
+        .map_err(ApiError::from)?;
+
+    Ok(Json(serde_json::json!({ "path": path })))
+}
+
+async fn generate_character_scan_relationships(
+    State(state): State<ApiState>,
+) -> ApiResult<Json<koharu_ml::character_library::scanner::ScanResult>> {
+    let resources = state.resources()?;
+    let result = operations::generate_character_scan_relationships(resources)
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(result))
+}
+
+async fn export_character_scan(
+    State(state): State<ApiState>,
+    Json(result): Json<koharu_ml::character_library::scanner::ScanResult>,
+) -> ApiResult<StatusCode> {
+    let resources = state.resources()?;
+    operations::export_character_scan_result(resources, result)
+        .await
+        .map_err(ApiError::from)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SyncCharacterScanRequest {
+    character_ids: Vec<String>,
+}
+
+/// Push curator-approved characters from the current scan result into the app's
+/// global character library (`character_lib.json`), so the translate pipeline
+/// recognizes them via `CharacterLibrary::scan_page`/`assign_speakers_to_blocks`.
+/// Gender/age fold into `traits`, relationship labels fold into `relations` as
+/// free text — `CharacterEntry` has no dedicated fields for either.
+async fn sync_character_scan_to_library(
+    State(state): State<ApiState>,
+    Json(request): Json<SyncCharacterScanRequest>,
+) -> ApiResult<Json<serde_json::Value>> {
+    let resources = state.resources()?;
+    let result = operations::get_character_scan_result(resources.clone())
+        .await
+        .map_err(ApiError::from)?
+        .ok_or_else(|| ApiError::not_found("No character scan result found"))?;
+
+    let mut synced_ids = Vec::new();
+    for character_id in &request.character_ids {
+        let character = result
+            .characters
+            .iter()
+            .find(|c| &c.id == character_id)
+            .ok_or_else(|| ApiError::not_found(format!("Character not found: {character_id}")))?;
+
+        let mut face_images = Vec::new();
+        for face in &character.faces {
+            let filename = face
+                .file_name()
+                .and_then(|f| f.to_str())
+                .ok_or_else(|| ApiError::bad_request("Invalid face path"))?;
+            let path =
+                operations::get_character_scan_face_path(resources.clone(), character_id, filename)
+                    .await
+                    .map_err(ApiError::from)?;
+            let bytes = tokio::fs::read(&path)
+                .await
+                .map_err(|e| ApiError::internal(anyhow::anyhow!(e)))?;
+            let image = image::load_from_memory(&bytes)
+                .map_err(|e| ApiError::bad_request(format!("invalid face image: {e}")))?;
+            face_images.push(image);
+        }
+        if face_images.is_empty() {
+            continue;
+        }
+
+        let traits: Vec<String> = [character.gender.clone(), character.age_group.clone()]
+            .into_iter()
+            .flatten()
+            .collect();
+
+        let relations: Vec<String> = result
+            .relationship_tree
+            .iter()
+            .find(|n| &n.character_id == character_id)
+            .map(|n| {
+                n.related
+                    .iter()
+                    .map(|e| match (&e.label, &e.description) {
+                        (Some(label), Some(desc)) if !desc.is_empty() => {
+                            format!("{label}: {desc}")
+                        }
+                        (Some(label), _) => label.clone(),
+                        (None, _) => format!("Co-occurs in {} panels", e.co_occurrence),
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+
+        resources
+            .ml
+            .character_lib
+            .add_character(character.name.clone(), traits, relations, &face_images)
+            .map_err(ApiError::from)?;
+        synced_ids.push(character_id.clone());
+    }
+
+    Ok(Json(serde_json::json!({ "syncedIds": synced_ids })))
 }
 
 fn encode_image(image: &SerializableDynamicImage, ext: &str) -> ApiResult<Vec<u8>> {

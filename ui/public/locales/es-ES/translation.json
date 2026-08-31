@@ -28,6 +28,7 @@
     "processAllWithCharacter": "Procesar todas las imágenes con personajes",
     "help": "Ayuda",
     "characters": "Personajes",
+    "characterScanner": "Escáner de personajes",
     "settings": "Configuración",
     "discord": "Discord",
     "github": "GitHub",
@@ -312,5 +313,61 @@
     "saving": "Añadiendo...",
     "cancel": "Cancelar",
     "confirm": "Añadir personaje"
+  },
+  "characterScanner": {
+    "title": "Escáner de personajes",
+    "pickFolder": "Abrir carpeta",
+    "startScan": "Iniciar escaneo",
+    "rescan": "Volver a escanear",
+    "cancelScan": "Cancelar",
+    "loading": "Cargando...",
+    "progress": "Imagen {{current}} / {{total}}",
+    "noResult": "Aún no se han encontrado personajes",
+    "noResultHint": "Ejecuta un escaneo para descubrir personajes recurrentes y sus relaciones en esta carpeta.",
+    "emptyHint": "Abre una carpeta para descubrir personajes recurrentes, contar sus apariciones con diálogo y construir un árbol de relaciones.",
+    "genders": {
+      "male": "Masculino",
+      "female": "Femenino"
+    },
+    "ageGroups": {
+      "child": "Niño/a",
+      "teen": "Adolescente",
+      "young_adult": "Joven adulto",
+      "adult": "Adulto",
+      "middle_age": "Mediana edad",
+      "elder": "Anciano/a"
+    },
+    "hubView": {
+      "noRelations": "Aún no se han detectado relaciones claras",
+      "coOccurrence_one": "Aparecieron juntos {{count}} vez",
+      "coOccurrence_other": "Aparecieron juntos {{count}} veces"
+    },
+    "generateRelationships": {
+      "button": "Generar con IA",
+      "generating": "Generando...",
+      "allLabeled": "Todas las relaciones ya están etiquetadas"
+    },
+    "faceManager": {
+      "title": "Gestor de rostros",
+      "name": "Nombre",
+      "gender": "Género",
+      "ageGroup": "Grupo de edad",
+      "unknown": "Desconocido",
+      "faces_one": "{{count}} rostro",
+      "faces_other": "{{count}} rostros",
+      "addFace": "Añadir rostro",
+      "uploading": "Subiendo...",
+      "deleteFace": "Eliminar rostro",
+      "noFaces": "Aún no hay rostros",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "export": {
+      "button": "Exportar",
+      "exporting": "Exportando..."
+    },
+    "syncToLibrary": {
+      "button": "Sincronizar con la biblioteca de personajes"
+    }
   }
 }

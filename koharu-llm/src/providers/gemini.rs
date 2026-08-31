@@ -220,4 +220,58 @@ impl AnyProvider for GeminiProvider {
             Err(last_err)
         })
     }
+
+    /// Single-shot, non-retrying (relationship labeling is best-effort — the
+    /// caller already tolerates a failed/unparseable response per pair).
+    fn complete<'a>(
+        &'a self,
+        system_prompt: &'a str,
+        user_prompt: &'a str,
+        model: &'a str,
+    ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>> {
+        Box::pin(async move {
+            // The single key this provider used to hold became a pool; take
+            // whichever key is currently in rotation.
+            let Some(api_key) = self.keys.active() else {
+                anyhow::bail!("provider_quota_exceeded:gemini")
+            };
+            let url = format!(
+                "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            );
+
+            let body = GenerateRequest {
+                system_instruction: SystemInstruction {
+                    parts: vec![Part { text: system_prompt.to_string() }],
+                },
+                contents: vec![Content {
+                    parts: vec![Part { text: user_prompt.to_string() }],
+                }],
+                generation_config: GenerationConfig { temperature: 0.3 },
+            };
+
+            let response = http_client()
+                .post(&url)
+                .header("content-type", "application/json")
+                .body(serde_json::to_vec(&body)?)
+                .send()
+                .await?;
+
+            let resp: serde_json::Value = ensure_provider_success("gemini", response)
+                .await?
+                .json()
+                .await?;
+
+            let finish_reason = resp["candidates"][0]["finishReason"]
+                .as_str()
+                .unwrap_or("UNKNOWN");
+
+            match resp["candidates"][0]["content"]["parts"][0]["text"].as_str() {
+                Some(t) => Ok(t.to_string()),
+                None => {
+                    tracing::warn!(finish_reason, "Gemini returned no content, skipping");
+                    Ok(String::new())
+                }
+            }
+        })
+    }
 }

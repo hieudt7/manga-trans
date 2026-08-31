@@ -764,6 +764,14 @@ impl Model {
         )
     }
 
+    /// True when an API provider (openai/claude/gemini/deepseek/openai-compatible)
+    /// is loaded — as opposed to a local llama.cpp model, which `complete()`
+    /// doesn't support yet. Used to fail fast with a clear error before spending
+    /// time on a batch of relationship-labeling calls.
+    pub async fn is_api_ready(&self) -> bool {
+        matches!(*self.state.read().await, State::ApiReady { .. })
+    }
+
     pub fn subscribe(&self) -> broadcast::Receiver<LlmState> {
         self.state_tx.subscribe()
     }
@@ -821,6 +829,28 @@ impl Model {
         let trimmed = translation.trim().to_string();
         block_debug_write(&format!("=== RECV ===\n{trimmed}\n"));
         doc.set_translation(trimmed)
+    }
+
+    /// Plain single-shot "system prompt + user prompt → text" completion, with
+    /// none of `translate`'s manga-translation shaping. Used by callers that need
+    /// a generic LLM call, e.g. the Character Scanner's relationship labeling.
+    ///
+    /// Only API providers are supported for now — local (llama.cpp) models don't
+    /// receive `page_context` for translation either, so this matches existing
+    /// precedent rather than introducing a new gap.
+    pub async fn complete(&self, system_prompt: &str, user_prompt: &str) -> anyhow::Result<String> {
+        let guard = self.state.read().await;
+        match &*guard {
+            State::ApiReady { provider, model, .. } => {
+                provider.complete(system_prompt, user_prompt, model).await
+            }
+            State::Ready(_) => {
+                anyhow::bail!("This action requires an API LLM provider (local models aren't supported yet)")
+            }
+            State::Loading { .. } => Err(anyhow::anyhow!("Model is still loading")),
+            State::Failed(e) => Err(anyhow::anyhow!("Model failed to load: {e}")),
+            State::Empty => Err(anyhow::anyhow!("No model is loaded")),
+        }
     }
 }
 

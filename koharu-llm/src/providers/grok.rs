@@ -66,6 +66,50 @@ fn is_retryable_grok_error(err: &anyhow::Error) -> bool {
 }
 
 impl AnyProvider for GrokProvider {
+    /// Single-shot, no retry: the caller that uses this — relationship
+    /// labelling — already tolerates a failed or unparseable answer per pair,
+    /// and retrying a best-effort label is not worth the call.
+    fn complete<'a>(
+        &'a self,
+        system_prompt: &'a str,
+        user_prompt: &'a str,
+        model: &'a str,
+    ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>> {
+        Box::pin(async move {
+            let body = ChatRequest {
+                model,
+                messages: vec![
+                    ChatMessage {
+                        role: "system",
+                        content: system_prompt.to_string(),
+                    },
+                    ChatMessage {
+                        role: "user",
+                        content: user_prompt.to_string(),
+                    },
+                ],
+                temperature: 0.0,
+            };
+
+            let response = http_client()
+                .post(GROK_ENDPOINT)
+                .bearer_auth(&self.api_key)
+                .header("content-type", "application/json")
+                .header("x-grok-conv-id", &self.conversation_id)
+                .body(serde_json::to_vec(&body)?)
+                .send()
+                .await?;
+
+            let resp: serde_json::Value =
+                ensure_provider_success("grok", response).await?.json().await?;
+
+            resp["choices"][0]["message"]["content"]
+                .as_str()
+                .map(str::to_string)
+                .ok_or_else(|| anyhow::anyhow!("Grok returned no content"))
+        })
+    }
+
     fn translate<'a>(
         &'a self,
         source: &'a str,

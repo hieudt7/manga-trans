@@ -228,7 +228,7 @@ fn pipeline_job_state(progress: PipelineProgress) -> JobState {
 
     JobState {
         id: progress.job_id,
-        kind: "pipeline".to_string(),
+        kind: progress.kind,
         status,
         step: progress.step.map(pipeline_step_name),
         current_document: progress.current_document,
@@ -274,6 +274,7 @@ mod tests {
     fn pipeline_progress_maps_to_job_state() {
         let state = pipeline_job_state(koharu_types::PipelineProgress {
             job_id: "job-1".to_string(),
+            kind: "pipeline".to_string(),
             status: PipelineStatus::Failed("boom".to_string()),
             step: Some(PipelineStep::Render),
             current_document: 1,

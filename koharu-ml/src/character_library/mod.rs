@@ -9,6 +9,8 @@ use ort::session::Session;
 use ort::value::Tensor;
 use serde::{Deserialize, Serialize};
 
+pub mod scanner;
+
 // ─── CCIP constants ───────────────────────────────────────────────────────────
 
 const CCIP_SIZE: u32 = 384;
@@ -61,11 +63,15 @@ const TEEN_AGE_TAGS: &[&str] = &[
     "teenage", "teen", "high_school_girl", "high_school_boy",
     "school_uniform", "sailor_uniform", "student",
 ];
-/// Tags that indicate middle-aged or elder age group.
-const ELDER_AGE_TAGS: &[&str] = &[
-    "old_man", "old_woman", "elderly", "wrinkles", "mature_male", "mature_female",
-    "middle-aged", "middle-aged_man", "middle-aged_woman",
-];
+/// Tags that indicate a grown adult (younger than middle-age) — "thanh niên/trưởng thành".
+/// There is no reliable danbooru tag for "young adult" specifically, so this bucket
+/// only catches the generic "mature" signal; "young_adult" itself is the fallback
+/// bucket used when no age tag clears threshold at all (see `classify_gender_age`).
+const ADULT_AGE_TAGS: &[&str] = &["mature_male", "mature_female"];
+/// Tags that indicate middle age — "trung niên".
+const MIDDLE_AGE_TAGS: &[&str] = &["middle-aged", "middle-aged_man", "middle-aged_woman"];
+/// Tags that indicate elderly age group — "người già".
+const ELDER_AGE_TAGS: &[&str] = &["old_man", "old_woman", "elderly", "wrinkles"];
 
 struct WdTaggerModel {
     session: Mutex<Session>,
@@ -73,6 +79,8 @@ struct WdTaggerModel {
     female_indices: Vec<usize>,
     child_indices: Vec<usize>,
     teen_indices: Vec<usize>,
+    adult_indices: Vec<usize>,
+    middle_age_indices: Vec<usize>,
     elder_indices: Vec<usize>,
 }
 
@@ -197,6 +205,23 @@ struct FaceBox {
     width: f32,
     height: f32,
     score: f32,
+}
+
+/// Per-block geometry result from `locate_speaker_faces`: which detected face (if
+/// any) a balloon's speaker resolves to, before identity matching runs.
+struct BlockGeom {
+    id: String,
+    block_idx: usize,
+    /// None  = narration/SFX (not inside any balloon).
+    balloon_box: Option<(f32, f32, f32, f32)>,
+    /// None  = balloon not inside any detected panel.
+    panel_idx: Option<usize>,
+    /// Index into face_data.  None = no face candidate in panel.
+    face_idx: Option<usize>,
+    used_tail_ray: bool,
+    /// Geometry score for the face claim (lower = stronger claim).
+    score: f32,
+    tail_dir: Option<(f32, f32)>,
 }
 
 // ─── CharacterLibrary ─────────────────────────────────────────────────────────
@@ -516,6 +541,428 @@ impl CharacterLibrary {
             "speaker assign: model availability"
         );
         if let (Some(face_det), Some(ccip)) = (&self.face_det, &self.ccip) {
+            let (geoms, face_data, face_panel_idx) =
+                locate_speaker_faces(face_det, ccip, image, blocks, balloons, panels);
+
+            if !face_data.is_empty() {
+                let face_data_ref = &face_data;
+                let debug_mode = std::env::var("KOHARU_DEBUG_SCAN").is_ok();
+                let debug_cell = std::cell::RefCell::new(Vec::<DebugScanEntry>::new());
+
+                    // ─── Phase 3: CCIP match + gender fallback ───────────────────────────────
+
+                    let results: Vec<(String, Option<FaceMatch>)> = geoms
+                        .iter()
+                        .map(|g| {
+                            // Narration/SFX or balloon outside all panels.
+                            if g.balloon_box.is_none() || g.panel_idx.is_none() {
+                                return (g.id.clone(), None);
+                            }
+                            let (bbal_x, bbal_y, bbal_w, bbal_h) = g.balloon_box.unwrap();
+
+                            let (speaker, debug_face_box) = match g.face_idx {
+                                Some(fi) => {
+                                    let (face_box, _, _, emb) = &face_data_ref[fi];
+                                    let m = find_best_match(&entries, emb);
+                                    tracing::info!(
+                                        block_id = %g.id,
+                                        character = %m.name,
+                                        confidence = m.confidence,
+                                        is_known = m.is_known,
+                                        "speaker matched"
+                                    );
+                                    let fb_clone = if debug_mode { Some(face_box.clone()) } else { None };
+                                    // Unknown CCIP → WD Tagger classification.
+                                    let m = if !m.is_known {
+                                        if let Some(wd_tagger) = &self.wd_tagger {
+                                            let crop = crop_face_expanded(image, face_box);
+                                            if let Ok(label) = classify_with_wd_tagger(wd_tagger, &crop) {
+                                                tracing::info!(
+                                                    block_id = %g.id,
+                                                    label = %label,
+                                                    "unknown face classified by WD Tagger"
+                                                );
+                                                FaceMatch {
+                                                    name: label,
+                                                    confidence: m.confidence,
+                                                    is_known: false,
+                                                    ..Default::default()
+                                                }
+                                            } else {
+                                                m
+                                            }
+                                        } else {
+                                            m
+                                        }
+                                    } else {
+                                        m
+                                    };
+                                    (Some(m), fb_clone)
+                                }
+                                None => {
+                                    // face_idx was deduped away (or no face in panel).
+                                    // Try gender classification using the nearest face in the
+                                    // panel — even if that face was claimed by another balloon.
+                                    let fallback =
+                                        if let (Some(pidx), Some(wd_tagger)) =
+                                            (g.panel_idx, &self.wd_tagger)
+                                        {
+                                            let nearest = face_data_ref
+                                                .iter()
+                                                .enumerate()
+                                                .filter(|(i, _)| face_panel_idx[*i] == Some(pidx))
+                                                .min_by(|(_, (_, fcx_a, fcy_a, _)), (_, (_, fcx_b, fcy_b, _))| {
+                                                    point_to_rect_dist(*fcx_a, *fcy_a, bbal_x, bbal_y, bbal_w, bbal_h)
+                                                        .partial_cmp(&point_to_rect_dist(*fcx_b, *fcy_b, bbal_x, bbal_y, bbal_w, bbal_h))
+                                                        .unwrap_or(std::cmp::Ordering::Equal)
+                                                });
+                                            if let Some((_, (face_box, _, _, _))) = nearest {
+                                                let crop = crop_face_expanded(image, face_box);
+                                                classify_with_wd_tagger(wd_tagger, &crop).ok().map(|label| {
+                                                    tracing::info!(
+                                                        block_id = %g.id,
+                                                        label = %label,
+                                                        "deduped block classified by WD Tagger"
+                                                    );
+                                                    FaceMatch {
+                                                        name: label,
+                                                        confidence: 0.0,
+                                                        is_known: false,
+                                                        ..Default::default()
+                                                    }
+                                                })
+                                            } else {
+                                                None
+                                            }
+                                        } else {
+                                            None
+                                        };
+                                    (fallback, None)
+                                }
+                            };
+
+                            if debug_mode {
+                                debug_cell.borrow_mut().push(DebugScanEntry {
+                                    block_idx: g.block_idx,
+                                    char_name: speaker
+                                        .as_ref()
+                                        .map(|s| s.name.clone())
+                                        .unwrap_or_else(|| "none".to_string()),
+                                    balloon_box: (bbal_x, bbal_y, bbal_w, bbal_h),
+                                    tail_dir: g.tail_dir,
+                                    face_box: debug_face_box,
+                                });
+                            }
+
+                            (g.id.clone(), speaker)
+                        })
+                        .collect();
+
+                    if debug_mode {
+                        let debug_entries = debug_cell.into_inner();
+                        save_debug_scan(image, &face_data, &debug_entries, panels);
+                    }
+
+                    return results;
+
+            }
+        }
+
+        // Full-library fallback: speech-balloon blocks get first character, others get None.
+        let all: Vec<FaceMatch> = entries
+            .iter()
+            .map(|e| FaceMatch {
+                name: e.name.clone(),
+                traits: e.traits.clone(),
+                relations: e.relations.clone(),
+                confidence: 1.0,
+                is_known: true,
+            })
+            .collect();
+
+        blocks
+            .iter()
+            .map(|(id, x, y, w, h)| {
+                if have_balloons {
+                    let block_cx = x + w / 2.0;
+                    let block_cy = y + h / 2.0;
+                    let in_balloon = balloons.iter().any(|(bx, by, bw, bh)| {
+                        block_cx >= *bx
+                            && block_cx <= bx + bw
+                            && block_cy >= *by
+                            && block_cy <= by + bh
+                    });
+                    if !in_balloon {
+                        return (id.clone(), None);
+                    }
+                }
+                (id.clone(), all.first().cloned())
+            })
+            .collect()
+    }
+
+    /// Detect manga panel bounding boxes for the given page image.
+    /// Uses the ML model (`manga_panel_detector.onnx`) when available;
+    /// falls back to gutter-line heuristic otherwise.
+    /// Returns a list of `(x, y, width, height)` in pixels.
+    pub fn detect_panels(&self, image: &DynamicImage) -> Vec<(f32, f32, f32, f32)> {
+        if let Some(panel_det) = &self.panel_det {
+            match detect_panels_ml(panel_det, image) {
+                Ok(panels) if !panels.is_empty() => {
+                    tracing::info!(count = panels.len(), "panel detection: ML succeeded");
+                    return sort_manga_reading_order(panels);
+                }
+                Ok(_) => {
+                    tracing::warn!("panel detection: ML returned 0 panels — falling back to heuristic");
+                }
+                Err(e) => {
+                    tracing::warn!(error = %e, "panel detection: ML failed — falling back to heuristic");
+                }
+            }
+        } else {
+            tracing::info!("panel detection: no ML model loaded, using heuristic");
+        }
+        let panels = detect_manga_panels(image);
+        tracing::info!(count = panels.len(), "panel detection: heuristic result");
+        sort_manga_reading_order(panels)
+    }
+
+    /// Detect all characters in each panel and return them grouped by panel index.
+    /// Each character has a name (if known) and a WD Tagger label (age + gender).
+    pub fn detect_panel_characters(
+        &self,
+        image: &DynamicImage,
+        panels: &[(f32, f32, f32, f32)],
+    ) -> Vec<Vec<FaceMatch>> {
+        let mut result: Vec<Vec<FaceMatch>> = vec![Vec::new(); panels.len()];
+
+        let (Some(face_det), Some(ccip)) = (&self.face_det, &self.ccip) else {
+            return result;
+        };
+
+        let entries = self.entries.lock().unwrap().clone();
+
+        for (pidx, (px, py, pw, ph)) in panels.iter().enumerate() {
+            let cx = px.max(0.0) as u32;
+            let cy = py.max(0.0) as u32;
+            let cw = (pw.max(0.0) as u32).min(image.width().saturating_sub(cx));
+            let ch = (ph.max(0.0) as u32).min(image.height().saturating_sub(cy));
+            if cw < 16 || ch < 16 {
+                continue;
+            }
+            let crop = image.crop_imm(cx, cy, cw, ch);
+
+            let mut face_boxes = match detect_faces(face_det, &crop) {
+                Ok(f) => f,
+                Err(_) => continue,
+            };
+            // Low-threshold pass to catch small/unusual faces.
+            if let Ok(low) = detect_faces_threshold(face_det, &crop, 0.15) {
+                for fb in low {
+                    let already = face_boxes.iter().any(|existing| {
+                        let dx = (existing.x - fb.x).abs();
+                        let dy = (existing.y - fb.y).abs();
+                        dx < existing.width * 0.5 && dy < existing.height * 0.5
+                    });
+                    if !already {
+                        face_boxes.push(fb);
+                    }
+                }
+            }
+
+            for fb in &face_boxes {
+                // Map face box back to full-image coordinates.
+                let full_fb = FaceBox {
+                    x: fb.x + cx as f32,
+                    y: fb.y + cy as f32,
+                    width: fb.width,
+                    height: fb.height,
+                    score: fb.score,
+                };
+                let face_crop = crop_face(image, &full_fb);
+                let m = if let Ok(emb) = embed_face(ccip, &face_crop) {
+                    let mut m = find_best_match(&entries, &emb);
+                    // Unknown → WD Tagger for age/gender label.
+                    if !m.is_known {
+                        if let Some(wd) = &self.wd_tagger {
+                            let body_crop = crop_face_expanded(image, &full_fb);
+                            if let Ok(label) = classify_with_wd_tagger(wd, &body_crop) {
+                                m.name = label;
+                            }
+                        }
+                    }
+                    m
+                } else {
+                    continue;
+                };
+                result[pidx].push(m);
+            }
+        }
+
+        result
+    }
+
+    /// Convenience: scan + build context in one call.
+    /// Returns `None` if no characters are recognised or the library is empty.
+    pub fn scan_and_build_context(&self, image: &DynamicImage) -> Option<String> {
+        self.scan_and_build_context_with(image, false)
+    }
+
+    pub fn scan_and_build_context_with(
+        &self,
+        image: &DynamicImage,
+        concise: bool,
+    ) -> Option<String> {
+        let matches = self.scan_page(image);
+        self.build_context_with(&matches, concise)
+    }
+
+    /// Classify the age/gender demographics in an image crop using WD Tagger.
+    /// Returns a label like "Young Male", "Adult Female", or `None` if the model is not loaded.
+    pub fn classify_region(&self, image: &DynamicImage) -> Option<String> {
+        let wd = self.wd_tagger.as_ref()?;
+        classify_with_wd_tagger(wd, image).ok()
+    }
+
+    // ─── Private ──────────────────────────────────────────────────────────────
+
+    fn save_locked(&self, entries: &[CharacterEntry]) -> Result<()> {
+        if let Some(parent) = self.lib_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let json = serde_json::to_string_pretty(entries)?;
+        std::fs::write(&self.lib_path, json)?;
+        Ok(())
+    }
+}
+
+// ─── ONNX helpers ─────────────────────────────────────────────────────────────
+
+fn load_session_opt(path: PathBuf) -> Option<Session> {
+    if !path.exists() {
+        return None;
+    }
+    match Session::builder().and_then(|mut b| b.commit_from_file(&path)) {
+        Ok(s) => Some(s),
+        Err(e) => {
+            tracing::warn!(path = %path.display(), error = %e, "failed to load ONNX session");
+            None
+        }
+    }
+}
+
+// ─── CCIP embedding ───────────────────────────────────────────────────────────
+
+/// Embed a batch of face crops in a single ONNX inference call.
+///
+/// Stacks all `crops` into a `[N, 3, 384, 384]` tensor, runs one inference,
+/// and returns N individually L2-normalised 512-dim embedding vectors.
+///
+/// Returns an error if the session rejects batch size > 1, allowing the caller
+/// to fall back to sequential `embed_face` calls.
+fn embed_faces_batch(ccip: &Mutex<Session>, crops: &[DynamicImage]) -> Result<Vec<Vec<f32>>> {
+    if crops.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let n = crops.len();
+    let (h, w) = (CCIP_SIZE as usize, CCIP_SIZE as usize);
+    let mut data = vec![0f32; n * 3 * h * w];
+
+    for (idx, image) in crops.iter().enumerate() {
+        let resized = image.resize_exact(CCIP_SIZE, CCIP_SIZE, imageops::FilterType::Triangle);
+        let rgb = resized.to_rgb8();
+        let offset = idx * 3 * h * w;
+        for y in 0..h {
+            for x in 0..w {
+                let pixel = rgb.get_pixel(x as u32, y as u32);
+                for c in 0..3 {
+                    let val = pixel[c] as f32 / 255.0;
+                    data[offset + c * h * w + y * w + x] = (val - CCIP_MEAN[c]) / CCIP_STD[c];
+                }
+            }
+        }
+    }
+
+    let array = Array::from_shape_vec([n, 3, h, w], data)?;
+    let input_tensor = Tensor::from_array(array)?;
+
+    let mut session = ccip
+        .lock()
+        .map_err(|_| anyhow::anyhow!("CCIP mutex poisoned"))?;
+    let input_name = session.inputs()[0].name().to_string();
+    let outputs = session.run(ort::inputs! { input_name.as_str() => input_tensor })?;
+
+    let out = outputs[0].try_extract_array::<f32>()?;
+    let view = out.view();
+
+    // Output shape should be [N, 512]. Split into N rows, each L2-normalised.
+    let mut result = Vec::with_capacity(n);
+    for i in 0..n {
+        let raw: Vec<f32> = (0..512).map(|j| view[[i, j]]).collect();
+        let norm: f32 = raw.iter().map(|x| x * x).sum::<f32>().sqrt().max(1e-8);
+        result.push(raw.into_iter().map(|x| x / norm).collect());
+    }
+
+    Ok(result)
+}
+
+fn embed_face(ccip: &Mutex<Session>, image: &DynamicImage) -> Result<Vec<f32>> {
+    let resized = image.resize_exact(CCIP_SIZE, CCIP_SIZE, imageops::FilterType::Triangle);
+    let rgb = resized.to_rgb8();
+
+    let (w, h) = (CCIP_SIZE as usize, CCIP_SIZE as usize);
+    let mut data = vec![0f32; 3 * h * w];
+
+    for y in 0..h {
+        for x in 0..w {
+            let pixel = rgb.get_pixel(x as u32, y as u32);
+            for c in 0..3 {
+                let val = pixel[c] as f32 / 255.0;
+                data[c * h * w + y * w + x] = (val - CCIP_MEAN[c]) / CCIP_STD[c];
+            }
+        }
+    }
+
+    let array = Array::from_shape_vec([1usize, 3, h, w], data)?;
+    let input_tensor = Tensor::from_array(array)?;
+
+    let mut session = ccip
+        .lock()
+        .map_err(|_| anyhow::anyhow!("CCIP mutex poisoned"))?;
+    let input_name = session.inputs()[0].name().to_string();
+    let outputs = session.run(ort::inputs! { input_name.as_str() => input_tensor })?;
+
+    let out = outputs[0].try_extract_array::<f32>()?;
+    let raw: Vec<f32> = out.view().iter().cloned().collect();
+
+    // L2 normalise so cosine similarity = dot product
+    let norm: f32 = raw.iter().map(|x| x * x).sum::<f32>().sqrt().max(1e-8);
+    Ok(raw.into_iter().map(|x| x / norm).collect())
+}
+
+fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
+    a.iter().zip(b.iter()).map(|(x, y)| x * y).sum()
+}
+
+/// Geometry-only half of speaker resolution: for each dialogue block, resolve
+/// which detected face (if any) is its speaker via balloon → panel → nearest-face
+/// heuristics (tail-ray direction, per-panel dual-threshold face detection,
+/// dedup/fallback chains), WITHOUT running any identity matching. Returns the
+/// resolved geometry per block, the face table (box + pixel centre + CCIP
+/// embedding) referenced by `BlockGeom::face_idx`, and each face's panel index.
+///
+/// Identity matching happens in the caller: `assign_speakers_to_blocks` matches
+/// the returned embeddings against `self.entries`, while the character scanner
+/// matches against its own provisional discovery list instead.
+fn locate_speaker_faces(
+    face_det: &Mutex<Session>,
+    ccip: &Mutex<Session>,
+    image: &DynamicImage,
+    blocks: &[(String, f32, f32, f32, f32)],
+    balloons: &[(f32, f32, f32, f32)],
+    panels: &[(f32, f32, f32, f32)],
+) -> (Vec<BlockGeom>, Vec<(FaceBox, f32, f32, Vec<f32>)>, Vec<Option<usize>>) {
             // Run face detection per panel so each panel fills the 640×640 detector
             // input.  On the full-page pass small faces in large panels are scaled down
             // too much and missed; cropping brings them to a detectable size.
@@ -619,29 +1066,12 @@ impl CharacterLibrary {
                     // inside the per-block closure below.
                     let page_gray = image.to_luma8();
 
-                    let debug_mode = std::env::var("KOHARU_DEBUG_SCAN").is_ok();
-                    let debug_cell = std::cell::RefCell::new(Vec::<DebugScanEntry>::new());
-
                     // ─── Phase 1: per-block geometry (balloon → panel → nearest face) ─────
                     //
                     // Compute which face each block would choose, plus the match type and
                     // score, WITHOUT running CCIP yet.  This lets Phase 2 resolve conflicts
                     // before we pay for any embedding comparisons.
 
-                    struct BlockGeom {
-                        id: String,
-                        block_idx: usize,
-                        /// None  = narration/SFX (not inside any balloon).
-                        balloon_box: Option<(f32, f32, f32, f32)>,
-                        /// None  = balloon not inside any detected panel.
-                        panel_idx: Option<usize>,
-                        /// Index into face_data.  None = no face candidate in panel.
-                        face_idx: Option<usize>,
-                        used_tail_ray: bool,
-                        /// Geometry score for the face claim (lower = stronger claim).
-                        score: f32,
-                        tail_dir: Option<(f32, f32)>,
-                    }
 
                     let mut geoms: Vec<BlockGeom> = blocks
                         .iter()
@@ -1005,399 +1435,10 @@ impl CharacterLibrary {
                         }
                     }
 
-                    // ─── Phase 3: CCIP match + gender fallback ───────────────────────────────
-
-                    let results: Vec<(String, Option<FaceMatch>)> = geoms
-                        .iter()
-                        .map(|g| {
-                            // Narration/SFX or balloon outside all panels.
-                            if g.balloon_box.is_none() || g.panel_idx.is_none() {
-                                return (g.id.clone(), None);
-                            }
-                            let (bbal_x, bbal_y, bbal_w, bbal_h) = g.balloon_box.unwrap();
-
-                            let (speaker, debug_face_box) = match g.face_idx {
-                                Some(fi) => {
-                                    let (face_box, _, _, emb) = &face_data_ref[fi];
-                                    let m = find_best_match(&entries, emb);
-                                    tracing::info!(
-                                        block_id = %g.id,
-                                        character = %m.name,
-                                        confidence = m.confidence,
-                                        is_known = m.is_known,
-                                        "speaker matched"
-                                    );
-                                    let fb_clone = if debug_mode { Some(face_box.clone()) } else { None };
-                                    // Unknown CCIP → WD Tagger classification.
-                                    let m = if !m.is_known {
-                                        if let Some(wd_tagger) = &self.wd_tagger {
-                                            let crop = crop_face_expanded(image, face_box);
-                                            if let Ok(label) = classify_with_wd_tagger(wd_tagger, &crop) {
-                                                tracing::info!(
-                                                    block_id = %g.id,
-                                                    label = %label,
-                                                    "unknown face classified by WD Tagger"
-                                                );
-                                                FaceMatch {
-                                                    name: label,
-                                                    confidence: m.confidence,
-                                                    is_known: false,
-                                                    ..Default::default()
-                                                }
-                                            } else {
-                                                m
-                                            }
-                                        } else {
-                                            m
-                                        }
-                                    } else {
-                                        m
-                                    };
-                                    (Some(m), fb_clone)
-                                }
-                                None => {
-                                    // face_idx was deduped away (or no face in panel).
-                                    // Try gender classification using the nearest face in the
-                                    // panel — even if that face was claimed by another balloon.
-                                    let fallback =
-                                        if let (Some(pidx), Some(wd_tagger)) =
-                                            (g.panel_idx, &self.wd_tagger)
-                                        {
-                                            let nearest = face_data_ref
-                                                .iter()
-                                                .enumerate()
-                                                .filter(|(i, _)| face_panel_idx[*i] == Some(pidx))
-                                                .min_by(|(_, (_, fcx_a, fcy_a, _)), (_, (_, fcx_b, fcy_b, _))| {
-                                                    point_to_rect_dist(*fcx_a, *fcy_a, bbal_x, bbal_y, bbal_w, bbal_h)
-                                                        .partial_cmp(&point_to_rect_dist(*fcx_b, *fcy_b, bbal_x, bbal_y, bbal_w, bbal_h))
-                                                        .unwrap_or(std::cmp::Ordering::Equal)
-                                                });
-                                            if let Some((_, (face_box, _, _, _))) = nearest {
-                                                let crop = crop_face_expanded(image, face_box);
-                                                classify_with_wd_tagger(wd_tagger, &crop).ok().map(|label| {
-                                                    tracing::info!(
-                                                        block_id = %g.id,
-                                                        label = %label,
-                                                        "deduped block classified by WD Tagger"
-                                                    );
-                                                    FaceMatch {
-                                                        name: label,
-                                                        confidence: 0.0,
-                                                        is_known: false,
-                                                        ..Default::default()
-                                                    }
-                                                })
-                                            } else {
-                                                None
-                                            }
-                                        } else {
-                                            None
-                                        };
-                                    (fallback, None)
-                                }
-                            };
-
-                            if debug_mode {
-                                debug_cell.borrow_mut().push(DebugScanEntry {
-                                    block_idx: g.block_idx,
-                                    char_name: speaker
-                                        .as_ref()
-                                        .map(|s| s.name.clone())
-                                        .unwrap_or_else(|| "none".to_string()),
-                                    balloon_box: (bbal_x, bbal_y, bbal_w, bbal_h),
-                                    tail_dir: g.tail_dir,
-                                    face_box: debug_face_box,
-                                });
-                            }
-
-                            (g.id.clone(), speaker)
-                        })
-                        .collect();
-
-                    if debug_mode {
-                        let debug_entries = debug_cell.into_inner();
-                        save_debug_scan(image, &face_data, &debug_entries, panels);
-                    }
-
-                    return results;
-            }
-        }
-
-        // Full-library fallback: speech-balloon blocks get first character, others get None.
-        let all: Vec<FaceMatch> = entries
-            .iter()
-            .map(|e| FaceMatch {
-                name: e.name.clone(),
-                traits: e.traits.clone(),
-                relations: e.relations.clone(),
-                confidence: 1.0,
-                is_known: true,
-            })
-            .collect();
-
-        blocks
-            .iter()
-            .map(|(id, x, y, w, h)| {
-                if have_balloons {
-                    let block_cx = x + w / 2.0;
-                    let block_cy = y + h / 2.0;
-                    let in_balloon = balloons.iter().any(|(bx, by, bw, bh)| {
-                        block_cx >= *bx
-                            && block_cx <= bx + bw
-                            && block_cy >= *by
-                            && block_cy <= by + bh
-                    });
-                    if !in_balloon {
-                        return (id.clone(), None);
-                    }
-                }
-                (id.clone(), all.first().cloned())
-            })
-            .collect()
-    }
-
-    /// Detect manga panel bounding boxes for the given page image.
-    /// Uses the ML model (`manga_panel_detector.onnx`) when available;
-    /// falls back to gutter-line heuristic otherwise.
-    /// Returns a list of `(x, y, width, height)` in pixels.
-    pub fn detect_panels(&self, image: &DynamicImage) -> Vec<(f32, f32, f32, f32)> {
-        if let Some(panel_det) = &self.panel_det {
-            match detect_panels_ml(panel_det, image) {
-                Ok(panels) if !panels.is_empty() => {
-                    tracing::info!(count = panels.len(), "panel detection: ML succeeded");
-                    return sort_manga_reading_order(panels);
-                }
-                Ok(_) => {
-                    tracing::warn!("panel detection: ML returned 0 panels — falling back to heuristic");
-                }
-                Err(e) => {
-                    tracing::warn!(error = %e, "panel detection: ML failed — falling back to heuristic");
-                }
-            }
-        } else {
-            tracing::info!("panel detection: no ML model loaded, using heuristic");
-        }
-        let panels = detect_manga_panels(image);
-        tracing::info!(count = panels.len(), "panel detection: heuristic result");
-        sort_manga_reading_order(panels)
-    }
-
-    /// Detect all characters in each panel and return them grouped by panel index.
-    /// Each character has a name (if known) and a WD Tagger label (age + gender).
-    pub fn detect_panel_characters(
-        &self,
-        image: &DynamicImage,
-        panels: &[(f32, f32, f32, f32)],
-    ) -> Vec<Vec<FaceMatch>> {
-        let mut result: Vec<Vec<FaceMatch>> = vec![Vec::new(); panels.len()];
-
-        let (Some(face_det), Some(ccip)) = (&self.face_det, &self.ccip) else {
-            return result;
-        };
-
-        let entries = self.entries.lock().unwrap().clone();
-
-        for (pidx, (px, py, pw, ph)) in panels.iter().enumerate() {
-            let cx = px.max(0.0) as u32;
-            let cy = py.max(0.0) as u32;
-            let cw = (pw.max(0.0) as u32).min(image.width().saturating_sub(cx));
-            let ch = (ph.max(0.0) as u32).min(image.height().saturating_sub(cy));
-            if cw < 16 || ch < 16 {
-                continue;
-            }
-            let crop = image.crop_imm(cx, cy, cw, ch);
-
-            let mut face_boxes = match detect_faces(face_det, &crop) {
-                Ok(f) => f,
-                Err(_) => continue,
-            };
-            // Low-threshold pass to catch small/unusual faces.
-            if let Ok(low) = detect_faces_threshold(face_det, &crop, 0.15) {
-                for fb in low {
-                    let already = face_boxes.iter().any(|existing| {
-                        let dx = (existing.x - fb.x).abs();
-                        let dy = (existing.y - fb.y).abs();
-                        dx < existing.width * 0.5 && dy < existing.height * 0.5
-                    });
-                    if !already {
-                        face_boxes.push(fb);
-                    }
-                }
+                return (geoms, face_data, face_panel_idx);
             }
 
-            for fb in &face_boxes {
-                // Map face box back to full-image coordinates.
-                let full_fb = FaceBox {
-                    x: fb.x + cx as f32,
-                    y: fb.y + cy as f32,
-                    width: fb.width,
-                    height: fb.height,
-                    score: fb.score,
-                };
-                let face_crop = crop_face(image, &full_fb);
-                let m = if let Ok(emb) = embed_face(ccip, &face_crop) {
-                    let mut m = find_best_match(&entries, &emb);
-                    // Unknown → WD Tagger for age/gender label.
-                    if !m.is_known {
-                        if let Some(wd) = &self.wd_tagger {
-                            let body_crop = crop_face_expanded(image, &full_fb);
-                            if let Ok(label) = classify_with_wd_tagger(wd, &body_crop) {
-                                m.name = label;
-                            }
-                        }
-                    }
-                    m
-                } else {
-                    continue;
-                };
-                result[pidx].push(m);
-            }
-        }
-
-        result
-    }
-
-    /// Convenience: scan + build context in one call.
-    /// Returns `None` if no characters are recognised or the library is empty.
-    pub fn scan_and_build_context(&self, image: &DynamicImage) -> Option<String> {
-        self.scan_and_build_context_with(image, false)
-    }
-
-    pub fn scan_and_build_context_with(
-        &self,
-        image: &DynamicImage,
-        concise: bool,
-    ) -> Option<String> {
-        let matches = self.scan_page(image);
-        self.build_context_with(&matches, concise)
-    }
-
-    /// Classify the age/gender demographics in an image crop using WD Tagger.
-    /// Returns a label like "Young Male", "Adult Female", or `None` if the model is not loaded.
-    pub fn classify_region(&self, image: &DynamicImage) -> Option<String> {
-        let wd = self.wd_tagger.as_ref()?;
-        classify_with_wd_tagger(wd, image).ok()
-    }
-
-    // ─── Private ──────────────────────────────────────────────────────────────
-
-    fn save_locked(&self, entries: &[CharacterEntry]) -> Result<()> {
-        if let Some(parent) = self.lib_path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        let json = serde_json::to_string_pretty(entries)?;
-        std::fs::write(&self.lib_path, json)?;
-        Ok(())
-    }
-}
-
-// ─── ONNX helpers ─────────────────────────────────────────────────────────────
-
-fn load_session_opt(path: PathBuf) -> Option<Session> {
-    if !path.exists() {
-        return None;
-    }
-    match Session::builder().and_then(|mut b| b.commit_from_file(&path)) {
-        Ok(s) => Some(s),
-        Err(e) => {
-            tracing::warn!(path = %path.display(), error = %e, "failed to load ONNX session");
-            None
-        }
-    }
-}
-
-// ─── CCIP embedding ───────────────────────────────────────────────────────────
-
-/// Embed a batch of face crops in a single ONNX inference call.
-///
-/// Stacks all `crops` into a `[N, 3, 384, 384]` tensor, runs one inference,
-/// and returns N individually L2-normalised 512-dim embedding vectors.
-///
-/// Returns an error if the session rejects batch size > 1, allowing the caller
-/// to fall back to sequential `embed_face` calls.
-fn embed_faces_batch(ccip: &Mutex<Session>, crops: &[DynamicImage]) -> Result<Vec<Vec<f32>>> {
-    if crops.is_empty() {
-        return Ok(Vec::new());
-    }
-
-    let n = crops.len();
-    let (h, w) = (CCIP_SIZE as usize, CCIP_SIZE as usize);
-    let mut data = vec![0f32; n * 3 * h * w];
-
-    for (idx, image) in crops.iter().enumerate() {
-        let resized = image.resize_exact(CCIP_SIZE, CCIP_SIZE, imageops::FilterType::Triangle);
-        let rgb = resized.to_rgb8();
-        let offset = idx * 3 * h * w;
-        for y in 0..h {
-            for x in 0..w {
-                let pixel = rgb.get_pixel(x as u32, y as u32);
-                for c in 0..3 {
-                    let val = pixel[c] as f32 / 255.0;
-                    data[offset + c * h * w + y * w + x] = (val - CCIP_MEAN[c]) / CCIP_STD[c];
-                }
-            }
-        }
-    }
-
-    let array = Array::from_shape_vec([n, 3, h, w], data)?;
-    let input_tensor = Tensor::from_array(array)?;
-
-    let mut session = ccip
-        .lock()
-        .map_err(|_| anyhow::anyhow!("CCIP mutex poisoned"))?;
-    let input_name = session.inputs()[0].name().to_string();
-    let outputs = session.run(ort::inputs! { input_name.as_str() => input_tensor })?;
-
-    let out = outputs[0].try_extract_array::<f32>()?;
-    let view = out.view();
-
-    // Output shape should be [N, 512]. Split into N rows, each L2-normalised.
-    let mut result = Vec::with_capacity(n);
-    for i in 0..n {
-        let raw: Vec<f32> = (0..512).map(|j| view[[i, j]]).collect();
-        let norm: f32 = raw.iter().map(|x| x * x).sum::<f32>().sqrt().max(1e-8);
-        result.push(raw.into_iter().map(|x| x / norm).collect());
-    }
-
-    Ok(result)
-}
-
-fn embed_face(ccip: &Mutex<Session>, image: &DynamicImage) -> Result<Vec<f32>> {
-    let resized = image.resize_exact(CCIP_SIZE, CCIP_SIZE, imageops::FilterType::Triangle);
-    let rgb = resized.to_rgb8();
-
-    let (w, h) = (CCIP_SIZE as usize, CCIP_SIZE as usize);
-    let mut data = vec![0f32; 3 * h * w];
-
-    for y in 0..h {
-        for x in 0..w {
-            let pixel = rgb.get_pixel(x as u32, y as u32);
-            for c in 0..3 {
-                let val = pixel[c] as f32 / 255.0;
-                data[c * h * w + y * w + x] = (val - CCIP_MEAN[c]) / CCIP_STD[c];
-            }
-        }
-    }
-
-    let array = Array::from_shape_vec([1usize, 3, h, w], data)?;
-    let input_tensor = Tensor::from_array(array)?;
-
-    let mut session = ccip
-        .lock()
-        .map_err(|_| anyhow::anyhow!("CCIP mutex poisoned"))?;
-    let input_name = session.inputs()[0].name().to_string();
-    let outputs = session.run(ort::inputs! { input_name.as_str() => input_tensor })?;
-
-    let out = outputs[0].try_extract_array::<f32>()?;
-    let raw: Vec<f32> = out.view().iter().cloned().collect();
-
-    // L2 normalise so cosine similarity = dot product
-    let norm: f32 = raw.iter().map(|x| x * x).sum::<f32>().sqrt().max(1e-8);
-    Ok(raw.into_iter().map(|x| x / norm).collect())
-}
-
-fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
-    a.iter().zip(b.iter()).map(|(x, y)| x * y).sum()
+    (Vec::new(), Vec::new(), Vec::new())
 }
 
 fn find_best_match(entries: &[CharacterEntry], embedding: &[f32]) -> FaceMatch {
@@ -1814,6 +1855,8 @@ fn load_wd_tagger() -> Option<WdTaggerModel> {
     let mut female_indices = Vec::new();
     let mut child_indices = Vec::new();
     let mut teen_indices = Vec::new();
+    let mut adult_indices = Vec::new();
+    let mut middle_age_indices = Vec::new();
     let mut elder_indices = Vec::new();
 
     for (row_idx, line) in csv.lines().skip(1).enumerate() {
@@ -1841,6 +1884,12 @@ fn load_wd_tagger() -> Option<WdTaggerModel> {
         if TEEN_AGE_TAGS.contains(&name) {
             teen_indices.push(row_idx);
         }
+        if ADULT_AGE_TAGS.contains(&name) {
+            adult_indices.push(row_idx);
+        }
+        if MIDDLE_AGE_TAGS.contains(&name) {
+            middle_age_indices.push(row_idx);
+        }
         if ELDER_AGE_TAGS.contains(&name) {
             elder_indices.push(row_idx);
         }
@@ -1851,6 +1900,8 @@ fn load_wd_tagger() -> Option<WdTaggerModel> {
         female_tags = female_indices.len(),
         child_tags = child_indices.len(),
         teen_tags = teen_indices.len(),
+        adult_tags = adult_indices.len(),
+        middle_age_tags = middle_age_indices.len(),
         elder_tags = elder_indices.len(),
         "WD Tagger loaded"
     );
@@ -1861,6 +1912,8 @@ fn load_wd_tagger() -> Option<WdTaggerModel> {
         female_indices,
         child_indices,
         teen_indices,
+        adult_indices,
+        middle_age_indices,
         elder_indices,
     })
 }
@@ -1875,7 +1928,13 @@ fn load_wd_tagger() -> Option<WdTaggerModel> {
 ///   - Input shape: [1, 448, 448, 3] NHWC, dtype float32
 ///   - Pixel values: BGR, range [0, 255]
 ///   - Output: [1, N_TAGS] probabilities (sigmoid)
-fn classify_with_wd_tagger(model: &WdTaggerModel, crop: &DynamicImage) -> Result<String> {
+/// Age threshold is intentionally lower than gender — age tags are sparser
+/// in danbooru so they get lower confidence scores overall.
+const AGE_THRESHOLD: f32 = 0.15;
+
+/// Run the WD Tagger ONNX session on a crop and return the raw per-tag
+/// probability vector. Shared by `classify_with_wd_tagger` and `classify_gender_age`.
+fn wd_tagger_probs(model: &WdTaggerModel, crop: &DynamicImage) -> Result<Vec<f32>> {
     let s = WD_TAGGER_SIZE as usize;
 
     // Resize to square, pad with white if needed (WD Tagger convention).
@@ -1909,18 +1968,22 @@ fn classify_with_wd_tagger(model: &WdTaggerModel, crop: &DynamicImage) -> Result
     let outputs = session.run(ort::inputs! { input_name.as_str() => input_tensor })?;
 
     let out = outputs[0].try_extract_array::<f32>()?;
-    let probs: Vec<f32> = out.view().iter().cloned().collect();
+    Ok(out.view().iter().cloned().collect())
+}
 
-    // Score for each category = max probability among matching tag indices.
-    let score = |indices: &[usize]| -> f32 {
-        indices.iter().map(|&i| probs.get(i).copied().unwrap_or(0.0)).fold(0.0_f32, f32::max)
-    };
+/// Score for each category = max probability among matching tag indices.
+fn wd_tag_score(probs: &[f32], indices: &[usize]) -> f32 {
+    indices.iter().map(|&i| probs.get(i).copied().unwrap_or(0.0)).fold(0.0_f32, f32::max)
+}
 
-    let male_score   = score(&model.male_indices);
-    let female_score = score(&model.female_indices);
-    let child_score  = score(&model.child_indices);
-    let teen_score   = score(&model.teen_indices);
-    let elder_score  = score(&model.elder_indices);
+fn classify_with_wd_tagger(model: &WdTaggerModel, crop: &DynamicImage) -> Result<String> {
+    let probs = wd_tagger_probs(model, crop)?;
+
+    let male_score   = wd_tag_score(&probs, &model.male_indices);
+    let female_score = wd_tag_score(&probs, &model.female_indices);
+    let child_score  = wd_tag_score(&probs, &model.child_indices);
+    let teen_score   = wd_tag_score(&probs, &model.teen_indices);
+    let elder_score  = wd_tag_score(&probs, &model.elder_indices);
 
     tracing::info!(
         male = male_score, female = female_score,
@@ -1929,10 +1992,6 @@ fn classify_with_wd_tagger(model: &WdTaggerModel, crop: &DynamicImage) -> Result
     );
 
     let gender = if male_score >= female_score { "Male" } else { "Female" };
-
-    // Age threshold is intentionally lower than gender — age tags are sparser
-    // in danbooru so they get lower confidence scores overall.
-    const AGE_THRESHOLD: f32 = 0.15;
 
     // Determine age group from the highest-scoring age tag (above threshold).
     let age_label = if child_score >= AGE_THRESHOLD && child_score >= teen_score && child_score >= elder_score {
@@ -1951,6 +2010,62 @@ fn classify_with_wd_tagger(model: &WdTaggerModel, crop: &DynamicImage) -> Result
     };
 
     Ok(label)
+}
+
+/// Classify gender + a 6-bucket age group ("trẻ con/thiếu niên/thanh niên/trưởng
+/// thành/trung niên/người già") using WD Tagger, for the Character Scanner curator.
+/// Returns `(gender, age_group)` where `gender` is `"male"|"female"` and `age_group`
+/// is one of `"child"|"teen"|"young_adult"|"adult"|"middle_age"|"elder"`.
+///
+/// Priority when multiple age buckets clear `AGE_THRESHOLD`: child > teen > elder >
+/// middle_age > adult (mirrors `classify_with_wd_tagger`'s "most distinctive tag
+/// wins" ordering). `"young_adult"` has no reliable danbooru tag, so it's the
+/// fallback when no bucket clears threshold at all.
+fn classify_gender_age(model: &WdTaggerModel, crop: &DynamicImage) -> Result<(String, String)> {
+    let probs = wd_tagger_probs(model, crop)?;
+
+    let male_score       = wd_tag_score(&probs, &model.male_indices);
+    let female_score     = wd_tag_score(&probs, &model.female_indices);
+    let child_score      = wd_tag_score(&probs, &model.child_indices);
+    let teen_score        = wd_tag_score(&probs, &model.teen_indices);
+    let elder_score       = wd_tag_score(&probs, &model.elder_indices);
+    let middle_age_score  = wd_tag_score(&probs, &model.middle_age_indices);
+    let adult_score       = wd_tag_score(&probs, &model.adult_indices);
+
+    let gender = if male_score >= female_score { "male" } else { "female" };
+    let age_group = age_bucket_from_scores(child_score, teen_score, elder_score, middle_age_score, adult_score);
+
+    Ok((gender.to_string(), age_group.to_string()))
+}
+
+/// Pure bucket-selection logic for `classify_gender_age`, split out so it can be
+/// unit-tested without an ONNX session. Priority when multiple buckets clear
+/// `AGE_THRESHOLD`: child > teen > elder > middle_age > adult, else `young_adult`.
+fn age_bucket_from_scores(
+    child_score: f32,
+    teen_score: f32,
+    elder_score: f32,
+    middle_age_score: f32,
+    adult_score: f32,
+) -> &'static str {
+    if child_score >= AGE_THRESHOLD
+        && child_score >= teen_score
+        && child_score >= elder_score
+        && child_score >= middle_age_score
+        && child_score >= adult_score
+    {
+        "child"
+    } else if teen_score >= AGE_THRESHOLD && teen_score >= elder_score && teen_score >= middle_age_score && teen_score >= adult_score {
+        "teen"
+    } else if elder_score >= AGE_THRESHOLD && elder_score >= middle_age_score && elder_score >= adult_score {
+        "elder"
+    } else if middle_age_score >= AGE_THRESHOLD && middle_age_score >= adult_score {
+        "middle_age"
+    } else if adult_score >= AGE_THRESHOLD {
+        "adult"
+    } else {
+        "young_adult"
+    }
 }
 
 /// Crop with modest body context below and around the face box for WD Tagger.
@@ -2423,4 +2538,39 @@ fn gutter_splits(is_gutter: &[bool], total: usize) -> Vec<usize> {
     splits.push(total);
     splits.dedup();
     splits
+}
+
+#[cfg(test)]
+mod tests {
+    use super::age_bucket_from_scores;
+
+    #[test]
+    fn age_bucket_picks_child_when_it_dominates() {
+        assert_eq!(age_bucket_from_scores(0.9, 0.1, 0.0, 0.0, 0.0), "child");
+    }
+
+    #[test]
+    fn age_bucket_picks_teen_over_lower_elder() {
+        assert_eq!(age_bucket_from_scores(0.0, 0.5, 0.2, 0.1, 0.1), "teen");
+    }
+
+    #[test]
+    fn age_bucket_picks_elder_over_middle_age_and_adult() {
+        assert_eq!(age_bucket_from_scores(0.0, 0.0, 0.6, 0.4, 0.3), "elder");
+    }
+
+    #[test]
+    fn age_bucket_picks_middle_age_over_adult() {
+        assert_eq!(age_bucket_from_scores(0.0, 0.0, 0.0, 0.5, 0.3), "middle_age");
+    }
+
+    #[test]
+    fn age_bucket_picks_adult_when_only_adult_clears_threshold() {
+        assert_eq!(age_bucket_from_scores(0.0, 0.0, 0.0, 0.0, 0.3), "adult");
+    }
+
+    #[test]
+    fn age_bucket_falls_back_to_young_adult_when_nothing_clears_threshold() {
+        assert_eq!(age_bucket_from_scores(0.05, 0.05, 0.05, 0.05, 0.05), "young_adult");
+    }
 }

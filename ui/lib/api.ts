@@ -4,6 +4,7 @@ import { directoryOpen, fileOpen, fileSave } from 'browser-fs-access'
 import {
   fetchBinary,
   fetchJson,
+  getApiBaseUrl,
   getActivePipelineJobId,
   setActivePipelineJobId,
 } from '@/lib/backend'
@@ -40,6 +41,33 @@ export type FolderSessionInfo = {
   root: string
   resultDir: string
   files: FolderFileInfo[]
+}
+
+export type ScannedCharacter = {
+  id: string
+  name: string
+  gender: string | null
+  ageGroup: string | null
+  faces: string[]
+  traits: string[]
+}
+
+export type RelationshipEdge = {
+  characterId: string
+  coOccurrence: number
+  label: string | null
+  description: string | null
+}
+
+export type RelationshipNode = {
+  characterId: string
+  related: RelationshipEdge[]
+}
+
+export type CharacterScanResult = {
+  characters: ScannedCharacter[]
+  relationshipTree: RelationshipNode[]
+  isVerifiedByHuman: boolean
 }
 import {
   Document,
@@ -1002,6 +1030,70 @@ export const api = {
       })
       setActivePipelineJobId(job.id)
     })
+  },
+
+  // ── Character Scanner ───────────────────────────────────────────────────────
+
+  async startCharacterScan(): Promise<JobState> {
+    return withRpcError('start_character_scan', () =>
+      fetchJson<JobState>('/jobs/character-scan-folder', { method: 'POST' }),
+    )
+  },
+
+  async cancelCharacterScan(jobId: string): Promise<void> {
+    await fetchJson<void>(`/jobs/${jobId}`, { method: 'DELETE' })
+  },
+
+  async getCharacterScanResult(): Promise<CharacterScanResult | null> {
+    return withRpcError('get_character_scan_result', () =>
+      fetchJson<CharacterScanResult | null>('/character-scan/result'),
+    )
+  },
+
+  getCharacterScanFaceUrl(characterId: string, file: string): string {
+    return `${getApiBaseUrl()}/character-scan/faces/${characterId}/${encodeURIComponent(file)}`
+  },
+
+  async addCharacterScanFace(characterId: string, face: File): Promise<string> {
+    return withRpcError('add_character_scan_face', async () => {
+      const form = new FormData()
+      form.append('face', face, face.name)
+      const res = await fetchJson<{ path: string }>(
+        `/character-scan/faces/${characterId}`,
+        { method: 'POST', body: form },
+      )
+      return res.path
+    })
+  },
+
+  async generateCharacterScanRelationships(): Promise<CharacterScanResult> {
+    return withRpcError('generate_character_scan_relationships', () =>
+      fetchJson<CharacterScanResult>('/character-scan/generate-relationships', {
+        method: 'POST',
+      }),
+    )
+  },
+
+  async exportCharacterScan(result: CharacterScanResult): Promise<void> {
+    return withRpcError('export_character_scan', async () => {
+      await fetchJson<void>('/character-scan/export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(result),
+      })
+    })
+  },
+
+  async syncCharacterScanToLibrary(
+    characterIds: string[],
+  ): Promise<{ syncedIds: string[] }> {
+    return withRpcError('sync_character_scan_to_library', () =>
+      fetchJson<{ syncedIds: string[] }>('/character-scan/sync-to-library', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ characterIds }),
+      }),
+    )
   },
 }
 

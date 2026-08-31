@@ -142,6 +142,7 @@ async fn run_folder_pipeline(
         Ok(()) if cancel.load(Ordering::Relaxed) => {
             pipeline::emit_progress(PipelineProgress {
                 job_id: job_id.clone(),
+                kind: "pipeline-folder".to_string(),
                 status: PipelineStatus::Cancelled,
                 step: None,
                 current_document: total_files,
@@ -154,6 +155,7 @@ async fn run_folder_pipeline(
         Ok(()) => {
             pipeline::emit_progress(PipelineProgress {
                 job_id: job_id.clone(),
+                kind: "pipeline-folder".to_string(),
                 status: PipelineStatus::Completed,
                 step: None,
                 current_document: total_files,
@@ -167,6 +169,7 @@ async fn run_folder_pipeline(
             tracing::error!("Folder pipeline failed: {err:#}");
             pipeline::emit_progress(PipelineProgress {
                 job_id: job_id.clone(),
+                kind: "pipeline-folder".to_string(),
                 status: PipelineStatus::Failed(err.to_string()),
                 step: None,
                 current_document: 0,
@@ -350,6 +353,7 @@ async fn process_single_file(
 
         pipeline::emit_progress(PipelineProgress {
             job_id: job_id.to_string(),
+            kind: "pipeline-folder".to_string(),
             status: PipelineStatus::Running,
             step: Some(*step),
             current_document: doc_idx,

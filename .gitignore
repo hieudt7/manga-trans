@@ -62,3 +62,7 @@ claudedocs/
 !.env.example
 *_keys.txt
 !*_keys.txt.example
+
+# Debug log the scanner appends to on every run — grows without bound and
+# writes into the source tree.
+debug-scan/

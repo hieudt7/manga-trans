@@ -28,6 +28,7 @@
     "processAllWithCharacter": "使用角色识别处理所有图片",
     "help": "帮助",
     "characters": "角色",
+    "characterScanner": "角色扫描器",
     "settings": "设置",
     "discord": "Discord",
     "github": "GitHub",
@@ -312,5 +313,61 @@
     "saving": "添加中...",
     "cancel": "取消",
     "confirm": "添加角色"
+  },
+  "characterScanner": {
+    "title": "角色扫描器",
+    "pickFolder": "打开文件夹",
+    "startScan": "开始扫描",
+    "rescan": "重新扫描",
+    "cancelScan": "取消",
+    "loading": "加载中...",
+    "progress": "图片 {{current}} / {{total}}",
+    "noResult": "尚未发现角色",
+    "noResultHint": "运行扫描以发现该文件夹中反复出现的角色及其关系。",
+    "emptyHint": "打开文件夹以发现反复出现的角色,统计对话出现次数,并构建关系树。",
+    "genders": {
+      "male": "男性",
+      "female": "女性"
+    },
+    "ageGroups": {
+      "child": "幼年",
+      "teen": "少年",
+      "young_adult": "青年",
+      "adult": "成年",
+      "middle_age": "中年",
+      "elder": "老年"
+    },
+    "hubView": {
+      "noRelations": "尚未检测到明显的人物关系",
+      "coOccurrence_one": "共同出现 {{count}} 次",
+      "coOccurrence_other": "共同出现 {{count}} 次"
+    },
+    "generateRelationships": {
+      "button": "用 AI 生成关系",
+      "generating": "生成中...",
+      "allLabeled": "所有关系均已标注"
+    },
+    "faceManager": {
+      "title": "面部管理",
+      "name": "姓名",
+      "gender": "性别",
+      "ageGroup": "年龄段",
+      "unknown": "未知",
+      "faces_one": "{{count}} 张面部图",
+      "faces_other": "{{count}} 张面部图",
+      "addFace": "添加面部",
+      "uploading": "上传中...",
+      "deleteFace": "删除面部",
+      "noFaces": "暂无面部图",
+      "cancel": "取消",
+      "save": "保存"
+    },
+    "export": {
+      "button": "导出",
+      "exporting": "导出中..."
+    },
+    "syncToLibrary": {
+      "button": "同步到角色库"
+    }
   }
 }

@@ -29,6 +29,7 @@
     "help": "Help",
     "folderMode": "Folder Mode",
     "characters": "Characters",
+    "characterScanner": "Character Scanner",
     "settings": "Settings",
     "discord": "Discord",
     "github": "GitHub",
@@ -315,5 +316,61 @@
     "saving": "Adding...",
     "cancel": "Cancel",
     "confirm": "Add Character"
+  },
+  "characterScanner": {
+    "title": "Character Scanner",
+    "pickFolder": "Open Folder",
+    "startScan": "Start Scan",
+    "rescan": "Scan Again",
+    "cancelScan": "Cancel",
+    "loading": "Loading...",
+    "progress": "Image {{current}} / {{total}}",
+    "noResult": "No characters found yet",
+    "noResultHint": "Run a scan to discover recurring characters and their relationships across this folder.",
+    "emptyHint": "Open a folder to discover recurring characters, count their dialogue appearances, and build a relationship tree.",
+    "genders": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "ageGroups": {
+      "child": "Child",
+      "teen": "Teen",
+      "young_adult": "Young Adult",
+      "adult": "Adult",
+      "middle_age": "Middle-aged",
+      "elder": "Elder"
+    },
+    "hubView": {
+      "noRelations": "No strong relationships detected yet",
+      "coOccurrence_one": "Appeared together {{count}} time",
+      "coOccurrence_other": "Appeared together {{count}} times"
+    },
+    "generateRelationships": {
+      "button": "Generate by LLM",
+      "generating": "Generating...",
+      "allLabeled": "All relationships already labeled"
+    },
+    "faceManager": {
+      "title": "Face Manager",
+      "name": "Name",
+      "gender": "Gender",
+      "ageGroup": "Age Group",
+      "unknown": "Unknown",
+      "faces_one": "{{count}} Face",
+      "faces_other": "{{count}} Faces",
+      "addFace": "Add Face",
+      "uploading": "Uploading...",
+      "deleteFace": "Delete Face",
+      "noFaces": "No faces yet",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "export": {
+      "button": "Export",
+      "exporting": "Exporting..."
+    },
+    "syncToLibrary": {
+      "button": "Sync to Character Library"
+    }
   }
 }

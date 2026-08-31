@@ -28,6 +28,7 @@
     "processAllWithCharacter": "キャラクター認識で全画像を処理",
     "help": "ヘルプ",
     "characters": "キャラクター",
+    "characterScanner": "キャラクタースキャナー",
     "settings": "設定",
     "discord": "Discord",
     "github": "GitHub",
@@ -312,5 +313,61 @@
     "saving": "追加中...",
     "cancel": "キャンセル",
     "confirm": "キャラクターを追加"
+  },
+  "characterScanner": {
+    "title": "キャラクタースキャナー",
+    "pickFolder": "フォルダーを開く",
+    "startScan": "スキャン開始",
+    "rescan": "再スキャン",
+    "cancelScan": "キャンセル",
+    "loading": "読み込み中...",
+    "progress": "画像 {{current}} / {{total}}",
+    "noResult": "まだキャラクターが見つかっていません",
+    "noResultHint": "スキャンを実行すると、このフォルダー内で繰り返し登場するキャラクターとその関係を検出します。",
+    "emptyHint": "フォルダーを開くと、繰り返し登場するキャラクターを検出し、セリフの出現回数を数え、関係ツリーを構築します。",
+    "genders": {
+      "male": "男性",
+      "female": "女性"
+    },
+    "ageGroups": {
+      "child": "子供",
+      "teen": "少年少女",
+      "young_adult": "青年",
+      "adult": "成人",
+      "middle_age": "中年",
+      "elder": "高齢者"
+    },
+    "hubView": {
+      "noRelations": "明確な関係はまだ検出されていません",
+      "coOccurrence_one": "{{count}} 回一緒に登場",
+      "coOccurrence_other": "{{count}} 回一緒に登場"
+    },
+    "generateRelationships": {
+      "button": "AIで関係を生成",
+      "generating": "生成中...",
+      "allLabeled": "すべての関係はラベル付け済みです"
+    },
+    "faceManager": {
+      "title": "顔管理",
+      "name": "名前",
+      "gender": "性別",
+      "ageGroup": "年齢層",
+      "unknown": "不明",
+      "faces_one": "顔画像 {{count}} 枚",
+      "faces_other": "顔画像 {{count}} 枚",
+      "addFace": "顔を追加",
+      "uploading": "アップロード中...",
+      "deleteFace": "顔を削除",
+      "noFaces": "顔画像はまだありません",
+      "cancel": "キャンセル",
+      "save": "保存"
+    },
+    "export": {
+      "button": "エクスポート",
+      "exporting": "エクスポート中..."
+    },
+    "syncToLibrary": {
+      "button": "キャラクターライブラリに同期"
+    }
   }
 }
