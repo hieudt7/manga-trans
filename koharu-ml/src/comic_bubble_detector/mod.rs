@@ -12,7 +12,13 @@ const CONF_THRESHOLD: f32 = 0.5;
 const IOU_THRESHOLD: f32 = 0.45;
 const MASK_THRESHOLD: f32 = 0.5;
 
-fn local_model_path() -> PathBuf {
+/// Overrides the model location; useful for testing a freshly exported model
+/// without touching the cache.
+const MODEL_PATH_ENV: &str = "KOHARU_BUBBLE_DETECTOR";
+
+/// Canonical install location. Unlike the other models this one is not on the
+/// HuggingFace manifest, so nothing downloads it automatically.
+fn cache_model_path() -> PathBuf {
     dirs::cache_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("koharu")
@@ -20,8 +26,44 @@ fn local_model_path() -> PathBuf {
         .join("bubble_detector.onnx")
 }
 
+/// Every place the model may live, in priority order.
+///
+/// The cache path alone used to be it, which meant a machine that never ran the
+/// export step silently translated every page without balloon detection — one
+/// WARN line for a real loss in speaker attribution and text fitting. The repo
+/// ships the exported model in `lib/best.onnx`, so a dev build can fall back to
+/// it instead of degrading quietly.
+fn model_path_candidates() -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+
+    if let Some(path) = std::env::var_os(MODEL_PATH_ENV) {
+        candidates.push(PathBuf::from(path));
+    }
+
+    candidates.push(cache_model_path());
+
+    // Next to the executable, for a packaged build that bundles the model.
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            candidates.push(dir.join("bubble_detector.onnx"));
+        }
+    }
+
+    // Checked-in copy, for a build running from the repo.
+    if let Some(root) = PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent() {
+        candidates.push(root.join("lib").join("best.onnx"));
+    }
+
+    candidates
+}
+
+/// First candidate that exists on disk.
+fn local_model_path() -> Option<PathBuf> {
+    model_path_candidates().into_iter().find(|path| path.exists())
+}
+
 pub fn is_available() -> bool {
-    local_model_path().exists()
+    local_model_path().is_some()
 }
 
 #[derive(Clone)]
@@ -51,13 +93,20 @@ pub struct ComicBubbleDetector {
 
 impl ComicBubbleDetector {
     pub async fn load() -> Result<Self> {
-        let path = local_model_path();
-        if !path.exists() {
+        let Some(path) = local_model_path() else {
+            let tried = model_path_candidates()
+                .iter()
+                .map(|p| p.display().to_string())
+                .collect::<Vec<_>>()
+                .join(", ");
             anyhow::bail!(
-                "Bubble detector model not found at {}. Run tools/export_bubble_detector.py first.",
-                path.display()
+                "Bubble detector model not found. Looked in: {tried}. \
+                 Copy the exported model to {}, set {MODEL_PATH_ENV}, \
+                 or run tools/export_bubble_detector.py.",
+                cache_model_path().display()
             );
-        }
+        };
+        tracing::info!(path = %path.display(), "loading bubble detector");
         let session = tokio::task::spawn_blocking(move || -> Result<Session> {
             Ok(Session::builder()?.commit_from_file(&path)?)
         })
@@ -277,4 +326,66 @@ pub fn fill_ratio(mask: &GrayImage, tx: f32, ty: f32, tw: f32, th: f32) -> f32 {
         .filter(|&(x, y)| mask.get_pixel(x, y)[0] >= 128)
         .count() as u32;
     inside as f32 / total as f32
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn candidates_prefer_the_env_override_then_the_cache() {
+        // Ordering is the contract: an explicitly pointed-at model must win over
+        // whatever happens to sit in the cache.
+        let candidates = model_path_candidates();
+        assert!(candidates.contains(&cache_model_path()));
+        assert!(
+            candidates.len() >= 2,
+            "expected the cache path plus at least one fallback, got {candidates:?}"
+        );
+    }
+
+    /// Proves the shipped ONNX is actually *compatible*, not merely present:
+    /// a detection-only export would have no prototype-mask output and would
+    /// produce boxes without masks.
+    ///
+    /// Run with: `KOHARU_TEST_PAGE=/path/to/page.jpg cargo test -p koharu-ml
+    /// --lib bubble -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn detects_balloons_on_a_real_page() -> Result<()> {
+        let Some(page) = std::env::var_os("KOHARU_TEST_PAGE") else {
+            anyhow::bail!("set KOHARU_TEST_PAGE to a manga page to run this test");
+        };
+        let Some(model) = local_model_path() else {
+            anyhow::bail!("no bubble detector model installed");
+        };
+        println!("model: {}", model.display());
+
+        let image = image::open(PathBuf::from(&page))?;
+        let detector = tokio::runtime::Runtime::new()?.block_on(ComicBubbleDetector::load())?;
+        let balloons = detector.detect(&image)?;
+
+        let with_mask = balloons.iter().filter(|b| b.mask.is_some()).count();
+        println!(
+            "page {}x{} → {} balloons, {} with masks",
+            image.width(),
+            image.height(),
+            balloons.len(),
+            with_mask
+        );
+        for b in balloons.iter().take(5) {
+            println!(
+                "  {:.0},{:.0} {:.0}x{:.0} score={:.2} mask={}",
+                b.x, b.y, b.width, b.height, b.score, b.mask.is_some()
+            );
+        }
+
+        assert!(!balloons.is_empty(), "no balloons detected on a manga page");
+        assert_eq!(
+            with_mask,
+            balloons.len(),
+            "segmentation masks missing — the export is detection-only"
+        );
+        Ok(())
+    }
 }

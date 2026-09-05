@@ -64,7 +64,14 @@ const API_PROVIDERS: ApiProvider[] = [
     helperText:
       'Use LM Studio, OpenRouter, or another OpenAI-compatible endpoint.',
   },
-  { id: 'gemini', name: 'Gemini', free_tier: true },
+  {
+    id: 'gemini',
+    name: 'Gemini',
+    free_tier: true,
+    helperText:
+      'Free keys cap out around 500 requests/day (~2 volumes). Put several keys in gemini_keys.txt in the project root (one per line) and the app rotates to the next one automatically when a key runs out — leave this field empty if you use the file.',
+  },
+  { id: 'grok', name: 'Grok (xAI)', free_tier: false },
   { id: 'claude', name: 'Claude', free_tier: false },
   { id: 'deepseek', name: 'DeepSeek', free_tier: false },
 ]
@@ -118,7 +125,7 @@ const LLM_LANGUAGES = [
 ] as const
 
 const DEFAULT_SYSTEM_PROMPT =
-  'You are a professional manga translator. Translate Japanese manga dialogue into natural {target_language} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, emphasis, and sound effects naturally. Keep the wording concise. Do not add notes, explanations, or romanization. If the input contains <block id="N">...</block>, translate only the text inside each block. Keep every block tag exactly unchanged, including ids, order, and block count. Do not merge blocks, split blocks, or add any text outside the blocks.'
+  'You are a professional manga translator. Translate Japanese manga dialogue into natural {target_language} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, emphasis, and sound effects naturally. Keep the wording concise. Do not add notes, explanations, or romanization.'
 
 const inputClass =
   'border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-1.5 text-sm focus:ring-1 focus:outline-none'
@@ -136,6 +143,15 @@ export default function SettingsPage() {
     (state) => state.providerBaseUrls,
   )
   const setApiKey = usePreferencesStore((state) => state.setApiKey)
+  const providerKeyCounts = usePreferencesStore(
+    (state) => state.providerKeyCounts,
+  )
+  const providerKeyStartIndex = usePreferencesStore(
+    (state) => state.providerKeyStartIndex,
+  )
+  const setProviderKeyStartIndex = usePreferencesStore(
+    (state) => state.setProviderKeyStartIndex,
+  )
   const setProviderBaseUrl = usePreferencesStore(
     (state) => state.setProviderBaseUrl,
   )
@@ -480,6 +496,37 @@ export default function SettingsPage() {
                             )}
                           </button>
                         </div>
+
+                        {(providerKeyCounts[id] ?? 0) > 1 && (
+                          <label className='flex items-center gap-2 text-xs'>
+                            <span className='text-muted-foreground shrink-0'>
+                              {t('settings.keyStartIndex')}
+                            </span>
+                            <input
+                              type='number'
+                              min={1}
+                              max={providerKeyCounts[id]}
+                              value={providerKeyStartIndex[id] ?? 1}
+                              onChange={(e) => {
+                                const total = providerKeyCounts[id] ?? 1
+                                const parsed = Number.parseInt(
+                                  e.target.value,
+                                  10,
+                                )
+                                const next = Number.isNaN(parsed)
+                                  ? 1
+                                  : Math.min(Math.max(parsed, 1), total)
+                                setProviderKeyStartIndex(id, next)
+                              }}
+                              className={`${inputClass} w-20`}
+                            />
+                            <span className='text-muted-foreground'>
+                              {t('settings.keyStartIndexHint', {
+                                count: providerKeyCounts[id],
+                              })}
+                            </span>
+                          </label>
+                        )}
 
                         {supportsModelName && (
                           <input

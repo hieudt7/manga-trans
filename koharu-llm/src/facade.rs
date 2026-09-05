@@ -83,10 +83,13 @@ pub trait Translatable {
     fn set_translation(&mut self, translation: String) -> anyhow::Result<()>;
 }
 
-fn escape_block_text(text: &str) -> String {
-    text.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
+/// Whether a source string is worth spending an LLM call on.
+///
+/// Blocks that carry no letters at all — bare punctuation, ellipses, digits,
+/// musical notes — render the same translated or not, so they are skipped.
+pub fn needs_translation(text: &str) -> bool {
+    text.chars()
+        .any(|c| c.is_alphabetic() || ('\u{3040}'..='\u{30FF}').contains(&c))
 }
 
 fn unescape_block_text(text: &str) -> String {
@@ -184,21 +187,76 @@ fn strip_incomplete_corner_quotes(text: &str) -> String {
     current.to_string()
 }
 
-fn format_document_blocks(blocks: &[TextBlock]) -> String {
-    blocks
-        .iter()
+/// Render blocks in the `[N]` wire format.
+///
+/// The marker is what the model has to echo back, so its cost is paid twice —
+/// once in the prompt and once, at double the rate, in the completion. `[N]` is
+/// about three tokens against nine for an XML block tag, and needs no entity
+/// escaping, which keeps short SFX lines from being dwarfed by their delimiters.
+fn format_blocks<'a>(texts: impl Iterator<Item = &'a str>) -> String {
+    texts
         .enumerate()
-        .map(|(idx, block)| {
-            let text = block.text.as_deref().unwrap_or("<empty>");
-            format!(
-                r#"<block id="{idx}">
-{}
-</block>"#,
-                escape_block_text(text)
-            )
-        })
+        .map(|(idx, text)| format!("[{idx}]\n{}", text.trim()))
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+fn format_document_blocks(blocks: &[TextBlock]) -> String {
+    format_blocks(blocks.iter().map(|block| block.text.as_deref().unwrap_or("")))
+}
+
+/// Parse a `[N]`-marked response into `expected` slots.
+///
+/// A marker line is `[N]` alone (tolerating surrounding spaces); everything up
+/// to the next marker is that block's text. Mapping is by the id the model
+/// wrote, not by position, so a dropped or reordered block leaves its slot empty
+/// for retry instead of shifting every later translation onto the wrong bubble.
+fn parse_marked_blocks(translation: &str, expected: usize) -> Option<Vec<String>> {
+    let mut blocks = vec![String::new(); expected];
+    let mut current: Option<usize> = None;
+    let mut pending: Vec<&str> = Vec::new();
+    let mut seen = 0usize;
+
+    fn flush(blocks: &mut [String], current: Option<usize>, pending: &mut Vec<&str>, seen: &mut usize) {
+        let Some(id) = current else {
+            pending.clear();
+            return;
+        };
+        let text = pending.join("\n").trim().to_string();
+        pending.clear();
+        if let Some(slot) = blocks.get_mut(id) {
+            if slot.is_empty() && !text.is_empty() {
+                *seen += 1;
+            }
+            *slot = text;
+        }
+    }
+
+    for line in translation.lines() {
+        match marker_id(line) {
+            Some(id) => {
+                flush(&mut blocks, current, &mut pending, &mut seen);
+                current = Some(id);
+            }
+            None => pending.push(line),
+        }
+    }
+    flush(&mut blocks, current, &mut pending, &mut seen);
+
+    if seen == 0 {
+        return None;
+    }
+    if seen < expected {
+        tracing::warn!(parsed = seen, expected, "fewer marked blocks than expected");
+    }
+    Some(blocks)
+}
+
+/// The block id of a `[N]` marker line, or `None` for a content line.
+pub fn marker_id(line: &str) -> Option<usize> {
+    let trimmed = line.trim();
+    let inner = trimmed.strip_prefix('[')?.strip_suffix(']')?;
+    inner.trim().parse().ok()
 }
 
 fn parse_tagged_blocks(
@@ -485,6 +543,94 @@ fn consume_ascii_keyword(bytes: &[u8], index: &mut usize, keyword: &str) -> bool
     true
 }
 
+/// Parse a model response into exactly `expected` block translations, falling
+/// back to the numbered-list and single-line formats some providers emit.
+/// `None` means the response was unusable and the caller should retry.
+fn parse_block_translations(
+    translation: &str,
+    expected: usize,
+) -> anyhow::Result<Option<Vec<String>>> {
+    if let Some(blocks) = parse_marked_blocks(translation, expected) {
+        return Ok(Some(blocks));
+    }
+    // Older prompts (and stale custom prompts) can still elicit XML block tags.
+    if let Some(blocks) = parse_tagged_blocks(translation, expected)? {
+        return Ok(Some(blocks));
+    }
+    if expected == 1 {
+        return Ok(Some(split_legacy_lines(translation, 1)?));
+    }
+    if let Some(blocks) = parse_numbered_list_blocks(translation, expected) {
+        tracing::debug!(expected, "parsed numbered list blocks from LLM response");
+        return Ok(Some(blocks));
+    }
+    tracing::warn!(
+        expected,
+        "LLM response had no block tags, will retry each block individually"
+    );
+    Ok(None)
+}
+
+fn clean_translation(raw: &str) -> String {
+    strip_sfx_description(&strip_speaker_prefix(&strip_wrapping_quotes(raw)))
+}
+
+/// A subset of a document's text blocks, renumbered `0..n`.
+///
+/// Sending only the blocks that still need work — instead of the whole page —
+/// keeps retries from re-paying for blocks that already translated fine.
+pub struct BlockSelection<'a> {
+    blocks: Vec<&'a mut TextBlock>,
+}
+
+impl<'a> BlockSelection<'a> {
+    /// Select `indices` (document order) out of `blocks`.
+    pub fn from_indices(blocks: &'a mut [TextBlock], indices: &[usize]) -> Self {
+        let wanted: std::collections::HashSet<usize> = indices.iter().copied().collect();
+        Self {
+            blocks: blocks
+                .iter_mut()
+                .enumerate()
+                .filter(|(index, _)| wanted.contains(index))
+                .map(|(_, block)| block)
+                .collect(),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.blocks.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.blocks.is_empty()
+    }
+}
+
+impl Translatable for BlockSelection<'_> {
+    fn get_source(&self) -> anyhow::Result<String> {
+        Ok(format_blocks(
+            self.blocks
+                .iter()
+                .map(|block| block.text.as_deref().unwrap_or("")),
+        ))
+    }
+
+    fn set_translation(&mut self, translation: String) -> anyhow::Result<()> {
+        let Some(translations) = parse_block_translations(&translation, self.blocks.len())? else {
+            return Ok(());
+        };
+        for (block, trans) in self.blocks.iter_mut().zip(translations) {
+            // Leave blanks alone: an unfilled slot must stay eligible for retry
+            // rather than being overwritten with an empty translation.
+            if trans.trim().is_empty() {
+                continue;
+            }
+            block.translation = Some(clean_translation(&trans));
+        }
+        Ok(())
+    }
+}
+
 impl Translatable for Document {
     fn get_source(&self) -> anyhow::Result<String> {
         Ok(format_document_blocks(&self.text_blocks))
@@ -492,27 +638,12 @@ impl Translatable for Document {
 
     fn set_translation(&mut self, translation: String) -> anyhow::Result<()> {
         let expected = self.text_blocks.len();
-        let translations = match parse_tagged_blocks(&translation, expected)? {
-            Some(blocks) => blocks,
-            None => {
-                if expected == 1 {
-                    split_legacy_lines(&translation, 1)?
-                } else if let Some(blocks) = parse_numbered_list_blocks(&translation, expected) {
-                    tracing::debug!(expected, "parsed numbered list blocks from LLM response");
-                    blocks
-                } else {
-                    tracing::warn!(
-                        expected,
-                        "LLM response had no block tags, will retry each block individually"
-                    );
-                    return Ok(());
-                }
-            }
+        let Some(translations) = parse_block_translations(&translation, expected)? else {
+            return Ok(());
         };
 
         for (block, trans) in self.text_blocks.iter_mut().zip(translations) {
-            let clean = strip_sfx_description(&strip_speaker_prefix(&strip_wrapping_quotes(&trans)));
-            block.translation = Some(clean);
+            block.translation = Some(clean_translation(&trans));
         }
         Ok(())
     }
@@ -524,18 +655,18 @@ impl Translatable for TextBlock {
             .text
             .clone()
             .ok_or_else(|| anyhow::anyhow!("No source text found"))?;
-        Ok(format!(
-            r#"<block id="0">
-{}
-</block>"#,
-            escape_block_text(&source)
-        ))
+        Ok(format_blocks(std::iter::once(source.as_str())))
     }
 
     fn set_translation(&mut self, translation: String) -> anyhow::Result<()> {
-        let translation = match parse_tagged_blocks(&translation, 1)? {
+        // Only unwrap when the model actually delimited the block; a bare
+        // multi-line reply must survive verbatim.
+        let translation = match parse_marked_blocks(&translation, 1) {
             Some(blocks) => blocks.into_iter().next().unwrap_or_default(),
-            None => translation,
+            None => match parse_tagged_blocks(&translation, 1)? {
+                Some(blocks) => blocks.into_iter().next().unwrap_or_default(),
+                None => translation,
+            },
         };
         self.translation = Some(strip_sfx_description(&strip_speaker_prefix(&strip_wrapping_quotes(&translation))));
         Ok(())
@@ -620,6 +751,13 @@ impl Model {
         self.emit_state().await;
     }
 
+    /// True when an API provider is loaded. API providers receive a stable
+    /// story context at load time (cacheable by the provider), so per-page
+    /// context can stay minimal; local models get everything per call.
+    pub async fn is_api(&self) -> bool {
+        matches!(*self.state.read().await, State::ApiReady { .. })
+    }
+
     pub async fn ready(&self) -> bool {
         matches!(
             *self.state.read().await,
@@ -694,32 +832,53 @@ fn snapshot_from_state(state: &State) -> LlmState {
             model_id: None,
             source: None,
             error: None,
+            keys_total: None,
+            keys_available: None,
+            key_index: None,
         },
         State::Loading { model_id, source } => LlmState {
             status: LlmStateStatus::Loading,
             model_id: Some(model_id.clone()),
             source: Some(source.clone()),
             error: None,
+            keys_total: None,
+            keys_available: None,
+            key_index: None,
         },
         State::Ready(llm) => LlmState {
             status: LlmStateStatus::Ready,
             model_id: Some(llm.id().to_string()),
             source: Some("local".to_string()),
             error: None,
+            keys_total: None,
+            keys_available: None,
+            key_index: None,
         },
         State::ApiReady {
-            provider_id, model, ..
-        } => LlmState {
-            status: LlmStateStatus::Ready,
-            model_id: Some(format!("{provider_id}:{model}")),
-            source: Some(provider_id.clone()),
-            error: None,
-        },
+            provider,
+            provider_id,
+            model,
+        } => {
+            // Read live, so a UI that polls this sees rotations as they happen.
+            let keys = provider.key_status();
+            LlmState {
+                status: LlmStateStatus::Ready,
+                model_id: Some(format!("{provider_id}:{model}")),
+                source: Some(provider_id.clone()),
+                error: None,
+                keys_total: keys.map(|k| k.total),
+                keys_available: keys.map(|k| k.available),
+                key_index: keys.map(|k| k.current),
+            }
+        }
         State::Failed(error) => LlmState {
             status: LlmStateStatus::Failed,
             model_id: None,
             source: None,
             error: Some(error.clone()),
+            keys_total: None,
+            keys_available: None,
+            key_index: None,
         },
     }
 }
@@ -750,7 +909,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn document_source_uses_tagged_blocks() -> anyhow::Result<()> {
+    fn document_source_uses_marked_blocks() -> anyhow::Result<()> {
         let doc = Document {
             text_blocks: vec![
                 TextBlock {
@@ -766,10 +925,8 @@ mod tests {
         };
 
         let source = doc.get_source()?;
-        assert_eq!(
-            source,
-            "<block id=\"0\">\nHello\n</block>\n<block id=\"1\">\n1 &lt; 2\nA &amp; B\n</block>"
-        );
+        // No entity escaping: the marker format is not XML.
+        assert_eq!(source, "[0]\nHello\n[1]\n1 < 2\nA & B");
 
         Ok(())
     }
@@ -989,16 +1146,54 @@ mod tests {
     }
 
     #[test]
-    fn text_block_source_uses_single_tagged_block() -> anyhow::Result<()> {
+    fn text_block_source_uses_single_marked_block() -> anyhow::Result<()> {
         let block = TextBlock {
             text: Some("1 < 2\nA & B".to_string()),
             ..Default::default()
         };
 
         let source = block.get_source()?;
-        assert_eq!(source, "<block id=\"0\">\n1 &lt; 2\nA &amp; B\n</block>");
+        assert_eq!(source, "[0]\n1 < 2\nA & B");
 
         Ok(())
+    }
+
+    #[test]
+    fn marked_blocks_map_by_id_not_position() -> anyhow::Result<()> {
+        let mut doc = Document {
+            text_blocks: vec![TextBlock::default(), TextBlock::default(), TextBlock::default()],
+            ..Default::default()
+        };
+        // Model answered out of order and skipped block 1.
+        doc.set_translation("[2]\nthird\n[0]\nfirst".to_string())?;
+        let got: Vec<_> = doc
+            .text_blocks
+            .iter()
+            .map(|b| b.translation.as_deref().unwrap_or(""))
+            .collect();
+        assert_eq!(got, vec!["first", "", "third"]);
+        Ok(())
+    }
+
+    #[test]
+    fn marked_blocks_keep_multiline_content() {
+        let parsed = parse_marked_blocks("[0]\nline one\nline two\n[1]\nsolo", 2).unwrap();
+        assert_eq!(parsed, vec!["line one\nline two".to_string(), "solo".to_string()]);
+    }
+
+    #[test]
+    fn marker_id_only_matches_a_bare_marker_line() {
+        assert_eq!(marker_id("[3]"), Some(3));
+        assert_eq!(marker_id("  [12]  "), Some(12));
+        assert_eq!(marker_id("[0] text on same line"), None);
+        assert_eq!(marker_id("text [0]"), None);
+        assert_eq!(marker_id("[abc]"), None);
+        assert_eq!(marker_id("plain line"), None);
+    }
+
+    #[test]
+    fn unmarked_response_is_rejected_so_the_caller_can_retry() {
+        assert!(parse_marked_blocks("just some prose", 3).is_none());
     }
 
     #[test]

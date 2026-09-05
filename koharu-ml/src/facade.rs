@@ -245,7 +245,17 @@ impl Model {
 
     pub async fn detect_balloons(&self, doc: &mut Document) -> Result<()> {
         let Some(detector) = &self.bubble_detector else {
-            tracing::warn!("bubble_detector not loaded, skipping balloon detection");
+            // Once per process, not once per page: this used to log on every
+            // page while quietly costing speaker attribution and text fitting.
+            static WARNED: std::sync::Once = std::sync::Once::new();
+            WARNED.call_once(|| {
+                tracing::warn!(
+                    "bubble_detector not loaded — balloon detection is off, so speaker \
+                     attribution loses its balloon filter, text blocks are not refitted to \
+                     balloons, and the SFX dictionary stays disabled. See the load error above \
+                     for the paths that were tried."
+                );
+            });
             return Ok(());
         };
         let started = Instant::now();
@@ -277,6 +287,23 @@ impl Model {
     /// injection into the LLM system prompt, or `None` if the library is empty.
     pub fn scan_for_character_context(&self, image: &DynamicImage) -> Option<String> {
         self.character_lib.scan_and_build_context(image)
+    }
+
+    /// Like [`Self::scan_for_character_context`], but emits only the names of the
+    /// characters present when `concise` — used when the full cast already rides
+    /// in the provider's cached story context.
+    pub fn scan_for_character_context_with(
+        &self,
+        image: &DynamicImage,
+        concise: bool,
+    ) -> Option<String> {
+        self.character_lib
+            .scan_and_build_context_with(image, concise)
+    }
+
+    /// Full cast description, for injection into a provider's story context.
+    pub fn character_roster_context(&self) -> Option<String> {
+        self.character_lib.roster_context()
     }
 
     /// Per-block Vietnamese pronoun assignment using the existing tested speaker detection pipeline.
@@ -348,8 +375,10 @@ impl Model {
                 "pronoun assignment"
             );
 
+            // Same `[N]` marker the source uses, so the model can line the rule
+            // up with its block without a second naming scheme to learn.
             lines.push(format!(
-                "<block id=\"{i}\"> speaker={speaker_desc}, listener={listener_desc} → use \"{self_pron}\" for I/me, \"{other_pron}\" for you"
+                "[{i}] speaker={speaker_desc}, listener={listener_desc} → use \"{self_pron}\" for I/me, \"{other_pron}\" for you"
             ));
         }
 
@@ -359,11 +388,11 @@ impl Model {
 
         let header = if let Some(prompt) = custom_system_prompt.filter(|p| !p.trim().is_empty()) {
             format!(
-                "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block (story context: \"{}\"). Do NOT include block tags or any metadata in translation output:",
+                "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block (story context: \"{}\"). Do NOT add speaker names or any metadata inside the translated text:",
                 prompt.trim()
             )
         } else {
-            "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block. Do NOT include block tags or any metadata in translation output:".to_string()
+            "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block. Do NOT add speaker names or any metadata inside the translated text:".to_string()
         };
         lines.insert(0, header);
         Some(lines.join("\n"))

@@ -3,6 +3,7 @@ mod edit;
 pub mod folder;
 mod llm;
 mod process;
+mod translate;
 pub(crate) mod utils;
 mod vision;
 
@@ -14,5 +15,6 @@ pub use folder::{
 };
 pub use llm::*;
 pub use process::*;
+pub use translate::{TranslateStats, translate_page};
 pub use utils::{InpaintRegionExt, load_documents};
 pub use vision::*;

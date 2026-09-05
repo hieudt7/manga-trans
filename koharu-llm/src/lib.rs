@@ -6,6 +6,7 @@ pub mod paddleocr_vl;
 pub mod prompt;
 pub mod providers;
 pub mod safe;
+pub mod sfx_dict;
 pub mod sys;
 
 use std::path::PathBuf;
@@ -16,6 +17,7 @@ pub use facade::is_sfx_description;
 pub use language::{Language, language_from_tag, supported_locales};
 pub use model::{GenerateOptions, Llm};
 pub use prompt::{ChatMessage, ChatRole};
+pub use sfx_dict::{SfxDictionary, is_sfx, sfx_dictionary};
 
 #[derive(
     Debug,

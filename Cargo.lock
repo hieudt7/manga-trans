@@ -3975,6 +3975,7 @@ dependencies = [
  "tracing",
  "tracing-core",
  "tracing-subscriber",
+ "uuid",
  "zip 8.2.0",
 ]
 

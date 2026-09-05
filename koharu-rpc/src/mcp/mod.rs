@@ -388,6 +388,7 @@ impl KoharuMcp {
                 max_tokens: p.max_tokens,
                 custom_system_prompt: p.custom_system_prompt,
                 story_context: None,
+                key_start_index: None,
             },
         )
         .await

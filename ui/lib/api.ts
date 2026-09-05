@@ -723,11 +723,8 @@ export const api = {
     return fetchJson<FontFaceInfo[]>('/fonts')
   },
 
-  async getApiKey(provider: string): Promise<string | null> {
-    const response = await fetchJson<ApiKeyResponse>(
-      `/providers/${provider}/api-key`,
-    )
-    return response.apiKey ?? null
+  async getApiKey(provider: string): Promise<ApiKeyResponse> {
+    return fetchJson<ApiKeyResponse>(`/providers/${provider}/api-key`)
   },
 
   async setApiKey(provider: string, apiKey: string): Promise<void> {
@@ -754,6 +751,10 @@ export const api = {
     return fetchJson<LlmModelInfo[]>(`/llm/models${query}`)
   },
 
+  async llmState(): Promise<LlmState> {
+    return fetchJson<LlmState>('/llm/state')
+  },
+
   async llmLoad(
     id: string,
     apiKey?: string,
@@ -762,6 +763,7 @@ export const api = {
     maxTokens?: number | null,
     customSystemPrompt?: string,
     storyContext?: string,
+    keyStartIndex?: number,
   ): Promise<void> {
     await fetchJson<LlmState>('/llm/load', {
       method: 'POST',
@@ -774,6 +776,8 @@ export const api = {
         maxTokens: maxTokens ?? undefined,
         customSystemPrompt: customSystemPrompt || undefined,
         storyContext: storyContext || undefined,
+        keyStartIndex:
+          keyStartIndex && keyStartIndex > 1 ? keyStartIndex : undefined,
       }),
     })
   },

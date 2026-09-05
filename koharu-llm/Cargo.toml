@@ -48,6 +48,7 @@ tar = "0.4"
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+uuid = { workspace = true }
 tracing-subscriber = { workspace = true }
 tracing-core = "0.1"
 zip = { workspace = true }

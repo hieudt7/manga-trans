@@ -11,6 +11,7 @@ export const queryKeys = {
   fonts: ['fonts'] as const,
   llm: {
     all: ['llm'] as const,
+    state: ['llm', 'state'] as const,
     models: (
       language: string,
       openAiCompatibleBaseUrl?: string,

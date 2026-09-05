@@ -197,6 +197,7 @@ mod tests {
     fn test_state() -> AppState {
         Arc::new(RwLock::new(State {
             documents: vec![Default::default()],
+            folder_session: None,
         }))
     }
 

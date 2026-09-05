@@ -22,14 +22,21 @@ pub async fn get_api_key(
     _state: AppResources,
     payload: ApiKeyGetPayload,
 ) -> anyhow::Result<ApiKeyResult> {
-    match get_saved_api_key(&payload.provider) {
-        Ok(Some(key)) => Ok(ApiKeyResult { api_key: Some(key) }),
-        Ok(None) => Ok(ApiKeyResult { api_key: None }),
+    let saved = match get_saved_api_key(&payload.provider) {
+        Ok(value) => value,
         Err(err) => {
             tracing::error!(%err, "keyring read failed");
-            Err(err)
+            return Err(err);
         }
-    }
+    };
+    // Count every source, so the UI can enable a provider whose keys live only
+    // in a key file rather than in Settings.
+    let available_keys =
+        koharu_llm::providers::key_pool::collect_keys(&payload.provider, saved.as_deref()).len();
+    Ok(ApiKeyResult {
+        api_key: saved,
+        available_keys: available_keys as u32,
+    })
 }
 
 #[instrument(level = "debug", skip_all, fields(provider = %payload.provider))]
@@ -102,6 +109,21 @@ pub async fn llm_list(
     Ok(result)
 }
 
+/// Join the user's story context with the character roster. The user's text goes
+/// first so that editing the roster (adding a character) does not invalidate the
+/// cached prefix of the part they wrote.
+fn merge_story_context(user: Option<&str>, roster: Option<&str>) -> Option<String> {
+    match (
+        user.map(str::trim).filter(|value| !value.is_empty()),
+        roster.map(str::trim).filter(|value| !value.is_empty()),
+    ) {
+        (Some(user), Some(roster)) => Some(format!("{user}\n\n{roster}")),
+        (Some(user), None) => Some(user.to_string()),
+        (None, Some(roster)) => Some(roster.to_string()),
+        (None, None) => None,
+    }
+}
+
 #[instrument(level = "info", skip_all)]
 pub async fn llm_load(state: AppResources, payload: LlmLoadPayload) -> anyhow::Result<()> {
     if payload.id.contains(':') {
@@ -110,6 +132,13 @@ pub async fn llm_load(state: AppResources, payload: LlmLoadPayload) -> anyhow::R
             Some(key) if !key.trim().is_empty() => Some(key),
             _ => get_saved_api_key(provider_id)?,
         };
+        // Fold the character library into the story context, which stays byte
+        // identical for the whole session and therefore lands in the provider's
+        // prompt cache. Per-page context then only has to name who appears.
+        let story_context = merge_story_context(
+            payload.story_context.as_deref(),
+            state.ml.character_roster_context().as_deref(),
+        );
         state
             .llm
             .load_api(
@@ -121,7 +150,8 @@ pub async fn llm_load(state: AppResources, payload: LlmLoadPayload) -> anyhow::R
                     temperature: payload.temperature,
                     max_tokens: payload.max_tokens,
                     custom_system_prompt: payload.custom_system_prompt,
-                    story_context: payload.story_context,
+                    story_context,
+                    key_start_index: payload.key_start_index,
                 },
             )
             .await?;
@@ -154,14 +184,20 @@ pub async fn llm_generate(state: AppResources, payload: LlmGeneratePayload) -> a
 
     match payload.text_block_index {
         Some(block_index) => {
+            let balloons = updated.balloons.clone();
             let text_block = updated
                 .text_blocks
                 .get_mut(block_index)
                 .ok_or_else(|| anyhow::anyhow!("Text block not found"))?;
-            state
-                .llm
-                .translate_with_context(text_block, target_language, page_context.as_deref())
-                .await?;
+            super::translate::translate_block(
+                &state.llm,
+                text_block,
+                block_index,
+                &balloons,
+                target_language,
+                page_context.as_deref(),
+            )
+            .await?;
             state_tx::update_doc(
                 &state.state,
                 payload.index,
@@ -171,64 +207,15 @@ pub async fn llm_generate(state: AppResources, payload: LlmGeneratePayload) -> a
             .await
         }
         None => {
-            const MAX_BATCH_RETRIES: usize = 3;
-            let has_source = |b: &koharu_types::TextBlock| {
-                b.text.as_deref().map(|t| !t.trim().is_empty()).unwrap_or(false)
-            };
-            let has_translation = |b: &koharu_types::TextBlock| {
-                b.translation.as_deref().map(|t| !t.trim().is_empty()).unwrap_or(false)
-            };
-            let expected = updated.text_blocks.iter().filter(|b| has_source(b)).count();
-
-            // ── Batch translate with retry ────────────────────────────────────────
-            for attempt in 1..=MAX_BATCH_RETRIES {
-                state
-                    .llm
-                    .translate_with_context(&mut updated, target_language, page_context.as_deref())
-                    .await?;
-
-                let received = updated.text_blocks.iter().filter(|b| has_translation(b)).count();
-                if received >= expected {
-                    tracing::info!(attempt, received, expected, "translation complete");
-                    break;
-                }
-                tracing::warn!(attempt, received, expected, "translation incomplete, retrying batch");
-            }
-
-            // ── Per-block retry for any remaining empty blocks ────────────────────
-            let empty_indices: Vec<usize> = updated
-                .text_blocks
-                .iter()
-                .enumerate()
-                .filter(|(_, b)| has_source(b) && !has_translation(b))
-                .map(|(i, _)| i)
-                .collect();
-
-            if !empty_indices.is_empty() {
-                tracing::warn!(count = empty_indices.len(), "retrying empty blocks individually");
-                for i in empty_indices {
-                    state
-                        .llm
-                        .translate_with_context(
-                            &mut updated.text_blocks[i],
-                            target_language,
-                            page_context.as_deref(),
-                        )
-                        .await?;
-                }
-            }
-
-            // ── Fill anything still empty with silence marker ─────────────────────
-            for block in &mut updated.text_blocks {
-                if has_source(block) && !has_translation(block) {
-                    block.translation = Some(".\n.\n.".to_string());
-                }
-            }
-
-            let received_final = updated.text_blocks.iter().filter(|b| has_translation(b)).count();
-            if received_final < expected {
-                tracing::warn!(received_final, expected, "some blocks remain untranslated after all retries");
-            }
+            // Shared flow: SFX dictionary, punctuation pass-through, and retries
+            // that re-send only the blocks still missing a translation.
+            super::translate::translate_page(
+                &state.llm,
+                &mut updated,
+                target_language,
+                page_context.as_deref(),
+            )
+            .await?;
 
             state_tx::update_doc(
                 &state.state,

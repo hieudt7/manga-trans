@@ -138,6 +138,9 @@ async fn run_pipeline_inner(
                         max_tokens: req.llm_max_tokens,
                         custom_system_prompt: req.llm_custom_system_prompt.clone(),
                         story_context: None,
+                        // Fallback auto-load only; the explicit /llm/load from the
+                        // model picker is what carries the user's start index.
+                        key_start_index: None,
                     },
                 )
                 .await?;
@@ -203,7 +206,13 @@ async fn run_pipeline_inner(
                             "LlmGenerate step"
                         );
                         let ctx = if req.process_with_character {
-                            let page_ctx = res.ml.scan_for_character_context(&snapshot.image);
+                            // API providers already carry the full cast in their
+                            // cached story context (see llm_load), so naming who
+                            // appears is enough; local models need the details.
+                            let concise = res.llm.is_api().await;
+                            let page_ctx = res
+                                .ml
+                                .scan_for_character_context_with(&snapshot.image, concise);
                             tracing::info!(
                                 has_page_ctx = page_ctx.is_some(),
                                 page_ctx = ?page_ctx,
@@ -225,84 +234,13 @@ async fn run_pipeline_inner(
                             None
                         };
                         tracing::info!(has_ctx = ctx.is_some(), "sending to LLM with context");
-                        res.llm
-                            .translate_with_context(
-                                &mut snapshot,
-                                req.language.as_deref(),
-                                ctx.as_deref(),
-                            )
-                            .await?;
-
-                        // Retry any blocks that came back empty from the batch translation.
-                        // Separate SFX blocks (were parenthetical descriptions) from truly empty ones
-                        // so we can add a targeted SFX hint on retry.
-                        const SFX_RETRY_HINT: &str =
-                            "IMPORTANT: This block is a sound effect / onomatopoeia. \
-                             Output ONLY a Vietnamese sound word (e.g. RẦM!, BỊCH!, BÙNG!, ROẠT!). \
-                             Do NOT write any description or use parentheses.";
-
-                        // We detect sfx by checking if the block text is short and katakana-heavy,
-                        // or if the raw translation was a parenthetical (translation now empty after strip).
-                        let (sfx_raw, empty_raw): (Vec<_>, Vec<_>) = snapshot.text_blocks
-                            .iter()
-                            .enumerate()
-                            .filter(|(_, b)| b.text.as_deref().map(|t| !t.trim().is_empty()).unwrap_or(false)
-                                && b.translation.as_deref().map(|t| t.trim().is_empty()).unwrap_or(true))
-                            .partition(|(_, b)| {
-                                let src = b.text.as_deref().unwrap_or("");
-                                src.chars().count() <= 12
-                                    && src.chars().any(|c| ('\u{30A0}'..='\u{30FF}').contains(&c)
-                                        || ('\u{3040}'..='\u{309F}').contains(&c))
-                            });
-                        let sfx_indices: Vec<usize> = sfx_raw.into_iter().map(|(i, _)| i).collect();
-                        let empty_indices: Vec<usize> = empty_raw.into_iter().map(|(i, _)| i).collect();
-
-                        if !sfx_indices.is_empty() || !empty_indices.is_empty() {
-                            tracing::warn!(
-                                sfx_count = sfx_indices.len(),
-                                empty_count = empty_indices.len(),
-                                "retrying blocks: sfx={:?} empty={:?}", sfx_indices, empty_indices
-                            );
-                        }
-
-                        for i in sfx_indices {
-                            let sfx_ctx = Some(match block_retry_ctx(ctx.as_deref(), i) {
-                                Some(c) => format!("{c}\n\n{SFX_RETRY_HINT}"),
-                                None => SFX_RETRY_HINT.to_string(),
-                            });
-                            res.llm
-                                .translate_with_context(
-                                    &mut snapshot.text_blocks[i],
-                                    req.language.as_deref(),
-                                    sfx_ctx.as_deref(),
-                                )
-                                .await?;
-                        }
-
-                        for i in empty_indices {
-                            let retry_ctx = block_retry_ctx(ctx.as_deref(), i);
-                            res.llm
-                                .translate_with_context(
-                                    &mut snapshot.text_blocks[i],
-                                    req.language.as_deref(),
-                                    retry_ctx.as_deref(),
-                                )
-                                .await?;
-                        }
-
-                        // After all retries, fill any block that still has no translation
-                        // with a silence marker so the renderer has something to place.
-                        for block in &mut snapshot.text_blocks {
-                            let has_source = block.text.as_deref()
-                                .map(|t| !t.trim().is_empty())
-                                .unwrap_or(false);
-                            let still_empty = block.translation.as_deref()
-                                .map(|t| t.trim().is_empty())
-                                .unwrap_or(true);
-                            if has_source && still_empty {
-                                block.translation = Some(".\n.\n.".to_string());
-                            }
-                        }
+                        crate::ops::translate_page(
+                            &res.llm,
+                            &mut snapshot,
+                            req.language.as_deref(),
+                            ctx.as_deref(),
+                        )
+                        .await?;
                     } else {
                         let llm_ready = res.llm.ready().await;
                         tracing::info!(
@@ -369,15 +307,6 @@ async fn run_pipeline_inner(
 ///
 /// This function extracts the header line plus the one rule for `idx`, remapping
 /// `<block id="idx">` → `<block id="0">` so both sides agree.
-fn block_retry_ctx(full_ctx: Option<&str>, idx: usize) -> Option<String> {
-    let ctx = full_ctx?;
-    let target = format!("<block id=\"{idx}\">");
-    let matching_line = ctx.lines().find(|l| l.trim_start().starts_with(&target))?;
-    let remapped = matching_line.replacen(&target, "<block id=\"0\">", 1);
-    let header = ctx.lines().next()?;
-    Some(format!("{header}\n{remapped}"))
-}
-
 #[cfg(test)]
 mod tests {
     use super::compute_percent;

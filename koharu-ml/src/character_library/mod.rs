@@ -118,6 +118,22 @@ fn wd_tagger_tags_path() -> PathBuf {
         .join("wd_tagger_tags.csv")
 }
 
+/// Above this many characters the roster stops being cheap enough to send with
+/// every request, and per-page descriptions win again.
+const MAX_ROSTER_CHARACTERS: usize = 60;
+
+/// One "- Name (traits). Relationships: ..." line.
+fn describe_character(name: &str, traits: &[String], relations: &[String]) -> String {
+    let mut desc = format!("- {name}");
+    if !traits.is_empty() {
+        desc.push_str(&format!(" ({})", traits.join(", ")));
+    }
+    if !relations.is_empty() {
+        desc.push_str(&format!(". Relationships: {}", relations.join("; ")));
+    }
+    desc
+}
+
 fn character_lib_path() -> PathBuf {
     dirs::data_local_dir()
         .unwrap_or_else(|| PathBuf::from("."))
@@ -401,21 +417,63 @@ impl CharacterLibrary {
     /// Format a list of face matches into a context string suitable for the LLM system prompt.
     /// Returns `None` if there are no known characters.
     pub fn build_context(&self, matches: &[FaceMatch]) -> Option<String> {
+        self.build_context_with(matches, false)
+    }
+
+    /// Build the per-page character context.
+    ///
+    /// When `concise`, only the names are emitted. The full descriptions then
+    /// have to reach the model some other way — for API providers they ride in
+    /// the stable story context (see [`Self::roster_context`]), which providers
+    /// serve from their prompt cache instead of re-billing every page.
+    pub fn build_context_with(&self, matches: &[FaceMatch], concise: bool) -> Option<String> {
         let known: Vec<&FaceMatch> = matches.iter().filter(|m| m.is_known).collect();
         if known.is_empty() {
             return None;
         }
 
+        if concise {
+            let names: Vec<&str> = {
+                let mut seen: Vec<&str> = Vec::new();
+                for m in &known {
+                    if !seen.contains(&m.name.as_str()) {
+                        seen.push(m.name.as_str());
+                    }
+                }
+                seen
+            };
+            return Some(format!(
+                "Characters visible in this page (context only — do NOT prefix translated lines with character names): {}",
+                names.join(", ")
+            ));
+        }
+
         let mut lines = vec!["Characters in this scene (for context only — do NOT prefix translated lines with character names):".to_string()];
         for m in &known {
-            let mut desc = format!("- {}", m.name);
-            if !m.traits.is_empty() {
-                desc.push_str(&format!(" ({})", m.traits.join(", ")));
+            lines.push(describe_character(&m.name, &m.traits, &m.relations));
+        }
+        Some(lines.join("\n"))
+    }
+
+    /// Full description of every character in the library, for injection into a
+    /// provider's story context once per session. Returns `None` when the
+    /// library is empty or too large to be worth sending on every request.
+    pub fn roster_context(&self) -> Option<String> {
+        let entries = self.entries.lock().ok()?;
+        if entries.is_empty() || entries.len() > MAX_ROSTER_CHARACTERS {
+            if entries.len() > MAX_ROSTER_CHARACTERS {
+                tracing::info!(
+                    count = entries.len(),
+                    limit = MAX_ROSTER_CHARACTERS,
+                    "character library too large for story context, using per-page descriptions"
+                );
             }
-            if !m.relations.is_empty() {
-                desc.push_str(&format!(". Relationships: {}", m.relations.join("; ")));
-            }
-            lines.push(desc);
+            return None;
+        }
+
+        let mut lines = vec!["Cast of this series (context only — do NOT prefix translated lines with character names):".to_string()];
+        for entry in entries.iter() {
+            lines.push(describe_character(&entry.name, &entry.traits, &entry.relations));
         }
         Some(lines.join("\n"))
     }
@@ -1202,8 +1260,16 @@ impl CharacterLibrary {
     /// Convenience: scan + build context in one call.
     /// Returns `None` if no characters are recognised or the library is empty.
     pub fn scan_and_build_context(&self, image: &DynamicImage) -> Option<String> {
+        self.scan_and_build_context_with(image, false)
+    }
+
+    pub fn scan_and_build_context_with(
+        &self,
+        image: &DynamicImage,
+        concise: bool,
+    ) -> Option<String> {
         let matches = self.scan_page(image);
-        self.build_context(&matches)
+        self.build_context_with(&matches, concise)
     }
 
     /// Classify the age/gender demographics in an image crop using WD Tagger.

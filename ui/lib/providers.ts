@@ -6,6 +6,7 @@ const PROVIDER_TRANSLATION_KEYS: Record<string, string> = {
   openai: 'providers.openai',
   'openai-compatible': 'providers.openaiCompatible',
   gemini: 'providers.gemini',
+  grok: 'providers.grok',
   claude: 'providers.claude',
   deepseek: 'providers.deepseek',
 }
@@ -25,6 +26,10 @@ export const normalizeProviderId = (provider?: string | null) => {
       return 'openai-compatible'
     case 'gemini':
       return 'gemini'
+    case 'grok':
+    case 'xai':
+    case 'x.ai':
+      return 'grok'
     case 'claude':
       return 'claude'
     case 'deepseek':

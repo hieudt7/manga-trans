@@ -92,6 +92,8 @@ pub struct ApiKeySetPayload {
 #[serde(rename_all = "camelCase")]
 pub struct ApiKeyResult {
     pub api_key: Option<String>,
+    /// See `ApiKeyResponse::available_keys`.
+    pub available_keys: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -104,6 +106,8 @@ pub struct LlmLoadPayload {
     pub max_tokens: Option<u32>,
     pub custom_system_prompt: Option<String>,
     pub story_context: Option<String>,
+    /// See `LlmLoadRequest::key_start_index`.
+    pub key_start_index: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -393,6 +397,8 @@ mod tests {
             temperature: Some(0.1),
             max_tokens: Some(1000),
             custom_system_prompt: None,
+            story_context: Some("Two rivals in a wrestling tournament.".to_string()),
+            key_start_index: Some(2),
         });
         round_trip(&LlmGeneratePayload {
             index: 1,
@@ -431,6 +437,9 @@ mod tests {
                 width_px: Some(2.0),
             }),
             font_family: Some("Noto Sans".to_string()),
+            export_tiff: false,
+            export_psd: false,
+            process_with_character: true,
         });
         round_trip(&InpaintRegion {
             x: 10,

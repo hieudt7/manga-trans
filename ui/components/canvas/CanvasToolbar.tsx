@@ -33,6 +33,7 @@ import { useEditorUiStore } from '@/lib/stores/editorUiStore'
 import {
   useLlmModelsQuery,
   useLlmReadyQuery,
+  useLlmKeyPoolQuery,
   LOCAL_LLM_PRESET_LABELS,
 } from '@/lib/query/hooks'
 import { useDocumentMutations, useLlmMutations } from '@/lib/query/mutations'
@@ -584,6 +585,9 @@ function LlmStatusPopover() {
     useLlmMutations()
   const { t } = useTranslation()
   const apiKeys = usePreferencesStore((state) => state.apiKeys)
+  const providerKeyCounts = usePreferencesStore(
+    (state) => state.providerKeyCounts,
+  )
   const localLlm = usePreferencesStore((state) => state.localLlm)
 
   const selectedModelInfo = useMemo(
@@ -593,10 +597,24 @@ function LlmStatusPopover() {
   const isApiModel =
     selectedModelInfo?.source !== 'local' &&
     selectedModelInfo?.source !== undefined
+  // A key file (KOHARU_<PROVIDER>_API_KEYS or <provider>_keys.txt) counts as
+  // credentials even though the Settings field is empty.
   const apiKeyMissing =
     isApiModel &&
     selectedModelInfo?.source !== 'openai-compatible' &&
-    !apiKeys[selectedModelInfo!.source]
+    !apiKeys[selectedModelInfo!.source] &&
+    !(providerKeyCounts[selectedModelInfo!.source] > 0)
+
+  // Key-pool status comes from the backend, not the store: keys rest and
+  // recover mid-run, so a count captured when the model loaded goes stale.
+  const llmPanelOperation = useOperationStore((state) => state.operation)
+  const isTranslating =
+    llmPanelOperation?.type === 'process-current' ||
+    llmPanelOperation?.type === 'process-all'
+  const { data: keyPoolState } = useLlmKeyPoolQuery(
+    llmReady && isApiModel,
+    isTranslating,
+  )
 
   const activeLanguages = useMemo(
     () => selectedModelInfo?.languages ?? [],
@@ -700,6 +718,34 @@ function LlmStatusPopover() {
           </Select>
 
           {/* API key warning */}
+          {/* Rotating key pool: how many keys are still usable right now */}
+          {keyPoolState?.keysTotal != null && keyPoolState.keysTotal > 0 && (
+            <div className='flex items-center gap-1.5 text-xs'>
+              <span
+                className={`size-1.5 rounded-full ${
+                  (keyPoolState.keysAvailable ?? 0) === 0
+                    ? 'bg-red-500'
+                    : (keyPoolState.keysAvailable ?? 0) <= 1
+                      ? 'bg-amber-500'
+                      : 'bg-emerald-500'
+                }`}
+              />
+              <span
+                className={
+                  (keyPoolState.keysAvailable ?? 0) === 0
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-muted-foreground'
+                }
+              >
+                {t('llm.keyPoolStatus', {
+                  available: keyPoolState.keysAvailable ?? 0,
+                  total: keyPoolState.keysTotal,
+                  index: keyPoolState.keyIndex ?? 1,
+                })}
+              </span>
+            </div>
+          )}
+
           {apiKeyMissing && (
             <p className='text-xs text-amber-500'>
               {t('llm.apiKeyMissing', {

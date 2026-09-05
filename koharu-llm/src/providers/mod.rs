@@ -9,6 +9,8 @@ use crate::Language;
 pub mod claude;
 pub mod deepseek;
 pub mod gemini;
+pub mod grok;
+pub mod key_pool;
 pub mod openai;
 pub mod openai_compatible;
 
@@ -36,7 +38,7 @@ pub fn set_saved_api_key(provider: &str, api_key: &str) -> anyhow::Result<()> {
             Err(err) => Err(err.into()),
         }
     } else {
-        entry.set_password(api_key)?;
+        entry.set_password(api_key.trim())?;
         Ok(())
     }
 }
@@ -63,13 +65,43 @@ pub async fn ensure_provider_success(
         || body_lower.contains("credit balance is too low");
 
     if quota_exceeded {
+        // Gemini's free tier limits requests per *minute* as well as per day,
+        // and both arrive as 429. Conflating them would retire a key for hours
+        // over a burst it would recover from in seconds, so the per-minute case
+        // gets its own marker. The UI reads only the provider segment, so the
+        // extra suffix is invisible there.
+        let per_minute = body_lower.contains("perminute")
+            || body_lower.contains("per minute")
+            || body_lower.contains("requests per minute");
+        if per_minute {
+            anyhow::bail!("provider_quota_exceeded:{provider}:rpm");
+        }
         anyhow::bail!("provider_quota_exceeded:{provider}");
+    }
+
+    // Providers disagree on the status code for a bad key (xAI answers 400), so
+    // match on the message as well to give the UI something actionable.
+    let invalid_key = matches!(status.as_u16(), 401 | 403)
+        || body_lower.contains("incorrect api key")
+        || body_lower.contains("invalid api key")
+        || body_lower.contains("invalid_api_key")
+        || body_lower.contains("api key not valid")
+        || body_lower.contains("unauthorized");
+
+    if invalid_key {
+        anyhow::bail!("provider_invalid_api_key:{provider}");
     }
 
     anyhow::bail!("{provider} API request failed ({status}): {body}");
 }
 
 pub trait AnyProvider: Send + Sync {
+    /// Live key-pool state, for providers that rotate between several keys.
+    /// `None` for single-key providers.
+    fn key_status(&self) -> Option<key_pool::KeyPoolStatus> {
+        None
+    }
+
     /// Translate `source` with an optional per-page character context that is
     /// appended to the provider's configured story_context for this call only.
     fn translate<'a>(
@@ -101,6 +133,9 @@ pub struct ProviderConfig {
     pub max_tokens: Option<u32>,
     pub custom_system_prompt: Option<String>,
     pub story_context: Option<String>,
+    /// 1-based position in the key list to begin at, for pools whose earlier
+    /// keys are already spent for the day.
+    pub key_start_index: Option<u32>,
 }
 
 pub fn build_provider(
@@ -110,8 +145,10 @@ pub fn build_provider(
     let required_api_key = |name: &str| {
         config
             .api_key
-            .clone()
-            .filter(|value| !value.trim().is_empty())
+            .as_deref()
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(str::to_owned)
             .ok_or_else(|| anyhow::anyhow!("api_key is required for {name}"))
     };
 
@@ -120,11 +157,32 @@ pub fn build_provider(
             api_key: required_api_key("openai")?,
             story_context: config.story_context,
         }),
-        "gemini" => Box::new(gemini::GeminiProvider {
-            api_key: required_api_key("gemini")?,
-            custom_system_prompt: config.custom_system_prompt.clone(),
-            story_context: config.story_context,
-        }),
+        "gemini" => {
+            // Settings key first, then KOHARU_GEMINI_API_KEYS, then a key file.
+            let keys = key_pool::collect_keys("gemini", config.api_key.as_deref());
+            if keys.is_empty() {
+                return Err(anyhow::anyhow!("api_key is required for gemini"));
+            }
+            tracing::info!(
+                count = keys.len(),
+                start_index = config.key_start_index.unwrap_or(1),
+                "gemini key pool ready"
+            );
+            Box::new(gemini::GeminiProvider {
+                keys: key_pool::ApiKeyPool::starting_at(
+                    "gemini",
+                    keys,
+                    config.key_start_index.unwrap_or(1),
+                ),
+                custom_system_prompt: config.custom_system_prompt.clone(),
+                story_context: config.story_context,
+            })
+        }
+        "grok" => Box::new(grok::GrokProvider::new(
+            required_api_key("grok")?,
+            config.custom_system_prompt.clone(),
+            config.story_context,
+        )),
         "claude" => Box::new(claude::ClaudeProvider {
             api_key: required_api_key("claude")?,
             story_context: config.story_context,
@@ -140,7 +198,12 @@ pub fn build_provider(
                 .ok_or_else(|| {
                     anyhow::anyhow!("base_url is required for the openai-compatible provider")
                 })?,
-            api_key: config.api_key,
+            api_key: config
+                .api_key
+                .as_deref()
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .map(str::to_owned),
             temperature: config.temperature,
             max_tokens: config.max_tokens,
             custom_system_prompt: config.custom_system_prompt,

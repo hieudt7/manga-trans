@@ -312,6 +312,9 @@ async fn load_llm_if_needed(
                     max_tokens: req.llm_max_tokens,
                     custom_system_prompt: req.llm_custom_system_prompt.clone(),
                     story_context: None,
+                    // Fallback auto-load only; the explicit /llm/load from the
+                    // model picker is what carries the user's start index.
+                    key_start_index: None,
                 },
             )
             .await?;
@@ -368,24 +371,8 @@ async fn process_single_file(
             PipelineStep::DetectBalloon => res.ml.detect_balloons(doc).await?,
             PipelineStep::LlmGenerate => {
                 if res.llm.ready().await && !doc.text_blocks.is_empty() {
-                    res.llm
-                        .translate_with_context(doc, req.language.as_deref(), None)
+                    crate::ops::translate_page(&res.llm, doc, req.language.as_deref(), None)
                         .await?;
-                    for block in &mut doc.text_blocks {
-                        let has_src = block
-                            .text
-                            .as_deref()
-                            .map(|t| !t.trim().is_empty())
-                            .unwrap_or(false);
-                        let empty = block
-                            .translation
-                            .as_deref()
-                            .map(|t| t.trim().is_empty())
-                            .unwrap_or(true);
-                        if has_src && empty {
-                            block.translation = Some(".\n.\n.".to_string());
-                        }
-                    }
                 }
             }
             PipelineStep::Inpaint => {

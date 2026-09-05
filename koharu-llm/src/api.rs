@@ -29,6 +29,21 @@ pub const GEMINI: ApiProviderInfo = ApiProviderInfo {
     }],
 };
 
+pub const GROK: ApiProviderInfo = ApiProviderInfo {
+    id: "grok",
+    name: "Grok",
+    models: &[
+        ApiModelInfo {
+            id: "grok-4.20-0309-non-reasoning",
+            name: "Grok 4.20 (non-reasoning)",
+        },
+        ApiModelInfo {
+            id: "grok-4.6",
+            name: "Grok 4.6",
+        },
+    ],
+};
+
 pub const CLAUDE: ApiProviderInfo = ApiProviderInfo {
     id: "claude",
     name: "Claude",
@@ -47,7 +62,7 @@ pub const DEEPSEEK: ApiProviderInfo = ApiProviderInfo {
     }],
 };
 
-pub const ALL_API_PROVIDERS: &[&ApiProviderInfo] = &[&OPENAI, &GEMINI, &CLAUDE, &DEEPSEEK];
+pub const ALL_API_PROVIDERS: &[&ApiProviderInfo] = &[&OPENAI, &GEMINI, &GROK, &CLAUDE, &DEEPSEEK];
 
 pub fn find_api_model(id: &str) -> Option<(&'static ApiProviderInfo, &'static str)> {
     let (provider_id, model_id) = id.split_once(':')?;

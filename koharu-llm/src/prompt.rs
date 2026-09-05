@@ -46,11 +46,15 @@ pub struct PromptRenderer {
     eos_token: String,
 }
 
-const BLOCK_TAG_INSTRUCTIONS: &str = "If the input contains <block id=\"N\">...</block>, translate only the text inside each block. Keep every block tag exactly unchanged, including ids, order, and block count. Do not merge blocks, split blocks, or add any text outside the blocks.";
+/// Wire format for batched blocks. Deliberately terse: a `[N]` marker costs
+/// about three tokens where `<block id="N">...</block>` cost nine, on both the
+/// prompt and the completion side — and completions are billed at twice the
+/// prompt rate.
+pub const BLOCK_FORMAT_INSTRUCTIONS: &str = "The input is a list of blocks. A line containing only [N] starts block N; the lines after it are that block's text. Reply with exactly the same [N] markers, in the same order and count, each followed by only the translated text. Never merge, split, reorder, add, or drop a block, and never write anything outside a block.";
 
 pub fn system_prompt(target_language: Language) -> String {
     format!(
-        "You are a professional manga translator. Translate Japanese manga dialogue into natural {} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, and emphasis. Keep the wording concise.\n\nFor sound effects (SFX / onomatopoeia): output ONLY the sound word itself in {}, nothing else — no parentheses, no descriptions, no explanations. WRONG: \"(Tiếng búa đập)\" or \"BỊCH! (Tiếng búa đập)\". CORRECT: \"BỊCH!\". More examples: \"ドン\" → \"BÙNG!\", \"ガン\" → \"BANG!\", \"ザー\" → \"ÀO ÀO\", \"トン\" → \"THÌNH!\", \"キーン\" → \"VÙN!\".\n\nOutput ONLY the translated text — never prefix or suffix with character names, speaker labels, colons, or any metadata. WRONG: \"SAEBA: Xin chào\". CORRECT: \"Xin chào\". {BLOCK_TAG_INSTRUCTIONS}",
+        "You are a professional manga translator. Translate Japanese manga dialogue into natural {} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, and emphasis. Keep the wording concise.\n\nFor sound effects (SFX / onomatopoeia): output ONLY the sound word itself in {}, nothing else — no parentheses, no descriptions, no explanations. WRONG: \"(Tiếng búa đập)\" or \"BỊCH! (Tiếng búa đập)\". CORRECT: \"BỊCH!\". More examples: \"ドン\" → \"BÙNG!\", \"ガン\" → \"BANG!\", \"ザー\" → \"ÀO ÀO\", \"トン\" → \"THÌNH!\", \"キーン\" → \"VÙN!\".\n\nOutput ONLY the translated text — never prefix or suffix with character names, speaker labels, colons, or any metadata. WRONG: \"SAEBA: Xin chào\". CORRECT: \"Xin chào\". {BLOCK_FORMAT_INSTRUCTIONS}",
         target_language, target_language
     )
 }
@@ -60,8 +64,13 @@ pub fn build_system_prompt(
     custom_prompt: Option<&str>,
     story_context: Option<&str>,
 ) -> String {
+    // A custom prompt replaces the translation guidance but not the wire format:
+    // the format rules are appended so that a prompt saved before the format
+    // changed cannot leave the model guessing how to delimit blocks.
     let base = match custom_prompt {
-        Some(p) if !p.trim().is_empty() => p.to_string(),
+        Some(p) if !p.trim().is_empty() => {
+            format!("{}\n\n{}", p.trim(), BLOCK_FORMAT_INSTRUCTIONS)
+        }
         _ => system_prompt(target_language),
     };
     match story_context {
@@ -172,8 +181,8 @@ mod tests {
     fn system_prompt_mentions_target_language_and_block_rules() {
         let prompt = system_prompt(Language::Korean);
         assert!(prompt.contains("natural Korean"));
-        assert!(prompt.contains("<block id=\"N\">...</block>"));
-        assert!(prompt.contains("Do not merge blocks"));
+        assert!(prompt.contains("[N] starts block N"));
+        assert!(prompt.contains("Never merge, split, reorder"));
     }
 
     #[test]

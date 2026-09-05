@@ -38,6 +38,11 @@ export const normalizeErrorMessage = (error: unknown) => {
     return i18n.t('errors.providerQuotaExceeded', { provider })
   }
 
+  if (rawMessage.startsWith('provider_invalid_api_key:')) {
+    const provider = getProviderDisplayName(rawMessage.split(':', 2)[1])
+    return i18n.t('errors.providerInvalidApiKey', { provider })
+  }
+
   const apiKeyRequiredMatch = rawMessage.match(
     /^api_key is required for (.+)$/i,
   )

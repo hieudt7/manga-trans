@@ -1,0 +1,13 @@
+# Gemini API keys — one per line. The app rotates to the next key automatically
+# when one runs out of its daily free quota, so a batch keeps going instead of
+# stopping to have a key pasted into Settings.
+#
+# Copy this file to `gemini_keys.txt` in the project root — that is the only
+# location read (plus the path in KOHARU_GEMINI_KEY_FILE, if set). It is
+# gitignored, so the keys stay out of commits.
+#
+# `NAME=key1,key2` lines are accepted too, so a .env file works as-is:
+#   KOHARU_GEMINI_API_KEYS=AIza...1,AIza...2
+
+AIzaSyREPLACE_ME_WITH_YOUR_FIRST_KEY
+AIzaSyREPLACE_ME_WITH_YOUR_SECOND_KEY

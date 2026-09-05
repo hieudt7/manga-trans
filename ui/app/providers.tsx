@@ -38,8 +38,15 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
   const hasConnectedRef = useRef(false)
   const setTotalPages = useEditorUiStore((state) => state.setTotalPages)
   const setApiKey = usePreferencesStore((state) => state.setApiKey)
+  const setProviderKeyCount = usePreferencesStore(
+    (state) => state.setProviderKeyCount,
+  )
   const rpcConnected = useRpcConnection()
-  const shouldQueryApiKeys = rpcConnected && isTauri()
+  // The keyring and the key file live in the backend process, reached over
+  // HTTP — so an RPC connection is the only requirement. Gating on isTauri()
+  // meant that running the UI in a browser against the same backend reported
+  // every provider as having no key.
+  const shouldQueryApiKeys = rpcConnected
   const { data: documentsCount } = useDocumentsCountQuery(rpcConnected)
   const openAiApiKeyQuery = useApiKeyQuery('openai', shouldQueryApiKeys)
   const openAiCompatibleApiKeyQuery = useApiKeyQuery(
@@ -47,6 +54,7 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
     shouldQueryApiKeys,
   )
   const geminiApiKeyQuery = useApiKeyQuery('gemini', shouldQueryApiKeys)
+  const grokApiKeyQuery = useApiKeyQuery('grok', shouldQueryApiKeys)
   const claudeApiKeyQuery = useApiKeyQuery('claude', shouldQueryApiKeys)
   const deepSeekApiKeyQuery = useApiKeyQuery('deepseek', shouldQueryApiKeys)
 
@@ -163,37 +171,84 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (openAiApiKeyQuery.status === 'success') {
-      setApiKey('openai', openAiApiKeyQuery.data ?? '')
+      setApiKey('openai', openAiApiKeyQuery.data?.apiKey ?? '')
+      setProviderKeyCount('openai', openAiApiKeyQuery.data?.availableKeys ?? 0)
     }
-  }, [openAiApiKeyQuery.data, openAiApiKeyQuery.status, setApiKey])
+  }, [
+    openAiApiKeyQuery.data,
+    openAiApiKeyQuery.status,
+    setApiKey,
+    setProviderKeyCount,
+  ])
 
   useEffect(() => {
     if (openAiCompatibleApiKeyQuery.status === 'success') {
-      setApiKey('openai-compatible', openAiCompatibleApiKeyQuery.data ?? '')
+      setApiKey(
+        'openai-compatible',
+        openAiCompatibleApiKeyQuery.data?.apiKey ?? '',
+      )
+      setProviderKeyCount(
+        'openai-compatible',
+        openAiCompatibleApiKeyQuery.data?.availableKeys ?? 0,
+      )
     }
   }, [
     openAiCompatibleApiKeyQuery.data,
     openAiCompatibleApiKeyQuery.status,
     setApiKey,
+    setProviderKeyCount,
   ])
 
   useEffect(() => {
     if (geminiApiKeyQuery.status === 'success') {
-      setApiKey('gemini', geminiApiKeyQuery.data ?? '')
+      setApiKey('gemini', geminiApiKeyQuery.data?.apiKey ?? '')
+      setProviderKeyCount('gemini', geminiApiKeyQuery.data?.availableKeys ?? 0)
     }
-  }, [geminiApiKeyQuery.data, geminiApiKeyQuery.status, setApiKey])
+  }, [
+    geminiApiKeyQuery.data,
+    geminiApiKeyQuery.status,
+    setApiKey,
+    setProviderKeyCount,
+  ])
+
+  useEffect(() => {
+    if (grokApiKeyQuery.status === 'success') {
+      setApiKey('grok', grokApiKeyQuery.data?.apiKey ?? '')
+      setProviderKeyCount('grok', grokApiKeyQuery.data?.availableKeys ?? 0)
+    }
+  }, [
+    grokApiKeyQuery.data,
+    grokApiKeyQuery.status,
+    setApiKey,
+    setProviderKeyCount,
+  ])
 
   useEffect(() => {
     if (claudeApiKeyQuery.status === 'success') {
-      setApiKey('claude', claudeApiKeyQuery.data ?? '')
+      setApiKey('claude', claudeApiKeyQuery.data?.apiKey ?? '')
+      setProviderKeyCount('claude', claudeApiKeyQuery.data?.availableKeys ?? 0)
     }
-  }, [claudeApiKeyQuery.data, claudeApiKeyQuery.status, setApiKey])
+  }, [
+    claudeApiKeyQuery.data,
+    claudeApiKeyQuery.status,
+    setApiKey,
+    setProviderKeyCount,
+  ])
 
   useEffect(() => {
     if (deepSeekApiKeyQuery.status === 'success') {
-      setApiKey('deepseek', deepSeekApiKeyQuery.data ?? '')
+      setApiKey('deepseek', deepSeekApiKeyQuery.data?.apiKey ?? '')
+      setProviderKeyCount(
+        'deepseek',
+        deepSeekApiKeyQuery.data?.availableKeys ?? 0,
+      )
     }
-  }, [deepSeekApiKeyQuery.data, deepSeekApiKeyQuery.status, setApiKey])
+  }, [
+    deepSeekApiKeyQuery.data,
+    deepSeekApiKeyQuery.status,
+    setApiKey,
+    setProviderKeyCount,
+  ])
 
   useEffect(() => {
     let unlisten: (() => void) | undefined

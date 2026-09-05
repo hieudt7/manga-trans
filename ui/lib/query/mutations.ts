@@ -1023,6 +1023,9 @@ export const useLlmMutations = () => {
       : providerSource
         ? providerCustomPrompts[providerSource] || undefined
         : undefined
+    const keyStartIndex = providerSource
+      ? usePreferencesStore.getState().providerKeyStartIndex[providerSource]
+      : undefined
     await api.llmLoad(
       selectedModel,
       apiKey,
@@ -1031,6 +1034,7 @@ export const useLlmMutations = () => {
       isLocalCompatible ? localLlmConfig.maxTokens : undefined,
       customSystemPrompt,
       storyContext,
+      keyStartIndex,
     )
     queryClient.setQueryData(
       readyKey,
@@ -1078,12 +1082,15 @@ export const useLlmMutations = () => {
     )
     for (const provider of providers) {
       try {
-        const key = await queryClient.fetchQuery({
+        const info = await queryClient.fetchQuery({
           queryKey: queryKeys.llm.apiKey(provider),
           queryFn: () => api.getApiKey(provider),
           staleTime: 10 * 60 * 1000,
         })
-        usePreferencesStore.getState().setApiKey(provider, key ?? '')
+        usePreferencesStore.getState().setApiKey(provider, info?.apiKey ?? '')
+        usePreferencesStore
+          .getState()
+          .setProviderKeyCount(provider, info?.availableKeys ?? 0)
       } catch (error) {
         console.error(`Failed to hydrate API key for ${provider}`, error)
       }

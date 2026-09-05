@@ -55,3 +55,10 @@ AGENTS.md
 claudedocs/
 /.claude
 /.serenarender/
+
+# API keys — never commit these
+.env
+.env.*
+!.env.example
+*_keys.txt
+!*_keys.txt.example

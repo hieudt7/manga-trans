@@ -627,6 +627,7 @@ async fn load_llm(
             max_tokens: request.max_tokens,
             custom_system_prompt: request.custom_system_prompt,
             story_context: request.story_context,
+            key_start_index: request.key_start_index,
         },
     )
     .await?;
@@ -664,6 +665,7 @@ async fn get_api_key(
     let result = operations::get_api_key(resources, ApiKeyGetPayload { provider }).await?;
     Ok(Json(ApiKeyResponse {
         api_key: result.api_key,
+        available_keys: result.available_keys,
     }))
 }
 

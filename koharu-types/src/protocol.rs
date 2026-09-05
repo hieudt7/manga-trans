@@ -219,6 +219,12 @@ pub struct LlmState {
     pub model_id: Option<String>,
     pub source: Option<String>,
     pub error: Option<String>,
+    /// Keys configured for a rotating provider; `None` for single-key ones.
+    pub keys_total: Option<u32>,
+    /// Keys not currently resting on a quota or rate limit.
+    pub keys_available: Option<u32>,
+    /// 1-based position of the key in use.
+    pub key_index: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
@@ -232,6 +238,9 @@ pub struct LlmLoadRequest {
     pub max_tokens: Option<u32>,
     pub custom_system_prompt: Option<String>,
     pub story_context: Option<String>,
+    /// 1-based key to begin at, for pools whose earlier keys are already spent.
+    #[serde(default)]
+    pub key_start_index: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
@@ -338,6 +347,10 @@ pub struct ApiKeyValue {
 #[ts(export)]
 pub struct ApiKeyResponse {
     pub api_key: Option<String>,
+    /// Keys the backend can authenticate with, counting the saved key plus any
+    /// found in `KOHARU_<PROVIDER>_API_KEYS` or a key file. Zero means the
+    /// provider has no credentials at all.
+    pub available_keys: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]

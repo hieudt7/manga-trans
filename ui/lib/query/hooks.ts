@@ -157,6 +157,17 @@ export const useApiKeyQuery = (provider: string, enabled = true) =>
     staleTime: 10 * 60 * 1000,
   })
 
+/// Live key-pool state for a rotating provider. Polled while `polling` is set,
+/// because keys rest and recover mid-run — a value captured when the model was
+/// loaded would be stale by the second volume.
+export const useLlmKeyPoolQuery = (enabled: boolean, polling: boolean) =>
+  useQuery({
+    queryKey: queryKeys.llm.state,
+    queryFn: () => api.llmState(),
+    enabled,
+    refetchInterval: polling ? 4000 : false,
+  })
+
 export const useLlmReadyQuery = () => {
   const selectedModel = useLlmUiStore((state) => state.selectedModel)
   return useQuery({

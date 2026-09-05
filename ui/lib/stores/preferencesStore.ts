@@ -25,6 +25,13 @@ type PreferencesState = {
   setFontFamily: (font?: string) => void
   apiKeys: Record<string, string>
   setApiKey: (provider: string, key: string) => void
+  /// Keys the backend can authenticate with per provider, including any loaded
+  /// from a key file — a provider can be usable with an empty Settings field.
+  providerKeyCounts: Record<string, number>
+  setProviderKeyCount: (provider: string, count: number) => void
+  /// 1-based key to start from, for pools whose earlier keys are already spent.
+  providerKeyStartIndex: Record<string, number>
+  setProviderKeyStartIndex: (provider: string, index: number) => void
   providerBaseUrls: Record<string, string>
   setProviderBaseUrl: (provider: string, url: string) => void
   providerModelNames: Record<string, string>
@@ -58,6 +65,8 @@ const initialPreferences = {
   },
   fontFamily: undefined as string | undefined,
   apiKeys: {} as Record<string, string>,
+  providerKeyCounts: {} as Record<string, number>,
+  providerKeyStartIndex: {} as Record<string, number>,
   providerBaseUrls: {} as Record<string, string>,
   providerModelNames: {} as Record<string, string>,
   providerStoryContexts: {} as Record<string, string>,
@@ -78,6 +87,17 @@ export const usePreferencesStore = create<PreferencesState>()(
           },
         })),
       setFontFamily: (font) => set({ fontFamily: font }),
+      setProviderKeyStartIndex: (provider, index) =>
+        set((state) => ({
+          providerKeyStartIndex: {
+            ...state.providerKeyStartIndex,
+            [provider]: index,
+          },
+        })),
+      setProviderKeyCount: (provider, count) =>
+        set((state) => ({
+          providerKeyCounts: { ...state.providerKeyCounts, [provider]: count },
+        })),
       setApiKey: (provider, key) =>
         set((state) => ({
           apiKeys: { ...state.apiKeys, [provider]: key },
@@ -139,6 +159,9 @@ export const usePreferencesStore = create<PreferencesState>()(
         providerModelNames: state.providerModelNames,
         providerStoryContexts: state.providerStoryContexts,
         providerCustomPrompts: state.providerCustomPrompts,
+        // Persisted: the user picks it once per day. providerKeyCounts is not —
+        // it is re-read from the backend on every connect.
+        providerKeyStartIndex: state.providerKeyStartIndex,
         localLlm: state.localLlm,
       }),
     },
