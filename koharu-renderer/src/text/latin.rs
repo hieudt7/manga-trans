@@ -452,12 +452,191 @@ pub fn preferred_font_size(
     }
 }
 
+/// Was this block's lettering drawn large on purpose — a shout, a sound
+/// effect, a title — rather than ordinary dialogue?
+///
+/// The only signal available: the page carries no mark of which balloon is an
+/// oval and which is the jagged one a shout goes in, and the bubble detector
+/// reports a single class. What it does show is that the artist set this text
+/// far larger than the page's dialogue size, and that is what a shout looks
+/// like.
+pub fn is_emphatic_lettering(page_height: f32, source_glyph_px: Option<f32>) -> bool {
+    let dialogue = (page_height * DIALOGUE_FONT_HEIGHT_RATIO).max(DIALOGUE_MIN_FONT_SIZE);
+    source_glyph_px.is_some_and(|source| source >= dialogue * BIG_SOURCE_TEXT_FACTOR)
+}
+
+/// The most letters worth stacking one to a line. Past this the column is a
+/// stunt rather than lettering.
+pub const STACKED_MAX_LETTERS: usize = 10;
+
+/// Is this short enough, and one piece enough, to set down a column?
+pub fn is_stackable_shout(text: &str) -> bool {
+    let letters = text.chars().filter(|c| c.is_alphanumeric()).count();
+    letters > 0
+        && letters <= STACKED_MAX_LETTERS
+        && !text.trim().contains(char::is_whitespace)
+}
+
+/// Drop a drawn-out letter back to one, so KHÔNGGG! becomes KHÔNG!.
+///
+/// A shout carries its length in the original by repeating a kana or a vowel —
+/// ノーッ！ — and the translation copies that. In a balloon the size of the one
+/// the Japanese sat in, those extra letters are the difference between a line
+/// that fits and one that has to be hyphenated or set too small to read. The
+/// repetition carries no meaning the shout loses by shedding it.
+///
+/// Only runs of three or more: two of a letter is ordinary spelling.
+/// `None` when there was nothing to shorten.
+pub fn shorten_elongation(text: &str) -> Option<String> {
+    let mut out = String::with_capacity(text.len());
+    let mut shortened = false;
+    let mut chars = text.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        let mut run = 1;
+        while chars.peek() == Some(&c) {
+            chars.next();
+            run += 1;
+        }
+        if run >= 3 {
+            // A run of three collapses to one, not two: KHÔNGGG! is meant to
+            // read as KHÔNG!, and KHÔNGG! is just a typo.
+            out.push(c);
+            shortened = true;
+        } else {
+            for _ in 0..run {
+                out.push(c);
+            }
+        }
+    }
+
+    shortened.then_some(out)
+}
+
 /// Find the layout box of the speech balloon that contains the text block by
 /// scanning outward from the block centre in four directions until hitting a
 /// dark (border) pixel in the inpainted grayscale image.
 ///
 /// Returns `None` when the centre is already dark or the resulting area is
 /// too small to be useful.
+/// Pixels brighter than this are clear space the text may use.
+const CLEAR_THRESHOLD: u8 = 200;
+/// Breathing room kept between the text and whatever bounds it.
+const CLEAR_SPACE_PADDING: u32 = 6;
+/// A row narrower than this holds no useful text, so it is not worth keeping.
+const MIN_USABLE_ROW_PX: u32 = 8;
+
+/// The clear space around a block, measured row by row, and the box that
+/// bounds it.
+///
+/// A balloon is not a rectangle, and one a figure is drawn across is not even
+/// convex. The largest rectangle that fits inside such a shape throws most of
+/// the room away — on a real page an 82px balloon yielded a 41px rectangle,
+/// which drove an unbreakable name down to a 6px font. Following the shape row
+/// by row uses what is actually there.
+///
+/// Measured on the inpainted page, where the source text is gone, so the
+/// balloon interior reads as one clear region and only the artwork bounds it.
+pub fn clear_space_rows(
+    block: &TextBlock,
+    image: &GrayImage,
+    bounds: (f32, f32, f32, f32),
+) -> Option<(LayoutBox, Vec<(f32, f32)>)> {
+    let img_w = image.width() as i64;
+    let img_h = image.height() as i64;
+
+    let (bx, by, bw, bh) = bounds;
+    let left = (bx.floor() as i64).clamp(0, img_w - 1);
+    let top = (by.floor() as i64).clamp(0, img_h - 1);
+    let right = ((bx + bw).ceil() as i64).clamp(left + 1, img_w);
+    let bottom = ((by + bh).ceil() as i64).clamp(top + 1, img_h);
+    let (window_w, window_h) = ((right - left) as usize, (bottom - top) as usize);
+
+    let seed_x = ((block.x + block.width / 2.0).round() as i64).clamp(left, right - 1);
+    let seed_y = ((block.y + block.height / 2.0).round() as i64).clamp(top, bottom - 1);
+    let clear = |x: i64, y: i64| image.get_pixel(x as u32, y as u32)[0] >= CLEAR_THRESHOLD;
+    if !clear(seed_x, seed_y) {
+        return None;
+    }
+
+    // Flood from the middle of the text so the region stops at the balloon
+    // outline and at anything drawn across it, and never leaks into the page
+    // outside. Bounding it to the balloon keeps a break in the outline from
+    // running away across the page.
+    let mut seen = vec![false; window_w * window_h];
+    let index = |x: i64, y: i64| ((y - top) as usize) * window_w + (x - left) as usize;
+    let mut stack = vec![(seed_x, seed_y)];
+    seen[index(seed_x, seed_y)] = true;
+    while let Some((x, y)) = stack.pop() {
+        for (nx, ny) in [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)] {
+            if nx < left || nx >= right || ny < top || ny >= bottom {
+                continue;
+            }
+            let at = index(nx, ny);
+            if seen[at] || !clear(nx, ny) {
+                continue;
+            }
+            seen[at] = true;
+            stack.push((nx, ny));
+        }
+    }
+
+    // One span per row: the widest unbroken stretch. Taking the row's full
+    // extent instead would jump the gap a figure leaves and put text on top of
+    // it.
+    let mut rows: Vec<Option<(i64, i64)>> = Vec::with_capacity(window_h);
+    for y in top..bottom {
+        let mut best: Option<(i64, i64)> = None;
+        let mut run_start: Option<i64> = None;
+        // One past the right edge closes any run still open.
+        for x in left..=right {
+            let inside = x < right && seen[index(x, y)];
+            match (inside, run_start) {
+                (true, None) => run_start = Some(x),
+                (false, Some(start)) => {
+                    if best.is_none_or(|(a, b)| b - a < x - start) {
+                        best = Some((start, x));
+                    }
+                    run_start = None;
+                }
+                _ => {}
+            }
+        }
+        rows.push(best.and_then(|(a, b)| {
+            let a = a + CLEAR_SPACE_PADDING as i64;
+            let b = b - CLEAR_SPACE_PADDING as i64;
+            (b - a >= MIN_USABLE_ROW_PX as i64).then_some((a, b))
+        }));
+    }
+
+    let first = rows.iter().position(Option::is_some)?;
+    let last = rows.iter().rposition(Option::is_some)?;
+    let rows = &rows[first..=last];
+
+    let box_left = rows.iter().flatten().map(|(a, _)| *a).min()? as f32;
+    let box_right = rows.iter().flatten().map(|(_, b)| *b).max()? as f32;
+    let box_top = (top + first as i64) as f32;
+    let box_height = rows.len() as f32;
+
+    let spans = rows
+        .iter()
+        .map(|row| match row {
+            Some((a, b)) => (*a as f32 - box_left, (*b - *a) as f32),
+            None => (0.0, 0.0),
+        })
+        .collect();
+
+    Some((
+        LayoutBox {
+            x: box_left,
+            y: box_top,
+            width: box_right - box_left,
+            height: box_height,
+        },
+        spans,
+    ))
+}
+
 pub fn balloon_bounds_from_image(block: &TextBlock, image: &GrayImage) -> Option<LayoutBox> {
     /// Pixels brighter than this are considered balloon interior.
     const INTERIOR_THRESHOLD: u8 = 200;
@@ -1347,11 +1526,134 @@ mod tests {
 
     use super::{
         DIALOGUE_FILL_FACTOR, DIALOGUE_MIN_FONT_SIZE, LATIN_OVERFLOW_FACTOR, LayoutBox, TextBlock,
-        balloon_bounds_from_image, clip_box_to_nearest_owner, grow_box_within,
-        preferred_font_size,
+        balloon_bounds_from_image, clear_space_rows, clip_box_to_nearest_owner, grow_box_within,
+        is_emphatic_lettering, is_stackable_shout, preferred_font_size, shorten_elongation,
         expand_latin_layout_box_relaxed, expand_latin_layout_box_strict, is_expanded_layout_box,
         latin_width_overflow_factor, layout_box_area,
     };
+
+    /// A 200x200 balloon interior with a dark figure drawn across the right of
+    /// its lower half — the shape that defeats a rectangle.
+    fn balloon_with_a_figure_across_it() -> GrayImage {
+        let mut img = GrayImage::from_pixel(240, 240, Luma([30]));
+        for y in 20..220 {
+            for x in 20..220 {
+                img.put_pixel(x, y, Luma([250]));
+            }
+        }
+        for y in 120..220 {
+            for x in 140..220 {
+                img.put_pixel(x, y, Luma([20]));
+            }
+        }
+        img
+    }
+
+    #[test]
+    fn clear_space_follows_the_shape_instead_of_boxing_it() {
+        let image = balloon_with_a_figure_across_it();
+        let block = TextBlock {
+            x: 60.0,
+            y: 60.0,
+            width: 40.0,
+            height: 40.0,
+            ..Default::default()
+        };
+
+        let (bounds, rows) =
+            clear_space_rows(&block, &image, (20.0, 20.0, 200.0, 200.0)).expect("clear space");
+
+        assert!(
+            bounds.width > 150.0,
+            "the box must span the open part: {bounds:?}"
+        );
+        let wide = rows.iter().map(|(_, w)| *w).fold(0.0f32, f32::max);
+        let narrow = rows
+            .iter()
+            .filter(|(_, w)| *w > 0.0)
+            .map(|(_, w)| *w)
+            .fold(f32::INFINITY, f32::min);
+        assert!(wide > 150.0, "rows above the figure stay wide: {wide}");
+        assert!(
+            narrow < 130.0,
+            "rows beside the figure must be cut short: {narrow}"
+        );
+    }
+
+    #[test]
+    fn clear_space_stops_at_the_figure_rather_than_jumping_over_it() {
+        // Clear on both sides of a figure standing in the middle. Taking the
+        // row's full extent would put text across the figure; the widest
+        // unbroken run must win instead.
+        let mut image = GrayImage::from_pixel(240, 240, Luma([30]));
+        for y in 20..220 {
+            for x in 20..220 {
+                image.put_pixel(x, y, Luma([250]));
+            }
+        }
+        for y in 20..220 {
+            for x in 150..170 {
+                image.put_pixel(x, y, Luma([20]));
+            }
+        }
+        let block = TextBlock {
+            x: 50.0,
+            y: 100.0,
+            width: 40.0,
+            height: 40.0,
+            ..Default::default()
+        };
+
+        let (bounds, _) =
+            clear_space_rows(&block, &image, (20.0, 20.0, 200.0, 200.0)).expect("clear space");
+        assert!(
+            bounds.x + bounds.width <= 150.0,
+            "must not reach past the figure: {bounds:?}"
+        );
+    }
+
+    #[test]
+    fn clear_space_needs_a_seed_in_the_clear() {
+        let image = balloon_with_a_figure_across_it();
+        // Centre sits on the figure, not in the balloon.
+        let block = TextBlock {
+            x: 160.0,
+            y: 160.0,
+            width: 20.0,
+            height: 20.0,
+            ..Default::default()
+        };
+        assert!(clear_space_rows(&block, &image, (20.0, 20.0, 200.0, 200.0)).is_none());
+    }
+
+    #[test]
+    fn lettering_drawn_far_larger_than_the_dialogue_size_reads_as_a_shout() {
+        // A 1200px page sets dialogue around 14px.
+        assert!(is_emphatic_lettering(1200.0, Some(43.0)), "ノーッ！ at 43px");
+        assert!(!is_emphatic_lettering(1200.0, Some(16.0)), "ordinary dialogue");
+        assert!(!is_emphatic_lettering(1200.0, None), "nothing measured");
+    }
+
+    #[test]
+    fn a_drawn_out_letter_drops_back_to_one() {
+        assert_eq!(shorten_elongation("KHÔNGGG!").as_deref(), Some("KHÔNG!"));
+        assert_eq!(shorten_elongation("AAAA!").as_deref(), Some("A!"));
+        // Two of a letter is spelling, not elongation.
+        assert_eq!(shorten_elongation("HELLO"), None);
+        assert_eq!(shorten_elongation("KHÔNG!"), None);
+    }
+
+    #[test]
+    fn only_a_short_single_word_is_worth_stacking() {
+        assert!(is_stackable_shout("KHÔNG"));
+        assert!(is_stackable_shout("KHÔNGGG!"));
+        assert!(!is_stackable_shout("ĐỒ NGỐC NÀY"), "more than one word");
+        assert!(
+            !is_stackable_shout("KHÔNGKHÔNGKHÔNG"),
+            "too long to read down a column"
+        );
+        assert!(!is_stackable_shout("!!"), "no letters");
+    }
 
     fn synthetic_bubble_map() -> GrayImage {
         let mut img = GrayImage::from_pixel(96, 96, Luma([38]));

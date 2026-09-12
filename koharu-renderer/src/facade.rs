@@ -11,12 +11,13 @@ use koharu_types::{
 
 use crate::{
     font::{FaceInfo, Font, FontBook},
-    layout::{LayoutRun, TextLayout, WritingMode},
+    layout::{LayoutRun, RowSpans, TextLayout, WritingMode},
     renderer::{RenderOptions, RenderStrokeOptions, TinySkiaRenderer},
     text::{
         latin::{
-            LayoutBox, MIN_FILL_RATIO, balloon_bounds_from_image, clip_box_to_nearest_owner,
-            fill_ratio, grow_box_within,
+            LayoutBox, MIN_FILL_RATIO, balloon_bounds_from_image, clear_space_rows,
+            clip_box_to_nearest_owner, fill_ratio, grow_box_within, is_emphatic_lettering,
+            is_stackable_shout, shorten_elongation,
             expand_latin_layout_box_relaxed, expand_latin_layout_box_strict,
             is_expanded_layout_box, latin_layout_underfilled, latin_width_overflow_factor,
             layout_box_area, layout_box_from_block, pick_better_latin_candidate,
@@ -288,6 +289,17 @@ impl Renderer {
                 .run(&normalized_translation)
         };
 
+        // A shout the artist drew large, short enough to read down a column:
+        // stacked it needs no hyphen and no narrow column of syllables, and it
+        // is how the Japanese was lettered in the first place.
+        let stack_shout = english_horizontal_layout
+            && is_emphatic_lettering(page_height, text_block.detected_font_size_px)
+            && is_stackable_shout(&normalized_translation);
+
+        // What the block was actually set with, when that is not what it came
+        // in with.
+        let mut set_text: Option<String> = None;
+
         let mut layout = build_layout(layout_box, false)?;
 
         // A box fitted to a balloon upstream is deliberately conservative — the
@@ -344,29 +356,220 @@ impl Renderer {
             }
         }
 
+        // Follow the shape of the clear space rather than the largest rectangle
+        // that fits inside it. A balloon with a figure drawn across it loses
+        // more than half its room to a rectangle; measured row by row it keeps
+        // it. The block's share of a merged balloon bounds the search, so two
+        // blocks in one balloon still do not reach across the join.
+        //
+        // `lock_layout_box` is set by the balloon refit upstream, not only by a
+        // reader dragging a box, so `AutoExpand` alone would skip every block in
+        // a balloon — which is exactly the case the rectangle is too small for.
+        // Take those as well, the way the fill-ratio rescue above does.
+        let shaped = if english_horizontal_layout
+            && (auto_expand_english_layout || text_block.balloon_fitted)
+            && let Some(map) = bubble_map
+            && let Some(balloon) = containing_balloon
+        {
+            let share = clip_box_to_nearest_owner(
+                LayoutBox {
+                    x: balloon.0,
+                    y: balloon.1,
+                    width: balloon.2,
+                    height: balloon.3,
+                },
+                centre,
+                sibling_centres,
+            );
+            clear_space_rows(
+                &layout_source_block,
+                map,
+                (share.x, share.y, share.width, share.height),
+            )
+        } else {
+            None
+        };
+
+        if let Some((shape_box, rows)) = shaped {
+            let spans = RowSpans::new(rows);
+            let shortened = shorten_elongation(&normalized_translation);
+            let set = |spans: &RowSpans, stacked: bool, text: &str, size: Option<f32>| {
+                let candidate = TextLayout::new(&font, None)
+                    .with_fallback_fonts(&self.symbol_fallbacks)
+                    .with_preferred_font_size(target_font_size)
+                    .with_row_spans(spans.clone())
+                    .with_writing_mode(writing_mode);
+                let candidate = if stacked {
+                    candidate.with_stacked_glyphs()
+                } else {
+                    candidate
+                };
+                match size {
+                    Some(size) => candidate.run_whole_at(text, size),
+                    None => candidate.run(text),
+                }
+            };
+            // Re-set a shout that will not sit: base size as a line, then as a
+            // column, then a point down, and only then with the drawn-out
+            // letters dropped. Nothing is cut along the way.
+            let reset_shout = |spans: &RowSpans| {
+                shout_plan(&normalized_translation, shortened.as_deref())
+                    .into_iter()
+                    .find_map(|(text, size, column)| {
+                        set(spans, column, text, Some(size))
+                            .ok()
+                            .filter(|run| run.fits && run.max_word_cuts == 0)
+                            .map(|run| (run, text.to_string()))
+                    })
+            };
+
+            // Keep it only if it actually reads larger. Traced clear space can
+            // come out narrower than the detected box — text lettered straight
+            // onto artwork has no balloon interior to find — and there the
+            // rectangle was the better answer all along.
+            if let Ok(mut shaped_layout) = set(&spans, false, &normalized_translation, None)
+                && shaped_layout.fits
+                && shaped_layout.font_size > layout.font_size
+            {
+                // Settle the text into the middle of the room. Re-set it from
+                // the lower start rather than sliding the finished lines down,
+                // which would carry a wide line into a narrow part of the shape.
+                let mut settled = spans.clone();
+                let spare = (shape_box.height - shaped_layout.height).max(0.0);
+                if spare > 2.0 {
+                    let lower = spans.blank_top((spare / 2.0) as usize);
+                    if let Ok(centred) = set(&lower, false, &normalized_translation, None)
+                        && centred.fits
+                    {
+                        shaped_layout = centred;
+                        settled = lower;
+                    }
+                }
+
+                if stack_shout
+                    && (shaped_layout.max_word_cuts > 0
+                        || shaped_layout.font_size < SHOUT_BASE_FONT_SIZE)
+                    && let Some((reset, text)) = reset_shout(&settled)
+                {
+                    shaped_layout = reset;
+                    set_text = Some(text);
+                }
+
+                tracing::debug!(
+                    from = layout.font_size,
+                    to = shaped_layout.font_size,
+                    "followed the shape of the clear space"
+                );
+                layout = shaped_layout;
+                layout_box = shape_box;
+                align_layout_horizontally(&mut layout, writing_mode, layout_box.width, text_align);
+                return self.paint_block(PaintBlock {
+                    text_block,
+                    set_text,
+                    layout: &layout,
+                    layout_box,
+                    writing_mode,
+                    style: &style,
+                    color,
+                    effect: block_effect,
+                    global_stroke: global_stroke.as_ref(),
+                    font: &font,
+                });
+            }
+        }
+
+        // The same for a block the rectangle won.
+        if stack_shout
+            && (layout.max_word_cuts > 0 || layout.font_size < SHOUT_BASE_FONT_SIZE)
+        {
+            let shortened = shorten_elongation(&normalized_translation);
+            let reset = shout_plan(&normalized_translation, shortened.as_deref())
+                .into_iter()
+                .find_map(|(text, size, column)| {
+                    let candidate = TextLayout::new(&font, None)
+                        .with_fallback_fonts(&self.symbol_fallbacks)
+                        .with_max_width(layout_box.width)
+                        .with_max_height(layout_box.height)
+                        .with_writing_mode(writing_mode);
+                    let candidate = if column {
+                        candidate.with_stacked_glyphs()
+                    } else {
+                        candidate
+                    };
+                    candidate
+                        .run_whole_at(text, size)
+                        .ok()
+                        .filter(|run| {
+                            run.max_word_cuts == 0
+                                && run.width <= layout_box.width
+                                && run.height <= layout_box.height
+                        })
+                        .map(|run| (run, text.to_string()))
+                });
+            if let Some((reset, text)) = reset {
+                layout = reset;
+                set_text = Some(text);
+            }
+        }
+
         if is_horizontal_latin {
             center_layout_vertically(&mut layout, layout_box.height);
         }
         align_layout_horizontally(&mut layout, writing_mode, layout_box.width, text_align);
 
+        self.paint_block(PaintBlock {
+            text_block,
+            set_text,
+            layout: &layout,
+            layout_box,
+            writing_mode,
+            style: &style,
+            color,
+            effect: block_effect,
+            global_stroke: global_stroke.as_ref(),
+            font: &font,
+        })
+    }
+
+    fn paint_block(&self, paint: PaintBlock<'_, '_>) -> Result<()> {
+        let PaintBlock {
+            text_block,
+            set_text,
+            layout,
+            layout_box,
+            writing_mode,
+            style,
+            color,
+            effect,
+            global_stroke,
+            font,
+        } = paint;
+
         let resolved_stroke = resolve_stroke_style(
             text_block,
             style.stroke.as_ref(),
-            global_stroke.as_ref(),
+            global_stroke,
             layout.font_size,
         );
         let rendered = self.renderer.render(
-            &layout,
+            layout,
             writing_mode,
             &RenderOptions {
                 font_size: layout.font_size,
                 color,
-                effect: block_effect,
+                effect,
                 stroke: resolved_stroke,
                 ..Default::default()
             },
         )?;
 
+        // A shout whose drawn-out letters were dropped is drawn as KHÔNG! but
+        // would still be stored as KHÔNGGG!. A PSD or TIFF export writes its
+        // editable text layer from the stored translation while the pixels come
+        // from here, so the two would disagree.
+        if let Some(text) = set_text {
+            text_block.translation = Some(text);
+        }
         text_block.x = layout_box.x;
         text_block.y = layout_box.y;
         text_block.width = layout_box.width;
@@ -455,6 +658,50 @@ fn apply_default_font_families(font_families: &mut Vec<String>, text: &str) {
     }
 }
 
+/// A shout that will not sit in its balloon is re-set at this size, and the
+/// choice between a line and a column is made there — before anything gets cut.
+const SHOUT_BASE_FONT_SIZE: f32 = 12.0;
+/// Two words cannot go down a column one letter at a time, so when they will
+/// not take the base size they come down a point instead of being cut.
+const SHOUT_TWO_WORD_FONT_SIZE: f32 = 11.0;
+
+/// What to try, in order, for a shout that has to be re-set: the base size as a
+/// line, then as a column, then a point down when a column is not an option,
+/// and only then with the drawn-out letters dropped. Each entry is
+/// `(text, size, as a column)`. Nothing here cuts a word.
+fn shout_plan<'a>(full: &'a str, shortened: Option<&'a str>) -> Vec<(&'a str, f32, bool)> {
+    let single_word = is_stackable_shout(full);
+    let mut plan = vec![(full, SHOUT_BASE_FONT_SIZE, false)];
+    if single_word {
+        plan.push((full, SHOUT_BASE_FONT_SIZE, true));
+    } else {
+        plan.push((full, SHOUT_TWO_WORD_FONT_SIZE, false));
+    }
+    if let Some(shortened) = shortened {
+        plan.push((shortened, SHOUT_BASE_FONT_SIZE, false));
+        if single_word {
+            plan.push((shortened, SHOUT_BASE_FONT_SIZE, true));
+        }
+    }
+    plan
+}
+
+/// Everything `paint_block` needs, gathered so the two ways of arriving there —
+/// a shape-guided layout and a rectangular one — hand over the same thing.
+struct PaintBlock<'block, 'layout> {
+    text_block: &'block mut TextBlock,
+    /// Set when the text drawn is not the text the block came in with.
+    set_text: Option<String>,
+    layout: &'block LayoutRun<'layout>,
+    layout_box: LayoutBox,
+    writing_mode: WritingMode,
+    style: &'block TextStyle,
+    color: [u8; 4],
+    effect: TextShaderEffect,
+    global_stroke: Option<&'block TextStrokeStyle>,
+    font: &'block Font,
+}
+
 fn resolve_stroke_style(
     block: &TextBlock,
     block_stroke: Option<&TextStrokeStyle>,
@@ -536,14 +783,20 @@ fn align_layout_horizontally(
         if line.advance <= 0.0 {
             continue;
         }
-        let remaining = (container_width - line.advance).max(0.0);
+        // A line set into a shape was measured against the room at its own
+        // height, and its baseline already starts there. Centring it in the
+        // whole box would push it back over whatever the shape was avoiding.
+        let room = line.span.map_or(container_width, |(_, room)| room);
+        let remaining = (room - line.advance).max(0.0);
         let offset = match text_align {
             TextAlign::Left => 0.0,
             TextAlign::Center => remaining * 0.5,
             TextAlign::Right => remaining,
         };
-        if offset > 0.0 {
-            line.baseline.0 += offset;
+        match line.span {
+            Some((start, _)) => line.baseline.0 = start + offset,
+            None if offset > 0.0 => line.baseline.0 += offset,
+            None => {}
         }
     }
     layout.width = target_width;
@@ -608,6 +861,36 @@ mod tests {
     use koharu_types::{TextAlign, TextBlock};
 
     #[test]
+    fn a_shout_is_re_set_line_first_then_column_then_shorter() {
+        // A single word: the base size as a line, then as a column, then the
+        // same two with the drawn-out letters gone. Nothing is cut.
+        let plan = super::shout_plan("KHÔNGGG!", Some("KHÔNG!"));
+        assert_eq!(
+            plan,
+            vec![
+                ("KHÔNGGG!", super::SHOUT_BASE_FONT_SIZE, false),
+                ("KHÔNGGG!", super::SHOUT_BASE_FONT_SIZE, true),
+                ("KHÔNG!", super::SHOUT_BASE_FONT_SIZE, false),
+                ("KHÔNG!", super::SHOUT_BASE_FONT_SIZE, true),
+            ]
+        );
+    }
+
+    #[test]
+    fn two_words_come_down_a_point_instead_of_going_down_a_column() {
+        // Letters of two words cannot be read down one column, so the step
+        // after the base size is a point smaller, not a column.
+        let plan = super::shout_plan("ĐỒ NGỐC!", None);
+        assert_eq!(
+            plan,
+            vec![
+                ("ĐỒ NGỐC!", super::SHOUT_BASE_FONT_SIZE, false),
+                ("ĐỒ NGỐC!", super::SHOUT_TWO_WORD_FONT_SIZE, false),
+            ]
+        );
+    }
+
+    #[test]
     fn horizontal_alignment_offsets_each_line() {
         let mut layout = LayoutRun {
             lines: vec![
@@ -625,6 +908,8 @@ mod tests {
             width: 80.0,
             height: 40.0,
             font_size: 16.0,
+            fits: true,
+            max_word_cuts: 0,
         };
 
         align_layout_horizontally(
@@ -650,6 +935,8 @@ mod tests {
             width: 40.0,
             height: 20.0,
             font_size: 16.0,
+            fits: true,
+            max_word_cuts: 0,
         };
 
         align_layout_horizontally(
@@ -678,6 +965,8 @@ mod tests {
             width: 40.0,
             height: 80.0,
             font_size: 16.0,
+            fits: true,
+            max_word_cuts: 0,
         };
 
         align_layout_horizontally(
@@ -703,6 +992,8 @@ mod tests {
             width: 40.0,
             height: 20.0,
             font_size: 16.0,
+            fits: true,
+            max_word_cuts: 0,
         };
 
         center_layout_vertically(&mut layout, 60.0);
