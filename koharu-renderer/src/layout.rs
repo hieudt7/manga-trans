@@ -49,6 +49,12 @@ impl From<WritingMode> for Direction {
 /// KINNIKUMAN! — get cut for the sake of a few pixels the shape does have.
 const BAND_OVERFLOW_TOLERANCE: f32 = 1.08;
 
+/// The narrowest a band may be and still be worth setting a line in, as a
+/// multiple of the line height — about three characters. Anything narrower
+/// takes one letter and a hyphen, which is how CHẮC comes out as C-/HẮC.
+/// Stacked text is exempt: a column is one letter wide by design.
+const MIN_BAND_WIDTH_RATIO: f32 = 1.5;
+
 /// Punctuation that has to stay with the word it follows. Left to break, a
 /// stacked shout ends with its exclamation mark alone on the last line and a
 /// wrapped line can start with one.
@@ -144,8 +150,9 @@ impl RowSpans {
     }
 
     /// Where each successive line of `line_height` sits, skipping past bands
-    /// the shape pinches shut. `(top, x, width)` per line.
-    pub fn bands(&self, line_height: f32) -> Vec<(f32, f32, f32)> {
+    /// the shape pinches shut or narrows past `min_width`. `(top, x, width)`
+    /// per line.
+    pub fn bands(&self, line_height: f32, min_width: f32) -> Vec<(f32, f32, f32)> {
         if line_height <= 0.0 {
             return Vec::new();
         }
@@ -153,13 +160,14 @@ impl RowSpans {
         let mut bands = Vec::new();
         let mut top = 0.0f32;
         while top + line_height <= self.height() {
-            match self.band(top, line_height) {
+            match self.band(top, line_height).filter(|(_, w)| *w >= min_width) {
                 Some((x, width)) => {
                     bands.push((top, x, width));
                     top += line_height;
                 }
-                // Pinched shut here — step down a row at a time looking for
-                // where the shape opens up again rather than giving up.
+                // Too pinched to set a line here — step down a row at a time
+                // looking for where the shape opens up again rather than
+                // giving up.
                 None => top += 1.0,
             }
         }
@@ -294,7 +302,12 @@ impl<'a> TextLayout<'a> {
             return None;
         }
         let spans = self.row_spans.as_ref()?;
-        let bands = spans.bands(line_height);
+        let min_width = if self.stack_glyphs {
+            0.0
+        } else {
+            line_height * MIN_BAND_WIDTH_RATIO
+        };
+        let bands = spans.bands(line_height, min_width);
         (!bands.is_empty()).then_some(bands)
     }
 
@@ -1335,7 +1348,7 @@ mod tests {
                 .collect(),
         );
 
-        let bands = shape.bands(20.0);
+        let bands = shape.bands(20.0, 0.0);
         assert!(bands.len() >= 2, "expected room above and below: {bands:?}");
         assert!(bands[0].0 < 30.0, "first band above the obstruction");
         assert!(

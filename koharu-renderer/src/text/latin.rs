@@ -433,6 +433,303 @@ pub const BIG_TEXT_MAX_HEIGHT_RATIO: f32 = 90.0 / 1200.0;
 /// normalised to one size per page — mixed sizes across balloons read worse
 /// than a consistent one — while deliberately large source text keeps its
 /// impact.
+/// How far the shape of the original text is grown before the translation is
+/// set into it, so a line does not sit hard against the ink it replaced.
+const SOURCE_SHAPE_PAD_PX: i64 = 2;
+
+/// The shape the original text occupied, row by row, and the box that bounds it.
+///
+/// Outside a balloon there is no interior to fill: the artist fitted the
+/// lettering into a gap in the artwork, and that gap is the only room the
+/// translation has. Vertical Japanese leaves gaps of very different shapes —
+/// an L where a column stops short of a figure, a U around one, a Z down a
+/// stepped panel — and a rectangle drawn around any of them reaches over the
+/// drawing.
+///
+/// Measured from the text mask, which marks where the source text was before it
+/// was painted out, and clipped to blank page. The white between two columns is
+/// room the translation may use — but outside a balloon what lies between them
+/// is not always white: two columns can stand either side of a character's
+/// head, and a row taken from the leftmost mark to the rightmost bridges
+/// straight over the hair. Each row is therefore the run of blank page around
+/// the marks, not the span between them.
+pub fn source_text_rows(
+    block: &TextBlock,
+    mask: &GrayImage,
+    page: &GrayImage,
+) -> Option<(LayoutBox, Vec<(f32, f32)>)> {
+    let (mask_width, mask_height) = (mask.width() as i64, mask.height() as i64);
+    let left = (block.x.floor() as i64 - SOURCE_SHAPE_PAD_PX).clamp(0, mask_width - 1);
+    let top = (block.y.floor() as i64 - SOURCE_SHAPE_PAD_PX).clamp(0, mask_height - 1);
+    let right = ((block.x + block.width).ceil() as i64 + SOURCE_SHAPE_PAD_PX)
+        .clamp(left + 1, mask_width);
+    let bottom = ((block.y + block.height).ceil() as i64 + SOURCE_SHAPE_PAD_PX)
+        .clamp(top + 1, mask_height);
+
+    // Same channel guard the growth uses: a white streak through a drawing is
+    // not room, and a run that follows one comes back across the ink it went
+    // around. The source text's own pixels stay open whatever surrounds them —
+    // they are where the lettering already was.
+    let open = open_blank_window(page, left, top, right, bottom);
+    let at = |x: i64, y: i64| ((y - top) as usize) * ((right - left) as usize) + (x - left) as usize;
+    let blank = |x: i64, y: i64| open[at(x, y)];
+    let marked = |x: i64, y: i64| mask.get_pixel(x as u32, y as u32)[0] >= 128;
+
+    let mut rows: Vec<Option<(i64, i64)>> = Vec::with_capacity((bottom - top) as usize);
+    for y in top..bottom {
+        // The widest run of blank page on this row that the source text
+        // actually sat in. A run with no marks is somewhere else on the page;
+        // a gap that is not blank is the drawing.
+        let mut best: Option<(i64, i64)> = None;
+        let mut run: Option<(i64, bool)> = None;
+        for x in left..=right {
+            let open = x < right && (blank(x, y) || marked(x, y));
+            match (open, run) {
+                (true, None) => run = Some((x, marked(x, y))),
+                (true, Some((start, hit))) => run = Some((start, hit || marked(x, y))),
+                (false, Some((start, hit))) => {
+                    if hit && best.is_none_or(|(a, b)| b - a < x - start) {
+                        best = Some((start, x));
+                    }
+                    run = None;
+                }
+                (false, None) => {}
+            }
+        }
+        rows.push(best.map(|(a, b)| {
+            (
+                (a - SOURCE_SHAPE_PAD_PX).max(left),
+                (b + SOURCE_SHAPE_PAD_PX).min(right),
+            )
+        }));
+    }
+
+    let first = rows.iter().position(Option::is_some)?;
+    let last = rows.iter().rposition(Option::is_some)?;
+    let rows = &rows[first..=last];
+
+    let box_left = rows.iter().flatten().map(|(a, _)| *a).min()? as f32;
+    let box_right = rows.iter().flatten().map(|(_, b)| *b).max()? as f32;
+    if box_right - box_left < 1.0 {
+        return None;
+    }
+
+    let spans = rows
+        .iter()
+        .map(|row| match row {
+            Some((a, b)) => (*a as f32 - box_left, (*b - *a) as f32),
+            None => (0.0, 0.0),
+        })
+        .collect();
+
+    Some((
+        LayoutBox {
+            x: box_left,
+            y: (top + first as i64) as f32,
+            width: box_right - box_left,
+            height: rows.len() as f32,
+        },
+        spans,
+    ))
+}
+
+/// How thin a channel of blank page has to be before the shape refuses to go
+/// down it. A drawing is not solid — there are white streaks in a character's
+/// hair, gaps between hatching — and a shape that creeps through one comes out
+/// the far side with a row spanning the drawing it went around.
+const BLANK_CHANNEL_MIN_PX: i64 = 3;
+
+/// Blank page over a window, with every channel narrower than
+/// `BLANK_CHANNEL_MIN_PX` closed off. Separable: the narrowest run through a
+/// pixel is the smaller of its horizontal and vertical reach.
+fn open_blank_window(
+    page: &GrayImage,
+    left: i64,
+    top: i64,
+    right: i64,
+    bottom: i64,
+) -> Vec<bool> {
+    let (w, h) = ((right - left) as usize, (bottom - top) as usize);
+    let index = |x: i64, y: i64| ((y - top) as usize) * w + (x - left) as usize;
+    let reach = BLANK_CHANNEL_MIN_PX;
+
+    let mut blank = vec![false; w * h];
+    for y in top..bottom {
+        for x in left..right {
+            blank[index(x, y)] = page.get_pixel(x as u32, y as u32)[0] >= CLEAR_THRESHOLD;
+        }
+    }
+
+    let mut wide = vec![false; w * h];
+    for y in top..bottom {
+        for x in left..right {
+            wide[index(x, y)] = (x - reach..=x + reach)
+                .all(|nx| nx >= left && nx < right && blank[index(nx, y)]);
+        }
+    }
+    let mut open = vec![false; w * h];
+    for y in top..bottom {
+        for x in left..right {
+            open[index(x, y)] = (y - reach..=y + reach)
+                .all(|ny| ny >= top && ny < bottom && wide[index(x, ny)]);
+        }
+    }
+    open
+}
+
+/// How far the shape grows outward before it is measured again.
+pub const SHAPE_GROWTH_STEP_PX: u32 = 6;
+/// How many times. Past this the text has wandered too far from where the
+/// artist put it, whatever the page will allow.
+pub const SHAPE_GROWTH_MAX_STEPS: u32 = 10;
+
+/// Grow a shape outward into blank page, a ring at a time, never over ink.
+///
+/// The footprint the source text left is often smaller than the translation
+/// needs — a Vietnamese line is far longer than the Japanese it replaces — and
+/// held to it exactly the text comes out too small to read. The room beside it
+/// is usually blank page the artist left around the lettering, and that is
+/// free to use; the drawing is not. Growing a ring at a time keeps the text
+/// where it was put, and stopping at ink keeps it off the artwork.
+pub fn grow_rows_into_blank(
+    bounds: LayoutBox,
+    rows: &[(f32, f32)],
+    page: &GrayImage,
+    steps: u32,
+) -> Option<(LayoutBox, Vec<(f32, f32)>)> {
+    if steps == 0 || rows.is_empty() {
+        return None;
+    }
+    let (page_w, page_h) = (page.width() as i64, page.height() as i64);
+    let reach = steps as i64;
+    let left = (bounds.x.floor() as i64 - reach).clamp(0, page_w - 1);
+    let top = (bounds.y.floor() as i64 - reach).clamp(0, page_h - 1);
+    let right = ((bounds.x + bounds.width).ceil() as i64 + reach).clamp(left + 1, page_w);
+    let bottom = ((bounds.y + bounds.height).ceil() as i64 + reach).clamp(top + 1, page_h);
+    let (w, h) = ((right - left) as usize, (bottom - top) as usize);
+    let at = |x: i64, y: i64| ((y - top) as usize) * w + (x - left) as usize;
+
+    let mut inside = vec![false; w * h];
+    for (row, (span_x, span_w)) in rows.iter().enumerate() {
+        if *span_w <= 0.0 {
+            continue;
+        }
+        let y = bounds.y as i64 + row as i64;
+        if y < top || y >= bottom {
+            continue;
+        }
+        let from = (bounds.x + span_x).floor() as i64;
+        let to = (bounds.x + span_x + span_w).ceil() as i64;
+        for x in from.max(left)..to.min(right) {
+            inside[at(x, y)] = true;
+        }
+    }
+
+    let open = open_blank_window(page, left, top, right, bottom);
+    let blank = |x: i64, y: i64| open[at(x, y)];
+    for _ in 0..steps {
+        let previous = inside.clone();
+        for y in top..bottom {
+            for x in left..right {
+                if previous[at(x, y)] || !blank(x, y) {
+                    continue;
+                }
+                let touches = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+                    .into_iter()
+                    .any(|(nx, ny)| {
+                        nx >= left && nx < right && ny >= top && ny < bottom && previous[at(nx, ny)]
+                    });
+                if touches {
+                    inside[at(x, y)] = true;
+                }
+            }
+        }
+    }
+
+    // The widest unbroken run, not the span between the outermost pixels. The
+    // growth only ever takes blank page, but a drawing can have blank inside it
+    // — the white streaks in a character's hair — and the growth creeps through
+    // those. Taking the span between the far ends would then bridge back over
+    // the black it just went around.
+    let mut grown: Vec<Option<(i64, i64)>> = Vec::with_capacity(h);
+    for y in top..bottom {
+        let mut best: Option<(i64, i64)> = None;
+        let mut run: Option<i64> = None;
+        for x in left..=right {
+            match (x < right && inside[at(x, y)], run) {
+                (true, None) => run = Some(x),
+                (false, Some(start)) => {
+                    if best.is_none_or(|(a, b)| b - a < x - start) {
+                        best = Some((start, x));
+                    }
+                    run = None;
+                }
+                _ => {}
+            }
+        }
+        grown.push(best);
+    }
+
+    let first = grown.iter().position(Option::is_some)?;
+    let last = grown.iter().rposition(Option::is_some)?;
+    let grown = &grown[first..=last];
+    let box_left = grown.iter().flatten().map(|(a, _)| *a).min()? as f32;
+    let box_right = grown.iter().flatten().map(|(_, b)| *b).max()? as f32;
+
+    Some((
+        LayoutBox {
+            x: box_left,
+            y: (top + first as i64) as f32,
+            width: box_right - box_left,
+            height: grown.len() as f32,
+        },
+        grown
+            .iter()
+            .map(|row| match row {
+                Some((a, b)) => (*a as f32 - box_left, (*b - *a) as f32),
+                None => (0.0, 0.0),
+            })
+            .collect(),
+    ))
+}
+
+/// The size the original lettering was set at, from the block itself.
+///
+/// `detected_font_size_px` is the short side of the detected box. That is one
+/// glyph only while the block holds a single column or a single line: a block
+/// of four columns reports four columns' width, and text outside a balloon —
+/// which is set to match what the artist drew — then comes out several times
+/// too large and runs over the artwork.
+///
+/// Characters tile the box, so each occupies about the box area over their
+/// count and the glyph is the square root of that. For one column the two
+/// agree; for several the estimate is the smaller and truer one, which is why
+/// it is taken as an upper bound on the detected size rather than a
+/// replacement for it.
+pub fn source_glyph_size(
+    box_width: f32,
+    box_height: f32,
+    source_text: Option<&str>,
+    detected: Option<f32>,
+) -> Option<f32> {
+    let characters = source_text
+        .map(|text| text.chars().filter(|c| !c.is_whitespace()).count())
+        .unwrap_or(0);
+    if characters == 0 || box_width <= 0.0 || box_height <= 0.0 {
+        return detected;
+    }
+
+    let per_character = (box_width * box_height) / characters as f32;
+    let estimate = per_character.sqrt();
+    if !estimate.is_finite() || estimate <= 0.0 {
+        return detected;
+    }
+    Some(match detected {
+        Some(detected) => estimate.min(detected),
+        None => estimate,
+    })
+}
+
 pub fn preferred_font_size(
     page_height: f32,
     source_glyph_px: Option<f32>,
@@ -1528,6 +1825,7 @@ mod tests {
         DIALOGUE_FILL_FACTOR, DIALOGUE_MIN_FONT_SIZE, LATIN_OVERFLOW_FACTOR, LayoutBox, TextBlock,
         balloon_bounds_from_image, clear_space_rows, clip_box_to_nearest_owner, grow_box_within,
         is_emphatic_lettering, is_stackable_shout, preferred_font_size, shorten_elongation,
+        grow_rows_into_blank, source_glyph_size, source_text_rows,
         expand_latin_layout_box_relaxed, expand_latin_layout_box_strict, is_expanded_layout_box,
         latin_width_overflow_factor, layout_box_area,
     };
@@ -1632,6 +1930,151 @@ mod tests {
         assert!(is_emphatic_lettering(1200.0, Some(43.0)), "ノーッ！ at 43px");
         assert!(!is_emphatic_lettering(1200.0, Some(16.0)), "ordinary dialogue");
         assert!(!is_emphatic_lettering(1200.0, None), "nothing measured");
+    }
+
+    #[test]
+    fn a_shape_grows_into_blank_page_but_stops_at_the_drawing() {
+        // Blank page with a drawn figure down the right. A shape in the middle
+        // should spread left into the blank and stop dead at the figure.
+        let mut page = GrayImage::from_pixel(200, 200, Luma([250]));
+        for y in 0..200 {
+            for x in 120..140 {
+                page.put_pixel(x, y, Luma([20]));
+            }
+        }
+        let bounds = LayoutBox { x: 90.0, y: 90.0, width: 20.0, height: 20.0 };
+        let rows = vec![(0.0, 20.0); 20];
+
+        let (grown, grown_rows) =
+            grow_rows_into_blank(bounds, &rows, &page, 20).expect("room to grow");
+        assert!(grown.x < 80.0, "should have spread left: {grown:?}");
+        assert!(
+            grown.x + grown.width <= 120.0,
+            "must stop at the figure: {grown:?}"
+        );
+        assert!(grown.height > bounds.height, "and up and down too");
+        assert!(grown_rows.iter().any(|(_, w)| *w > 20.0), "rows widened");
+    }
+
+    #[test]
+    fn growth_does_not_bridge_back_over_ink_it_crept_around() {
+        // A drawing with a blank streak through it — the white in a character's
+        // hair. Growth may follow the streak, but the row must not then span
+        // from one side of the drawing to the other.
+        let mut page = GrayImage::from_pixel(200, 120, Luma([250]));
+        for y in 0..120 {
+            for x in 100..160 {
+                page.put_pixel(x, y, Luma([15]));
+            }
+        }
+        for y in 58..62 {
+            for x in 100..160 {
+                page.put_pixel(x, y, Luma([250])); // the streak
+            }
+        }
+        let bounds = LayoutBox { x: 70.0, y: 50.0, width: 20.0, height: 20.0 };
+        let rows = vec![(0.0, 20.0); 20];
+
+        let (grown, grown_rows) =
+            grow_rows_into_blank(bounds, &rows, &page, 30).expect("room to grow");
+        for (i, (x, w)) in grown_rows.iter().enumerate() {
+            let right = grown.x + x + w;
+            assert!(
+                *w <= 0.0 || right <= 101.0 || grown.x + x >= 159.0,
+                "row {i} spans the drawing: starts {} ends {right}",
+                grown.x + x
+            );
+        }
+    }
+
+    #[test]
+    fn a_shape_boxed_in_by_ink_cannot_grow() {
+        // Ink on every side: there is nowhere to go, and the shape comes back
+        // the size it went in.
+        let mut page = GrayImage::from_pixel(60, 60, Luma([20]));
+        for y in 25..35 {
+            for x in 25..35 {
+                page.put_pixel(x, y, Luma([250]));
+            }
+        }
+        let bounds = LayoutBox { x: 25.0, y: 25.0, width: 10.0, height: 10.0 };
+        let rows = vec![(0.0, 10.0); 10];
+
+        let (grown, _) = grow_rows_into_blank(bounds, &rows, &page, 10).expect("a shape");
+        assert!(
+            (grown.width - 10.0).abs() < 1.0 && (grown.height - 10.0).abs() < 1.0,
+            "nowhere to grow: {grown:?}"
+        );
+    }
+
+    #[test]
+    fn the_shape_turns_an_l_where_the_drawing_takes_the_corner() {
+        // Two columns of vertical text with a figure standing in the lower
+        // left. Above the figure both columns are open; beside it only the
+        // right one is, and the shape has to narrow to match — that is the L.
+        let mut mask = GrayImage::from_pixel(200, 200, Luma([0]));
+        let mut page = GrayImage::from_pixel(200, 200, Luma([250]));
+        for y in 90..170 {
+            for x in 60..110 {
+                page.put_pixel(x, y, Luma([15]));
+            }
+        }
+        for y in 20..160 {
+            for x in 120..140 {
+                mask.put_pixel(x, y, Luma([255]));
+            }
+        }
+        for y in 20..85 {
+            for x in 80..100 {
+                mask.put_pixel(x, y, Luma([255]));
+            }
+        }
+        let block = TextBlock {
+            x: 70.0,
+            y: 10.0,
+            width: 80.0,
+            height: 160.0,
+            ..Default::default()
+        };
+
+        let (bounds, rows) = source_text_rows(&block, &mask, &page).expect("a shape");
+        let at = |y: f32| {
+            let row = (y - bounds.y) as usize;
+            rows.get(row).copied().expect("row inside the shape")
+        };
+
+        let above = at(50.0);
+        let beside = at(130.0);
+        assert!(
+            beside.1 < above.1,
+            "the row beside the figure must be the narrower one: {beside:?} vs {above:?}"
+        );
+        assert!(
+            bounds.x + beside.0 >= 108.0,
+            "and it must start clear of the figure: {beside:?}"
+        );
+    }
+
+    #[test]
+    fn the_source_glyph_is_one_character_not_the_width_of_every_column() {
+        // Four columns of ten 25px characters: 100x250, forty characters. The
+        // short side of that box is 100 — four times the glyph.
+        let four_columns = source_glyph_size(100.0, 250.0, Some(&"あ".repeat(40)), Some(100.0));
+        assert!(
+            four_columns.is_some_and(|size| (size - 25.0).abs() < 1.0),
+            "expected about 25, got {four_columns:?}"
+        );
+
+        // One column of the same characters: the two measures agree.
+        let one_column = source_glyph_size(25.0, 250.0, Some(&"あ".repeat(10)), Some(25.0));
+        assert!(
+            one_column.is_some_and(|size| (size - 25.0).abs() < 1.0),
+            "expected about 25, got {one_column:?}"
+        );
+
+        // Nothing to count: fall back to what was detected.
+        assert_eq!(source_glyph_size(100.0, 250.0, None, Some(100.0)), Some(100.0));
+        assert_eq!(source_glyph_size(100.0, 250.0, Some("  "), Some(100.0)), Some(100.0));
     }
 
     #[test]
