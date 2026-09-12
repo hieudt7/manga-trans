@@ -269,11 +269,13 @@ pub async fn update_text_block(
                 block.width = width;
                 geometry_changed = true;
                 block.lock_layout_box = true;
+                block.balloon_fitted = false;
             }
             if let Some(height) = payload.height {
                 block.height = height;
                 geometry_changed = true;
                 block.lock_layout_box = true;
+                block.balloon_fitted = false;
             }
             if geometry_changed {
                 block.set_layout_seed(block.x, block.y, block.width, block.height);

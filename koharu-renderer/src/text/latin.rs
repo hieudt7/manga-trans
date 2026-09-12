@@ -12,7 +12,12 @@ use koharu_types::TextBlock;
 use crate::layout::LayoutRun;
 
 pub const LATIN_OVERFLOW_FACTOR: f32 = 0.9;
-pub const LATIN_EXPANDED_OVERFLOW_FACTOR: f32 = 0.9;
+/// An already-expanded box that is explicitly allowed to overflow may spill a
+/// little past its edge — that permission exists to rescue text the fitter has
+/// shrunk below legibility, so it has to be worth more than the 1.0 it gets
+/// without permission. Matching LATIN_OVERFLOW_FACTOR made the rescue *narrow*
+/// the box instead, which is why it never bought anything.
+pub const LATIN_EXPANDED_OVERFLOW_FACTOR: f32 = 1.08;
 pub const LATIN_MIN_LEGIBLE_FONT_SIZE: f32 = 13.0;
 pub const LATIN_MIN_HEIGHT_FILL_RATIO: f32 = 0.55;
 
@@ -272,6 +277,180 @@ pub fn pick_better_latin_candidate<'a>(
 /// Maximum font size for Latin/Vietnamese text to prevent short text from
 /// being scaled up to fill an oversized balloon.
 pub const LATIN_MAX_FONT_SIZE: f32 = 30.0;
+
+/// Below this distance two block centres are treated as one region rather than
+/// as neighbouring balloons.
+const MIN_SIBLING_SEPARATION_PX: f32 = 24.0;
+
+/// Trim `rect` so none of it is closer to a sibling block than to `own_centre`.
+///
+/// Balloons drawn touching each other form a single pale region, so tracing
+/// outward from one block runs straight through the join and into the
+/// neighbour's balloon — the text then lays out across both and reads as
+/// misaligned. Cutting at the midpoint between the two centres keeps each
+/// block on its own side of the join.
+pub fn clip_box_to_nearest_owner(
+    rect: LayoutBox,
+    own_centre: (f32, f32),
+    sibling_centres: &[(f32, f32)],
+) -> LayoutBox {
+    let mut left = rect.x;
+    let mut right = rect.x + rect.width;
+    let mut top = rect.y;
+    let mut bottom = rect.y + rect.height;
+
+    for &(sx, sy) in sibling_centres {
+        let dx = sx - own_centre.0;
+        let dy = sy - own_centre.1;
+        // Two centres this close cannot be two balloons — it is one text region
+        // the detector split in half. Cutting between them would halve a box
+        // that should have stayed whole.
+        if dx.hypot(dy) < MIN_SIBLING_SEPARATION_PX {
+            continue;
+        }
+        // Split along whichever axis separates the two blocks more; that is the
+        // axis the join runs across.
+        if dx.abs() >= dy.abs() {
+            let mid = (own_centre.0 + sx) / 2.0;
+            if dx > 0.0 {
+                right = right.min(mid);
+            } else {
+                left = left.max(mid);
+            }
+        } else {
+            let mid = (own_centre.1 + sy) / 2.0;
+            if dy > 0.0 {
+                bottom = bottom.min(mid);
+            } else {
+                top = top.max(mid);
+            }
+        }
+    }
+
+    // A degenerate cut means the blocks sit almost on top of each other; keep
+    // the original rather than emitting an empty box.
+    if right - left < 8.0 || bottom - top < 8.0 {
+        return rect;
+    }
+
+    LayoutBox {
+        x: left,
+        y: top,
+        width: right - left,
+        height: bottom - top,
+    }
+}
+
+/// Below this share of its box, text reads as lost in the balloon rather than
+/// set in it. Taken from typesetting practice: a comfortable balloon sits
+/// around 0.5-0.7, and anything under a third looks like a mistake.
+pub const MIN_FILL_RATIO: f32 = 0.35;
+
+/// How far inside the balloon's bounding box a rescued box must stay, as a
+/// share of each dimension.
+///
+/// The bounding box is circumscribed around a rounded shape, so its corners and
+/// edges lie outside the balloon itself — growing all the way to it puts text on
+/// the artwork. Holding back a share of each side keeps the box within the
+/// curve. A fixed pixel margin cannot do this: the overshoot scales with the
+/// balloon, not with a constant.
+const BALLOON_EDGE_INSET_RATIO: f32 = 0.12;
+
+/// Share of the box the laid-out text actually occupies.
+pub fn fill_ratio(layout: &LayoutRun<'_>, rect: LayoutBox) -> f32 {
+    let area = layout_box_area(rect);
+    if area <= 0.0 {
+        return 1.0;
+    }
+    ((layout.width * layout.height) / area).clamp(0.0, 1.0)
+}
+
+/// Grow `rect` toward `bounds`, keeping it centred on its own centre.
+///
+/// Used to rescue a block whose text came out unreadably small: the maximum
+/// inscribed rectangle is conservative by construction, and a balloon's rounded
+/// corners hold more text than any rectangle inside them. Letting the box reach
+/// most of the way to the balloon's edge trades a little overlap with the
+/// border for a legible size.
+pub fn grow_box_within(rect: LayoutBox, bounds: (f32, f32, f32, f32)) -> LayoutBox {
+    let (bx, by, bw, bh) = bounds;
+    let inset_x = bw * BALLOON_EDGE_INSET_RATIO;
+    let inset_y = bh * BALLOON_EDGE_INSET_RATIO;
+    let left = bx + inset_x;
+    let top = by + inset_y;
+    let right = bx + bw - inset_x;
+    let bottom = by + bh - inset_y;
+    if right <= left || bottom <= top {
+        return rect;
+    }
+
+    // Each side reaches the balloon's edge on its own. Growing symmetrically
+    // about the block centre sounds tidier, but a block sitting off-centre is
+    // then limited by its nearest edge and barely grows — which is exactly the
+    // case that needed rescuing. The text is centred inside the new box by the
+    // alignment step afterwards, so it does not end up hugging one side.
+    let new_left = left.min(rect.x);
+    let new_top = top.min(rect.y);
+    let new_right = right.max(rect.x + rect.width);
+    let new_bottom = bottom.max(rect.y + rect.height);
+
+    LayoutBox {
+        x: new_left,
+        y: new_top,
+        width: new_right - new_left,
+        height: new_bottom - new_top,
+    }
+}
+
+/// Dialogue size as a fraction of page height. Scanlation practice puts normal
+/// dialogue at 12-14px on a 1200px-tall page; 14/1200 keeps that proportion at
+/// any scan resolution, which a fixed pixel size would not.
+pub const DIALOGUE_FONT_HEIGHT_RATIO: f32 = 14.0 / 1200.0;
+
+/// Never aim below this: smaller than this is not worth reading.
+pub const DIALOGUE_MIN_FONT_SIZE: f32 = 11.0;
+
+/// How far past the nominal reading size dialogue may grow to fill its balloon.
+///
+/// The nominal size is a floor for legibility, not a target to stop at: a
+/// balloon drawn large is meant to be filled, and leaving it mostly empty reads
+/// as a mistake. The multiplier still stops a three-word line in a big balloon
+/// from turning into a title.
+pub const DIALOGUE_FILL_FACTOR: f32 = 2.2;
+
+/// A source text block whose glyphs are at least this many times the dialogue
+/// size was drawn large on purpose — a shout, a sound effect, a title. Those
+/// keep the original's scale instead of being normalised down to dialogue size.
+pub const BIG_SOURCE_TEXT_FACTOR: f32 = 1.8;
+
+/// Ceiling for text that inherits the original's scale, as a fraction of page
+/// height, so one huge detected block cannot produce absurd lettering.
+pub const BIG_TEXT_MAX_HEIGHT_RATIO: f32 = 90.0 / 1200.0;
+
+/// The size to typeset a block at before any shrink-to-fit.
+///
+/// `source_glyph_px` is the detected size of the original text. Dialogue is
+/// normalised to one size per page — mixed sizes across balloons read worse
+/// than a consistent one — while deliberately large source text keeps its
+/// impact.
+pub fn preferred_font_size(
+    page_height: f32,
+    source_glyph_px: Option<f32>,
+    in_balloon: bool,
+) -> f32 {
+    let dialogue = (page_height * DIALOGUE_FONT_HEIGHT_RATIO).max(DIALOGUE_MIN_FONT_SIZE);
+    let big_ceiling = (page_height * BIG_TEXT_MAX_HEIGHT_RATIO).max(dialogue);
+
+    match source_glyph_px {
+        // Outside a balloon the artwork is the limit, not a blank interior:
+        // there is nothing to grow into, and the original lettering was already
+        // sized to sit in that gap. Match it rather than picking a size of our
+        // own that would collide with the art.
+        Some(source) if !in_balloon => source.clamp(DIALOGUE_MIN_FONT_SIZE, big_ceiling),
+        Some(source) if source >= dialogue * BIG_SOURCE_TEXT_FACTOR => source.min(big_ceiling),
+        _ => (dialogue * DIALOGUE_FILL_FACTOR).min(big_ceiling),
+    }
+}
 
 /// Find the layout box of the speech balloon that contains the text block by
 /// scanning outward from the block centre in four directions until hitting a
@@ -1167,9 +1346,11 @@ mod tests {
     use image::{GrayImage, Luma};
 
     use super::{
-        LATIN_OVERFLOW_FACTOR, LayoutBox, TextBlock, expand_latin_layout_box_relaxed,
-        expand_latin_layout_box_strict, is_expanded_layout_box, latin_width_overflow_factor,
-        layout_box_area,
+        DIALOGUE_FILL_FACTOR, DIALOGUE_MIN_FONT_SIZE, LATIN_OVERFLOW_FACTOR, LayoutBox, TextBlock,
+        balloon_bounds_from_image, clip_box_to_nearest_owner, grow_box_within,
+        preferred_font_size,
+        expand_latin_layout_box_relaxed, expand_latin_layout_box_strict, is_expanded_layout_box,
+        latin_width_overflow_factor, layout_box_area,
     };
 
     fn synthetic_bubble_map() -> GrayImage {
@@ -1286,6 +1467,172 @@ mod tests {
         let strict = expand_latin_layout_box_strict(&block, &map);
         let relaxed = expand_latin_layout_box_relaxed(&block, &map);
         assert!(layout_box_area(relaxed) >= layout_box_area(strict));
+    }
+
+    /// A page with a mid-grey background and one white balloon.
+    fn page_with_balloon(size: u32, balloon: (u32, u32, u32, u32)) -> GrayImage {
+        let (bx, by, bw, bh) = balloon;
+        GrayImage::from_fn(size, size, |x, y| {
+            let inside = x >= bx && x < bx + bw && y >= by && y < by + bh;
+            Luma([if inside { 255u8 } else { 100u8 }])
+        })
+    }
+
+    #[test]
+    fn a_traced_box_is_cut_at_the_join_with_a_neighbour() {
+        // Traced across two merged balloons, 0..200 wide.
+        let traced = LayoutBox { x: 0.0, y: 0.0, width: 200.0, height: 80.0 };
+        let own = (40.0, 40.0);
+        let neighbour = [(160.0, 40.0)];
+
+        let clipped = clip_box_to_nearest_owner(traced, own, &neighbour);
+
+        assert_eq!(clipped.x, 0.0);
+        assert_eq!(clipped.width, 100.0, "should stop at the midpoint");
+        assert_eq!(clipped.height, 80.0, "the other axis is untouched");
+    }
+
+    #[test]
+    fn stacked_neighbours_cut_on_the_vertical_axis() {
+        let traced = LayoutBox { x: 0.0, y: 0.0, width: 80.0, height: 200.0 };
+        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(40.0, 160.0)]);
+        assert_eq!(clipped.height, 100.0);
+        assert_eq!(clipped.width, 80.0);
+    }
+
+    #[test]
+    fn near_coincident_blocks_are_not_treated_as_neighbouring_balloons() {
+        let traced = LayoutBox { x: 0.0, y: 0.0, width: 200.0, height: 80.0 };
+        // Centres 2px apart are one region the detector split, not two balloons.
+        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(42.0, 40.0)]);
+        assert_eq!(clipped.width, traced.width, "the box must stay whole");
+    }
+
+    #[test]
+    fn a_cut_that_would_leave_nothing_is_refused() {
+        // Far enough apart to count as neighbours, but the traced box barely
+        // reaches past our own centre, so the cut would leave a sliver.
+        let traced = LayoutBox { x: 38.0, y: 0.0, width: 6.0, height: 80.0 };
+        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(140.0, 40.0)]);
+        assert_eq!(clipped.width, traced.width);
+    }
+
+    #[test]
+    fn grow_box_reaches_toward_the_balloon_edge() {
+        // A conservative inscribed box inside a much larger balloon.
+        let rect = LayoutBox { x: 90.0, y: 90.0, width: 20.0, height: 20.0 };
+        let grown = grow_box_within(rect, (0.0, 0.0, 200.0, 200.0));
+
+        assert!(grown.width > rect.width * 3.0, "{grown:?}");
+        assert!(grown.height > rect.height * 3.0, "{grown:?}");
+        // Held back from the bounding box, so it stays inside a rounded shape.
+        assert!(grown.x >= 20.0 && grown.y >= 20.0, "{grown:?}");
+        assert!(grown.x + grown.width <= 180.0, "{grown:?}");
+        assert!(grown.y + grown.height <= 180.0, "{grown:?}");
+    }
+
+    #[test]
+    fn grow_box_rescues_a_block_sitting_off_centre() {
+        // The case that matters: a small box near one edge of a big balloon.
+        // Growing symmetrically about its own centre would stop at the near
+        // edge and gain almost nothing.
+        let rect = LayoutBox { x: 20.0, y: 90.0, width: 20.0, height: 20.0 };
+        let grown = grow_box_within(rect, (0.0, 0.0, 200.0, 200.0));
+        assert!(grown.width > 130.0, "expected most of the balloon, got {grown:?}");
+        assert!(grown.x <= rect.x, "must not cut into the block: {grown:?}");
+        assert!(
+            grown.x + grown.width >= rect.x + rect.width,
+            "must not cut into the block: {grown:?}"
+        );
+    }
+
+    #[test]
+    fn grow_box_never_shrinks() {
+        let rect = LayoutBox { x: 10.0, y: 10.0, width: 80.0, height: 80.0 };
+        // Bounds smaller than the box: nothing to grow into.
+        let grown = grow_box_within(rect, (40.0, 40.0, 20.0, 20.0));
+        assert!(grown.width >= rect.width && grown.height >= rect.height, "{grown:?}");
+    }
+
+    #[test]
+    fn dialogue_may_fill_its_balloon_but_not_become_a_title() {
+        // 14px on a 1200px page is the scanlation norm; dialogue may grow past
+        // it to fill a balloon, up to the fill factor.
+        let ceiling = preferred_font_size(1200.0, None, true);
+        assert!((ceiling - 14.0 * DIALOGUE_FILL_FACTOR).abs() < 0.01, "got {ceiling}");
+        // Well above the nominal reading size, well below title lettering.
+        assert!(ceiling > 25.0 && ceiling < 40.0, "got {ceiling}");
+        // The proportion holds at other scan resolutions.
+        assert!(
+            (preferred_font_size(2400.0, None, true) - 28.0 * DIALOGUE_FILL_FACTOR).abs() < 0.01
+        );
+    }
+
+    #[test]
+    fn large_source_text_keeps_its_own_scale() {
+        // A shout or sound effect drawn at 60px must not be normalised down to
+        // dialogue size — its size is part of the art.
+        assert!((preferred_font_size(1200.0, Some(60.0), true) - 60.0).abs() < 0.01);
+        // But a wildly oversized detection is capped rather than trusted.
+        assert!(preferred_font_size(1200.0, Some(400.0), true) <= 90.0);
+    }
+
+    #[test]
+    fn text_outside_a_balloon_keeps_the_original_lettering_size() {
+        // Sitting on artwork: no blank interior to fill, so match the raw text
+        // instead of growing to the dialogue fill size.
+        let outside = preferred_font_size(1200.0, Some(18.0), false);
+        assert!((outside - 18.0).abs() < 0.01, "got {outside}");
+        // The same block inside a balloon may grow to fill it.
+        assert!(preferred_font_size(1200.0, Some(18.0), true) > outside);
+        // Still clamped at both ends.
+        assert!(preferred_font_size(1200.0, Some(2.0), false) >= DIALOGUE_MIN_FONT_SIZE);
+        assert!(preferred_font_size(1200.0, Some(500.0), false) <= 90.0);
+    }
+
+    #[test]
+    fn tiny_pages_still_get_a_legible_size() {
+        assert!(preferred_font_size(300.0, None, true) >= DIALOGUE_MIN_FONT_SIZE);
+    }
+
+    #[test]
+    fn balloon_bounds_grow_a_small_block_to_the_balloon() {
+        // The detector only boxes the source glyphs, so a translated line would
+        // be squeezed into this 10x10 patch and shrink to an unreadable size.
+        let image = page_with_balloon(200, (20, 20, 160, 160));
+        let block = TextBlock {
+            x: 95.0,
+            y: 95.0,
+            width: 10.0,
+            height: 10.0,
+            ..Default::default()
+        };
+
+        let bounds = balloon_bounds_from_image(&block, &image).expect("balloon should be traced");
+
+        assert!(
+            bounds.width > 100.0 && bounds.height > 100.0,
+            "expected the balloon, got {bounds:?}"
+        );
+        // Padding must keep the text clear of the balloon border.
+        assert!(bounds.x >= 20.0, "{bounds:?}");
+        assert!(bounds.y >= 20.0, "{bounds:?}");
+        assert!(bounds.x + bounds.width <= 180.0, "{bounds:?}");
+        assert!(bounds.y + bounds.height <= 180.0, "{bounds:?}");
+    }
+
+    #[test]
+    fn balloon_bounds_give_up_on_a_dark_centre() {
+        // Centre sits on artwork, not inside a balloon — nothing to expand into.
+        let image = page_with_balloon(200, (20, 20, 40, 40));
+        let block = TextBlock {
+            x: 140.0,
+            y: 140.0,
+            width: 10.0,
+            height: 10.0,
+            ..Default::default()
+        };
+        assert!(balloon_bounds_from_image(&block, &image).is_none());
     }
 
     #[test]

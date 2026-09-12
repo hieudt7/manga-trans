@@ -32,6 +32,8 @@ fn sample_document() -> Document {
         width: 16,
         height: 12,
         revision: 0,
+        balloons: Vec::new(),
+        resolution_dpi: 72,
         text_blocks: vec![
             TextBlock {
                 id: "block-h".to_string(),

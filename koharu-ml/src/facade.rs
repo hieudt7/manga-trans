@@ -275,6 +275,7 @@ impl Model {
         // Refit each text block to the Maximum Inscribed Rectangle of its balloon mask.
         refit_text_blocks_to_balloons(&mut doc.text_blocks, &detections);
 
+
         tracing::info!(
             count = doc.balloons.len(),
             elapsed_ms = started.elapsed().as_millis(),
@@ -734,47 +735,71 @@ fn refit_text_blocks_to_balloons(
             continue;
         }
 
-        // Adjacent/merged balloons: if multiple text blocks share this balloon, skip refitting
-        // and keep their original detected positions.
-        if inside_indices.len() > 1 {
-            tracing::debug!(
-                balloon = bi, inside_count = inside_indices.len(),
-                "multiple text blocks in balloon — skipping refit"
+        // Balloons drawn touching each other come back as one detection holding
+        // several text blocks. Skipping them (the old behaviour) left every
+        // block at its small detected size; laying one out across the whole
+        // merged shape puts its text over the neighbour. Instead each block
+        // claims the part of the shape nearest to it — the split falls on the
+        // join between the balloons — and is fitted inside its own share.
+        let owners: Vec<(usize, (f32, f32))> = inside_indices
+            .iter()
+            .map(|&i| (i, orig_centers[i]))
+            .collect();
+        let shared = owners.len() > 1;
+
+        for &ti in &inside_indices {
+            let mir = match &balloon.mask {
+                Some(mask) => {
+                    let r = if shared {
+                        mir_from_mask_owned(
+                            mask,
+                            balloon.x,
+                            balloon.y,
+                            balloon.width,
+                            balloon.height,
+                            |px, py| nearest_owner(px, py, &owners) == ti,
+                        )
+                    } else {
+                        mir_from_mask(mask, balloon.x, balloon.y, balloon.width, balloon.height)
+                    };
+                    if r[2] > 2.0 && r[3] > 2.0 {
+                        r
+                    } else if shared {
+                        // A share too small to fit anything: leave the block as
+                        // detected rather than forcing it into a sliver.
+                        tracing::debug!(balloon = bi, block = ti, "share too small, keeping detection");
+                        continue;
+                    } else {
+                        bbox_inset(balloon)
+                    }
+                }
+                None if shared => continue,
+                None => bbox_inset(balloon),
+            };
+
+            tracing::info!(
+                balloon = bi, block = ti, shared,
+                mir_x = mir[0], mir_y = mir[1], mir_w = mir[2], mir_h = mir[3],
+                "refit"
             );
-            continue;
+
+            let block = &mut text_blocks[ti];
+            let pad = MIR_TEXT_PADDING;
+            block.x = mir[0] + pad;
+            block.y = mir[1] + pad;
+            block.width = (mir[2] - 2.0 * pad).max(1.0);
+            block.height = (mir[3] - 2.0 * pad).max(1.0);
+            // Clear seed layout so the renderer uses the new refit coordinates.
+            block.layout_seed_x = None;
+            block.layout_seed_y = None;
+            block.layout_seed_width = None;
+            block.layout_seed_height = None;
+            // Prevent the renderer from re-scanning the image for balloon bounds
+            // or auto-expanding the layout box — the MIR coordinates are authoritative.
+            block.lock_layout_box = true;
+            block.balloon_fitted = true;
+            refit_count += 1;
         }
-
-        let ti = inside_indices[0];
-        let mir = match &balloon.mask {
-            Some(mask) => {
-                let r = mir_from_mask(mask, balloon.x, balloon.y, balloon.width, balloon.height);
-                if r[2] > 2.0 && r[3] > 2.0 { r } else { bbox_inset(balloon) }
-            }
-            None => bbox_inset(balloon),
-        };
-
-        tracing::info!(
-            balloon = bi, block = ti,
-            mir_x = mir[0], mir_y = mir[1], mir_w = mir[2], mir_h = mir[3],
-            "refit"
-        );
-
-        let block = &mut text_blocks[ti];
-        let pad = MIR_TEXT_PADDING;
-        block.x = mir[0] + pad;
-        block.y = mir[1] + pad;
-        block.width = (mir[2] - 2.0 * pad).max(1.0);
-        block.height = (mir[3] - 2.0 * pad).max(1.0);
-        // Clear seed layout so the renderer uses the new refit coordinates,
-        // not the stale pre-balloon values.
-        block.layout_seed_x = None;
-        block.layout_seed_y = None;
-        block.layout_seed_width = None;
-        block.layout_seed_height = None;
-        // Prevent the renderer from re-scanning the image for balloon bounds
-        // or auto-expanding the layout box — the MIR coordinates are authoritative.
-        block.lock_layout_box = true;
-        refit_count += 1;
     }
 
     tracing::info!(refit = refit_count, total = text_blocks.len(), "text blocks refit to balloon MIR");
@@ -786,6 +811,23 @@ fn refit_text_blocks_to_balloons(
 /// All returned coordinates are in full-image space.
 /// Falls back to zeros if no usable region found (caller uses bbox_inset).
 fn mir_from_mask(mask: &image::GrayImage, bx: f32, by: f32, bw: f32, bh: f32) -> [f32; 4] {
+    mir_from_mask_owned(mask, bx, by, bw, bh, |_, _| true)
+}
+
+/// Like [`mir_from_mask`], but only mask pixels accepted by `owns` (given in
+/// full-image coordinates) count as usable area.
+///
+/// This is what lets two balloons drawn touching each other end up with one box
+/// apiece: each block claims the part of the shared white region nearest to it,
+/// and takes the largest rectangle inside its own share.
+fn mir_from_mask_owned(
+    mask: &image::GrayImage,
+    bx: f32,
+    by: f32,
+    bw: f32,
+    bh: f32,
+    owns: impl Fn(u32, u32) -> bool,
+) -> [f32; 4] {
     let (img_w, img_h) = mask.dimensions();
 
     // 1. Crop mask to balloon bounding box.
@@ -798,7 +840,14 @@ fn mir_from_mask(mask: &image::GrayImage, bx: f32, by: f32, bw: f32, bh: f32) ->
     }
     let cw = cx1 - cx0;
     let ch = cy1 - cy0;
-    let cropped = image::imageops::crop_imm(mask, cx0, cy0, cw, ch).to_image();
+    let mut cropped = image::imageops::crop_imm(mask, cx0, cy0, cw, ch).to_image();
+    for y in 0..ch {
+        for x in 0..cw {
+            if !owns(cx0 + x, cy0 + y) {
+                cropped.put_pixel(x, y, image::Luma([0]));
+            }
+        }
+    }
 
     // 2. Erode for safe margin — removes thin tails/protrusions.
     let safe = bubble_det::erode_binary(&cropped, MIR_EROSION_RADIUS);
@@ -859,6 +908,22 @@ fn mir_from_mask(mask: &image::GrayImage, bx: f32, by: f32, bw: f32, bh: f32) ->
     [cx0 as f32 + ltx, cy0 as f32 + lty, tw, th]
 }
 
+/// The block whose centre is closest to a pixel. The boundary between two
+/// owners is their perpendicular bisector, which for two balloons drawn
+/// touching runs along the join between them.
+fn nearest_owner(px: u32, py: u32, owners: &[(usize, (f32, f32))]) -> usize {
+    let (x, y) = (px as f32, py as f32);
+    owners
+        .iter()
+        .min_by(|(_, a), (_, b)| {
+            let da = (a.0 - x).powi(2) + (a.1 - y).powi(2);
+            let db = (b.0 - x).powi(2) + (b.1 - y).powi(2);
+            da.total_cmp(&db)
+        })
+        .map(|(index, _)| *index)
+        .unwrap_or(usize::MAX)
+}
+
 /// Fallback: balloon bounding box with a small inset on each side.
 fn bbox_inset(balloon: &bubble_det::BubbleBox) -> [f32; 4] {
     let ix = balloon.width * MIR_BBOX_INSET;
@@ -873,6 +938,272 @@ fn bbox_inset(balloon: &bubble_det::BubbleBox) -> [f32; 4] {
 
 #[cfg(test)]
 mod tests {
+    use super::{
+        TextBlock, bubble_det, mir_from_mask, mir_from_mask_owned, nearest_owner,
+        refit_text_blocks_to_balloons,
+    };
+
+    /// Report whether sample points fall inside a detected balloon mask.
+    ///
+    /// `KOHARU_TEST_PAGE=page.jpg KOHARU_TEST_POINTS="x,y;x,y" cargo test --release
+    /// -p koharu-ml --lib probe_balloon_coverage -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn probe_balloon_coverage() -> anyhow::Result<()> {
+        let Some(page) = std::env::var_os("KOHARU_TEST_PAGE") else {
+            anyhow::bail!("set KOHARU_TEST_PAGE");
+        };
+        let points: Vec<(u32, u32)> = std::env::var("KOHARU_TEST_POINTS")
+            .unwrap_or_default()
+            .split(';')
+            .filter_map(|pair| {
+                let (x, y) = pair.trim().split_once(',')?;
+                Some((x.trim().parse().ok()?, y.trim().parse().ok()?))
+            })
+            .collect();
+
+        let image = image::open(std::path::PathBuf::from(&page))?;
+        let runtime = tokio::runtime::Runtime::new()?;
+        let detector = runtime.block_on(super::ComicBubbleDetector::load())?;
+        let balloons = detector.detect(&image)?;
+        let gray = image.to_luma8();
+
+        for (x, y) in points {
+            let owner = balloons.iter().position(|b| {
+                b.mask
+                    .as_ref()
+                    .is_some_and(|m| m.get_pixel(x, y)[0] >= 128)
+            });
+            let in_bbox = balloons.iter().position(|b| {
+                x as f32 >= b.x
+                    && x as f32 <= b.x + b.width
+                    && y as f32 >= b.y
+                    && y as f32 <= b.y + b.height
+            });
+            println!(
+                "({x},{y}) luma={:>3}  mask: {:?}  bbox: {:?}",
+                gray.get_pixel(x, y)[0],
+                owner,
+                in_bbox
+            );
+        }
+        Ok(())
+    }
+
+    /// Dump the segmentation mask the pipeline actually uses, for comparison
+    /// against alternatives.
+    ///
+    /// `KOHARU_TEST_PAGE=page.jpg KOHARU_TEST_OUT=mask.png cargo test --release
+    /// -p koharu-ml --lib dump_pipeline_segmentation_mask -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn dump_pipeline_segmentation_mask() -> anyhow::Result<()> {
+        let Some(page) = std::env::var_os("KOHARU_TEST_PAGE") else {
+            anyhow::bail!("set KOHARU_TEST_PAGE");
+        };
+        let out = std::env::var_os("KOHARU_TEST_OUT")
+            .ok_or_else(|| anyhow::anyhow!("set KOHARU_TEST_OUT"))?;
+
+        let image = image::open(std::path::PathBuf::from(&page))?;
+        let runtime = tokio::runtime::Runtime::new()?;
+
+        let layout_detector = runtime.block_on(super::PPDocLayoutV3::load(false))?;
+        let layout = layout_detector.inference_one_fast(&image, super::PP_DOCLAYOUT_THRESHOLD)?;
+        let blocks = super::build_text_blocks(&layout.regions);
+
+        let segmenter =
+            runtime.block_on(super::ComicTextDetector::load_segmentation_only(false))?;
+        let probability_map = segmenter.inference_segmentation(&image)?;
+        let mask = super::comic_text_detector::refine_segmentation_mask(
+            &image,
+            &probability_map,
+            &blocks,
+        );
+        let covered = mask.pixels().filter(|p| p[0] >= 128).count();
+        println!(
+            "mask {}x{} — {:.2}% of the page marked as text",
+            mask.width(),
+            mask.height(),
+            100.0 * covered as f64 / (mask.width() * mask.height()) as f64
+        );
+        mask.save(std::path::PathBuf::from(out))?;
+        Ok(())
+    }
+
+    /// Diagnostic: report, for a real page, which text blocks a balloon was
+    /// found for and how much the refit grew them.
+    ///
+    /// Run with: `KOHARU_TEST_PAGE=test/page.JPG cargo test -p koharu-ml --lib
+    /// diagnose_balloon_fit -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn diagnose_balloon_fit_on_a_real_page() -> anyhow::Result<()> {
+        let Some(page) = std::env::var_os("KOHARU_TEST_PAGE") else {
+            anyhow::bail!("set KOHARU_TEST_PAGE");
+        };
+        let image = image::open(std::path::PathBuf::from(&page))?;
+        let runtime = tokio::runtime::Runtime::new()?;
+
+        let layout_detector = runtime.block_on(super::PPDocLayoutV3::load(true))?;
+        let layout = layout_detector.inference_one_fast(&image, super::PP_DOCLAYOUT_THRESHOLD)?;
+        let mut blocks = super::build_text_blocks(&layout.regions);
+        let before: Vec<(f32, f32, f32, f32)> =
+            blocks.iter().map(|b| (b.x, b.y, b.width, b.height)).collect();
+
+        let detector = runtime.block_on(super::ComicBubbleDetector::load())?;
+        let balloons = detector.detect(&image)?;
+        println!(
+            "page {}x{} — {} text blocks, {} balloons",
+            image.width(),
+            image.height(),
+            blocks.len(),
+            balloons.len()
+        );
+
+        println!("\n{:>3} {:>24} {:>24} {:>8} {:>6}", "b", "balloon bbox", "mir", "mir/bbox", "mask");
+        for (i, balloon) in balloons.iter().enumerate() {
+            let mir = match &balloon.mask {
+                Some(mask) => super::mir_from_mask(
+                    mask, balloon.x, balloon.y, balloon.width, balloon.height,
+                ),
+                None => [0.0; 4],
+            };
+            let ratio = (mir[2] * mir[3]) / (balloon.width * balloon.height).max(1.0);
+            println!(
+                "{i:>3} {:>24} {:>24} {ratio:>7.2} {:>6}",
+                format!("{:.0},{:.0} {:.0}x{:.0}", balloon.x, balloon.y, balloon.width, balloon.height),
+                format!("{:.0},{:.0} {:.0}x{:.0}", mir[0], mir[1], mir[2], mir[3]),
+                balloon.mask.is_some()
+            );
+        }
+
+        super::refit_text_blocks_to_balloons(&mut blocks, &balloons);
+
+        println!(
+            "{:>3} {:>22} {:>22} {:>7} {:>6} {:>10} {:>9}",
+            "idx", "detected", "after refit", "grew", "lock", "in_balloon", "src_glyph"
+        );
+        for (i, block) in blocks.iter().enumerate() {
+            let (ox, oy, ow, oh) = before[i];
+            let grew = (block.width * block.height) / (ow * oh).max(1.0);
+            // The size proxy the renderer uses, measured on the *detected* box
+            // (before refit) — that is the one that reflects the raw lettering.
+            let src_glyph = ow.min(oh);
+            let cx = ox + ow / 2.0;
+            let cy = oy + oh / 2.0;
+            let in_balloon = balloons.iter().any(|b| {
+                cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height
+            });
+            println!(
+                "{i:>3} {:>22} {:>22} {grew:>6.1}x {:>6} {in_balloon:>10} {src_glyph:>9.0}",
+                format!("{ox:.0},{oy:.0} {ow:.0}x{oh:.0}"),
+                format!("{:.0},{:.0} {:.0}x{:.0}", block.x, block.y, block.width, block.height),
+                block.lock_layout_box
+            );
+        }
+
+        let refit = blocks.iter().filter(|b| b.lock_layout_box).count();
+        println!("\nrefit {refit}/{} blocks", blocks.len());
+
+        // Draw what the layout engine will be given, so the fit can be judged
+        // by eye instead of by numbers.
+        if let Some(out) = std::env::var_os("KOHARU_TEST_OUT") {
+            let mut canvas = image.to_rgb8();
+            let mut outline = |x: f32, y: f32, w: f32, h: f32, colour: [u8; 3]| {
+                let (x0, y0) = (x.max(0.0) as u32, y.max(0.0) as u32);
+                let x1 = ((x + w) as u32).min(canvas.width().saturating_sub(1));
+                let y1 = ((y + h) as u32).min(canvas.height().saturating_sub(1));
+                for px in x0..=x1.max(x0) {
+                    for py in [y0, y1] {
+                        if px < canvas.width() && py < canvas.height() {
+                            canvas.put_pixel(px, py, image::Rgb(colour));
+                        }
+                    }
+                }
+                for py in y0..=y1.max(y0) {
+                    for px in [x0, x1] {
+                        if px < canvas.width() && py < canvas.height() {
+                            canvas.put_pixel(px, py, image::Rgb(colour));
+                        }
+                    }
+                }
+            };
+            for balloon in &balloons {
+                outline(balloon.x, balloon.y, balloon.width, balloon.height, [0, 160, 255]);
+            }
+            for block in &blocks {
+                let colour = if block.lock_layout_box { [255, 0, 0] } else { [255, 160, 0] };
+                outline(block.x, block.y, block.width, block.height, colour);
+            }
+            canvas.save(std::path::PathBuf::from(out))?;
+        }
+        Ok(())
+    }
+
+    /// Two circles drawn overlapping — one white region, as merged balloons appear.
+    fn merged_balloon_mask(width: u32, height: u32, centres: &[(f32, f32)], radius: f32) -> image::GrayImage {
+        image::GrayImage::from_fn(width, height, |x, y| {
+            let inside = centres.iter().any(|(cx, cy)| {
+                ((x as f32 - cx).powi(2) + (y as f32 - cy).powi(2)).sqrt() <= radius
+            });
+            image::Luma([if inside { 255u8 } else { 0u8 }])
+        })
+    }
+
+    fn block_at(cx: f32, cy: f32) -> TextBlock {
+        TextBlock { x: cx - 5.0, y: cy - 5.0, width: 10.0, height: 10.0, ..Default::default() }
+    }
+
+    #[test]
+    fn nearest_owner_splits_on_the_bisector() {
+        let owners = vec![(0usize, (40.0, 50.0)), (1usize, (160.0, 50.0))];
+        assert_eq!(nearest_owner(50, 50, &owners), 0);
+        assert_eq!(nearest_owner(150, 50, &owners), 1);
+        // The join sits midway between the two centres.
+        assert_eq!(nearest_owner(99, 50, &owners), 0);
+        assert_eq!(nearest_owner(101, 50, &owners), 1);
+    }
+
+    #[test]
+    fn merged_balloons_get_one_box_each_that_do_not_overlap() {
+        let centres = [(70.0f32, 80.0f32), (170.0, 80.0)];
+        let mask = merged_balloon_mask(240, 160, &centres, 60.0);
+        let balloon = bubble_det::BubbleBox {
+            x: 10.0, y: 20.0, width: 220.0, height: 120.0, score: 0.9,
+            mask: Some(mask),
+        };
+
+        let mut blocks = vec![block_at(centres[0].0, centres[0].1), block_at(centres[1].0, centres[1].1)];
+        refit_text_blocks_to_balloons(&mut blocks, std::slice::from_ref(&balloon));
+
+        // Both grew well past the 10x10 they were detected at.
+        for block in &blocks {
+            assert!(block.width > 20.0 && block.height > 20.0, "{block:?}");
+            assert!(block.lock_layout_box, "refit boxes are authoritative");
+            assert!(block.balloon_fitted, "and are marked as balloon-derived");
+        }
+        // And neither reaches across the join into the other balloon.
+        let left_right = blocks[0].x + blocks[0].width;
+        assert!(left_right <= blocks[1].x, "boxes overlap: {left_right} > {}", blocks[1].x);
+    }
+
+    #[test]
+    fn a_partitioned_mask_yields_a_smaller_rectangle_than_the_whole() {
+        let centres = [(70.0f32, 80.0f32), (170.0, 80.0)];
+        let mask = merged_balloon_mask(240, 160, &centres, 60.0);
+        let owners = vec![(0usize, centres[0]), (1usize, centres[1])];
+
+        let whole = mir_from_mask(&mask, 10.0, 20.0, 220.0, 120.0);
+        let half = mir_from_mask_owned(&mask, 10.0, 20.0, 220.0, 120.0, |x, y| {
+            nearest_owner(x, y, &owners) == 0
+        });
+
+        assert!(half[2] > 2.0 && half[3] > 2.0, "half should still be usable: {half:?}");
+        assert!(half[2] < whole[2], "half {:?} should be narrower than whole {:?}", half, whole);
+        // The left share must stay left of the join.
+        assert!(half[0] + half[2] <= 121.0, "{half:?}");
+    }
+
     use super::*;
 
     fn test_region(order: usize, label: &str, bbox: [f32; 4]) -> LayoutRegion {

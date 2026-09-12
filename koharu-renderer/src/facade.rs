@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
-use image::{DynamicImage, imageops};
+use image::{DynamicImage, GrayImage, imageops};
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
 use koharu_types::{
@@ -14,7 +14,14 @@ use crate::{
     layout::{LayoutRun, TextLayout, WritingMode},
     renderer::{RenderOptions, RenderStrokeOptions, TinySkiaRenderer},
     text::{
-        latin::layout_box_from_block,
+        latin::{
+            LayoutBox, MIN_FILL_RATIO, balloon_bounds_from_image, clip_box_to_nearest_owner,
+            fill_ratio, grow_box_within,
+            expand_latin_layout_box_relaxed, expand_latin_layout_box_strict,
+            is_expanded_layout_box, latin_layout_underfilled, latin_width_overflow_factor,
+            layout_box_area, layout_box_from_block, pick_better_latin_candidate,
+            preferred_font_size,
+        },
         script::{
             font_families_for_text, is_latin_only, normalize_translation_for_layout,
             writing_mode_for_block,
@@ -69,6 +76,34 @@ impl Renderer {
         stroke: Option<TextStrokeStyle>,
         font_family: Option<&str>,
     ) -> Result<()> {
+        // Greyscale page used to find how much clear space a balloon actually
+        // offers. The inpainted page is preferred: the source text is gone from
+        // it, so the balloon interior reads as one blank region.
+        let bubble_map = if let Some(inpainted) = &document.inpainted {
+            inpainted.to_luma8()
+        } else {
+            document.image.to_luma8()
+        };
+
+        let page_height = bubble_map.height() as f32;
+        // Centres of *every* block on the page, taken before the mutable borrow
+        // below. Re-rendering a single block must still know where its
+        // neighbours are, or a block sharing a merged balloon would trace
+        // across the join again. A block's own centre is harmless in this list:
+        // the clip ignores centres closer than one balloon apart.
+        let block_centres: Vec<(f32, f32)> = document
+            .text_blocks
+            .iter()
+            .map(|block| (block.x + block.width / 2.0, block.y + block.height / 2.0))
+            .collect();
+        // Detected balloons, so a block can tell whether it sits in a blank
+        // interior it may fill or on artwork it must not overrun.
+        let balloons: Vec<(f32, f32, f32, f32)> = document
+            .balloons
+            .iter()
+            .map(|b| (b.x, b.y, b.width, b.height))
+            .collect();
+
         let mut text_blocks = match text_block_index {
             Some(index) => document
                 .text_blocks
@@ -79,7 +114,16 @@ impl Renderer {
         };
 
         text_blocks.par_iter_mut().for_each(|text_block| {
-            let _ = self.render_text_block(text_block, effect, stroke.clone(), font_family);
+            let _ = self.render_text_block(
+                text_block,
+                effect,
+                stroke.clone(),
+                font_family,
+                Some(&bubble_map),
+                page_height,
+                &block_centres,
+                &balloons,
+            );
         });
 
         if let Some(inpainted) = &document.inpainted
@@ -114,6 +158,10 @@ impl Renderer {
         effect: TextShaderEffect,
         global_stroke: Option<TextStrokeStyle>,
         font_family: Option<&str>,
+        bubble_map: Option<&GrayImage>,
+        page_height: f32,
+        sibling_centres: &[(f32, f32)],
+        balloons: &[(f32, f32, f32, f32)],
     ) -> Result<()> {
         let Some(translation) = text_block.translation.as_ref().cloned() else {
             return Ok(());
@@ -160,14 +208,141 @@ impl Renderer {
         } else {
             TextAlign::Left
         });
-        let layout_box = layout_box_from_block(&layout_source_block);
 
-        let mut layout = TextLayout::new(&font, None)
-            .with_fallback_fonts(&self.symbol_fallbacks)
-            .with_max_height(layout_box.height)
-            .with_max_width(layout_box.width)
-            .with_writing_mode(writing_mode)
-            .run(&normalized_translation)?;
+        let centre = (
+            text_block.x + text_block.width / 2.0,
+            text_block.y + text_block.height / 2.0,
+        );
+        // Inside a balloon there is blank interior to fill; on artwork there is
+        // not, and the original lettering size is the one that fits the gap.
+        let containing_balloon = balloons.iter().copied().find(|(bx, by, bw, bh)| {
+            centre.0 >= *bx && centre.0 <= bx + bw && centre.1 >= *by && centre.1 <= by + bh
+        });
+        let in_balloon = containing_balloon.is_some();
+
+        let english_layout =
+            english_layout_behavior(text_block, &normalized_translation, writing_mode);
+        let english_horizontal_layout = english_layout != EnglishLayoutBehavior::Disabled;
+        let auto_expand_english_layout = english_layout == EnglishLayoutBehavior::AutoExpand;
+        let original_layout_box = layout_box_from_block(&layout_source_block);
+
+        // The detected box only covers the source text. A Vietnamese line needs
+        // far more room than the Japanese it replaces, so fitting it into that
+        // box alone drives the font down to an unreadable size while the
+        // balloon around it sits empty. Find the balloon instead, and fall back
+        // to growing into adjacent clear space when it cannot be traced.
+        let balloon_box = if auto_expand_english_layout {
+            bubble_map
+                .and_then(|map| balloon_bounds_from_image(text_block, map))
+                .map(|traced| clip_box_to_nearest_owner(traced, centre, sibling_centres))
+        } else {
+            None
+        };
+        let use_balloon = balloon_box.is_some();
+        let mut layout_box = balloon_box.unwrap_or_else(|| {
+            if auto_expand_english_layout {
+                bubble_map
+                    .map(|map| expand_latin_layout_box_strict(&layout_source_block, map))
+                    .unwrap_or(original_layout_box)
+            } else {
+                original_layout_box
+            }
+        });
+
+        // Typeset at the page's normal size and shrink only on overflow, rather
+        // than fitting each balloon to its own maximum. Text the artist drew
+        // large keeps that scale.
+        let target_font_size = preferred_font_size(
+            page_height,
+            text_block.detected_font_size_px,
+            in_balloon,
+        );
+
+        let build_layout = |box_for_layout: LayoutBox, allow_expanded_overflow: bool| {
+            let max_width = if use_balloon
+                || english_layout == EnglishLayoutBehavior::LockedToManualSize
+            {
+                // Traced balloon bounds, and boxes already fitted to a balloon
+                // upstream, are the real limit — use them exactly.
+                box_for_layout.width
+            } else {
+                let expanded_box = is_expanded_layout_box(box_for_layout, original_layout_box);
+                let overflow = if english_horizontal_layout {
+                    latin_width_overflow_factor(expanded_box, allow_expanded_overflow)
+                } else {
+                    1.0
+                };
+                if box_for_layout.width.is_finite() && box_for_layout.width > 0.0 {
+                    box_for_layout.width * overflow
+                } else {
+                    box_for_layout.width
+                }
+            };
+
+            TextLayout::new(&font, None)
+                .with_fallback_fonts(&self.symbol_fallbacks)
+                .with_preferred_font_size(target_font_size)
+                .with_max_height(box_for_layout.height)
+                .with_max_width(max_width)
+                .with_writing_mode(writing_mode)
+                .run(&normalized_translation)
+        };
+
+        let mut layout = build_layout(layout_box, false)?;
+
+        // A box fitted to a balloon upstream is deliberately conservative — the
+        // largest rectangle inside a rounded shape leaves the corners unused,
+        // and an unbreakable word can still force the font down inside it. When
+        // the result ends up lost in its balloon, reach out toward the balloon's
+        // own edge and try again; keep the attempt only if it actually reads
+        // larger.
+        if text_block.balloon_fitted
+            && english_horizontal_layout
+            && fill_ratio(&layout, layout_box) < MIN_FILL_RATIO
+            && let Some(balloon) = containing_balloon
+        {
+            let grown = grow_box_within(layout_box, balloon);
+            if layout_box_area(grown) > layout_box_area(layout_box) * 1.06
+                && let Ok(candidate) = build_layout(grown, true)
+                && candidate.font_size > layout.font_size + 0.25
+            {
+                tracing::debug!(
+                    from = layout.font_size,
+                    to = candidate.font_size,
+                    "grew a balloon-fitted box to rescue small text"
+                );
+                layout = candidate;
+                layout_box = grown;
+            }
+        }
+
+        if auto_expand_english_layout {
+            if !use_balloon {
+                // No balloon traced: rescue a layout that came out too small.
+                if latin_layout_underfilled(&layout, layout_box.height) {
+                    let relaxed_box = bubble_map
+                        .map(|map| expand_latin_layout_box_relaxed(&layout_source_block, map))
+                        .unwrap_or(layout_box);
+                    let relaxed_candidate =
+                        if layout_box_area(relaxed_box) > layout_box_area(layout_box) * 1.06 {
+                            build_layout(relaxed_box, true)
+                                .ok()
+                                .map(|layout| (layout, relaxed_box))
+                        } else {
+                            None
+                        };
+                    let overflow_candidate = build_layout(layout_box, true)
+                        .ok()
+                        .map(|layout| (layout, layout_box));
+                    if let Some((candidate_layout, candidate_box)) =
+                        pick_better_latin_candidate(&layout, relaxed_candidate, overflow_candidate)
+                    {
+                        layout = candidate_layout;
+                        layout_box = candidate_box;
+                    }
+                }
+            }
+        }
 
         if is_horizontal_latin {
             center_layout_vertically(&mut layout, layout_box.height);
@@ -210,6 +385,10 @@ impl Renderer {
             text_align: None,
         });
         persisted_style.font_families = vec![font.post_script_name().to_string()];
+        // The size the text was actually laid out at. PSD/TIFF export reads
+        // this; without it those layers fall back to a guess from font
+        // detection rather than what was rendered.
+        persisted_style.font_size = Some(layout.font_size);
         Ok(())
     }
 
@@ -227,6 +406,34 @@ impl Renderer {
                 anyhow::anyhow!("no font found for candidates: {:?}", style.font_families)
             })?;
         fontbook.query(&post_script_name)
+    }
+}
+
+/// Whether a block's layout box may be grown to fit the translation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum EnglishLayoutBehavior {
+    /// Vertical or CJK output — the detected box is authoritative.
+    Disabled,
+    /// The user dragged this block to a size of their own; respect it.
+    LockedToManualSize,
+    AutoExpand,
+}
+
+fn english_layout_behavior(
+    text_block: &TextBlock,
+    normalized_translation: &str,
+    writing_mode: WritingMode,
+) -> EnglishLayoutBehavior {
+    let is_english_horizontal =
+        writing_mode == WritingMode::Horizontal && is_latin_only(normalized_translation);
+    if !is_english_horizontal {
+        return EnglishLayoutBehavior::Disabled;
+    }
+
+    if text_block.lock_layout_box {
+        EnglishLayoutBehavior::LockedToManualSize
+    } else {
+        EnglishLayoutBehavior::AutoExpand
     }
 }
 

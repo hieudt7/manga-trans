@@ -222,6 +222,12 @@ pub struct TextBlock {
     pub rendered: Option<SerializableDynamicImage>,
     #[serde(skip)]
     pub lock_layout_box: bool,
+    /// True when the box came from fitting a detected balloon, as opposed to a
+    /// size the user dragged. Both set `lock_layout_box`, but only a
+    /// balloon-fitted box may be grown again to rescue unreadably small text —
+    /// a size the user chose is theirs to keep.
+    #[serde(default)]
+    pub balloon_fitted: bool,
     #[serde(skip)]
     pub layout_seed_x: Option<f32>,
     #[serde(skip)]

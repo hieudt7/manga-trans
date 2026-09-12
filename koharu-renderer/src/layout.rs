@@ -71,6 +71,11 @@ pub struct TextLayout<'a> {
     font: &'a Font,
     fallback_fonts: &'a [Font],
     font_size: Option<f32>,
+    /// Upper bound for the automatic search. Typesetting wants a consistent
+    /// size across a page, so the fitter aims at this and only goes below when
+    /// the text genuinely does not fit — rather than blowing every balloon up
+    /// to its own maximum.
+    preferred_font_size: Option<f32>,
     max_width: Option<f32>,
     max_height: Option<f32>,
 }
@@ -83,6 +88,7 @@ impl<'a> TextLayout<'a> {
             font,
             fallback_fonts: &[],
             font_size,
+            preferred_font_size: None,
             max_width: None,
             max_height: None,
         }
@@ -108,6 +114,12 @@ impl<'a> TextLayout<'a> {
         self
     }
 
+    /// Aim for `size`, shrinking only if the text overflows its box.
+    pub fn with_preferred_font_size(mut self, size: f32) -> Self {
+        self.preferred_font_size = Some(size);
+        self
+    }
+
     pub fn with_max_width(mut self, width: f32) -> Self {
         self.max_width = Some(width);
         self
@@ -130,8 +142,19 @@ impl<'a> TextLayout<'a> {
         let max_height = self.max_height.unwrap_or(f32::INFINITY);
         let max_width = self.max_width.unwrap_or(f32::INFINITY);
 
+        // Hitting the width limit is not a reason to shrink: the line breaker
+        // wraps at `max_width`, so a larger size simply flows onto more lines.
+        // Only when the wrapped block also exceeds `max_height` has the text
+        // truly run out of room. The search therefore tests both, and stops at
+        // `preferred_font_size` so a short line in a big balloon stays at the
+        // page's normal reading size instead of being scaled up to fill it.
+        let ceiling = self
+            .preferred_font_size
+            .map(|size| size.round().max(1.0) as i32)
+            .unwrap_or(300);
+
         let mut low = 6;
-        let mut high = 300;
+        let mut high = ceiling;
         let mut best: Option<LayoutRun<'a>> = None;
 
         while low <= high {
@@ -144,6 +167,12 @@ impl<'a> TextLayout<'a> {
             } else {
                 high = mid - 1;
             }
+        }
+
+        if best.is_none() {
+            // Even the smallest size overflows; render at the floor rather than
+            // dropping the text entirely.
+            return self.run_with_size(text, 6.0);
         }
 
         best.ok_or_else(|| anyhow::anyhow!("failed to layout text within constraints"))
@@ -585,6 +614,55 @@ mod tests {
             (actual - expected).abs() <= eps,
             "expected {expected}, got {actual}"
         );
+    }
+
+    #[test]
+    fn a_narrow_box_wraps_instead_of_shrinking() -> anyhow::Result<()> {
+        let font = any_system_font();
+        let text = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG";
+
+        // Same area, different shape: one wide and short, one narrow and tall.
+        let wide = TextLayout::new(&font, None)
+            .with_preferred_font_size(18.0)
+            .with_max_width(600.0)
+            .with_max_height(200.0)
+            .run(text)?;
+        let narrow = TextLayout::new(&font, None)
+            .with_preferred_font_size(18.0)
+            .with_max_width(200.0)
+            .with_max_height(600.0)
+            .run(text)?;
+
+        // Running out of width is not a reason to shrink — the text flows onto
+        // more lines and keeps the page's reading size.
+        assert_eq!(wide.font_size, narrow.font_size);
+        assert!(narrow.height > wide.height, "narrow box should wrap taller");
+        Ok(())
+    }
+
+    #[test]
+    fn the_preferred_size_is_a_ceiling_not_a_target_to_exceed() -> anyhow::Result<()> {
+        let font = any_system_font();
+        // A short line in a huge box must stay at the reading size.
+        let layout = TextLayout::new(&font, None)
+            .with_preferred_font_size(14.0)
+            .with_max_width(4000.0)
+            .with_max_height(4000.0)
+            .run("OK")?;
+        assert!(layout.font_size <= 14.0, "got {}", layout.font_size);
+        Ok(())
+    }
+
+    #[test]
+    fn text_that_cannot_fit_shrinks_rather_than_failing() -> anyhow::Result<()> {
+        let font = any_system_font();
+        let layout = TextLayout::new(&font, None)
+            .with_preferred_font_size(18.0)
+            .with_max_width(12.0)
+            .with_max_height(12.0)
+            .run("A VERY LONG SENTENCE THAT CANNOT POSSIBLY FIT")?;
+        assert!(layout.font_size <= 18.0);
+        Ok(())
     }
 
     #[test]

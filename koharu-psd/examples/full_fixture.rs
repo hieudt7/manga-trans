@@ -81,6 +81,8 @@ fn build_document() -> Document {
         width,
         height,
         revision: 0,
+        balloons: Vec::new(),
+        resolution_dpi: 72,
         text_blocks: vec![
             TextBlock {
                 id: "hero-title".to_string(),

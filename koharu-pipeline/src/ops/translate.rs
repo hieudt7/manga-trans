@@ -404,3 +404,156 @@ mod tests {
         assert_eq!(pending_indices(&doc), vec![0]);
     }
 }
+
+/// Visual sample of the layout pipeline, for judging text fit by eye.
+///
+/// Runs detect → balloon refit → inpaint → render on a page, substituting
+/// Vietnamese lines of realistic length for the translation, so the geometry
+/// and font sizing can be inspected without spending an API call.
+///
+/// Run with: `KOHARU_TEST_PAGE=page.jpg KOHARU_TEST_OUT=out.png
+/// cargo test -p koharu-pipeline --lib render_layout_sample -- --ignored --nocapture`
+#[cfg(test)]
+mod render_sample {
+    /// Lines of the length a Vietnamese translation actually comes out at.
+    const LINES: &[&str] = &[
+        "THÌ TA ĐÁP TRẢ BẰNG CHIÊU NÀY!",
+        "THẾ NẾU NÓ CHƠI CHIÊU NÀY THÌ SAO?",
+        "Ồ!",
+        "MÀY CHƠI XẤU, DÙNG HUNG KHÍ HẢ!",
+        "KHÔNG ĐỜI NÀO!",
+        "BIẾT ĐÂU NÓ LẠI GIỞ TRÒ NÀY RA THÌ SAO.",
+        "NHƯNG MÀ NÓ HUNG DỮ THẬT ĐẤY!",
+        "TIẾP THEO LÀ NGƯỜI NGOÀI HÀNH TINH SHEIK!",
+        "MÀ NÀY, KINNIKUMAN!",
+        "ĐỒ NGU À!!",
+        "SỢ... SỢ QUÁ ĐI MẤT...",
+        "CHẮC CHẮN LÀ ĐỒ VẬT ĐẾN TỪ TRUNG ĐÔNG RỒI!",
+    ];
+
+    /// Full pipeline on a real page: OCR the Japanese, translate it with
+    /// Gemini, inpaint, render. Writes the finished page next to the input.
+    ///
+    /// `KOHARU_TEST_PAGE=page.jpg KOHARU_TEST_OUT=out.png cargo test --release
+    /// -p koharu-pipeline --lib translate_and_render_sample -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn translate_and_render_sample() -> anyhow::Result<()> {
+        let Some(page) = std::env::var_os("KOHARU_TEST_PAGE") else {
+            anyhow::bail!("set KOHARU_TEST_PAGE");
+        };
+        let out = std::env::var_os("KOHARU_TEST_OUT")
+            .ok_or_else(|| anyhow::anyhow!("set KOHARU_TEST_OUT"))?;
+
+        let runtime = tokio::runtime::Runtime::new()?;
+        koharu_llm::sys::initialize()?;
+        let backend = std::sync::Arc::new(koharu_llm::safe::llama_backend::LlamaBackend::init()?);
+        let ml = runtime.block_on(koharu_ml::facade::Model::new(false, backend.clone()))?;
+
+        let mut doc = koharu_types::Document::open(std::path::PathBuf::from(&page))?;
+        runtime.block_on(ml.detect(&mut doc))?;
+        runtime.block_on(ml.ocr(&mut doc))?;
+        runtime.block_on(ml.detect_balloons(&mut doc))?;
+
+        if let (Some(seg), Some(dir)) = (doc.segment.as_ref(), std::env::var_os("KOHARU_TEST_SEG")) {
+            let mask = seg.0.to_luma8();
+            println!(
+                "segment tại (1162,1010) = {}  (255 nghĩa là mask đã đánh dấu chữ)",
+                mask.get_pixel(1162, 1010)[0]
+            );
+            mask.save(std::path::PathBuf::from(dir))?;
+        }
+
+        let llm = koharu_llm::facade::Model::new(false, backend);
+        runtime.block_on(llm.load_api(
+            "gemini",
+            "gemini-3.1-flash-lite-preview",
+            koharu_llm::providers::ProviderConfig {
+                api_key: None,
+                base_url: None,
+                temperature: None,
+                max_tokens: None,
+                custom_system_prompt: None,
+                story_context: None,
+                key_start_index: None,
+            },
+        ))?;
+        let stats = runtime.block_on(super::translate_page(
+            &llm,
+            &mut doc,
+            Some("vi-VN"),
+            None,
+        ))?;
+        println!("{stats:?}");
+
+        runtime.block_on(ml.inpaint(&mut doc))?;
+
+        let renderer = koharu_renderer::facade::Renderer::new()?;
+        renderer.render(&mut doc, None, Default::default(), None, None)?;
+
+        for (i, block) in doc.text_blocks.iter().enumerate() {
+            println!(
+                "{i:>3} box {:>3.0}x{:<3.0} font {:>5.1} src {:>4.0} | {}",
+                block.width,
+                block.height,
+                block.style.as_ref().and_then(|s| s.font_size).unwrap_or(0.0),
+                block.detected_font_size_px.unwrap_or(0.0),
+                block.translation.as_deref().unwrap_or("").replace('\n', " ")
+            );
+        }
+
+        doc.rendered
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("nothing rendered"))?
+            .0
+            .save(std::path::PathBuf::from(out))?;
+        Ok(())
+    }
+
+    #[test]
+    #[ignore]
+    fn render_layout_sample() -> anyhow::Result<()> {
+        let Some(page) = std::env::var_os("KOHARU_TEST_PAGE") else {
+            anyhow::bail!("set KOHARU_TEST_PAGE");
+        };
+        let out = std::env::var_os("KOHARU_TEST_OUT")
+            .ok_or_else(|| anyhow::anyhow!("set KOHARU_TEST_OUT"))?;
+
+        let runtime = tokio::runtime::Runtime::new()?;
+        // The OCR model inside koharu-ml is llama.cpp-backed, so the runtime
+        // libraries have to be loaded before any backend is created.
+        koharu_llm::sys::initialize()?;
+        let backend = std::sync::Arc::new(koharu_llm::safe::llama_backend::LlamaBackend::init()?);
+        let ml = runtime.block_on(koharu_ml::facade::Model::new(true, backend))?;
+
+        let mut doc = koharu_types::Document::open(std::path::PathBuf::from(&page))?;
+        runtime.block_on(ml.detect(&mut doc))?;
+        runtime.block_on(ml.detect_balloons(&mut doc))?;
+
+        for (i, block) in doc.text_blocks.iter_mut().enumerate() {
+            block.text = Some("ダミー".to_string());
+            block.translation = Some(LINES[i % LINES.len()].to_string());
+        }
+
+        runtime.block_on(ml.inpaint(&mut doc))?;
+
+        let renderer = koharu_renderer::facade::Renderer::new()?;
+        renderer.render(&mut doc, None, Default::default(), None, None)?;
+
+        for (i, block) in doc.text_blocks.iter().enumerate() {
+            println!(
+                "{i:>3} box {:.0}x{:.0} font {:?}",
+                block.width,
+                block.height,
+                block.style.as_ref().and_then(|s| s.font_size)
+            );
+        }
+
+        let rendered = doc
+            .rendered
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("nothing rendered"))?;
+        rendered.0.save(std::path::PathBuf::from(out))?;
+        Ok(())
+    }
+}
