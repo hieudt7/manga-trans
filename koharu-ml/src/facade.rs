@@ -27,6 +27,19 @@ const PP_DOCLAYOUT_THRESHOLD: f32 = 0.25;
 const VERTICAL_ASPECT_RATIO_THRESHOLD: f32 = 1.15;
 const BLOCK_OVERLAP_DEDUPE_THRESHOLD: f32 = 0.9;
 const OCR_MAX_NEW_TOKENS: usize = 128;
+/// The square the layout detector resizes every input to.
+const DETECTOR_INPUT_SIZE: f32 = 800.0;
+/// How far the width may be squeezed on the way into the detector before
+/// neighbouring columns of vertical text start merging into one box.
+const MIN_DETECTOR_SCALE: f32 = 0.75;
+/// How far past its share each tile reaches, so text on a tile boundary is
+/// whole in at least one of them.
+const TILE_OVERLAP_RATIO: f32 = 0.06;
+/// How close to a tile's inner edge a box must sit to count as cut off by it.
+const TILE_EDGE_TOLERANCE_PX: f32 = 2.0;
+/// How much of a cut-off box another box must cover before the cut-off one is
+/// thrown away as the same text seen whole by the neighbouring tile.
+const CLIPPED_REGION_COVERED_SHARE: f32 = 0.5;
 /// Probability above which the text segmentation model's output counts as text.
 const TEXT_MASK_THRESHOLD: f32 = 0.5;
 /// Growth applied to the text mask before inpainting.
@@ -124,16 +137,70 @@ impl Model {
         })
     }
 
+    /// Run the layout detector, in horizontal tiles when the page is too wide
+    /// to hand it whole.
+    ///
+    /// The detector resizes whatever it is given to a fixed 800x800 square, so
+    /// a wide scan — a two-page spread, say — arrives at about half the scale a
+    /// single page does. Vertical Japanese sets its columns side by side, and
+    /// at that scale the gap between two columns can fall below what the
+    /// detector resolves: it reports one box covering part of the text and
+    /// drops the rest, which then never reaches OCR. Tiling keeps the columns
+    /// apart; the boxes are put back into page coordinates afterwards.
+    fn detect_layout_regions(&self, image: &DynamicImage) -> Result<Vec<LayoutRegion>> {
+        let (width, height) = (image.width(), image.height());
+        let tiles = detection_tiles(width);
+        if tiles.len() == 1 {
+            return Ok(self
+                .layout_detector
+                .inference_one_fast(image, PP_DOCLAYOUT_THRESHOLD)?
+                .regions);
+        }
+
+        let mut found = Vec::new();
+        for (left, right) in tiles {
+            let tile = image.crop_imm(left, 0, right - left, height);
+            let tile_width = tile.width() as f32;
+            let detected = self
+                .layout_detector
+                .inference_one_fast(&tile, PP_DOCLAYOUT_THRESHOLD)?;
+            let offset = left as f32;
+            found.extend(detected.regions.into_iter().map(|mut region| {
+                // An edge the tile shares with the page is the page's own; only
+                // an edge cut into the middle of the page can cut text in half.
+                let bbox = region_bbox(&region);
+                let clipped = (left > 0 && bbox[0] <= TILE_EDGE_TOLERANCE_PX)
+                    || (right < width && bbox[2] >= tile_width - TILE_EDGE_TOLERANCE_PX);
+                region.bbox[0] += offset;
+                region.bbox[2] += offset;
+                for point in &mut region.polygon_points {
+                    point[0] += offset;
+                }
+                (region, clipped)
+            }));
+        }
+
+        let detected = found.len();
+        let regions = drop_clipped_fragments(found);
+
+        tracing::info!(
+            width,
+            height,
+            detected,
+            regions = regions.len(),
+            "detected in tiles"
+        );
+        Ok(regions)
+    }
+
     /// Detect text blocks and fonts in a document.
     /// Sets `doc.text_blocks` (with font predictions/styles) and `doc.segment`.
     pub async fn detect(&self, doc: &mut Document) -> Result<()> {
         let detect_started = Instant::now();
 
         let layout_started = Instant::now();
-        let layout = self
-            .layout_detector
-            .inference_one_fast(&doc.image, PP_DOCLAYOUT_THRESHOLD)?;
-        doc.text_blocks = build_text_blocks(&layout.regions);
+        let regions = self.detect_layout_regions(&doc.image)?;
+        doc.text_blocks = build_text_blocks(&regions);
         let layout_elapsed = layout_started.elapsed();
 
         let segmentation_started = Instant::now();
@@ -621,6 +688,68 @@ fn build_text_blocks(regions: &[LayoutRegion]) -> Vec<TextBlock> {
     blocks
 }
 
+/// Horizontal spans to run the layout detector over, one entry for a page that
+/// fits the detector as it is.
+///
+/// Right to left: manga reads that way, and nothing downstream reorders the
+/// blocks, so the order they are detected in is the order the translator sees
+/// them.
+fn detection_tiles(width: u32) -> Vec<(u32, u32)> {
+    let count = ((width as f32) * MIN_DETECTOR_SCALE / DETECTOR_INPUT_SIZE).ceil() as u32;
+    if count <= 1 {
+        return vec![(0, width)];
+    }
+
+    let overlap = ((width as f32) * TILE_OVERLAP_RATIO).round() as u32;
+    (0..count)
+        .rev()
+        .map(|i| {
+            let left = width * i / count;
+            let right = width * (i + 1) / count;
+            (left.saturating_sub(overlap), (right + overlap).min(width))
+        })
+        .collect()
+}
+
+/// Throw away boxes a tile edge cut in half, keeping the whole box the
+/// neighbouring tile found.
+///
+/// Left in, the fragment wins: it sits almost entirely inside the whole box,
+/// which is enough for `dedupe_text_blocks` to drop the whole one in its
+/// favour, and OCR then reads only the sliver. A fragment nothing else covers
+/// is kept — half a box beats none.
+fn drop_clipped_fragments(found: Vec<(LayoutRegion, bool)>) -> Vec<LayoutRegion> {
+    let boxes: Vec<[f32; 4]> = found
+        .iter()
+        .map(|(region, _)| region_bbox(region))
+        .collect();
+
+    found
+        .iter()
+        .enumerate()
+        .filter(|(i, (_, clipped))| {
+            if !clipped {
+                return true;
+            }
+            let bbox = boxes[*i];
+            let area = ((bbox[2] - bbox[0]) * (bbox[3] - bbox[1])).max(1.0);
+            !boxes.iter().enumerate().any(|(j, other)| {
+                j != *i && overlap_area(bbox, *other) / area >= CLIPPED_REGION_COVERED_SHARE
+            })
+        })
+        .map(|(_, (region, _))| region.clone())
+        .collect()
+}
+
+fn region_bbox(region: &LayoutRegion) -> [f32; 4] {
+    [
+        region.bbox[0].min(region.bbox[2]),
+        region.bbox[1].min(region.bbox[3]),
+        region.bbox[0].max(region.bbox[2]),
+        region.bbox[1].max(region.bbox[3]),
+    ]
+}
+
 fn is_text_layout_label(label: &str) -> bool {
     let label = label.to_ascii_lowercase();
     label == "content" || label.contains("text") || label.contains("title")
@@ -1008,6 +1137,46 @@ mod tests {
     /// Dump the segmentation mask the pipeline actually uses, for comparison
     /// against alternatives.
     ///
+    /// Print the layout boxes the detector returns for the whole page and for
+    /// each tile, so a box that goes missing can be traced to the pass that
+    /// should have found it.
+    ///
+    /// `KOHARU_TEST_PAGE=page.jpg cargo test --release -p koharu-ml --lib
+    /// dump_layout_tiles -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn dump_layout_tiles() -> anyhow::Result<()> {
+        let page = std::env::var_os("KOHARU_TEST_PAGE")
+            .ok_or_else(|| anyhow::anyhow!("set KOHARU_TEST_PAGE"))?;
+        let image = image::open(std::path::PathBuf::from(&page))?;
+        let runtime = tokio::runtime::Runtime::new()?;
+        let detector = runtime.block_on(super::PPDocLayoutV3::load(false))?;
+
+        let mut passes = vec![("whole".to_string(), (0, image.width()))];
+        for (left, right) in super::detection_tiles(image.width()) {
+            passes.push((format!("tile {left}..{right}"), (left, right)));
+        }
+
+        for (name, (left, right)) in passes {
+            let crop = image.crop_imm(left, 0, right - left, image.height());
+            let found = detector.inference_one_fast(&crop, super::PP_DOCLAYOUT_THRESHOLD)?;
+            let blocks = super::build_text_blocks(&found.regions);
+            println!("--- {name} ({}x{}) — {} blocks", crop.width(), crop.height(), blocks.len());
+            for block in &blocks {
+                println!(
+                    "    x {:>5.0}..{:<5.0} y {:>5.0}..{:<5.0}  {:>3.0}x{:<3.0}",
+                    block.x + left as f32,
+                    block.x + block.width + left as f32,
+                    block.y,
+                    block.y + block.height,
+                    block.width,
+                    block.height
+                );
+            }
+        }
+        Ok(())
+    }
+
     /// `KOHARU_TEST_PAGE=page.jpg KOHARU_TEST_OUT=mask.png cargo test --release
     /// -p koharu-ml --lib dump_pipeline_segmentation_mask -- --ignored --nocapture`
     #[test]
@@ -1232,6 +1401,73 @@ mod tests {
             bbox,
             polygon_points: vec![],
         }
+    }
+
+    #[test]
+    fn a_page_the_detector_fits_is_detected_whole() {
+        // Whether an image is one page or two cannot be read off its shape:
+        // 890x718 is a crop of a single page and 1489x1200 is a facing pair,
+        // and the two have the same aspect ratio. What matters is how far the
+        // width is squeezed on the way in.
+        for width in [739, 890, 1000] {
+            assert_eq!(
+                super::detection_tiles(width),
+                vec![(0, width)],
+                "{width}px fits the detector"
+            );
+        }
+    }
+
+    #[test]
+    fn a_page_too_wide_for_the_detector_is_tiled_right_to_left_with_overlap() {
+        let tiles = super::detection_tiles(1489);
+        assert_eq!(tiles.len(), 2, "a spread needs two passes: {tiles:?}");
+
+        let (right, left) = (tiles[0], tiles[1]);
+        assert!(
+            right.1 == 1489 && left.0 == 0,
+            "tiles cover the page: {tiles:?}"
+        );
+        assert!(right.0 > left.0, "right to left: {tiles:?}");
+        assert!(
+            left.1 > right.0,
+            "tiles must overlap so text on the boundary is whole in one of \
+             them: {tiles:?}"
+        );
+        for (l, r) in &tiles {
+            let scale = 800.0 / f32::from(u16::try_from(r - l).unwrap());
+            assert!(
+                scale >= 0.75,
+                "tile {l}..{r} is still squeezed to {scale:.2}"
+            );
+        }
+
+        // Wider still, and one more pass is needed.
+        assert_eq!(super::detection_tiles(2400).len(), 3);
+    }
+
+    #[test]
+    fn a_fragment_cut_off_by_a_tile_edge_loses_to_the_whole_box() {
+        // The camel balloon from the 1489px spread: the right tile starts at
+        // 655 and cuts the text there, the left tile reaches to 833 and has it
+        // whole. Without this the 24px fragment survives and OCR reads one
+        // column of four.
+        let fragment = test_region(0, "text", [655.0, 872.0, 679.0, 998.0]);
+        let whole = test_region(1, "text", [624.0, 866.0, 680.0, 997.0]);
+
+        let kept = super::drop_clipped_fragments(vec![(fragment, true), (whole.clone(), false)]);
+        assert_eq!(kept.len(), 1, "the fragment must go: {kept:?}");
+        assert_eq!(kept[0].bbox, whole.bbox);
+    }
+
+    #[test]
+    fn a_fragment_no_other_tile_caught_is_kept() {
+        // Half a box beats none.
+        let fragment = test_region(0, "text", [655.0, 872.0, 679.0, 998.0]);
+        let elsewhere = test_region(1, "text", [100.0, 100.0, 200.0, 200.0]);
+
+        let kept = super::drop_clipped_fragments(vec![(fragment, true), (elsewhere, false)]);
+        assert_eq!(kept.len(), 2, "nothing covers the fragment: {kept:?}");
     }
 
     #[test]

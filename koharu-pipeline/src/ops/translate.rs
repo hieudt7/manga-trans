@@ -493,11 +493,12 @@ mod render_sample {
 
         for (i, block) in doc.text_blocks.iter().enumerate() {
             println!(
-                "{i:>3} box {:>3.0}x{:<3.0} font {:>5.1} src {:>4.0} | {}",
+                "{i:>3} box {:>3.0}x{:<3.0} font {:>5.1} src {:>4.0}\n    ja | {}\n    vi | {}",
                 block.width,
                 block.height,
                 block.style.as_ref().and_then(|s| s.font_size).unwrap_or(0.0),
                 block.detected_font_size_px.unwrap_or(0.0),
+                block.text.as_deref().unwrap_or("").replace('\n', " "),
                 block.translation.as_deref().unwrap_or("").replace('\n', " ")
             );
         }
