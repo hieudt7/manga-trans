@@ -7,9 +7,17 @@ use image::{
     DynamicImage, GenericImageView, GrayImage, Luma, Rgb, RgbImage, Rgba, RgbaImage,
     imageops::{crop_imm, replace},
 };
+use std::collections::HashMap;
+
 use imageproc::{
-    contours::find_contours, distance_transform::Norm, drawing::draw_polygon_mut, edges::canny,
-    filter::gaussian_blur_f32, morphology::dilate, point::Point,
+    contours::find_contours,
+    distance_transform::Norm,
+    drawing::draw_polygon_mut,
+    edges::canny,
+    filter::gaussian_blur_f32,
+    morphology::dilate,
+    point::Point,
+    region_labelling::{Connectivity, connected_components},
 };
 use koharu_types::TextBlock;
 use tracing::instrument;
@@ -39,6 +47,79 @@ struct BalloonMasks {
 pub struct Lama {
     model: model::Lama,
     device: Device,
+}
+
+/// Glyphs are separate blobs; merging at this radius groups a run of text into
+/// one region instead of inpainting it a stroke at a time.
+const LEFTOVER_MERGE_RADIUS: u8 = 12;
+/// Smaller than this is mask noise, not writing.
+const LEFTOVER_MIN_PIXELS: u32 = 24;
+/// Context around a region for the model to match against.
+const LEFTOVER_PAD_PX: u32 = 8;
+/// A region this large is a runaway mask rather than a run of text.
+const LEFTOVER_MAX_AREA_SHARE: f32 = 0.05;
+/// How far past a block window a run of text may continue and still count as
+/// the same run. Beyond this the mark belongs to no block at all.
+const LEFTOVER_ADJACENCY_PX: u32 = 16;
+
+/// Do the boxes touch, allowing for a run of text carrying on just past the
+/// window edge?
+fn near(a: Xyxy, b: Xyxy) -> bool {
+    let gap = LEFTOVER_ADJACENCY_PX;
+    a[0] <= b[2] + gap && b[0] <= a[2] + gap && a[1] <= b[3] + gap && b[1] <= a[3] + gap
+}
+
+/// Bounding boxes of mask content that no block window covered, restricted to
+/// what continues a run of text a block window already started erasing.
+///
+/// The restriction is the whole point. The mask marks every glyph on the page,
+/// sound effects drawn across the artwork included, and those are not text the
+/// pipeline replaces — erasing one leaves the model guessing at whatever the
+/// letters were drawn over. What must be finished is the run a block window
+/// clipped: erasing half of a line and leaving the rest standing is the failure
+/// this pass exists to fix.
+fn leftover_mask_regions(mask: &GrayImage, windows: &[Xyxy]) -> Vec<[u32; 4]> {
+    let (width, height) = mask.dimensions();
+    if !mask.pixels().any(|pixel| pixel[0] >= 128) {
+        return Vec::new();
+    }
+
+    let merged = dilate(mask, Norm::L1, LEFTOVER_MERGE_RADIUS);
+    let labels = connected_components(&merged, Connectivity::Eight, Luma([0u8]));
+
+    let mut boxes: HashMap<u32, [u32; 4]> = HashMap::new();
+    let mut counts: HashMap<u32, u32> = HashMap::new();
+    for (x, y, label) in labels.enumerate_pixels() {
+        let id = label[0];
+        if id == 0 || mask.get_pixel(x, y)[0] < 128 {
+            continue;
+        }
+        *counts.entry(id).or_insert(0) += 1;
+        let entry = boxes.entry(id).or_insert([x, y, x + 1, y + 1]);
+        entry[0] = entry[0].min(x);
+        entry[1] = entry[1].min(y);
+        entry[2] = entry[2].max(x + 1);
+        entry[3] = entry[3].max(y + 1);
+    }
+
+    let page_area = (width as f32) * (height as f32);
+    boxes
+        .into_iter()
+        .filter(|(id, _)| counts.get(id).copied().unwrap_or(0) >= LEFTOVER_MIN_PIXELS)
+        .filter(|(_, bbox)| windows.iter().any(|window| near(*bbox, *window)))
+        .map(|(_, bbox)| {
+            [
+                bbox[0].saturating_sub(LEFTOVER_PAD_PX),
+                bbox[1].saturating_sub(LEFTOVER_PAD_PX),
+                (bbox[2] + LEFTOVER_PAD_PX).min(width),
+                (bbox[3] + LEFTOVER_PAD_PX).min(height),
+            ]
+        })
+        .filter(|bbox| {
+            let area = ((bbox[2] - bbox[0]) as f32) * ((bbox[3] - bbox[1]) as f32);
+            bbox[2] > bbox[0] && bbox[3] > bbox[1] && area <= page_area * LEFTOVER_MAX_AREA_SHARE
+        })
+        .collect()
 }
 
 impl Lama {
@@ -125,6 +206,7 @@ impl Lama {
         let (im_w, im_h) = image.dimensions();
         let mut inpainted = image.clone();
         let mut working_mask = mask.clone();
+        let mut windows: Vec<Xyxy> = Vec::with_capacity(text_blocks.len());
 
         for block in text_blocks {
             let Some(xyxy) = block_xyxy(block, im_w, im_h) else {
@@ -162,7 +244,27 @@ impl Lama {
                 i64::from(xyxy_e[0]),
                 i64::from(xyxy_e[1]),
             );
-            clear_mask_bbox(&mut working_mask, xyxy);
+            // The crop was inpainted against the mask over the whole enlarged
+            // window, so every mark inside it is dealt with — clearing only the
+            // block's own bbox would send the rest round again below.
+            clear_mask_bbox(&mut working_mask, xyxy_e);
+            windows.push(xyxy_e);
+        }
+
+        // A run of text that starts inside a block window and carries on past
+        // its edge comes out half-erased: the part inside cleaned, the rest
+        // standing. Finish those runs, and only those — see
+        // `leftover_mask_regions` for why the rest of the mask is left alone.
+        for region in leftover_mask_regions(&working_mask, &windows) {
+            let [x1, y1, x2, y2] = region;
+            let (w, h) = (x2 - x1, y2 - y1);
+            let crop_image = crop_imm(&inpainted, x1, y1, w, h).to_image();
+            let crop_mask = crop_imm(&working_mask, x1, y1, w, h).to_image();
+            let output = match try_fill_balloon(&crop_image, &crop_mask) {
+                Some(filled) => filled,
+                None => self.inference_model_rgb(&crop_image, &crop_mask)?,
+            };
+            replace(&mut inpainted, &output, i64::from(x1), i64::from(y1));
         }
 
         Ok(inpainted)
@@ -623,6 +725,67 @@ pub fn clear_fft_plans_on_current_thread() {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn leftover_regions_group_a_run_of_glyphs_into_one_box() {
+        // Four glyph blobs on one line, the shape a run of text leaves in the
+        // mask after the block pass has cleared what it covered. Full page
+        // size: a line is a couple of percent of a real page, which is what the
+        // area guard is calibrated against.
+        let mask = GrayImage::from_fn(1200, 900, |x, y| {
+            let on = (40..70).contains(&y)
+                && [(20, 40), (55, 75), (90, 110), (125, 145)]
+                    .iter()
+                    .any(|(a, b)| x >= *a && x < *b);
+            Luma([if on { 255u8 } else { 0 }])
+        });
+
+        // A block window sitting over the head of the run: the tail spilling
+        // out of it is exactly what this pass is for.
+        let window = [0, 30, 60, 80];
+
+        let regions = super::leftover_mask_regions(&mask, &[window]);
+        assert_eq!(
+            regions.len(),
+            1,
+            "one run should be one region: {regions:?}"
+        );
+        let [x1, _, x2, _] = regions[0];
+        assert!(
+            x1 <= 20 && x2 >= 145,
+            "region must span the run: {regions:?}"
+        );
+    }
+
+    #[test]
+    fn leftover_regions_leave_marks_no_block_window_reaches() {
+        // A sound effect drawn across the artwork, far from every balloon. The
+        // mask marks it, but nothing was erased around it, so there is no
+        // half-done job to finish and inpainting it would only damage the art.
+        let mask = GrayImage::from_fn(1200, 900, |x, y| {
+            let on = (700..760).contains(&y) && (60..140).contains(&x);
+            Luma([if on { 255u8 } else { 0 }])
+        });
+
+        assert!(
+            super::leftover_mask_regions(&mask, &[[400, 100, 600, 300]]).is_empty(),
+            "a mark out of every window's reach must be left alone"
+        );
+        assert!(
+            !super::leftover_mask_regions(&mask, &[[60, 600, 140, 695]]).is_empty(),
+            "the same mark next to a window is a run to finish"
+        );
+    }
+
+    #[test]
+    fn leftover_regions_ignore_an_empty_mask_and_specks() {
+        let window = [[0, 0, 100, 100]];
+        assert!(super::leftover_mask_regions(&GrayImage::new(100, 100), &window).is_empty());
+        let speck = GrayImage::from_fn(100, 100, |x, y| {
+            Luma([if x == 50 && y == 50 { 255u8 } else { 0 }])
+        });
+        assert!(super::leftover_mask_regions(&speck, &window).is_empty());
+    }
+
     use super::{
         ALPHA_RING_RADIUS, BALLOON_WINDOW_ASPECT_RATIO, BALLOON_WINDOW_RATIO, clear_mask_bbox,
         count_nonzero, enlarge_window, extract_balloon_mask, restore_alpha_channel,

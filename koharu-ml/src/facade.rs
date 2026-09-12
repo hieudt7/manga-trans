@@ -11,9 +11,10 @@ use koharu_types::{Document, FontPrediction, SerializableDynamicImage, TextBlock
 
 use crate::character_library::{self as character_library, CharacterLibrary};
 use crate::comic_bubble_detector::{self as bubble_det, ComicBubbleDetector};
-use crate::comic_text_detector::{self, ComicTextDetector, crop_text_block_bbox};
+use crate::comic_text_detector::{self, crop_text_block_bbox};
 use crate::font_detector::{self, FontDetector};
 use crate::lama::{self, Lama};
+use crate::manga_text_segmentation_2025::MangaTextSegmentation;
 use crate::pp_doclayout_v3::{self, LayoutRegion, PPDocLayoutV3};
 
 const NEAR_BLACK_THRESHOLD: u8 = 12;
@@ -26,6 +27,10 @@ const PP_DOCLAYOUT_THRESHOLD: f32 = 0.25;
 const VERTICAL_ASPECT_RATIO_THRESHOLD: f32 = 1.15;
 const BLOCK_OVERLAP_DEDUPE_THRESHOLD: f32 = 0.9;
 const OCR_MAX_NEW_TOKENS: usize = 128;
+/// Probability above which the text segmentation model's output counts as text.
+const TEXT_MASK_THRESHOLD: f32 = 0.5;
+/// Growth applied to the text mask before inpainting.
+const TEXT_MASK_DILATE_RADIUS: u8 = 3;
 
 fn clamp_near_black(color: [u8; 3]) -> [u8; 3] {
     let max_channel = *color.iter().max().unwrap_or(&0);
@@ -82,7 +87,7 @@ fn normalize_font_prediction(prediction: &mut FontPrediction) {
 
 pub struct Model {
     layout_detector: PPDocLayoutV3,
-    segmenter: ComicTextDetector,
+    text_segmenter: MangaTextSegmentation,
     ocr: Mutex<PaddleOcrVl>,
     lama: Lama,
     font_detector: FontDetector,
@@ -110,7 +115,7 @@ impl Model {
 
         Ok(Self {
             layout_detector: PPDocLayoutV3::load(cpu).await?,
-            segmenter: ComicTextDetector::load_segmentation_only(cpu).await?,
+            text_segmenter: MangaTextSegmentation::load(cpu).await?,
             ocr: Mutex::new(PaddleOcrVl::load(cpu, backend).await?),
             lama: Lama::load(cpu).await?,
             font_detector: FontDetector::load(cpu).await?,
@@ -132,11 +137,21 @@ impl Model {
         let layout_elapsed = layout_started.elapsed();
 
         let segmentation_started = Instant::now();
-        let probability_map = self.segmenter.inference_segmentation(&doc.image)?;
-        let mask = comic_text_detector::refine_segmentation_mask(
-            &doc.image,
-            &probability_map,
-            &doc.text_blocks,
+        // The text segmentation model recognises glyph shapes, so it separates
+        // writing from artwork — including a figure drawn across a balloon,
+        // which a brightness threshold cannot do. Its output is used for the
+        // whole page rather than being clipped to the detected boxes: text the
+        // box detector under-segmented was previously left unmasked and
+        // survived inpainting onto the finished page.
+        let probability_map = self.text_segmenter.inference(&doc.image)?;
+        let mask = probability_map.threshold(TEXT_MASK_THRESHOLD)?;
+        // The mask hugs the strokes, so grow it enough to take the grey
+        // anti-aliased edge with it; left behind, that edge reads as a halo
+        // around every erased glyph.
+        let mask = imageproc::morphology::dilate(
+            &mask,
+            imageproc::distance_transform::Norm::L1,
+            TEXT_MASK_DILATE_RADIUS,
         );
         doc.segment = Some(DynamicImage::ImageLuma8(mask).into());
         let segmentation_elapsed = segmentation_started.elapsed();
@@ -1012,7 +1027,9 @@ mod tests {
         let blocks = super::build_text_blocks(&layout.regions);
 
         let segmenter =
-            runtime.block_on(super::ComicTextDetector::load_segmentation_only(false))?;
+            runtime.block_on(super::comic_text_detector::ComicTextDetector::load_segmentation_only(
+                false,
+            ))?;
         let probability_map = segmenter.inference_segmentation(&image)?;
         let mask = super::comic_text_detector::refine_segmentation_mask(
             &image,
