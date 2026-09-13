@@ -3945,6 +3945,7 @@ name = "koharu-llm"
 version = "0.40.1"
 dependencies = [
  "anyhow",
+ "base64 0.22.1",
  "bindgen",
  "clap",
  "dirs",

@@ -2,6 +2,8 @@ use std::future::Future;
 use std::pin::Pin;
 use std::time::Duration;
 
+use base64::Engine as _;
+use base64::engine::general_purpose::STANDARD as BASE64;
 use serde::Serialize;
 
 use koharu_http::http::http_client;
@@ -40,8 +42,23 @@ fn is_invalid_key(err: &anyhow::Error) -> bool {
 }
 
 #[derive(Serialize)]
-struct Part {
-    text: String,
+struct InlineData {
+    mime_type: String,
+    /// base64, no data: prefix — that is what Gemini expects here.
+    data: String,
+}
+
+#[derive(Serialize)]
+#[serde(untagged)]
+enum Part {
+    Text { text: String },
+    Inline { inline_data: InlineData },
+}
+
+impl Part {
+    fn text(value: impl Into<String>) -> Self {
+        Part::Text { text: value.into() }
+    }
 }
 
 #[derive(Serialize)]
@@ -109,10 +126,10 @@ impl AnyProvider for GeminiProvider {
 
             let body = GenerateRequest {
                 system_instruction: SystemInstruction {
-                    parts: vec![Part { text: system_prompt_text }],
+                    parts: vec![Part::text(system_prompt_text)],
                 },
                 contents: vec![Content {
-                    parts: vec![Part { text: source.to_string() }],
+                    parts: vec![Part::text(source.to_string())],
                 }],
                 generation_config: GenerationConfig { temperature: 0.0 },
             };
@@ -241,10 +258,10 @@ impl AnyProvider for GeminiProvider {
 
             let body = GenerateRequest {
                 system_instruction: SystemInstruction {
-                    parts: vec![Part { text: system_prompt.to_string() }],
+                    parts: vec![Part::text(system_prompt.to_string())],
                 },
                 contents: vec![Content {
-                    parts: vec![Part { text: user_prompt.to_string() }],
+                    parts: vec![Part::text(user_prompt.to_string())],
                 }],
                 generation_config: GenerationConfig { temperature: 0.3 },
             };
@@ -269,6 +286,70 @@ impl AnyProvider for GeminiProvider {
                 Some(t) => Ok(t.to_string()),
                 None => {
                     tracing::warn!(finish_reason, "Gemini returned no content, skipping");
+                    Ok(String::new())
+                }
+            }
+        })
+    }
+
+    fn look<'a>(
+        &'a self,
+        system_prompt: &'a str,
+        user_prompt: &'a str,
+        images: &'a [Vec<u8>],
+        mime_type: &'a str,
+        model: &'a str,
+    ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>> {
+        Box::pin(async move {
+            let Some(api_key) = self.keys.active() else {
+                anyhow::bail!("provider_quota_exceeded:gemini")
+            };
+            let url = format!(
+                "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            );
+
+            let body = GenerateRequest {
+                system_instruction: SystemInstruction {
+                    parts: vec![Part::text(system_prompt.to_string())],
+                },
+                contents: vec![Content {
+                    // The images go first: the prompt then reads as a question
+                    // about something already on the table.
+                    parts: images
+                        .iter()
+                        .map(|bytes| Part::Inline {
+                            inline_data: InlineData {
+                                mime_type: mime_type.to_string(),
+                                data: BASE64.encode(bytes),
+                            },
+                        })
+                        .chain(std::iter::once(Part::text(user_prompt.to_string())))
+                        .collect(),
+                }],
+                // Reading letters off a page is transcription, not invention.
+                generation_config: GenerationConfig { temperature: 0.0 },
+            };
+
+            let response = http_client()
+                .post(&url)
+                .header("content-type", "application/json")
+                .body(serde_json::to_vec(&body)?)
+                .send()
+                .await?;
+
+            let resp: serde_json::Value = ensure_provider_success("gemini", response)
+                .await?
+                .json()
+                .await?;
+
+            let finish_reason = resp["candidates"][0]["finishReason"]
+                .as_str()
+                .unwrap_or("UNKNOWN");
+
+            match resp["candidates"][0]["content"]["parts"][0]["text"].as_str() {
+                Some(t) => Ok(t.to_string()),
+                None => {
+                    tracing::warn!(finish_reason, "Gemini returned no content for an image");
                     Ok(String::new())
                 }
             }

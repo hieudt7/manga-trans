@@ -25,6 +25,25 @@ use crate::safe::{LogOptions, send_logs_to_tracing};
 const HF_REPO: &str = "PaddlePaddle/PaddleOCR-VL-1.5-GGUF";
 const MODEL_FILENAME: &str = "PaddleOCR-VL-1.5.gguf";
 const MMPROJ_FILENAME: &str = "PaddleOCR-VL-1.5-mmproj.gguf";
+
+/// Where the reader's weights come from, overridable so a different build can
+/// be tried against a page and measured rather than argued about. Later
+/// releases of this model keep the same architecture, so swapping one in is a
+/// matter of pointing at it.
+fn model_source() -> (String, String, String) {
+    let repo = std::env::var("KOHARU_OCR_REPO").unwrap_or_else(|_| HF_REPO.to_string());
+    let stem = repo
+        .rsplit('/')
+        .next()
+        .unwrap_or(HF_REPO)
+        .trim_end_matches("-GGUF")
+        .to_string();
+    (
+        repo,
+        std::env::var("KOHARU_OCR_MODEL").unwrap_or_else(|_| format!("{stem}.gguf")),
+        std::env::var("KOHARU_OCR_MMPROJ").unwrap_or_else(|_| format!("{stem}-mmproj.gguf")),
+    )
+}
 const DEFAULT_MEDIA_MARKER: &str = "<__media__>";
 const DEFAULT_GPU_LAYERS: u32 = 1000;
 const DEFAULT_MAX_NEW_TOKENS: usize = 128;
@@ -482,17 +501,19 @@ pub async fn prefetch() -> Result<()> {
 }
 
 async fn download_model_files() -> Result<ModelFiles> {
+    let (repo, model_file, mmproj_file) = model_source();
     let (model, mmproj) = tokio::try_join!(
-        koharu_http::download::model(HF_REPO, MODEL_FILENAME),
-        koharu_http::download::model(HF_REPO, MMPROJ_FILENAME),
+        koharu_http::download::model(&repo, &model_file),
+        koharu_http::download::model(&repo, &mmproj_file),
     )?;
 
     Ok(ModelFiles { model, mmproj })
 }
 
 fn resolve_local_model_files(dir: &Path) -> Result<ModelFiles> {
-    let preferred_model = dir.join(MODEL_FILENAME);
-    let preferred_mmproj = dir.join(MMPROJ_FILENAME);
+    let (_, model_file, mmproj_file) = model_source();
+    let preferred_model = dir.join(&model_file);
+    let preferred_mmproj = dir.join(&mmproj_file);
     if preferred_model.exists() && preferred_mmproj.exists() {
         return Ok(ModelFiles {
             model: preferred_model,
@@ -531,13 +552,13 @@ fn resolve_local_model_files(dir: &Path) -> Result<ModelFiles> {
     Ok(ModelFiles {
         model: model.with_context(|| {
             format!(
-                "missing `{MODEL_FILENAME}` (or any non-mmproj GGUF) in `{}`",
+                "missing `{model_file}` (or any non-mmproj GGUF) in `{}`",
                 dir.display()
             )
         })?,
         mmproj: mmproj.with_context(|| {
             format!(
-                "missing `{MMPROJ_FILENAME}` (or any mmproj GGUF) in `{}`",
+                "missing `{mmproj_file}` (or any mmproj GGUF) in `{}`",
                 dir.display()
             )
         })?,

@@ -123,6 +123,27 @@ pub trait AnyProvider: Send + Sync {
         user_prompt: &'a str,
         model: &'a str,
     ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>>;
+
+    /// `complete`, but with images attached. Used for reading lettering off a
+    /// page: every local OCR measured against this corpus misread the outlined,
+    /// artwork-backed text, while a vision model read it correctly.
+    ///
+    /// Takes a slice rather than one image so a whole page's balloons go in a
+    /// single request — a page here carries around twenty of them, and the
+    /// crops are small.
+    ///
+    /// Most providers cannot do this, so the default refuses rather than
+    /// silently dropping the images and answering about nothing.
+    fn look<'a>(
+        &'a self,
+        _system_prompt: &'a str,
+        _user_prompt: &'a str,
+        _images: &'a [Vec<u8>],
+        _mime_type: &'a str,
+        _model: &'a str,
+    ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>> {
+        Box::pin(async { anyhow::bail!("provider_no_vision") })
+    }
 }
 
 /// Combine a stored story context with a per-page character context.
