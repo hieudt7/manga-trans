@@ -88,8 +88,7 @@ pub trait Translatable {
 /// Blocks that carry no letters at all — bare punctuation, ellipses, digits,
 /// musical notes — render the same translated or not, so they are skipped.
 pub fn needs_translation(text: &str) -> bool {
-    text.chars()
-        .any(|c| c.is_alphabetic() || ('\u{3040}'..='\u{30FF}').contains(&c))
+    koharu_types::carries_words(text)
 }
 
 fn unescape_block_text(text: &str) -> String {

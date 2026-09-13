@@ -306,9 +306,16 @@ impl Model {
             .segment
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Segment image not found"))?;
-        let result = self
-            .lama
-            .inference_with_blocks(&doc.image, mask, Some(&doc.text_blocks))?;
+        // A balloon holding only marks — 「・・・」 — keeps the ones the artist
+        // drew. Nothing replaces them, so erasing them would leave the pause
+        // silent.
+        let mask = keep_wordless_marks(mask.to_luma8(), &doc.text_blocks);
+        let mask = keep_only_text_found(mask, &doc.text_blocks, &doc.balloons);
+        let result = self.lama.inference_with_blocks(
+            &doc.image,
+            &DynamicImage::ImageLuma8(mask),
+            Some(&doc.text_blocks),
+        )?;
         doc.inpainted = Some(result.into());
 
         Ok(())
@@ -432,27 +439,43 @@ impl Model {
             };
 
             // Listener = nearest block (by index) whose speaker has different demographics.
-            let listener_label_owned: String = speaker_assignments.iter()
+            let listener_face = speaker_assignments
+                .iter()
                 .enumerate()
                 .filter(|(j, (_, m))| {
-                    *j != i && m.as_ref()
-                        .map(|f| face_label(f) != speaker_label)
-                        .unwrap_or(false)
+                    *j != i
+                        && m.as_ref()
+                            .map(|f| face_label(f) != speaker_label)
+                            .unwrap_or(false)
                 })
                 .min_by_key(|(j, _)| j.abs_diff(i))
-                .and_then(|(_, (_, m))| m.as_ref())
-                .map(face_label)
-                .unwrap_or_else(|| "Unknown".to_string());
-            let listener_label = listener_label_owned.as_str();
+                .and_then(|(_, (_, m))| m.as_ref());
 
-            let (self_pron, other_pron) = suggest_vn_pronoun_pair(speaker_label, listener_label);
-            let speaker_desc = demographic_desc(speaker_label);
-            let listener_desc = demographic_desc(listener_label);
+            // Inferred from traits alone. A block where nothing is known about
+            // the speaker gets no line: the translator reads the dialogue, and
+            // a guess dressed up as a fact is worse than saying nothing.
+            let speaker_traits = speaker_assignments[i]
+                .1
+                .as_ref()
+                .map(demographic_label)
+                .unwrap_or_default();
+            let listener_traits = listener_face
+                .as_ref()
+                .map(|f| demographic_label(f))
+                .unwrap_or_default();
+            if parse_age_gender(&speaker_traits) == (Age::Unknown, Gender::Unknown) {
+                continue;
+            }
+
+            let (self_pron, other_pron) =
+                suggest_vn_pronoun_pair(&speaker_traits, &listener_traits);
+            let speaker_desc = demographic_desc(&speaker_traits);
+            let listener_desc = demographic_desc(&listener_traits);
 
             tracing::info!(
                 block = i,
-                speaker = speaker_label,
-                listener = listener_label,
+                speaker = speaker_traits.as_str(),
+                listener = listener_traits.as_str(),
                 self_pronoun = self_pron,
                 other_pronoun = other_pron,
                 "pronoun assignment"
@@ -461,7 +484,7 @@ impl Model {
             // Same `[N]` marker the source uses, so the model can line the rule
             // up with its block without a second naming scheme to learn.
             lines.push(format!(
-                "[{i}] speaker={speaker_desc}, listener={listener_desc} → use \"{self_pron}\" for I/me, \"{other_pron}\" for you"
+                "[{i}] speaker={speaker_desc}, listener={listener_desc} — \"{self_pron}\"/\"{other_pron}\" would suit that pairing"
             ));
         }
 
@@ -469,13 +492,21 @@ impl Model {
             return None;
         }
 
-        let header = if let Some(prompt) = custom_system_prompt.filter(|p| !p.trim().is_empty()) {
-            format!(
-                "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block (story context: \"{}\"). Do NOT add speaker names or any metadata inside the translated text:",
-                prompt.trim()
-            )
-        } else {
-            "MANDATORY pronoun rules — you MUST use exactly these Vietnamese pronouns for each block. Do NOT add speaker names or any metadata inside the translated text:".to_string()
+        // Read off faces, not off the dialogue: it can tell a child from an
+        // adult and little else. Ordering the translator to use these exact
+        // pronouns overrode what the lines themselves say — a boy speaking to
+        // an old man came out on first-name terms because a cartoon face
+        // tagged as "adult male" fell through to the neutral pairing. Offer it
+        // as what the picture shows and let the dialogue decide.
+        const GUIDANCE: &str = "Who appears to be speaking to whom, from the \
+            artwork. Vietnamese pronouns depend on the relationship, so use \
+            this where the dialogue leaves it open — and follow the dialogue \
+            wherever it says otherwise, since this is read off faces and \
+            cannot hear the conversation. Do not put speaker names or any \
+            other metadata inside the translated text.";
+        let header = match custom_system_prompt.filter(|p| !p.trim().is_empty()) {
+            Some(prompt) => format!("{GUIDANCE} Story context: \"{}\".", prompt.trim()),
+            None => GUIDANCE.to_string(),
         };
         lines.insert(0, header);
         Some(lines.join("\n"))
@@ -505,6 +536,16 @@ impl Model {
     }
 }
 
+/// What is actually known about a character, without their name.
+///
+/// A name is not a description, but the two used to be joined into one string
+/// and then searched for words like "man" or "old" — so Kinnikuman read as
+/// male and anyone called Goldman as elderly. Only the traits say anything
+/// about who someone is.
+fn demographic_label(f: &character_library::FaceMatch) -> String {
+    f.traits.join(" ")
+}
+
 fn face_label(f: &character_library::FaceMatch) -> String {
     if f.traits.is_empty() {
         f.name.clone()
@@ -530,22 +571,38 @@ fn demographic_desc(label: &str) -> String {
     format!("{age_str} {gender_str}")
 }
 
+/// Does the label name this word or phrase, as words rather than as letters?
+///
+/// The labels these read carry a character's traits, and a substring test
+/// finds words inside other words: `"man"` sits in Kinnikuman, `"son"` in
+/// person, `"old"` in Goldman. Each of those quietly decides someone's age or
+/// gender, and from there their pronouns.
+fn mentions(label: &str, phrase: &str) -> bool {
+    let words: Vec<String> = label
+        .to_lowercase()
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|word| !word.is_empty())
+        .map(str::to_string)
+        .collect();
+    format!(" {} ", words.join(" ")).contains(&format!(" {phrase} "))
+}
+
 /// Detect family-role keywords in a label.
 fn family_role(label: &str) -> Option<FamilyRole> {
-    let l = label.to_lowercase();
-    if l.contains("father") || l.contains("dad") || l.contains("bố") || l.contains("ba ") || l == "ba" || l.contains("papa") {
+    let says = |phrase: &str| mentions(label, phrase);
+    if says("father") || says("dad") || says("bố") || says("ba") || says("papa") {
         Some(FamilyRole::Father)
-    } else if l.contains("mother") || l.contains("mom") || l.contains("mẹ") || l.contains("mama") || l.contains("mum") {
+    } else if says("mother") || says("mom") || says("mẹ") || says("mama") || says("mum") {
         Some(FamilyRole::Mother)
-    } else if l.contains("son") || l.contains("daughter") || l.contains("child") || l.contains("kid") {
+    } else if says("son") || says("daughter") || says("child") || says("kid") {
         Some(FamilyRole::Child)
-    } else if l.contains("grandfather") || l.contains("grandpa") || l.contains("ông nội") || l.contains("ông ngoại") {
+    } else if says("grandfather") || says("grandpa") || says("ông nội") || says("ông ngoại") {
         Some(FamilyRole::Grandfather)
-    } else if l.contains("grandmother") || l.contains("grandma") || l.contains("bà nội") || l.contains("bà ngoại") {
+    } else if says("grandmother") || says("grandma") || says("bà nội") || says("bà ngoại") {
         Some(FamilyRole::Grandmother)
-    } else if l.contains("older brother") || l.contains("anh trai") {
+    } else if says("older brother") || says("anh trai") {
         Some(FamilyRole::OlderBrother)
-    } else if l.contains("older sister") || l.contains("chị gái") {
+    } else if says("older sister") || says("chị gái") {
         Some(FamilyRole::OlderSister)
     } else {
         None
@@ -637,28 +694,32 @@ fn suggest_vn_pronoun_pair(speaker_label: &str, listener_label: &str) -> (&'stat
     }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 enum Age { Young, Adult, Old, Unknown }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 enum Gender { Male, Female, Unknown }
 
 fn parse_age_gender(label: &str) -> (Age, Gender) {
-    let l = label.to_lowercase();
+    let says = |phrase: &str| mentions(label, phrase);
 
-    let age = if l.contains("old") || l.contains("elder") || l.contains("senior") || l.contains("grandfather") || l.contains("grandmother") {
+    let age = if says("old") || says("elder") || says("elderly") || says("senior")
+        || says("grandfather") || says("grandmother")
+    {
         Age::Old
-    } else if l.contains("young") || l.contains("teen") || l.contains("child") || l.contains("kid") || l.contains("boy") || l.contains("girl") {
+    } else if says("young") || says("teen") || says("child") || says("kid") || says("boy")
+        || says("girl")
+    {
         Age::Young
-    } else if l.contains("adult") || l.contains("man") || l.contains("woman") {
+    } else if says("adult") || says("man") || says("woman") {
         Age::Adult
     } else {
         Age::Unknown
     };
 
-    let gender = if l.contains("female") || l.contains("woman") || l.contains("girl") {
+    let gender = if says("female") || says("woman") || says("girl") {
         Gender::Female
-    } else if l.contains("male") || l.contains("man") || l.contains("boy") {
+    } else if says("male") || says("man") || says("boy") {
         Gender::Male
     } else {
         Gender::Unknown
@@ -739,6 +800,121 @@ fn drop_clipped_fragments(found: Vec<(LayoutRegion, bool)>) -> Vec<LayoutRegion>
         })
         .map(|(_, (region, _))| region.clone())
         .collect()
+}
+
+/// Unmark everything the segmentation found that the pipeline is not replacing.
+///
+/// The model marks writing, and on a manga page some writing belongs to the
+/// drawing: the jagged outline of a shout balloon, a sound effect lettered
+/// beside the dialogue. Erasing those cuts the balloon open and leaves the art
+/// a mark short, with nothing put back in their place.
+///
+/// Shape cannot tell them apart — measured on a real page, a balloon outline
+/// and the text beside it had the same density, 0.58 against 0.59. Two things
+/// can: a box the detector drew round text it found, and a balloon. A mark
+/// inside a balloon is dialogue even where the box stops short of it, which is
+/// how a second column of one balloon used to survive; a mark outside every
+/// balloon and every box is part of the drawing.
+///
+/// A run only partly claimed is kept whole, so text clipped by a box edge is
+/// still erased in one piece rather than half-erased.
+fn keep_only_text_found(
+    mask: image::GrayImage,
+    blocks: &[TextBlock],
+    balloons: &[koharu_types::BalloonDetection],
+) -> image::GrayImage {
+    use imageproc::region_labelling::{Connectivity, connected_components};
+
+    /// How far inside a balloon a mark has to sit to count as its text. Its own
+    /// outline runs the length of the balloon and reaches the edge of the box
+    /// around it; the words do not.
+    const BALLOON_OUTLINE_MARGIN: f32 = 3.0;
+
+    let (width, height) = mask.dimensions();
+    let labels = connected_components(&mask, Connectivity::Eight, image::Luma([0u8]));
+
+    // Extent of every marked component, so a balloon can tell its own outline
+    // from the words inside it.
+    let mut extent: std::collections::HashMap<u32, [u32; 4]> = std::collections::HashMap::new();
+    for (x, y, pixel) in mask.enumerate_pixels() {
+        if pixel[0] < 128 {
+            continue;
+        }
+        let id = labels.get_pixel(x, y)[0];
+        let e = extent.entry(id).or_insert([x, y, x + 1, y + 1]);
+        e[0] = e[0].min(x);
+        e[1] = e[1].min(y);
+        e[2] = e[2].max(x + 1);
+        e[3] = e[3].max(y + 1);
+    }
+
+    let mut replaced: std::collections::HashSet<u32> = std::collections::HashSet::new();
+
+    // A box the detector drew round text it found: anything it touches is text.
+    for block in blocks {
+        let left = block.x.floor().max(0.0) as u32;
+        let top = block.y.floor().max(0.0) as u32;
+        let right = ((block.x + block.width).ceil() as u32).min(width);
+        let bottom = ((block.y + block.height).ceil() as u32).min(height);
+        for y in top..bottom.max(top) {
+            for x in left..right.max(left) {
+                if mask.get_pixel(x, y)[0] >= 128 {
+                    replaced.insert(labels.get_pixel(x, y)[0]);
+                }
+            }
+        }
+    }
+
+    // A balloon claims the marks that sit wholly inside it. Claiming everything
+    // within its box instead takes the balloon's own outline with it, which is
+    // how a spiked shout balloon came back cut open and filled with white.
+    for balloon in balloons {
+        let left = balloon.x + BALLOON_OUTLINE_MARGIN;
+        let top = balloon.y + BALLOON_OUTLINE_MARGIN;
+        let right = balloon.x + balloon.width - BALLOON_OUTLINE_MARGIN;
+        let bottom = balloon.y + balloon.height - BALLOON_OUTLINE_MARGIN;
+        for (id, [ex1, ey1, ex2, ey2]) in &extent {
+            if (*ex1 as f32) >= left
+                && (*ey1 as f32) >= top
+                && (*ex2 as f32) <= right
+                && (*ey2 as f32) <= bottom
+            {
+                replaced.insert(*id);
+            }
+        }
+    }
+
+    let mut kept = image::GrayImage::new(width, height);
+    for (x, y, pixel) in mask.enumerate_pixels() {
+        if pixel[0] >= 128 && replaced.contains(&labels.get_pixel(x, y)[0]) {
+            kept.put_pixel(x, y, image::Luma([255]));
+        }
+    }
+    kept
+}
+
+/// Unmark the text mask wherever a block holds marks and no words, so the
+/// inpainter leaves those pixels alone.
+fn keep_wordless_marks(mut mask: image::GrayImage, blocks: &[TextBlock]) -> image::GrayImage {
+    let (width, height) = (mask.width() as i64, mask.height() as i64);
+    for block in blocks {
+        let Some(text) = block.text.as_deref() else {
+            continue;
+        };
+        if text.trim().is_empty() || koharu_types::carries_words(text) {
+            continue;
+        }
+        let left = (block.x.floor() as i64).clamp(0, width);
+        let top = (block.y.floor() as i64).clamp(0, height);
+        let right = ((block.x + block.width).ceil() as i64).clamp(left, width);
+        let bottom = ((block.y + block.height).ceil() as i64).clamp(top, height);
+        for y in top..bottom {
+            for x in left..right {
+                mask.put_pixel(x as u32, y as u32, image::Luma([0]));
+            }
+        }
+    }
+    mask
 }
 
 fn region_bbox(region: &LayoutRegion) -> [f32; 4] {
@@ -1195,16 +1371,19 @@ mod tests {
         let layout = layout_detector.inference_one_fast(&image, super::PP_DOCLAYOUT_THRESHOLD)?;
         let blocks = super::build_text_blocks(&layout.regions);
 
-        let segmenter =
-            runtime.block_on(super::comic_text_detector::ComicTextDetector::load_segmentation_only(
-                false,
-            ))?;
-        let probability_map = segmenter.inference_segmentation(&image)?;
-        let mask = super::comic_text_detector::refine_segmentation_mask(
-            &image,
-            &probability_map,
-            &blocks,
+        // The same mask `detect` builds, so what this shows is what the
+        // inpainter is handed. It used to dump the old brightness-refined mask
+        // from a segmenter the pipeline no longer loads, which only reported a
+        // missing model file.
+        let segmenter = runtime.block_on(super::MangaTextSegmentation::load(false))?;
+        let probability_map = segmenter.inference(&image)?;
+        let mask = probability_map.threshold(super::TEXT_MASK_THRESHOLD)?;
+        let mask = imageproc::morphology::dilate(
+            &mask,
+            imageproc::distance_transform::Norm::L1,
+            super::TEXT_MASK_DILATE_RADIUS,
         );
+        let _ = &blocks;
         let covered = mask.pixels().filter(|p| p[0] >= 128).count();
         println!(
             "mask {}x{} — {:.2}% of the page marked as text",
@@ -1468,6 +1647,163 @@ mod tests {
 
         let kept = super::drop_clipped_fragments(vec![(fragment, true), (elsewhere, false)]);
         assert_eq!(kept.len(), 2, "nothing covers the fragment: {kept:?}");
+    }
+
+    #[test]
+    fn only_what_the_pipeline_replaces_is_erased() {
+        use super::keep_only_text_found;
+        use koharu_types::BalloonDetection;
+
+        let mut mask = image::GrayImage::new(300, 100);
+        let mut mark = |x0: u32, x1: u32| {
+            for y in 30..60 {
+                for x in x0..x1 {
+                    mask.put_pixel(x, y, image::Luma([255]));
+                }
+            }
+        };
+        mark(20, 50); // inside a detected text box
+        mark(120, 150); // inside a balloon, but no box reaches it
+        mark(230, 260); // neither — a sound effect on the artwork
+
+        let block = TextBlock {
+            x: 15.0,
+            y: 25.0,
+            width: 40.0,
+            height: 40.0,
+            ..Default::default()
+        };
+        let balloon = BalloonDetection {
+            x: 110.0,
+            y: 20.0,
+            width: 60.0,
+            height: 60.0,
+            score: 0.9,
+        };
+
+        let kept = keep_only_text_found(mask, &[block], &[balloon]);
+        assert_eq!(kept.get_pixel(30, 40)[0], 255, "boxed text is erased");
+        assert_eq!(
+            kept.get_pixel(130, 40)[0],
+            255,
+            "a second column of the same balloon goes too"
+        );
+        assert_eq!(
+            kept.get_pixel(240, 40)[0],
+            0,
+            "a mark on the artwork is left alone"
+        );
+    }
+
+    #[test]
+    fn a_balloon_does_not_claim_its_own_outline() {
+        use super::keep_only_text_found;
+        use koharu_types::BalloonDetection;
+
+        // A balloon drawn as a ring, with a word inside it. The ring runs the
+        // length of the balloon and reaches the edge of the box around it; the
+        // word does not. Claiming everything inside the box takes the outline
+        // too, and the balloon comes back cut open and filled with white.
+        let mut mask = image::GrayImage::new(160, 160);
+        for t in 20..140 {
+            for d in 0..3 {
+                mask.put_pixel(t, 20 + d, image::Luma([255]));
+                mask.put_pixel(t, 137 + d, image::Luma([255]));
+                mask.put_pixel(20 + d, t, image::Luma([255]));
+                mask.put_pixel(137 + d, t, image::Luma([255]));
+            }
+        }
+        for y in 70..90 {
+            for x in 70..90 {
+                mask.put_pixel(x, y, image::Luma([255]));
+            }
+        }
+        let balloon = BalloonDetection {
+            x: 20.0,
+            y: 20.0,
+            width: 120.0,
+            height: 120.0,
+            score: 0.9,
+        };
+
+        let kept = keep_only_text_found(mask, &[], &[balloon]);
+        assert_eq!(kept.get_pixel(80, 80)[0], 255, "the words inside go");
+        assert_eq!(kept.get_pixel(60, 21)[0], 0, "the outline stays");
+    }
+
+    #[test]
+    fn a_run_only_partly_claimed_is_erased_whole() {
+        use super::keep_only_text_found;
+
+        // One run reaching well past the box that found it. Erasing the half
+        // inside and leaving the rest is worse than either.
+        let mut mask = image::GrayImage::new(200, 100);
+        for y in 30..60 {
+            for x in 20..140 {
+                mask.put_pixel(x, y, image::Luma([255]));
+            }
+        }
+        let block = TextBlock {
+            x: 15.0,
+            y: 25.0,
+            width: 40.0,
+            height: 40.0,
+            ..Default::default()
+        };
+
+        let kept = keep_only_text_found(mask, &[block], &[]);
+        assert_eq!(kept.get_pixel(130, 40)[0], 255, "the tail goes too");
+    }
+
+    #[test]
+    fn a_balloon_of_marks_keeps_the_marks_the_artist_drew() {
+        use super::keep_wordless_marks;
+
+        let mask = image::GrayImage::from_pixel(60, 60, image::Luma([255]));
+        let pause = TextBlock {
+            x: 10.0,
+            y: 10.0,
+            width: 20.0,
+            height: 20.0,
+            text: Some("・・・".to_string()),
+            ..Default::default()
+        };
+        let words = TextBlock {
+            x: 35.0,
+            y: 10.0,
+            width: 20.0,
+            height: 20.0,
+            text: Some("こわい".to_string()),
+            ..Default::default()
+        };
+
+        let kept = keep_wordless_marks(mask, &[pause, words]);
+        assert_eq!(kept.get_pixel(20, 20)[0], 0, "the pause must be left alone");
+        assert_eq!(kept.get_pixel(45, 20)[0], 255, "the words are still erased");
+    }
+
+    #[test]
+    fn a_word_inside_another_word_does_not_decide_who_someone_is() {
+        use super::{Age, Gender, parse_age_gender};
+
+        // The names that used to settle this by accident.
+        assert_eq!(parse_age_gender("Kinnikuman"), (Age::Unknown, Gender::Unknown));
+        assert_eq!(parse_age_gender("Goldman"), (Age::Unknown, Gender::Unknown));
+        // And what an actual description still says.
+        assert_eq!(parse_age_gender("old male"), (Age::Old, Gender::Male));
+        assert_eq!(parse_age_gender("young girl"), (Age::Young, Gender::Female));
+    }
+
+    #[test]
+    fn person_is_not_somebodys_son() {
+        use super::family_role;
+
+        // "person" carries "son", "Barbara" carries "ba".
+        assert!(family_role("a person").is_none());
+        assert!(family_role("Barbara").is_none());
+        // A trait that really does say it still lands.
+        assert!(family_role("father").is_some());
+        assert!(family_role("ông nội").is_some());
     }
 
     #[test]

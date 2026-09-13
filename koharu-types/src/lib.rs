@@ -475,3 +475,48 @@ mod tests {
         assert_eq!(third, (100.0, 200.0, 300.0, 400.0));
     }
 }
+
+/// Marks that sit in the kana block but carry no word — the middle dot a
+/// vertical ellipsis is written with, and the long-vowel bar.
+const WORDLESS_KANA_MARKS: &[char] = &['・', 'ー', '゠', '〃', '々'];
+
+/// Does this text carry words, or only marks?
+///
+/// A balloon holding nothing but 「・・・」 has nothing to translate and nothing
+/// to typeset: the marks read the same in any language, and the artist already
+/// set them. Erasing them and putting a sentence in their place is how a pause
+/// became a line of Vietnamese overflowing its panel.
+///
+/// The kana block is checked alongside the alphabetic property because a few
+/// kana are not alphabetic — but so are `・` and `ー`, which is how the
+/// vertical ellipsis passed for a word.
+pub fn carries_words(text: &str) -> bool {
+    text.chars().any(|c| {
+        if WORDLESS_KANA_MARKS.contains(&c) {
+            return false;
+        }
+        c.is_alphabetic() || ('\u{3040}'..='\u{30FF}').contains(&c)
+    })
+}
+
+#[cfg(test)]
+mod carries_words_tests {
+    use super::carries_words;
+
+    #[test]
+    fn a_pause_is_not_a_sentence() {
+        assert!(!carries_words("・・・"), "the vertical ellipsis");
+        assert!(!carries_words("……"));
+        assert!(!carries_words("ーーー"));
+        assert!(!carries_words("!?"));
+        assert!(!carries_words("   "));
+    }
+
+    #[test]
+    fn words_still_read_as_words() {
+        assert!(carries_words("ラーメン"), "a long vowel inside a word");
+        assert!(carries_words("キン肉マン"));
+        assert!(carries_words("こわい……"));
+        assert!(carries_words("Hello"));
+    }
+}
