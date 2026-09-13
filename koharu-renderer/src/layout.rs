@@ -497,6 +497,13 @@ impl<'a> TextLayout<'a> {
         // Following a shape, each line gets the room the shape leaves at its own
         // height instead of one width for the whole block.
         let bands = self.shape_bands(line_height);
+        // A shape whose bands are all too pinched to set a line in yields none
+        // at all. That must not read as "no constraints": without it the text
+        // is set on one endless line and reported as fitting, which is how a
+        // word came out twice as wide as its balloon.
+        let shape_has_no_room = bands.is_none()
+            && self.row_spans.is_some()
+            && !self.writing_mode.is_vertical();
         let line_extent = |index: usize| -> f32 {
             match &bands {
                 // Past the last band the text has overrun the shape. Keep
@@ -679,7 +686,7 @@ impl<'a> TextLayout<'a> {
         // so the positions are already the ones to draw at. Record the room
         // each line was given for alignment, and report whether the text
         // actually stayed inside it.
-        let mut fits = true;
+        let mut fits = !shape_has_no_room;
         if let Some(bands) = &bands {
             for (i, line) in lines.iter_mut().enumerate() {
                 let Some((top, x, band_width)) = bands.get(i).copied() else {
@@ -1394,6 +1401,21 @@ mod tests {
             );
         }
         Ok(())
+    }
+
+    #[test]
+    fn a_shape_with_no_room_to_set_a_line_does_not_report_a_fit() {
+        let font = any_system_font();
+        // A column far too narrow to hold a line at this size. It must come
+        // back as not fitting, so the size search steps down — not as an
+        // unconstrained single line that happens to say it fits.
+        let sliver = RowSpans::new(vec![(0.0, 20.0); 200]);
+        let layout = TextLayout::new(&font, Some(40.0))
+            .with_row_spans(sliver)
+            .run("NÀY!")
+            .expect("a layout");
+
+        assert!(!layout.fits, "20px of room cannot hold a 40pt line");
     }
 
     #[test]

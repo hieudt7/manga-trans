@@ -174,7 +174,10 @@ impl Renderer {
         let Some(translation) = text_block.translation.as_ref().cloned() else {
             return Ok(());
         };
-        if translation.is_empty() {
+        // Marks with no word in them — a balloon holding only 「・・・」 — are
+        // left exactly as the artist set them. Erasing a pause and setting it
+        // again only moves it.
+        if !koharu_types::carries_words(&translation) {
             return Ok(());
         };
         let normalized_translation = normalize_translation_for_layout(&translation);
@@ -329,9 +332,13 @@ impl Renderer {
         // A shout the artist drew large, short enough to read down a column:
         // stacked it needs no hyphen and no narrow column of syllables, and it
         // is how the Japanese was lettered in the first place.
+        // Lettering the artist drew large, or a room shaped like the column the
+        // Japanese was set in. NÀY! across a balloon 31px wide has nowhere to
+        // go; down it, every letter has the full width.
         let stack_shout = english_horizontal_layout
-            && is_emphatic_lettering(page_height, text_block.detected_font_size_px)
-            && is_stackable_shout(&normalized_translation);
+            && is_stackable_shout(&normalized_translation)
+            && (is_emphatic_lettering(page_height, text_block.detected_font_size_px)
+                || layout_box.height >= layout_box.width * STACKABLE_ROOM_ASPECT);
 
         // What the block was actually set with, when that is not what it came
         // in with.
@@ -780,6 +787,11 @@ fn apply_default_font_families(font_families: &mut Vec<String>, text: &str) {
 /// the line is readable and reaching further only walks it away from where the
 /// artist set it.
 const OUTSIDE_BALLOON_TARGET_FONT_SIZE: f32 = 14.0;
+
+/// A room this much taller than it is wide holds a column far better than a
+/// line. The Japanese in one was set down the page to begin with, and a
+/// Vietnamese word laid across it either overflows or shrinks to nothing.
+const STACKABLE_ROOM_ASPECT: f32 = 1.8;
 
 /// A shout that will not sit in its balloon is re-set at this size, and the
 /// choice between a line and a column is made there — before anything gets cut.
