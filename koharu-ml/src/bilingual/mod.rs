@@ -12,6 +12,8 @@
 //! and matching on it costs no OCR. Text comes later, and only for the pages
 //! that survived.
 
+pub mod style;
+
 use koharu_types::TextBlock;
 
 /// How alike two pages must look before pairing them beats leaving both
@@ -475,6 +477,38 @@ Không thêm bất kỳ lời giải thích nào.";
     fn digits_inside_a_balloon_are_not_mistaken_for_markers() {
         let reply = "###1\n1979\nNĂM ẤY\n###2\n60 PHÚT";
         assert_eq!(split_readings(reply, 2), vec!["1979\nNĂM ẤY", "60 PHÚT"]);
+    }
+
+    /// Distil a style profile out of a corpus already paired into
+    /// `pairs.jsonl`, and print it.
+    ///
+    /// `KOHARU_CORPUS=<dir with pairs.jsonl> cargo test --release -p koharu-ml
+    /// --lib measure_style -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn measure_style() -> anyhow::Result<()> {
+        let root = std::path::PathBuf::from(
+            std::env::var_os("KOHARU_CORPUS").expect("set KOHARU_CORPUS"),
+        );
+
+        let pairs: Vec<SentencePair> = std::fs::read_to_string(root.join("pairs.jsonl"))?
+            .lines()
+            .map(serde_json::from_str)
+            .collect::<Result<_, _>>()?;
+        println!("{} cặp câu", pairs.len());
+        println!("{} cặp dùng để học", super::style::sample(&pairs, 220).len());
+
+        let provider = vision_provider()?;
+        let runtime = tokio::runtime::Runtime::new()?;
+        let profile = runtime.block_on(super::style::learn(
+            &*provider,
+            &pairs,
+            "gemini-3.1-flash-lite-preview",
+        ))?;
+
+        println!("\n{}", serde_json::to_string_pretty(&profile)?);
+        println!("\n--- đưa vào story context ---\n{}", profile.to_context().unwrap_or_default());
+        Ok(())
     }
 
     /// Read lettering off real balloons with a vision model, and print the
