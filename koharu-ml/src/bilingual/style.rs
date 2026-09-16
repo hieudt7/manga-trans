@@ -198,6 +198,95 @@ Base every line on what is in the pairs above. Leave a list empty rather than \
 filling it with what is usually true of manga. Write the observations in \
 English; keep Vietnamese words themselves in Vietnamese.";
 
+/// Vietnamese personal pronouns, for checking a profile against the corpus it
+/// claims to describe.
+///
+/// Not exhaustive, and it does not need to be: an entry is only ever dropped
+/// for naming a pronoun from this list that the corpus does not contain, so a
+/// pronoun missing from the list simply goes unchecked.
+const PRONOUNS: &[&str] = &[
+    "tôi",
+    "tớ",
+    "ta",
+    "tao",
+    "mình",
+    "cậu",
+    "bạn",
+    "mày",
+    "ngươi",
+    "ông",
+    "bà",
+    "anh",
+    "chị",
+    "em",
+    "cháu",
+    "con",
+    "chú",
+    "bác",
+    "cô",
+    "dì",
+    "cậu ấy",
+    "sếp",
+    "ngài",
+    "thầy",
+    "trò",
+];
+
+/// Drop anything the profile says that the pairs do not bear out.
+///
+/// A model reading a hundred and fifty lines will occasionally round them off
+/// to what manga usually does rather than what this translation did. Measured
+/// over repeated runs, a corpus read by a local OCR produced an invented
+/// `Ông/Cháu` in roughly one run in four — and `cháu` appears nowhere in it.
+/// That is the failure this catches: not a subtly wrong reading, but a word
+/// that is simply not there.
+///
+/// Only claims that name a checkable word are checked. An observation about
+/// pace or register names nothing and stands as written.
+pub fn ground(profile: &mut StyleProfile, pairs: &[SentencePair]) {
+    let corpus = pairs
+        .iter()
+        .map(|pair| pair.target.replace('\n', " "))
+        .collect::<Vec<_>>()
+        .join(" || ")
+        .to_lowercase();
+
+    profile
+        .address
+        .retain(|entry| pronouns_named(entry).all(|word| mentions(&corpus, word)));
+
+    // A settled spelling that never occurs was not settled by this translator.
+    profile
+        .glossary
+        .retain(|[_, target]| corpus.contains(&target.to_lowercase()));
+}
+
+/// The pronouns an address entry names.
+fn pronouns_named(entry: &str) -> impl Iterator<Item = &'static str> + '_ {
+    let lowered = entry.to_lowercase();
+    PRONOUNS
+        .iter()
+        .copied()
+        .filter(move |word| mentions(&lowered, word))
+}
+
+/// Whole-word search: `ta` must not match inside `tao`, nor `em` inside `thèm`.
+fn mentions(haystack: &str, word: &str) -> bool {
+    let boundary = |c: Option<char>| c.is_none_or(|c| !c.is_alphanumeric());
+    let mut from = 0;
+    while let Some(at) = haystack[from..].find(word) {
+        let start = from + at;
+        let end = start + word.len();
+        if boundary(haystack[..start].chars().next_back())
+            && boundary(haystack[end..].chars().next())
+        {
+            return true;
+        }
+        from = start + word.len().max(1);
+    }
+    false
+}
+
 /// Read the pairs and keep what they teach.
 pub async fn learn(
     provider: &dyn koharu_llm::providers::AnyProvider,
@@ -211,7 +300,9 @@ pub async fn learn(
 
     let prompt = format!("{}\n\n{INSTRUCTIONS}", transcript(&chosen));
     let reply = provider.complete(SYSTEM_PROMPT, &prompt, model).await?;
-    parse(&reply)
+    let mut profile = parse(&reply)?;
+    ground(&mut profile, pairs);
+    Ok(profile)
 }
 
 /// Pull the profile out of the model's reply.
@@ -386,6 +477,79 @@ mod tests {
         assert_eq!(kept.len(), 10);
         assert_eq!(kept[0].target, "dòng số 0 đây");
         assert_eq!(kept[9].target, "dòng số 90 đây");
+    }
+
+    /// The failure this exists for: a corpus with no `cháu` in it cannot have
+    /// taught anyone to say `Ông/Cháu`.
+    #[test]
+    fn a_pronoun_pair_the_corpus_never_uses_is_dropped() {
+        let pairs = vec![pair("長官!!", "SẾP ƠI! TÔI BÁO CẬU BIẾT", 0.9)];
+        let mut profile = StyleProfile {
+            address: vec![
+                "Sếp/Tôi — nhân viên với cấp trên".to_string(),
+                "Ông/Cháu — người già với trẻ nhỏ".to_string(),
+            ],
+            ..Default::default()
+        };
+
+        ground(&mut profile, &pairs);
+
+        assert_eq!(profile.address, ["Sếp/Tôi — nhân viên với cấp trên"]);
+    }
+
+    /// An observation that names no pronoun cannot be checked, and must not be
+    /// dropped for it.
+    #[test]
+    fn an_observation_naming_no_pronoun_survives_grounding() {
+        let pairs = vec![pair("あ", "MỘT HAI BA", 0.9)];
+        let mut profile = StyleProfile {
+            voice: vec!["Câu ngắn, nhịp nhanh".to_string()],
+            address: vec!["Xưng hô thay đổi theo tình huống".to_string()],
+            ..Default::default()
+        };
+
+        ground(&mut profile, &pairs);
+
+        assert_eq!(profile.voice, ["Câu ngắn, nhịp nhanh"]);
+        assert_eq!(profile.address, ["Xưng hô thay đổi theo tình huống"]);
+    }
+
+    #[test]
+    fn a_settled_term_the_corpus_never_uses_is_dropped() {
+        let pairs = vec![pair("キン肉マン", "KINNIKUMAN ĐÂY!", 0.9)];
+        let mut profile = StyleProfile {
+            glossary: vec![
+                ["キン肉マン".to_string(), "Kinnikuman".to_string()],
+                ["長官".to_string(), "Trưởng quan".to_string()],
+            ],
+            ..Default::default()
+        };
+
+        ground(&mut profile, &pairs);
+
+        assert_eq!(
+            profile.glossary,
+            [["キン肉マン".to_string(), "Kinnikuman".to_string()]]
+        );
+    }
+
+    /// `ta` sits inside `tao`, and `em` inside `thèm`. Matching on substrings
+    /// would let a pronoun the corpus never uses pass as grounded.
+    #[test]
+    fn a_pronoun_hiding_inside_a_longer_word_does_not_count_as_used() {
+        let pairs = vec![pair("あ", "TAO KHÔNG THÈM CHẤP", 0.9)];
+        let mut profile = StyleProfile {
+            address: vec![
+                "Ta/Em — hai người thân thiết".to_string(),
+                "Tao/Mày — lúc cáu".to_string(),
+            ],
+            ..Default::default()
+        };
+
+        ground(&mut profile, &pairs);
+
+        // `tao` is there but `mày` is not, so that entry goes too.
+        assert!(profile.address.is_empty());
     }
 
     #[test]

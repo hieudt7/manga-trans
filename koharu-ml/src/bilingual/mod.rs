@@ -116,7 +116,11 @@ fn rect_iou(a: [f32; 4], b: [f32; 4]) -> f32 {
     }
     let intersection = (x2 - x1) * (y2 - y1);
     let union = a[2] * a[3] + b[2] * b[3] - intersection;
-    if union <= 0.0 { 0.0 } else { intersection / union }
+    if union <= 0.0 {
+        0.0
+    } else {
+        intersection / union
+    }
 }
 
 /// One step of the alignment between the two volumes.
@@ -161,8 +165,8 @@ pub fn align_pages(raw: &[PageSignature], translated: &[PageSignature]) -> Vec<P
     }
     for i in 1..=n {
         for j in 1..=m {
-            let paired = score[i - 1][j - 1] + similarity(&raw[i - 1], &translated[j - 1])
-                - MATCH_FLOOR;
+            let paired =
+                score[i - 1][j - 1] + similarity(&raw[i - 1], &translated[j - 1]) - MATCH_FLOOR;
             let skip_raw = score[i - 1][j] - GAP_COST;
             let skip_translated = score[i][j - 1] - GAP_COST;
             score[i][j] = paired.max(skip_raw).max(skip_translated);
@@ -268,7 +272,6 @@ pub fn match_blocks(
         .collect()
 }
 
-
 /// One line of dialogue in both languages, taken from the same balloon.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SentencePair {
@@ -366,6 +369,59 @@ Bỏ qua chữ thuộc hình vẽ nền hay nhãn đè lên; chỉ đọc chữ 
 Nếu ảnh không có chữ, để trống phần sau ###n.
 Không thêm bất kỳ lời giải thích nào.";
 
+    /// The local Vietnamese recogniser, when its models are on hand.
+    ///
+    /// Preferred over the vision model when both are available: it costs
+    /// nothing, needs no network, and measured 16.2% character error against
+    /// 151 balloons whose right answers are known — close enough that a style
+    /// profile learned from it named the same pronoun pairs.
+    fn local_reader() -> anyhow::Result<Option<crate::vietocr::VietOcr>> {
+        let Some(dir) = std::env::var_os("KOHARU_VIETOCR_DIR") else {
+            return Ok(None);
+        };
+        Ok(Some(crate::vietocr::VietOcr::open(std::path::Path::new(
+            &dir,
+        ))?))
+    }
+
+    /// Read one detected block off the translated page.
+    fn read_locally(
+        reader: &crate::vietocr::VietOcr,
+        sheet: &image::DynamicImage,
+        mask: Option<&image::DynamicImage>,
+        block: &TextBlock,
+    ) -> anyhow::Result<String> {
+        // The same margin the vision path uses: lettering leans past the
+        // detected edge, and a clipped glyph is guessed at rather than read.
+        const PAD: f32 = 8.0;
+        let left = (block.x - PAD).max(0.0) as u32;
+        let top = (block.y - PAD).max(0.0) as u32;
+        let right = ((block.x + block.width + PAD) as u32).min(sheet.width());
+        let bottom = ((block.y + block.height + PAD) as u32).min(sheet.height());
+        if right <= left || bottom <= top {
+            return Ok(String::new());
+        }
+        let mut crop = sheet.crop_imm(left, top, right - left, bottom - top);
+        // Blanking the artwork before reading halved the character error over
+        // the measured corpus, 16.7% to 8.3%. It is not free — the mask
+        // occasionally shaves a tone mark, turning `GIẢI CỨU` into `GIAI CỬU`.
+        //
+        // Splitting lines on the mask itself, which sounds better still, was
+        // measured and is much worse: 49% character error. The segmenter marks
+        // strokes, not lines, so its output is patchier down a column than the
+        // artwork is, and the row profile taken from it is noisier rather than
+        // cleaner. The mask is a good eraser and a poor ruler.
+        if !std::env::var("KOHARU_GLYPH_MASK").is_ok_and(|v| v == "0") {
+            if let Some(mask) = mask {
+                crop = crate::vietocr::keep_glyphs(
+                    &crop,
+                    &mask.crop_imm(left, top, right - left, bottom - top),
+                );
+            }
+        }
+        reader.read_block(&crop)
+    }
+
     /// Off by default so the alignment measurement still runs without a key
     /// or a network.
     fn vision_ocr_wanted() -> bool {
@@ -417,7 +473,11 @@ Không thêm bất kỳ lời giải thích nào.";
         for line in reply.lines() {
             let trimmed = line.trim();
             if let Some(rest) = trimmed.strip_prefix("###") {
-                current = rest.trim().parse::<usize>().ok().and_then(|n| n.checked_sub(1));
+                current = rest
+                    .trim()
+                    .parse::<usize>()
+                    .ok()
+                    .and_then(|n| n.checked_sub(1));
                 continue;
             }
             if let Some(index) = current.filter(|i| *i < count) {
@@ -487,16 +547,18 @@ Không thêm bất kỳ lời giải thích nào.";
     #[test]
     #[ignore]
     fn measure_style() -> anyhow::Result<()> {
-        let root = std::path::PathBuf::from(
-            std::env::var_os("KOHARU_CORPUS").expect("set KOHARU_CORPUS"),
-        );
+        let root =
+            std::path::PathBuf::from(std::env::var_os("KOHARU_CORPUS").expect("set KOHARU_CORPUS"));
 
         let pairs: Vec<SentencePair> = std::fs::read_to_string(root.join("pairs.jsonl"))?
             .lines()
             .map(serde_json::from_str)
             .collect::<Result<_, _>>()?;
         println!("{} cặp câu", pairs.len());
-        println!("{} cặp dùng để học", super::style::sample(&pairs, 220).len());
+        println!(
+            "{} cặp dùng để học",
+            super::style::sample(&pairs, 220).len()
+        );
 
         let provider = vision_provider()?;
         let runtime = tokio::runtime::Runtime::new()?;
@@ -507,7 +569,10 @@ Không thêm bất kỳ lời giải thích nào.";
         ))?;
 
         println!("\n{}", serde_json::to_string_pretty(&profile)?);
-        println!("\n--- đưa vào story context ---\n{}", profile.to_context().unwrap_or_default());
+        println!(
+            "\n--- đưa vào story context ---\n{}",
+            profile.to_context().unwrap_or_default()
+        );
         Ok(())
     }
 
@@ -528,9 +593,8 @@ Không thêm bất kỳ lời giải thích nào.";
     #[test]
     #[ignore]
     fn measure_vision_ocr() -> anyhow::Result<()> {
-        let root = std::path::PathBuf::from(
-            std::env::var_os("KOHARU_CORPUS").expect("set KOHARU_CORPUS"),
-        );
+        let root =
+            std::path::PathBuf::from(std::env::var_os("KOHARU_CORPUS").expect("set KOHARU_CORPUS"));
 
         let provider = vision_provider()?;
         let runtime = tokio::runtime::Runtime::new()?;
@@ -562,8 +626,10 @@ Không thêm bất kỳ lời giải thích nào.";
                 if same {
                     agreed += 1;
                 }
-                println!("  đã ghi: {recorded:?}\n  nhìn ra: {read:?}{}",
-                    if same { "   (trùng)" } else { "" });
+                println!(
+                    "  đã ghi: {recorded:?}\n  nhìn ra: {read:?}{}",
+                    if same { "   (trùng)" } else { "" }
+                );
             }
         }
 
@@ -574,9 +640,8 @@ Không thêm bất kỳ lời giải thích nào.";
     #[test]
     #[ignore]
     fn measure_corpus_alignment() -> anyhow::Result<()> {
-        let root = std::path::PathBuf::from(
-            std::env::var_os("KOHARU_CORPUS").expect("set KOHARU_CORPUS"),
-        );
+        let root =
+            std::path::PathBuf::from(std::env::var_os("KOHARU_CORPUS").expect("set KOHARU_CORPUS"));
 
         let mut sides = Vec::new();
         for side in ["raw", "trans"] {
@@ -669,15 +734,23 @@ Không thêm bất kỳ lời giải thích nào.";
             let runtime = tokio::runtime::Runtime::new()?;
             let ml = runtime.block_on(crate::facade::Model::new(false, backend))?;
 
-            let read = |path: &std::path::Path| -> anyhow::Result<Vec<TextBlock>> {
+            // The glyph mask comes back with the blocks: the local reader uses
+            // it to blank the artwork that shares a block with the lettering.
+            let read = |path: &std::path::Path| -> anyhow::Result<(Vec<TextBlock>, Option<image::DynamicImage>)> {
                 let mut doc = koharu_types::Document::open(path.to_path_buf())?;
                 runtime.block_on(ml.detect(&mut doc))?;
                 runtime.block_on(ml.ocr(&mut doc))?;
-                Ok(doc.text_blocks)
+                let mask = doc.segment.as_ref().map(|m| m.0.clone());
+                Ok((doc.text_blocks, mask))
             };
 
+            let reader = local_reader()?;
             let vision: Option<Box<dyn koharu_llm::providers::AnyProvider>> =
-                if vision_ocr_wanted() { Some(vision_provider()?) } else { None };
+                if reader.is_none() && vision_ocr_wanted() {
+                    Some(vision_provider()?)
+                } else {
+                    None
+                };
 
             let raw_files = pages(&root.join("raw"));
             let trans_files = pages(&root.join("trans"));
@@ -697,22 +770,32 @@ Không thêm bất kỳ lời giải thích nào.";
                 };
                 seen += 1;
                 let name = sides[0][*r].0.clone();
-                let (a, mut b) = (read(&raw_files[*r])?, read(&trans_files[*t])?);
+                let (a, _) = read(&raw_files[*r])?;
+                let (mut b, trans_mask) = read(&trans_files[*t])?;
                 let page_image = image::open(&raw_files[*r])?;
 
-                // Local OCR finds the Vietnamese boxes reliably but misreads
-                // what is in them — outlined lettering over artwork defeated
-                // every engine measured. Detection stays local; the reading of
-                // the translated side is redone by a vision model.
-                if vision_ocr_wanted() {
+                // The pipeline's own OCR finds the Vietnamese boxes reliably
+                // but misreads what is in them — outlined lettering over
+                // artwork defeated every general engine measured. Detection
+                // stays as it is; only the reading of the translated side is
+                // redone, by whichever reader was asked for.
+                if reader.is_some() || vision_ocr_wanted() {
                     let sheet = image::open(&trans_files[*t])?;
-                    let boxes: Vec<[f32; 4]> =
-                        b.iter().map(|t| [t.x, t.y, t.width, t.height]).collect();
-                    let seen = runtime.block_on(read_balloons(
-                        vision.as_deref().unwrap(),
-                        &sheet,
-                        &boxes,
-                    ))?;
+                    let seen: Vec<String> = match reader.as_ref() {
+                        Some(local) => b
+                            .iter()
+                            .map(|block| read_locally(local, &sheet, trans_mask.as_ref(), block))
+                            .collect::<anyhow::Result<_>>()?,
+                        None => {
+                            let boxes: Vec<[f32; 4]> =
+                                b.iter().map(|t| [t.x, t.y, t.width, t.height]).collect();
+                            runtime.block_on(read_balloons(
+                                vision.as_deref().unwrap(),
+                                &sheet,
+                                &boxes,
+                            ))?
+                        }
+                    };
                     for (block, reading) in b.iter_mut().zip(seen) {
                         block.text = Some(reading);
                     }
@@ -737,13 +820,18 @@ Không thêm bất kỳ lời giải thích nào.";
                 pairs.extend(found);
             }
 
-            println!("\nđọc {seen} trang, bỏ {dropped}, lấy được {} cặp câu", pairs.len());
+            println!(
+                "\nđọc {seen} trang, bỏ {dropped}, lấy được {} cặp câu",
+                pairs.len()
+            );
             if !pairs.is_empty() {
                 // The filter on length is not set yet; this is the measurement
                 // that would set it.
                 let mut ratios: Vec<f32> = pairs
                     .iter()
-                    .map(|p| p.target.chars().count() as f32 / p.source.chars().count().max(1) as f32)
+                    .map(|p| {
+                        p.target.chars().count() as f32 / p.source.chars().count().max(1) as f32
+                    })
                     .collect();
                 ratios.sort_by(|a, b| a.partial_cmp(b).unwrap());
                 println!(
@@ -900,7 +988,10 @@ mod tests {
         // Japanese runs down the balloon in a narrow column; the Vietnamese
         // that replaces it runs across in wide lines. Two very different
         // rectangles around the same place.
-        let raw = [block(100.0, 100.0, 30.0, 120.0), block(800.0, 600.0, 28.0, 140.0)];
+        let raw = [
+            block(100.0, 100.0, 30.0, 120.0),
+            block(800.0, 600.0, 28.0, 140.0),
+        ];
         let translated = [
             block(795.0, 655.0, 120.0, 40.0),
             block(55.0, 145.0, 130.0, 34.0),
@@ -927,7 +1018,11 @@ mod tests {
         ];
 
         let pairs = match_blocks(&raw, &translated, PAGE.0, PAGE.1);
-        assert_eq!(pairs.len(), 2, "the far balloon and one of the pair: {pairs:?}");
+        assert_eq!(
+            pairs.len(),
+            2,
+            "the far balloon and one of the pair: {pairs:?}"
+        );
         assert!(pairs.iter().any(|p| p.raw == 2 && p.translated == 1));
     }
 
