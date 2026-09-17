@@ -109,19 +109,22 @@ pub async fn llm_list(
     Ok(result)
 }
 
-/// Join the user's story context with the character roster. The user's text goes
-/// first so that editing the roster (adding a character) does not invalidate the
-/// cached prefix of the part they wrote.
-fn merge_story_context(user: Option<&str>, roster: Option<&str>) -> Option<String> {
-    match (
-        user.map(str::trim).filter(|value| !value.is_empty()),
-        roster.map(str::trim).filter(|value| !value.is_empty()),
-    ) {
-        (Some(user), Some(roster)) => Some(format!("{user}\n\n{roster}")),
-        (Some(user), None) => Some(user.to_string()),
-        (None, Some(roster)) => Some(roster.to_string()),
-        (None, None) => None,
-    }
+/// Join the user's story context, the translator's style profile and the
+/// character roster, in that order: from what changes least to what changes
+/// most, so that adding a character does not invalidate the cached prefix
+/// before it.
+fn merge_story_context(
+    user: Option<&str>,
+    style: Option<&str>,
+    roster: Option<&str>,
+) -> Option<String> {
+    let parts: Vec<&str> = [user, style, roster]
+        .into_iter()
+        .flatten()
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect();
+    (!parts.is_empty()).then(|| parts.join("\n\n"))
 }
 
 #[instrument(level = "info", skip_all)]
@@ -135,8 +138,14 @@ pub async fn llm_load(state: AppResources, payload: LlmLoadPayload) -> anyhow::R
         // Fold the character library into the story context, which stays byte
         // identical for the whole session and therefore lands in the provider's
         // prompt cache. Per-page context then only has to name who appears.
+        // The style profile a curator chose from a reference volume, if any.
+        let style = koharu_ml::bilingual::style::load_active().and_then(|p| p.to_context());
+        if let Some(style) = &style {
+            tracing::info!(chars = style.len(), "story context includes the active style profile");
+        }
         let story_context = merge_story_context(
             payload.story_context.as_deref(),
+            style.as_deref(),
             state.ml.character_roster_context().as_deref(),
         );
         state
@@ -240,4 +249,28 @@ pub async fn get_document_for_llm(
     payload: IndexPayload,
 ) -> anyhow::Result<koharu_types::Document> {
     state_tx::read_doc(&state.state, payload.index).await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::merge_story_context;
+
+    /// The order is what keeps the provider's prompt cache warm: the parts that
+    /// change least go first.
+    #[test]
+    fn parts_join_in_order_of_how_rarely_they_change() {
+        assert_eq!(
+            merge_story_context(Some("truyện"), Some("văn phong"), Some("nhân vật")).as_deref(),
+            Some("truyện\n\nvăn phong\n\nnhân vật")
+        );
+    }
+
+    #[test]
+    fn missing_or_blank_parts_leave_no_empty_gap() {
+        assert_eq!(
+            merge_story_context(None, Some("văn phong"), Some("  ")).as_deref(),
+            Some("văn phong")
+        );
+        assert_eq!(merge_story_context(Some(" "), None, None), None);
+    }
 }

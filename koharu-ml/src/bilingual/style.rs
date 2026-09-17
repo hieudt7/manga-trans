@@ -43,6 +43,7 @@ const MAX_LENGTH_RATIO: f32 = 9.0;
 
 /// What reading a translator's work taught us about how they write.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct StyleProfile {
     /// How the prose sounds: register, sentence length, what it does with
     /// exclamations.
@@ -194,6 +195,11 @@ in katakana, romanised, dropped. At most 4.
 - glossary: names and recurring terms whose Vietnamese spelling has settled. \
 Only ones that actually recur. At most 30.
 
+The Vietnamese was read off the page by OCR, which gets the words right but \
+not the punctuation: a closing ! often comes back as 3, ' or [, and a ? as F. \
+Say nothing about punctuation, and do not treat stray digits or brackets at \
+the end of a line as part of the translation.
+
 Base every line on what is in the pairs above. Leave a list empty rather than \
 filling it with what is usually true of manga. Write the observations in \
 English; keep Vietnamese words themselves in Vietnamese.";
@@ -287,22 +293,81 @@ fn mentions(haystack: &str, word: &str) -> bool {
     false
 }
 
-/// Read the pairs and keep what they teach.
+/// The request that turns a corpus into a profile, as `(system, user)`.
+///
+/// Split from the call itself so the caller can send it through whichever
+/// model the app has loaded; `None` when no pair is worth learning from.
+pub fn request(pairs: &[SentencePair]) -> Option<(&'static str, String)> {
+    let chosen = sample(pairs, SAMPLE_SIZE);
+    if chosen.is_empty() {
+        return None;
+    }
+    Some((
+        SYSTEM_PROMPT,
+        format!("{}\n\n{INSTRUCTIONS}", transcript(&chosen)),
+    ))
+}
+
+/// Turn the model's reply into a profile, keeping only what the pairs bear out.
+pub fn from_reply(reply: &str, pairs: &[SentencePair]) -> anyhow::Result<StyleProfile> {
+    let mut profile = parse(reply)?;
+    ground(&mut profile, pairs);
+    Ok(profile)
+}
+
+/// Read the pairs and keep what they teach, through a provider directly.
 pub async fn learn(
     provider: &dyn koharu_llm::providers::AnyProvider,
     pairs: &[SentencePair],
     model: &str,
 ) -> anyhow::Result<StyleProfile> {
-    let chosen = sample(pairs, SAMPLE_SIZE);
-    if chosen.is_empty() {
-        anyhow::bail!("no sentence pairs worth learning from");
-    }
+    let (system, user) =
+        request(pairs).ok_or_else(|| anyhow::anyhow!("no sentence pairs worth learning from"))?;
+    let reply = provider.complete(system, &user, model).await?;
+    from_reply(&reply, pairs)
+}
 
-    let prompt = format!("{}\n\n{INSTRUCTIONS}", transcript(&chosen));
-    let reply = provider.complete(SYSTEM_PROMPT, &prompt, model).await?;
-    let mut profile = parse(&reply)?;
-    ground(&mut profile, pairs);
-    Ok(profile)
+/// Where the profile the translator should follow is kept.
+///
+/// One profile at a time, beside the character library: the reference volume a
+/// profile was learned from is rarely the folder being translated, so the
+/// profile cannot simply be looked up next to the pages.
+pub fn active_profile_path() -> std::path::PathBuf {
+    dirs::data_local_dir()
+        .unwrap_or_else(|| std::path::PathBuf::from("."))
+        .join("koharu")
+        .join("style_profile.json")
+}
+
+/// The profile translations currently follow, if one has been chosen.
+pub fn load_active() -> Option<StyleProfile> {
+    let bytes = std::fs::read(active_profile_path()).ok()?;
+    match serde_json::from_slice(&bytes) {
+        Ok(profile) => Some(profile),
+        Err(err) => {
+            tracing::warn!("ignoring unreadable style profile: {err}");
+            None
+        }
+    }
+}
+
+/// Make `profile` the one translations follow; `None` stops following any.
+pub fn set_active(profile: Option<&StyleProfile>) -> anyhow::Result<()> {
+    let path = active_profile_path();
+    match profile {
+        Some(profile) => {
+            if let Some(dir) = path.parent() {
+                std::fs::create_dir_all(dir)?;
+            }
+            std::fs::write(&path, serde_json::to_vec_pretty(profile)?)?;
+        }
+        None => match std::fs::remove_file(&path) {
+            Ok(()) => {}
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+            Err(err) => return Err(err.into()),
+        },
+    }
+    Ok(())
 }
 
 /// Pull the profile out of the model's reply.
@@ -550,6 +615,17 @@ mod tests {
 
         // `tao` is there but `mày` is not, so that entry goes too.
         assert!(profile.address.is_empty());
+    }
+
+    /// On the full reference volume, 62 lines ended in a `3` that was really a
+    /// `!`, and the profile described that as the translator's "teen style
+    /// punctuation". The model has to be told the punctuation is not theirs.
+    #[test]
+    fn the_request_warns_that_ocr_punctuation_is_unreliable() {
+        let pairs = vec![pair("長官!!", "SẾP ƠI3", 0.9)];
+        let (_, user) = request(&pairs).unwrap();
+        assert!(user.contains("Say nothing about punctuation"));
+        assert!(user.contains("SẾP ƠI3"));
     }
 
     #[test]

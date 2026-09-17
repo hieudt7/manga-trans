@@ -236,6 +236,11 @@ export function MenuBar() {
               </Link>
             </MenubarItem>
             <MenubarItem className='text-[13px]' asChild>
+              <Link href='/style-scanner' prefetch={false}>
+                {t('menu.styleScanner')}
+              </Link>
+            </MenubarItem>
+            <MenubarItem className='text-[13px]' asChild>
               <Link href='/settings' prefetch={false}>
                 {t('menu.settings')}
               </Link>

@@ -69,6 +69,25 @@ export type CharacterScanResult = {
   relationshipTree: RelationshipNode[]
   isVerifiedByHuman: boolean
 }
+
+/** How a published translation reads, learned from a reference volume. */
+export type StyleProfile = {
+  voice: string[]
+  /** Who calls whom what — the part of a translation most worth keeping. */
+  address: string[]
+  soundEffects: string[]
+  /** `[japanese, vietnamese]` */
+  glossary: [string, string][]
+}
+
+export type StyleScanResult = {
+  profile: StyleProfile
+  rawPages: number
+  translatedPages: number
+  pairedPages: number
+  pairCount: number
+  isVerifiedByHuman: boolean
+}
 import {
   Document,
   InpaintRegion,
@@ -1080,6 +1099,49 @@ export const api = {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(result),
+      })
+    })
+  },
+
+  async startStyleScan(): Promise<JobState> {
+    return withRpcError('start_style_scan', () =>
+      fetchJson<JobState>('/jobs/style-scan-folder', { method: 'POST' }),
+    )
+  },
+
+  async cancelStyleScan(jobId: string): Promise<void> {
+    await fetchJson<void>(`/jobs/${jobId}`, { method: 'DELETE' })
+  },
+
+  async getStyleScanResult(): Promise<StyleScanResult | null> {
+    return withRpcError('get_style_scan_result', () =>
+      fetchJson<StyleScanResult | null>('/style-scan/result'),
+    )
+  },
+
+  async exportStyleScan(result: StyleScanResult): Promise<void> {
+    return withRpcError('export_style_scan', async () => {
+      await fetchJson<void>('/style-scan/export', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(result),
+      })
+    })
+  },
+
+  async getActiveStyleProfile(): Promise<StyleProfile | null> {
+    return withRpcError('get_active_style_profile', () =>
+      fetchJson<StyleProfile | null>('/style-profile/active'),
+    )
+  },
+
+  /** `null` stops translations following any profile. */
+  async setActiveStyleProfile(profile: StyleProfile | null): Promise<void> {
+    return withRpcError('set_active_style_profile', async () => {
+      await fetchJson<void>('/style-profile/active', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(profile),
       })
     })
   },

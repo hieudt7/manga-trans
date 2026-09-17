@@ -43,7 +43,8 @@
       "ja-JP": "日本語",
       "ru-RU": "Русский",
       "es-ES": "Español"
-    }
+    },
+    "styleScanner": "Style Scanner"
   },
   "operations": {
     "title": "Working",
@@ -371,6 +372,51 @@
     },
     "syncToLibrary": {
       "button": "Sync to Character Library"
+    }
+  },
+  "styleScanner": {
+    "title": "Style Scanner",
+    "pickFolder": "Open Folder",
+    "startScan": "Start Scan",
+    "rescan": "Scan Again",
+    "cancelScan": "Cancel",
+    "loading": "Loading...",
+    "progress": "Step {{current}} / {{total}}",
+    "noResult": "No style profile yet",
+    "noResultHint": "Run a scan to learn how this volume's published translation reads: forms of address, voice, sound effects and settled names.",
+    "emptyHint": "Open a reference folder that holds the original pages in raw/ and the published translation in trans/.",
+    "stats": "{{paired}} of {{raw}} raw pages paired with {{translated}} translated pages · {{pairs}} sentence pairs",
+    "reviewed": "Reviewed",
+    "notReviewed": "Not reviewed yet",
+    "save": "Save",
+    "saving": "Saving...",
+    "use": "Use for translation",
+    "inUse": "In use",
+    "activeHint": "Translations follow the profile in use. It takes effect the next time an LLM is loaded.",
+    "emptySection": "One observation per line",
+    "sections": {
+      "address": {
+        "title": "Forms of address",
+        "hint": "Which pronouns pass between which characters. One per line."
+      },
+      "voice": {
+        "title": "Voice",
+        "hint": "Register, sentence length, particles."
+      },
+      "soundEffects": {
+        "title": "Sound effects",
+        "hint": "What the translator does with sound effects and shouting."
+      },
+      "glossary": {
+        "title": "Settled terms",
+        "hint": "Names and recurring terms, spelled as the translation spells them."
+      }
+    },
+    "glossary": {
+      "source": "Japanese",
+      "target": "Vietnamese",
+      "add": "Add term",
+      "remove": "Remove"
     }
   }
 }

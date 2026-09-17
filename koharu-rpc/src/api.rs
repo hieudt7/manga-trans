@@ -159,6 +159,13 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
             "/character-scan/sync-to-library",
             post(sync_character_scan_to_library),
         )
+        .route("/jobs/style-scan-folder", post(start_style_scan_job))
+        .route("/style-scan/result", get(get_style_scan_result))
+        .route("/style-scan/export", post(export_style_scan))
+        .route(
+            "/style-profile/active",
+            get(get_active_style_profile).put(set_active_style_profile),
+        )
         .layer(DefaultBodyLimit::max(MAX_BODY_SIZE))
         .with_state(state)
 }
@@ -1209,6 +1216,73 @@ async fn remove_character(
         .ml
         .character_lib
         .remove_character(&character_id)
+        .map_err(ApiError::from)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+// ─── Style Scanner handlers ────────────────────────────────────────────────────
+
+type StyleScanResult = koharu_ml::bilingual::corpus::StyleScanResult;
+type StyleProfile = koharu_ml::bilingual::style::StyleProfile;
+
+async fn start_style_scan_job(State(state): State<ApiState>) -> ApiResult<Json<JobState>> {
+    let resources = state.resources()?;
+
+    let (job_id, total_documents) = operations::start_style_scan_job(resources.clone())
+        .await
+        .map_err(ApiError::from)?;
+
+    let job = JobState {
+        id: job_id,
+        kind: "style-scan-folder".to_string(),
+        status: JobStatus::Running,
+        step: None,
+        current_document: 0,
+        total_documents,
+        current_step_index: 0,
+        total_steps: 1,
+        overall_percent: 0,
+        error: None,
+    };
+    state.events.publish_job(job.clone()).await;
+
+    Ok(Json(job))
+}
+
+async fn get_style_scan_result(
+    State(state): State<ApiState>,
+) -> ApiResult<Json<Option<StyleScanResult>>> {
+    let resources = state.resources()?;
+    let result = operations::get_style_scan_result(resources)
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(result))
+}
+
+async fn export_style_scan(
+    State(state): State<ApiState>,
+    Json(result): Json<StyleScanResult>,
+) -> ApiResult<StatusCode> {
+    let resources = state.resources()?;
+    operations::export_style_scan_result(resources, result)
+        .await
+        .map_err(ApiError::from)?;
+    Ok(StatusCode::NO_CONTENT)
+}
+
+async fn get_active_style_profile() -> ApiResult<Json<Option<StyleProfile>>> {
+    let profile = operations::get_active_style_profile()
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(profile))
+}
+
+/// `null` stops translations following any profile.
+async fn set_active_style_profile(
+    Json(profile): Json<Option<StyleProfile>>,
+) -> ApiResult<StatusCode> {
+    operations::set_active_style_profile(profile)
+        .await
         .map_err(ApiError::from)?;
     Ok(StatusCode::NO_CONTENT)
 }

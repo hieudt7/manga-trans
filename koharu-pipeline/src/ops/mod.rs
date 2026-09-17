@@ -4,6 +4,7 @@ mod edit;
 pub mod folder;
 mod llm;
 mod process;
+pub mod style_scan;
 mod translate;
 pub(crate) mod utils;
 mod vision;
@@ -13,6 +14,10 @@ pub use character_scan::{
     get_character_scan_face_path, get_character_scan_result, start_character_scan_job,
 };
 pub use core::*;
+pub use style_scan::{
+    export_style_scan_result, get_active_style_profile, get_style_scan_result,
+    set_active_style_profile, start_style_scan_job,
+};
 pub use edit::*;
 pub use folder::{
     get_folder_image_bytes, get_folder_result_bytes, get_folder_session, open_folder_session,

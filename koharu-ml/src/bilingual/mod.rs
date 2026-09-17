@@ -12,6 +12,7 @@
 //! and matching on it costs no OCR. Text comes later, and only for the pages
 //! that survived.
 
+pub mod corpus;
 pub mod style;
 
 use koharu_types::TextBlock;
@@ -340,23 +341,6 @@ pub fn pairs_from_page(
 mod measure {
     use super::*;
 
-    fn pages(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
-        let mut files: Vec<_> = std::fs::read_dir(dir)
-            .expect("corpus directory")
-            .filter_map(|e| e.ok().map(|e| e.path()))
-            .filter(|p| {
-                p.extension().is_some_and(|e| {
-                    matches!(
-                        e.to_string_lossy().to_lowercase().as_str(),
-                        "jpg" | "jpeg" | "png" | "webp"
-                    )
-                })
-            })
-            .collect();
-        files.sort();
-        files
-    }
-
     /// The vision model reads every balloon on a page in one request, so its
     /// answers have to come back separably. A bare numbered list would be
     /// ambiguous the moment a balloon's own text starts with a digit, hence the
@@ -382,44 +366,6 @@ Không thêm bất kỳ lời giải thích nào.";
         Ok(Some(crate::vietocr::VietOcr::open(std::path::Path::new(
             &dir,
         ))?))
-    }
-
-    /// Read one detected block off the translated page.
-    fn read_locally(
-        reader: &crate::vietocr::VietOcr,
-        sheet: &image::DynamicImage,
-        mask: Option<&image::DynamicImage>,
-        block: &TextBlock,
-    ) -> anyhow::Result<String> {
-        // The same margin the vision path uses: lettering leans past the
-        // detected edge, and a clipped glyph is guessed at rather than read.
-        const PAD: f32 = 8.0;
-        let left = (block.x - PAD).max(0.0) as u32;
-        let top = (block.y - PAD).max(0.0) as u32;
-        let right = ((block.x + block.width + PAD) as u32).min(sheet.width());
-        let bottom = ((block.y + block.height + PAD) as u32).min(sheet.height());
-        if right <= left || bottom <= top {
-            return Ok(String::new());
-        }
-        let mut crop = sheet.crop_imm(left, top, right - left, bottom - top);
-        // Blanking the artwork before reading halved the character error over
-        // the measured corpus, 16.7% to 8.3%. It is not free — the mask
-        // occasionally shaves a tone mark, turning `GIẢI CỨU` into `GIAI CỬU`.
-        //
-        // Splitting lines on the mask itself, which sounds better still, was
-        // measured and is much worse: 49% character error. The segmenter marks
-        // strokes, not lines, so its output is patchier down a column than the
-        // artwork is, and the row profile taken from it is noisier rather than
-        // cleaner. The mask is a good eraser and a poor ruler.
-        if !std::env::var("KOHARU_GLYPH_MASK").is_ok_and(|v| v == "0") {
-            if let Some(mask) = mask {
-                crop = crate::vietocr::keep_glyphs(
-                    &crop,
-                    &mask.crop_imm(left, top, right - left, bottom - top),
-                );
-            }
-        }
-        reader.read_block(&crop)
     }
 
     /// Off by default so the alignment measurement still runs without a key
@@ -645,7 +591,7 @@ Không thêm bất kỳ lời giải thích nào.";
 
         let mut sides = Vec::new();
         for side in ["raw", "trans"] {
-            let files = pages(&root.join(side));
+            let files = corpus::list_pages(&root.join(side));
             println!("{side}: {} trang", files.len());
             let mut signatures = Vec::with_capacity(files.len());
             for path in &files {
@@ -752,8 +698,8 @@ Không thêm bất kỳ lời giải thích nào.";
                     None
                 };
 
-            let raw_files = pages(&root.join("raw"));
-            let trans_files = pages(&root.join("trans"));
+            let raw_files = corpus::list_pages(&root.join(corpus::RAW_DIR));
+            let trans_files = corpus::list_pages(&root.join(corpus::TRANSLATED_DIR));
             let mut pairs = Vec::new();
             let (mut seen, mut dropped) = (0usize, 0usize);
             for step in &steps {
@@ -784,7 +730,9 @@ Không thêm bất kỳ lời giải thích nào.";
                     let seen: Vec<String> = match reader.as_ref() {
                         Some(local) => b
                             .iter()
-                            .map(|block| read_locally(local, &sheet, trans_mask.as_ref(), block))
+                            .map(|block| {
+                                corpus::read_translated(local, &sheet, trans_mask.as_ref(), block)
+                            })
                             .collect::<anyhow::Result<_>>()?,
                         None => {
                             let boxes: Vec<[f32; 4]> =

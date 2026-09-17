@@ -42,7 +42,8 @@
       "ja-JP": "日本語",
       "ru-RU": "Русский",
       "es-ES": "Español"
-    }
+    },
+    "styleScanner": "文体スキャナー"
   },
   "operations": {
     "title": "処理中",
@@ -368,6 +369,51 @@
     },
     "syncToLibrary": {
       "button": "キャラクターライブラリに同期"
+    }
+  },
+  "styleScanner": {
+    "title": "文体スキャナー",
+    "pickFolder": "フォルダを開く",
+    "startScan": "スキャン開始",
+    "rescan": "再スキャン",
+    "cancelScan": "キャンセル",
+    "loading": "読み込み中...",
+    "progress": "ステップ {{current}} / {{total}}",
+    "noResult": "文体プロファイルはまだありません",
+    "noResultHint": "スキャンすると、この巻の公式翻訳の人称・語り口・効果音・固有名詞の訳し方を学習します。",
+    "emptyHint": "raw/ に原稿、trans/ に公式翻訳を入れた参照フォルダを開いてください。",
+    "stats": "原稿 {{raw}} ページ中 {{paired}} ページを翻訳 {{translated}} ページと対応付け · 対訳 {{pairs}} 件",
+    "reviewed": "確認済み",
+    "notReviewed": "未確認",
+    "save": "保存",
+    "saving": "保存中...",
+    "use": "翻訳に使用",
+    "inUse": "使用中",
+    "activeHint": "翻訳は使用中のプロファイルに従います。次に LLM を読み込んだときに反映されます。",
+    "emptySection": "1 行に 1 項目",
+    "sections": {
+      "address": {
+        "title": "人称",
+        "hint": "どのキャラクター間でどの人称を使うか。1 行に 1 つ。"
+      },
+      "voice": {
+        "title": "語り口",
+        "hint": "文体、文の長さ、終助詞。"
+      },
+      "soundEffects": {
+        "title": "効果音",
+        "hint": "効果音や叫び声の扱い。"
+      },
+      "glossary": {
+        "title": "固定訳語",
+        "hint": "翻訳での表記どおりの名前・用語。"
+      }
+    },
+    "glossary": {
+      "source": "日本語",
+      "target": "ベトナム語",
+      "add": "用語を追加",
+      "remove": "削除"
     }
   }
 }

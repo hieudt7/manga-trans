@@ -42,7 +42,8 @@
       "ja-JP": "日本語",
       "ru-RU": "Русский",
       "es-ES": "Español"
-    }
+    },
+    "styleScanner": "文风扫描"
   },
   "operations": {
     "title": "处理中",
@@ -368,6 +369,51 @@
     },
     "syncToLibrary": {
       "button": "同步到角色库"
+    }
+  },
+  "styleScanner": {
+    "title": "文风扫描",
+    "pickFolder": "打开文件夹",
+    "startScan": "开始扫描",
+    "rescan": "重新扫描",
+    "cancelScan": "取消",
+    "loading": "加载中...",
+    "progress": "步骤 {{current}} / {{total}}",
+    "noResult": "尚无文风档案",
+    "noResultHint": "扫描后将学习本卷正式译本的称谓、语气、拟声词和固定译名。",
+    "emptyHint": "请打开参考文件夹：raw/ 放原稿，trans/ 放正式译本。",
+    "stats": "{{raw}} 页原稿中有 {{paired}} 页与 {{translated}} 页译本配对 · {{pairs}} 组对译句",
+    "reviewed": "已审阅",
+    "notReviewed": "尚未审阅",
+    "save": "保存",
+    "saving": "保存中...",
+    "use": "用于翻译",
+    "inUse": "使用中",
+    "activeHint": "翻译将遵循正在使用的档案，下次加载 LLM 时生效。",
+    "emptySection": "每行一条",
+    "sections": {
+      "address": {
+        "title": "称谓",
+        "hint": "哪些角色之间使用哪些人称，每行一条。"
+      },
+      "voice": {
+        "title": "语气",
+        "hint": "语体、句长、语气词。"
+      },
+      "soundEffects": {
+        "title": "拟声词",
+        "hint": "译者如何处理拟声词和喊叫。"
+      },
+      "glossary": {
+        "title": "固定译名",
+        "hint": "按译本写法记录的名字和常用词。"
+      }
+    },
+    "glossary": {
+      "source": "日语",
+      "target": "越南语",
+      "add": "添加词条",
+      "remove": "删除"
     }
   }
 }

@@ -42,7 +42,8 @@
       "ja-JP": "Japonés",
       "ru-RU": "Ruso",
       "es-ES": "Español"
-    }
+    },
+    "styleScanner": "Escáner de estilo"
   },
   "operations": {
     "title": "Trabajando",
@@ -368,6 +369,51 @@
     },
     "syncToLibrary": {
       "button": "Sincronizar con la biblioteca de personajes"
+    }
+  },
+  "styleScanner": {
+    "title": "Escáner de estilo",
+    "pickFolder": "Abrir carpeta",
+    "startScan": "Iniciar escaneo",
+    "rescan": "Escanear de nuevo",
+    "cancelScan": "Cancelar",
+    "loading": "Cargando...",
+    "progress": "Paso {{current}} / {{total}}",
+    "noResult": "Aún no hay perfil de estilo",
+    "noResultHint": "Escanea para aprender cómo se lee la traducción publicada de este tomo: tratamientos, voz, onomatopeyas y nombres fijados.",
+    "emptyHint": "Abre una carpeta de referencia con las páginas originales en raw/ y la traducción publicada en trans/.",
+    "stats": "{{paired}} de {{raw}} páginas originales emparejadas con {{translated}} traducidas · {{pairs}} pares de frases",
+    "reviewed": "Revisado",
+    "notReviewed": "Sin revisar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "use": "Usar al traducir",
+    "inUse": "En uso",
+    "activeHint": "Las traducciones siguen el perfil en uso. Se aplica la próxima vez que se cargue un LLM.",
+    "emptySection": "Una observación por línea",
+    "sections": {
+      "address": {
+        "title": "Tratamientos",
+        "hint": "Qué pronombres usan unos personajes con otros. Uno por línea."
+      },
+      "voice": {
+        "title": "Voz",
+        "hint": "Registro, longitud de frase, partículas."
+      },
+      "soundEffects": {
+        "title": "Onomatopeyas",
+        "hint": "Qué hace el traductor con efectos de sonido y gritos."
+      },
+      "glossary": {
+        "title": "Términos fijados",
+        "hint": "Nombres y términos recurrentes, escritos como en la traducción."
+      }
+    },
+    "glossary": {
+      "source": "Japonés",
+      "target": "Vietnamita",
+      "add": "Añadir término",
+      "remove": "Quitar"
     }
   }
 }
