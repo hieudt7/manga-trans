@@ -71,5 +71,3 @@ debug-scan/
 
 # Scratch manga volumes used for local testing
 /test/
-# Style profiles are per-user scan output; the folder's README is tracked.
-/style_profiles/*.json
