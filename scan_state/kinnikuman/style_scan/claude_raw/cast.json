@@ -1,0 +1,1980 @@
+{
+  "characters": [
+    {
+      "id": "kinnikuman",
+      "name": "Kinnikuman",
+      "nameJa": "キン肉マン",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "mask with 肉 kanji on the forehead, small pointed mask horns/ears, muscular but drawn comedic-round, lives simply and loves eating; wrestles under this name",
+      "faces": [
+        {
+          "page": "v01-0296",
+          "side": "raw",
+          "box": [
+            0.553,
+            0.11,
+            0.127,
+            0.127
+          ]
+        },
+        {
+          "page": "v01-0296",
+          "side": "raw",
+          "box": [
+            0.567,
+            0.322,
+            0.12,
+            0.153
+          ]
+        },
+        {
+          "page": "v01-0297",
+          "side": "raw",
+          "box": [
+            0.63,
+            0.1,
+            0.09,
+            0.1
+          ]
+        }
+      ],
+      "addresses": {
+        "alien-envoy": {
+          "default": "わたし/キミ (わたし/君)"
+        },
+        "defense-chief": {},
+        "radar-officer": {
+          "default": "(mệnh lệnh, không xưng hô rõ) đừng động vào — cộc cằn nhẹ"
+        },
+        "shigeru": {
+          "default": "わたし/コノヤロー (きさま) — giận dữ, gầm gừ khẳng định mình mới là hoàng tử thật"
+        },
+        "hitoshi": {
+          "default": "わたし/(không gọi thẳng, chỉ tự giới thiệu) — lịch sự, nghiêm túc"
+        },
+        "nana": {
+          "default": "わたし/ナナちゃん — hâm mộ, cố gây ấn tượng, ngưỡng mộ",
+          "moods": {
+            "ra vẻ anh hùng, nói thẳng với cô": "わたし/ナナさん — lịch sự hơn, làm bộ đàng hoàng"
+          }
+        },
+        "gorizaemon": {
+          "default": "わたし/(gọi tên hoặc không gọi rõ) — ra lệnh, đàn anh"
+        },
+        "meat": {
+          "default": "(gọi tên thân mật) ミートくん — suồng sã, sai vặt như thư ký riêng",
+          "moods": {
+            "cãi lại, biện minh": "わたし/あなた — cãi lại khi bị trách, tự nhận mình là \"まともな宇宙人\" (người ngoài hành tinh đàng hoàng)",
+            "tức giận, từ chối đề nghị": "バカヤロウ (không xưng hô trực tiếp) — quát mắng khi Meat gợi ý đi làm thêm, tự ái vì là ヒーロー mà phải đi làm bồi bàn",
+            "khóc lóc, tìm an ủi": "(không tự xưng rõ)/ミート (gọi tên trống, không くん) — mếu máo, khóc lóc kể lể khi bị đuổi việc"
+          }
+        },
+        "tugawa": {
+          "default": "(không tự xưng rõ)/ジョウダンはよしましょう — cười trừ, nói lảng, nhún nhường khi bị ông chủ mắng",
+          "moods": {
+            "xin lỗi, hứa cẩn thận": "ヘイ…今後気をつけやす — giọng thợ học việc, cúi đầu xin lỗi khi bị mắng vì làm khách giận bỏ đi"
+          }
+        },
+        "zangyaku-alien": {
+          "default": "(không xưng rõ)/ザンギャク星人 (gọi thẳng tên chủng tộc đối thủ) — chất vấn, nghiêm nghị khi hỏi về mục đích của hắn",
+          "moods": {
+            "khẩn khoản, van xin, hy sinh bản thân": "わたし/おまえ — xin hắn thả con tin, nhận mình là kẻ thù duy nhất hắn cần nhắm tới"
+          }
+        },
+        "king-muscle": {
+          "default": "パパ — gọi cha bằng tiếng trẻ con, đặc biệt ngoan khi được dụ bằng đồ ăn"
+        },
+        "mari": {
+          "default": "わたくし/マリさん (です/ます, trịnh trọng, cố tỏ ra lịch thiệp để gây ấn tượng) — mê mẩn ngay từ lần đầu gặp, ghen khi thấy Meat nhìn cô",
+          "moods": {
+            "vui mừng, xúc động": "(không xưng rõ)/マリちゃん (gọi thân mật hơn, ちゃん thay vì さん) — mừng rỡ reo lên khi phát hiện chính Mari là người âm thầm chuẩn bị bữa sáng cho hai thầy trò; xúc động khi ăn bữa cô nấu cho riêng mình"
+          }
+        },
+        "terryman": {
+          "default": "(không tự xưng rõ)/ユー — bực bội, tức giận khi thấy Terryman coi thường mình, gọi đùa kiểu Tây hoá \"you\" giống cách Terryman tự xưng \"ミー\""
+        },
+        "mama": {
+          "default": "(gọi lớn) ママ~!! — hoảng hốt chạy tới, tưởng nhầm là mẹ ruột vì trùng tên"
+        },
+        "panda-man": {
+          "default": "わたし/(không gọi tên rõ) — khiêm tốn, đồng cảm giữa hai người cùng đi tuần tra thiện nguyện",
+          "moods": {
+            "nghiêm giọng thách đấu": "わたし/(không gọi tên rõ) — xông lên sân khấu, nghiêm giọng thách Panda Man thi đấu"
+          }
+        },
+        "nachiguron": {
+          "default": "(không xưng rõ)/おまえ — mỉa mai, khiêu khích, chê hắn nhát gan run rẩy, không xứng gọi là quái vật",
+          "moods": {
+            "bực bội, từ chối tha thứ": "(không xưng rõ)/(không gọi tên) — えーい なんで あやまらなきゃならんのだ〜, gắt lên khi bị quái vật vừa khóc vừa xin lỗi, không chịu bỏ qua mà vẫn ra đòn kết liễu",
+            "ân cần, khuyên nhủ": "(không xưng rõ)/ナチグロン (gọi thẳng tên) — nhẹ nhàng khuyên quái vật nên về lại quê nhà yên bình, đồng cảm vì thấy mình cũng là kiểu \"kẻ kém cỏi\" giữa các anh hùng",
+            "tử tế, đón nhận": "わたし/ナチグロン (gọi thẳng tên) — わかった わたしもせまい家だが気がねなしにつかってください, nhẹ nhàng đồng ý cho ở nhờ, không còn giọng mỉa mai như trước"
+          }
+        }
+      },
+      "pages": [
+        "v01-0291",
+        "v01-0292",
+        "v01-0293",
+        "v01-0295",
+        "v01-0296",
+        "v01-0297",
+        "v01-0298",
+        "v01-0299",
+        "v01-0300",
+        "v01-0301",
+        "v01-0302",
+        "v01-0303",
+        "v01-0304",
+        "v01-0305",
+        "v01-0306",
+        "v01-0307",
+        "v01-0308",
+        "v01-0309",
+        "v01-0310",
+        "v01-0311",
+        "v01-0312",
+        "v01-0313",
+        "v01-0314",
+        "v01-0315",
+        "v01-0316",
+        "v01-0317",
+        "v01-0318",
+        "v01-0319",
+        "v01-0320",
+        "v01-0321",
+        "v01-0322",
+        "v01-0323",
+        "v01-0324",
+        "v01-0325",
+        "v01-0326",
+        "v01-0327",
+        "v01-0328",
+        "v01-0329",
+        "v01-0330",
+        "v01-0331",
+        "v01-0332",
+        "v01-0333",
+        "v01-0334",
+        "v01-0335",
+        "v01-0336",
+        "v01-0337",
+        "v01-0338",
+        "v01-0339",
+        "v01-0340",
+        "v01-0341",
+        "v01-0342",
+        "v01-0343",
+        "v01-0344",
+        "v01-0346",
+        "v01-0347",
+        "v01-0348",
+        "v01-0349",
+        "v01-0350",
+        "v01-0351",
+        "v01-0352",
+        "v01-0353",
+        "v01-0354",
+        "v01-0355",
+        "v01-0356",
+        "v01-0357",
+        "v01-0358",
+        "v01-0359",
+        "v01-0360",
+        "v01-0361",
+        "v01-0362",
+        "v01-0363",
+        "v01-0364",
+        "v01-0365",
+        "v01-0366",
+        "v01-0367",
+        "v01-0368",
+        "v01-0369",
+        "v01-0371",
+        "v01-0372",
+        "v01-0373",
+        "v01-0374",
+        "v01-0375",
+        "v01-0376",
+        "v01-0377",
+        "v01-0378",
+        "v01-0379",
+        "v01-0380",
+        "v01-0381",
+        "v01-0382",
+        "v01-0383",
+        "v01-0384"
+      ],
+      "pairPages": {
+        "alien-envoy": 1,
+        "radar-officer": 1,
+        "hitoshi": 1,
+        "nana": 2,
+        "gorizaemon": 1,
+        "meat": 7,
+        "king-muscle": 2,
+        "shigeru": 1,
+        "mari": 3,
+        "terryman": 1,
+        "tugawa": 2,
+        "zangyaku-alien": 2,
+        "mama": 1,
+        "panda-man": 2,
+        "nachiguron": 4
+      },
+      "settledPairs": [
+        "mari",
+        "meat",
+        "nachiguron"
+      ],
+      "settled": true,
+      "missing": []
+    },
+    {
+      "id": "defense-chief",
+      "name": "Chief",
+      "nameJa": "長官",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "bald, mustache, stout build, Earth Defense Force chief; appearance varies a bit panel to panel (sometimes drawn smaller/thinner) but always addressed as 長官",
+      "faces": [
+        {
+          "page": "v01-0294",
+          "side": "raw",
+          "box": [
+            0.603,
+            0.35,
+            0.087,
+            0.083
+          ]
+        },
+        {
+          "page": "v01-0297",
+          "side": "raw",
+          "box": [
+            0.85,
+            0.56,
+            0.07,
+            0.08
+          ]
+        },
+        {
+          "page": "v01-0298",
+          "side": "raw",
+          "box": [
+            0.03,
+            0.63,
+            0.12,
+            0.11
+          ]
+        }
+      ],
+      "addresses": {
+        "radar-officer": {
+          "default": "ta/cậu (わし?/-)"
+        },
+        "coordinator": {},
+        "kinnikuman": {
+          "default": "(gọi thẳng tên) Kinnikuman — thân mật, hồ hởi"
+        }
+      },
+      "pages": [
+        "v01-0294",
+        "v01-0295",
+        "v01-0296",
+        "v01-0297",
+        "v01-0298",
+        "v01-0299",
+        "v01-0300"
+      ],
+      "pairPages": {
+        "radar-officer": 1,
+        "kinnikuman": 1
+      },
+      "settledPairs": [],
+      "settled": true,
+      "missing": []
+    },
+    {
+      "id": "radar-officer",
+      "name": "Radar Officer",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "young, messy/tousled dark hair, wears a headset, Earth Defense Force uniform; mans the radar and relays reports to the chief",
+      "faces": [
+        {
+          "page": "v01-0294",
+          "side": "raw",
+          "box": [
+            0.824,
+            0.333,
+            0.127,
+            0.125
+          ]
+        },
+        {
+          "page": "v01-0300",
+          "side": "raw",
+          "box": [
+            0.13,
+            0.47,
+            0.05,
+            0.06
+          ]
+        }
+      ],
+      "addresses": {
+        "defense-chief": {
+          "default": "tôi/Chỉ huy (-/長官)"
+        },
+        "kinnikuman": {
+          "default": "(không xưng hô rõ, trêu đùa về dấu 肉 trên mặt nạ) mày/ông — suồng sã, tinh nghịch"
+        }
+      },
+      "pages": [
+        "v01-0294",
+        "v01-0299",
+        "v01-0300"
+      ],
+      "pairPages": {
+        "defense-chief": 3,
+        "kinnikuman": 1
+      },
+      "settledPairs": [
+        "defense-chief"
+      ],
+      "settled": false,
+      "missing": [
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "coordinator",
+      "name": "Coordinator",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "slicked side-part hair, sunglasses, suit and tie with a checkered cap/band; handles/announces for Kinnikuman at matches and reports to the chief",
+      "faces": [
+        {
+          "page": "v01-0296",
+          "side": "raw",
+          "box": [
+            0.833,
+            0.11,
+            0.087,
+            0.11
+          ]
+        },
+        {
+          "page": "v01-0297",
+          "side": "raw",
+          "box": [
+            0.54,
+            0.54,
+            0.08,
+            0.09
+          ]
+        }
+      ],
+      "addresses": {
+        "defense-chief": {
+          "default": "tôi/Chỉ huy (-/長官)"
+        },
+        "kinnikuman": {
+          "default": "tôi/cậu Kinnikuman (キン肉マンくん) (です/ます, thân thiện nhưng vẫn giữ vai người quản lý)"
+        }
+      },
+      "pages": [
+        "v01-0295",
+        "v01-0296",
+        "v01-0297",
+        "v01-0298",
+        "v01-0354"
+      ],
+      "pairPages": {
+        "defense-chief": 1,
+        "alien-envoy": 1,
+        "kinnikuman": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "alien-envoy",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "",
+      "ageGroup": "",
+      "looks": "small alien/monster-like head atop a robed body, stands on a pedestal; recruits Kinnikuman to fight invading space monsters (jokingly nicknamed 牛丼野郎 by Kinnikuman)",
+      "faces": [
+        {
+          "page": "v01-0296",
+          "side": "raw",
+          "box": [
+            0.72,
+            0.11,
+            0.093,
+            0.11
+          ]
+        },
+        {
+          "page": "v01-0300",
+          "side": "raw",
+          "box": [
+            0.88,
+            0.29,
+            0.09,
+            0.11
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0296",
+        "v01-0300"
+      ],
+      "pairPages": {
+        "kinnikuman": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "gender",
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nana",
+      "name": "Nana",
+      "nameJa": "高原ナナ",
+      "aliases": [
+        "Takahara Nana"
+      ],
+      "gender": "female",
+      "ageGroup": "teen",
+      "looks": "girl idol singer, long wavy hair; seen so far only in poster/photo art at the start of the \"少女歌手と怪獣\" chapter — Kinnikuman is a fan of hers and buys a concert ticket",
+      "faces": [
+        {
+          "page": "v01-0301",
+          "side": "raw",
+          "box": [
+            0.09,
+            0.42,
+            0.08,
+            0.08
+          ]
+        },
+        {
+          "page": "v01-0302",
+          "side": "raw",
+          "box": [
+            0.85,
+            0.73,
+            0.1,
+            0.12
+          ]
+        },
+        {
+          "page": "v01-0303",
+          "side": "raw",
+          "box": [
+            0.057,
+            0.809,
+            0.11,
+            0.145
+          ]
+        }
+      ],
+      "addresses": {
+        "hitoshi": {
+          "default": "(gọi thân mật bằng tên +くん) Hitoshi — gần gũi, như bạn thời thơ ấu",
+          "moods": {
+            "cảm động, biết ơn": "わたし/あなた — thân mật, xúc động, khác hẳn cách gọi tên くん thường ngày"
+          }
+        },
+        "kinnikuman": {
+          "default": "あたし/(không gọi tên) — xẵng giọng, khó chịu, mất kiên nhẫn"
+        }
+      },
+      "pages": [
+        "v01-0301",
+        "v01-0302",
+        "v01-0303",
+        "v01-0304",
+        "v01-0305",
+        "v01-0306",
+        "v01-0307"
+      ],
+      "pairPages": {
+        "hitoshi": 3,
+        "kinnikuman": 1
+      },
+      "settledPairs": [
+        "hitoshi"
+      ],
+      "settled": true,
+      "missing": []
+    },
+    {
+      "id": "hitoshi",
+      "name": "Hitoshi",
+      "nameJa": "ヒトシ",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "slicked-back hair, sharp serious features, suit; Nana's manager and childhood friend, secretly plans to propose to her",
+      "faces": [
+        {
+          "page": "v01-0302",
+          "side": "raw",
+          "box": [
+            0.21,
+            0.09,
+            0.09,
+            0.11
+          ]
+        },
+        {
+          "page": "v01-0303",
+          "side": "raw",
+          "box": [
+            0.827,
+            0.2385,
+            0.06,
+            0.0852
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "おまえ — xem thường, trống không, không thèm để ý"
+        },
+        "nana": {
+          "default": "ぼく/(không gọi rõ) — rụt rè, ngập ngừng, chưa nói hết câu"
+        },
+        "gorizaemon": {
+          "default": "(không tự xưng)/コンニャロー — hả hê, đắc thắng bất ngờ, khác hẳn vẻ điềm tĩnh thường ngày"
+        }
+      },
+      "pages": [
+        "v01-0302",
+        "v01-0303",
+        "v01-0305",
+        "v01-0306",
+        "v01-0307"
+      ],
+      "pairPages": {
+        "kinnikuman": 1,
+        "nana": 2,
+        "gorizaemon": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "gorizaemon",
+      "name": "Gorizaemon",
+      "nameJa": "ゴリザエモン",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "gorilla/ape-like underling monster (子分怪獣) that Kinnikuman hires from a kaiju phone directory as hired muscle for staged 'monster attacks'; specialty is dripping snot (ハナをたらすのが得意技); listed as 2m tall, 2000kg; calls Kinnikuman 兄き (big bro)",
+      "faces": [
+        {
+          "page": "v01-0305",
+          "side": "raw",
+          "box": [
+            0.637,
+            0.299,
+            0.077,
+            0.103
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/兄き — kính trọng, xun xoe, sẵn sàng phục vụ"
+        },
+        "nana": {
+          "default": "(không tự xưng)/この女 — thô lỗ, trịch thượng, coi như món hàng chiếm đoạt"
+        }
+      },
+      "pages": [
+        "v01-0305",
+        "v01-0306",
+        "v01-0307"
+      ],
+      "pairPages": {
+        "kinnikuman": 1,
+        "nana": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "meat",
+      "name": "Meat",
+      "nameJa": "ミート",
+      "aliases": [
+        "メガネボウズ"
+      ],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "small round-headed alien with glasses and a short cape, a K-N mark (circle with a lightning-bolt N) on his costume; Kinnikuman's herald from Kinniku Star who reveals his royal heritage (design/role strongly matches the character usually known as Meat/Mít, but no name is spelled out in the text yet — guess); nicknamed メガネボウズ (\"glasses monk\") by onlookers",
+      "faces": [
+        {
+          "page": "v01-0309",
+          "side": "raw",
+          "box": [
+            0.87,
+            0.05,
+            0.09,
+            0.12
+          ]
+        },
+        {
+          "page": "v01-0309",
+          "side": "raw",
+          "box": [
+            0.72,
+            0.32,
+            0.08,
+            0.09
+          ]
+        },
+        {
+          "page": "v01-0310",
+          "side": "raw",
+          "box": [
+            0.28,
+            0.15,
+            0.07,
+            0.08
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/ngài, anh (あなた) — trịnh trọng, lễ phép như một cận thần đang giải thích chuyện hệ trọng",
+          "moods": {
+            "trêu chọc, đắc thắng": "(không tự xưng)/王子さま — vẫn gọi kính trọng nhưng giọng giễu cợt, vừa vật ngã Kinnikuman xong",
+            "bực bội, càu nhàu": "(không tự xưng rõ)/anh, ngài (vẫn giữ です/ます) — vẫn lịch sự nhưng phàn nàn ra mặt vì bị gọi tới vì chuyện vặt",
+            "trách móc, đổ lỗi": "ぼく/あなた (vẫn giữ です/ます) — đổ lỗi thẳng thừng, cho rằng Kinnikuman làm mình mất ngủ",
+            "khẩn khoản, ngăn cản": "ぼく/王子 (không さま, です/ます) — lo lắng, van nài đừng làm mất mặt khi thấy Kinnikuman ăn mặc kỳ cục đi làm thêm",
+            "cảnh báo, hoảng hốt": "(không tự xưng rõ)/王子 — hớt hải cảnh báo khi kẻ địch nguy hiểm xuất hiện trên xe buýt",
+            "quyết tâm sinh tử, thề trung thành": "ぼく/あなた (です/ます) — lao vào xe buýt bị bắt cóc để ở bên hoàng tử, thề cùng sống chết đến cùng",
+            "khen ngợi, trêu chơi chữ": "(không tự xưng rõ)/王子 (です/ます) — trầm trồ khen khi nghe tin hoàng tử \"hoạt động\" lúc nửa đêm, chơi chữ ニクイ (vừa nghĩa \"đáng ghét/đáng nể\" vừa gần âm 肉=thịt)",
+            "ngượng ngùng, thú nhận bí mật": "ぼく/(không gọi rõ, です/ます lúng túng) — gãi đầu thú nhận mình cải trang giống hệt hoàng tử để đi làm phu đường ban đêm, kiếm thêm tiền/rửa tiếng xấu",
+            "thân thiết, cảm động": "わたし/ミート (gọi tên, không くん) — わたしたちお互い何も隠しごとはできない間柄になってしまった, giọng ấm áp thừa nhận hai người đã quá hiểu nhau",
+            "dỗ dành, xoa dịu": "わたし/ミート (gọi tên, không くん) — そうおこるなよミート…, nhẹ nhàng dỗ khi Meat có vẻ giận dỗi",
+            "phản kháng, bênh vực khách": "ぼく/王子 (vẫn です/ます nhưng gằn giọng) — 王子はだまっててください!, hiếm hoi cãi lại thẳng để bênh vực Nachiguron"
+          }
+        },
+        "palace-maiden": {
+          "default": "ぼく/(không gọi rõ) — thân thiện, đồng minh, cùng trêu chọc vị hoàng tử"
+        },
+        "mari": {
+          "default": "わたくし/(không gọi rõ, lúng túng) — です/ます, lễ phép, hơi ấp úng như học trò với cô giáo",
+          "moods": {
+            "nũng nịu, đòi công bằng": "わし/(không gọi rõ) — bỏ vẻ lễ phép です/ます thường ngày, nói trống \"わしも!\" đòi được hôn như hoàng tử"
+          }
+        },
+        "nachiguron": {
+          "default": "ぼく/(không gọi tên rõ) — ấm áp, ân cần như đàn anh; tặng chiếc còi đặc biệt để phòng thân và hứa sẽ đến cứu ngay nếu bị bắt nạt"
+        }
+      },
+      "pages": [
+        "v01-0309",
+        "v01-0310",
+        "v01-0311",
+        "v01-0312",
+        "v01-0313",
+        "v01-0314",
+        "v01-0315",
+        "v01-0316",
+        "v01-0317",
+        "v01-0318",
+        "v01-0319",
+        "v01-0320",
+        "v01-0322",
+        "v01-0323",
+        "v01-0324",
+        "v01-0325",
+        "v01-0327",
+        "v01-0330",
+        "v01-0331",
+        "v01-0332",
+        "v01-0334",
+        "v01-0336",
+        "v01-0337",
+        "v01-0339",
+        "v01-0341",
+        "v01-0342",
+        "v01-0343",
+        "v01-0344",
+        "v01-0346",
+        "v01-0348",
+        "v01-0352",
+        "v01-0353",
+        "v01-0354",
+        "v01-0355",
+        "v01-0357",
+        "v01-0358",
+        "v01-0360",
+        "v01-0361",
+        "v01-0363",
+        "v01-0365",
+        "v01-0368",
+        "v01-0369",
+        "v01-0371",
+        "v01-0372",
+        "v01-0373",
+        "v01-0374",
+        "v01-0375",
+        "v01-0376",
+        "v01-0378",
+        "v01-0379",
+        "v01-0380",
+        "v01-0381",
+        "v01-0382",
+        "v01-0383",
+        "v01-0384"
+      ],
+      "pairPages": {
+        "kinnikuman": 11,
+        "mari": 2,
+        "neighbor-oldman": 1,
+        "nachiguron": 1
+      },
+      "settledPairs": [
+        "kinnikuman"
+      ],
+      "settled": false,
+      "missing": [
+        "ageGroup"
+      ]
+    },
+    {
+      "id": "pig-impostor",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "pig-masked wrestler with a belt bearing a 肉-style mark; struts through a crowd of monsters/aliens in Kinniku Town claiming to be the prince — an impostor Meat says stole the prince's name",
+      "faces": [
+        {
+          "page": "v01-0311",
+          "side": "raw",
+          "box": [
+            0.58,
+            0.44,
+            0.09,
+            0.08
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0311"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "goriki",
+      "name": "Goriki",
+      "nameJa": "ゴーリキ",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "huge hairy muscular wrestler with wild long hair, wears a studded belt/loincloth with a 肉-style mark; fights Kinnikuman in the cage deathmatch, the opponent Meat set as the wager to decide if Kinnikuman stays on Earth or is taken back to Kinniku Star",
+      "faces": [
+        {
+          "page": "v01-0313",
+          "side": "raw",
+          "box": [
+            0.83,
+            0.08,
+            0.1,
+            0.12
+          ]
+        },
+        {
+          "page": "v01-0313",
+          "side": "raw",
+          "box": [
+            0.2,
+            0.08,
+            0.12,
+            0.14
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0313",
+        "v01-0314"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "king-muscle",
+      "name": "King Muscle",
+      "nameJa": "キン肉大王",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "King of Kinniku Star, wears a robe and a family-style mask like Kinnikuman's; Kinnikuman's father, seen so far only in a flashback from 20 years ago where he mixes up the newborn prince with a pet pig",
+      "faces": [
+        {
+          "page": "v01-0310",
+          "side": "raw",
+          "box": [
+            0.68,
+            0.08,
+            0.07,
+            0.09
+          ]
+        },
+        {
+          "page": "v01-0310",
+          "side": "raw",
+          "box": [
+            0.87,
+            0.35,
+            0.08,
+            0.09
+          ]
+        },
+        {
+          "page": "v01-0317",
+          "side": "raw",
+          "box": [
+            0.17,
+            0.05,
+            0.09,
+            0.11
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "わし/おまえ, スグル (gọi thẳng tên) — cha gọi con trai, thân mật suồng sã",
+          "moods": {
+            "van nài, dỗ ngọt": "わし/スグル — van nài, dùng món ăn khoái khẩu (牛丼) để dụ",
+            "giận dữ, trách móc": "わし/親不孝者め — quát mắng khi con từ chối lời nhờ",
+            "nghiêm túc, kể chuyện hi sinh của Meat": "わし/おまえ, スグル — vẫn giọng cha-con nhưng trầm xuống nghiêm túc, kể việc Meat lén cải trang giống Kinnikuman đi làm phu đường ban đêm để rửa tiếng xấu cho con trai"
+          }
+        },
+        "shigeru": {
+          "default": "(không tự xưng rõ)/シゲルくん — vui mừng, cưng chiều đứa con nuôi mới"
+        }
+      },
+      "pages": [
+        "v01-0309",
+        "v01-0310",
+        "v01-0311",
+        "v01-0315",
+        "v01-0316",
+        "v01-0317",
+        "v01-0318",
+        "v01-0319",
+        "v01-0320",
+        "v01-0321",
+        "v01-0322",
+        "v01-0363",
+        "v01-0364"
+      ],
+      "pairPages": {
+        "kinnikuman": 3,
+        "shigeru": 1
+      },
+      "settledPairs": [
+        "kinnikuman"
+      ],
+      "settled": true,
+      "missing": []
+    },
+    {
+      "id": "king-tone",
+      "name": "King Tone",
+      "nameJa": "キング・トーン",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "pig-faced wrestler with a single small horn, wears a champion belt marked 肉 and a cape; swept every event at the martial-arts Olympics, then toppled King Muscle for the universal championship and turned Kinniku Star into a planet of his fellow pigs; possibly (unconfirmed) the same pig seen earlier impersonating the prince in Kinniku Town — id pig-impostor",
+      "faces": [
+        {
+          "page": "v01-0316",
+          "side": "raw",
+          "box": [
+            0.665,
+            0.11,
+            0.085,
+            0.1
+          ]
+        },
+        {
+          "page": "v01-0321",
+          "side": "raw",
+          "box": [
+            0.83,
+            0.73,
+            0.06,
+            0.07
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0315",
+        "v01-0316",
+        "v01-0318",
+        "v01-0319",
+        "v01-0320",
+        "v01-0321"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "ageGroup"
+      ]
+    },
+    {
+      "id": "palace-maiden",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "young woman at the Kinniku Star palace with long wavy hair patterned with small stars/sparkles; devoted to King Muscle, openly unimpressed by Prince Suguru's antics and teases him alongside Meat",
+      "faces": [
+        {
+          "page": "v01-0318",
+          "side": "raw",
+          "box": [
+            0.823,
+            0.31,
+            0.088,
+            0.13
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "わたし/王子さま — ngoài miệng lễ phép nhưng thật ra khó chịu, hay mỉa mai chê bai"
+        },
+        "king-muscle": {
+          "default": "わたし/大王さま — trung thành, ân cần, mong ông sớm khoẻ lại"
+        }
+      },
+      "pages": [
+        "v01-0316",
+        "v01-0317",
+        "v01-0318",
+        "v01-0319"
+      ],
+      "pairPages": {
+        "king-muscle": 1,
+        "kinnikuman": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "shigeru",
+      "name": "Shigeru",
+      "nameJa": "シゲル",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tall human-looking young man, headband, striped one-shoulder wrestling singlet; from the Giant tribe of Planet Giants (ジャイアンツ星の巨人族), newly adopted into King Muscle's family as a possible new prince — rival to Suguru/Kinnikuman",
+      "faces": [
+        {
+          "page": "v01-0322",
+          "side": "raw",
+          "box": [
+            0.86,
+            0.4,
+            0.07,
+            0.09
+          ]
+        }
+      ],
+      "addresses": {
+        "meat": {
+          "default": "(không tự xưng rõ)/ミートくん — です/ます lễ phép, chào hỏi lịch sự khi mới gặp"
+        }
+      },
+      "pages": [
+        "v01-0322"
+      ],
+      "pairPages": {
+        "meat": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "queen",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "female",
+      "ageGroup": "",
+      "looks": "robed woman with a smooth pointed/hood-like headdress; appears beside King Muscle at the Kinniku Star palace making family decisions (\"わたしたち\" — possibly his queen/consort)",
+      "faces": [
+        {
+          "page": "v01-0322",
+          "side": "raw",
+          "box": [
+            0.56,
+            0.14,
+            0.06,
+            0.09
+          ]
+        }
+      ],
+      "addresses": {
+        "meat": {
+          "default": "(không tự xưng rõ)/ミートくん — nhờ vả nhẹ nhàng nhưng vẫn giữ khoảng cách chủ-tớ"
+        }
+      },
+      "pages": [
+        "v01-0322"
+      ],
+      "pairPages": {
+        "meat": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "station-chief",
+      "name": "Station Chief",
+      "nameJa": "局長",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "bald, thick mustache, glasses, suit; TV station chief (局長) reviewing Kinnikuman's Nessie-hunting broadcast proposal",
+      "faces": [
+        {
+          "page": "v01-0326",
+          "side": "raw",
+          "box": [
+            0.57,
+            0.67,
+            0.05,
+            0.07
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0326",
+        "v01-0327",
+        "v01-0330"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "oyama-hageteru",
+      "name": "王山ハゲ照",
+      "nameJa": "王山ハゲ照",
+      "aliases": [
+        "Oyama Hageteru",
+        "館長"
+      ],
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "stocky, mustached, stern-faced man; 館長 (chief instructor) of the 王山空手道 (Oyama Karate) dojo — despite the name pun (ハゲ = bald) he is drawn with dark hair",
+      "faces": [
+        {
+          "page": "v01-0327",
+          "side": "raw",
+          "box": [
+            0.05,
+            0.5,
+            0.09,
+            0.09
+          ]
+        }
+      ],
+      "addresses": {
+        "tsuyoki": {
+          "default": "(gọi tên +くん) 強気くん — thầy gọi trò, vừa dò hỏi vừa khen ngợi"
+        }
+      },
+      "pages": [
+        "v01-0327"
+      ],
+      "pairPages": {
+        "tsuyoki": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "tsuyoki",
+      "name": "Tsuyoki",
+      "nameJa": "強気",
+      "aliases": [
+        "強気くん"
+      ],
+      "gender": "male",
+      "ageGroup": "teen",
+      "looks": "long straight hair he flicks back with a confident \"パサッ\"; karate student at the 王山空手道 dojo, said to have a signature technique he hasn't shown in a long time",
+      "faces": [
+        {
+          "page": "v01-0327",
+          "side": "raw",
+          "box": [
+            0.22,
+            0.7,
+            0.09,
+            0.11
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0327"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "yosaku",
+      "name": "Yosaku",
+      "nameJa": "与作",
+      "aliases": [
+        "ヨサク"
+      ],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "rugged countryman, wild messy hair (sometimes wears a bucket hat), muscular/stocky, rural work clothes; speaks in rustic dialect (おら/だ・だべ endings); claims he personally already defeated Nessie and wants his own rival TV special",
+      "faces": [
+        {
+          "page": "v01-0328",
+          "side": "raw",
+          "box": [
+            0.2,
+            0.52,
+            0.1,
+            0.1
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0328"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "mari",
+      "name": "Mari",
+      "nameJa": "二階堂マリ",
+      "aliases": [
+        "Nikaidou Mari",
+        "マリさん"
+      ],
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "young woman with shoulder-length wavy dark hair, floral-print dress, rides a bicycle with a front basket; a 保母 (nursery/kindergarten teacher) at 住之江幼稚園, and is Meat's teacher/caretaker there; new love-interest for Kinnikuman starting this chapter (かわいいキッスの巻)",
+      "faces": [
+        {
+          "page": "v01-0332",
+          "side": "raw",
+          "box": [
+            0.87,
+            0.05,
+            0.09,
+            0.1
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "あたし/あなた — です/ます, tò mò rồi ngạc nhiên thích thú khi biết anh nổi tiếng"
+        },
+        "meat": {
+          "default": "わたし/ミートくん — gọi tên thân mật kiểu cô giáo với học trò nhỏ",
+          "moods": {
+            "biết ơn, âu yếm": "わたし/ミートくん — cảm ơn rồi hôn lên má, vẫn thân mật như cô giáo với trò nhỏ"
+          }
+        }
+      },
+      "pages": [
+        "v01-0332",
+        "v01-0333",
+        "v01-0334",
+        "v01-0337",
+        "v01-0352",
+        "v01-0353",
+        "v01-0354",
+        "v01-0356",
+        "v01-0358",
+        "v01-0380"
+      ],
+      "pairPages": {
+        "meat": 1,
+        "kinnikuman": 2
+      },
+      "settledPairs": [],
+      "settled": true,
+      "missing": []
+    },
+    {
+      "id": "franky",
+      "name": "Franky",
+      "nameJa": "フランキー",
+      "aliases": [
+        "地底怪獣フランキー"
+      ],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "giant black long-furred ape/gorilla-shaped 地底怪獣 (underground monster) with huge clawed hands; speaks in rough Kansai dialect (ワテ, ~やんけ, ~とちゃうか); attacks the kindergarten neighborhood hoping to become a TV star, threatens and bullies the children; defeated by Kinnikuman's drop kick — his hide then peels off (バラバラ), revealed to be a costume/padding",
+      "faces": [
+        {
+          "page": "v01-0336",
+          "side": "raw",
+          "box": [
+            0.38,
+            0.04,
+            0.1,
+            0.14
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/ブ男, キン肉マン (giọng Kansai: やんけ, とちゃうか) — xấc xược, mỉa mai, già mồm ra vẻ chính nghĩa dù chính mình bắt nạt trẻ con"
+        }
+      },
+      "pages": [
+        "v01-0334",
+        "v01-0335",
+        "v01-0336",
+        "v01-0337"
+      ],
+      "pairPages": {
+        "kinnikuman": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "banknote-oldman",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "elder",
+      "looks": "elderly man, wavy/curly gray hair, mustache, round glasses; customer/regular at a diner counter, gets very excited recognising an old Shōwa-era 100-yen note (with the National Diet Building printed on it) and scolds Kinnikuman for handling it carelessly",
+      "faces": [],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/バカモノ, おまえ — quát mắng, bực bội khi thấy tờ bạc quý bị đối xử coi thường"
+        }
+      },
+      "pages": [
+        "v01-0339"
+      ],
+      "pairPages": {
+        "kinnikuman": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "toad-wrestler",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "muscular toad/frog-like wrestler or monster, warty skin, big round bulging eyes, bulky wrestler build; faces off against Terryman in a wrestling-ring-like confrontation at night, surprised by his sudden arrival",
+      "faces": [],
+      "addresses": {
+        "terryman": {
+          "default": "(không tự xưng rõ)/おまえ — ngạc nhiên, cảnh giác, giọng đàn ông thô, xem thường"
+        }
+      },
+      "pages": [
+        "v01-0340"
+      ],
+      "pairPages": {
+        "terryman": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "ageGroup",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "terryman",
+      "name": "Terryman",
+      "nameJa": "テリーマン",
+      "aliases": [
+        "ザ・テリーマン",
+        "The Terryman"
+      ],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "muscular American cowboy-styled wrestler, wears a cowboy hat with a row of beads on the band, \"米\" kanji visible near his head like Kinnikuman's \"肉\"; born in Texas, USA; in action wears star-patterned trunks/tattoos and fights a toad-like wrestler at night; polite and businesslike (です/ます) with humans, openly charges money for hero work (\"who's fool enough to protect your life for free?\") unlike Kinnikuman who works unpaid; flies off alongside Kinnikuman defying government officials who rejected Kinnikuman's help; becomes a rich, adored celebrity monster-hunter (suit, fedora, newspaper headlines, fangirls) while Kinnikuman is shunned; politely returns something Kinnikuman dropped, later visits his shabby home; in civilian/business suit his true head is bald with the \"米\" mark tattooed on his forehead (revealed once his hat/hair comes off in a fight); gets beaten badly by an enraged Kinnikuman, ends up ashamed and warns Kinnikuman he's an exile who'll be attacked by the Defense Force if he goes to help",
+      "faces": [
+        {
+          "page": "v01-0338",
+          "side": "raw",
+          "box": [
+            0.67,
+            0.07,
+            0.12,
+            0.13
+          ]
+        },
+        {
+          "page": "v01-0341",
+          "side": "raw",
+          "box": [
+            0.83,
+            0.13,
+            0.1,
+            0.14
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/(không gọi tên) — です/ます lịch sự, trả lại đồ Kinnikuman đánh rơi như với người lạ",
+          "moods": {
+            "ngạc nhiên, chê bai nhẹ": "(không tự xưng)/(không gọi tên) — bỏ です/ます, buột miệng chê khi thấy nhà Kinnikuman tồi tàn",
+            "kiêu ngạo, coi thường": "ミー/キミたち, そんなヤツ — tự xưng \"ミー\" (kiểu Tây hoá), gọi trống \"anh chàng đó\", giễu cợt khi tuyên bố Kinnikuman không còn cần thiết nữa",
+            "hối lỗi, lo lắng": "(không tự xưng rõ)/キン肉マン, おまえ — sau khi bị đánh, giọng nghiêm túc cảnh báo Kinnikuman về nguy cơ bị quân đội tấn công vì đang là kẻ bị trục xuất"
+          }
+        }
+      },
+      "pages": [
+        "v01-0338",
+        "v01-0340",
+        "v01-0341",
+        "v01-0342",
+        "v01-0343",
+        "v01-0344",
+        "v01-0345"
+      ],
+      "pairPages": {
+        "kinnikuman": 4
+      },
+      "settledPairs": [
+        "kinnikuman"
+      ],
+      "settled": false,
+      "missing": [
+        "ageGroup"
+      ]
+    },
+    {
+      "id": "tugawa",
+      "name": "Tugawa",
+      "nameJa": "",
+      "aliases": [
+        "TUGAWA"
+      ],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "burly noodle-shop owner/boss, crew-cut hair, stern gritted-teeth face; wears a tank top printed \"TUGAWA\"; hires Kinnikuman as a rookie (新米) part-time waiter in the new chapter「いたずらアルバイトの巻」",
+      "faces": [
+        {
+          "page": "v01-0346",
+          "side": "raw",
+          "box": [
+            0.16,
+            0.31,
+            0.09,
+            0.09
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/新米 (chú/thằng nhóc mới) — ra lệnh, sai vặt như ông chủ với nhân viên mới"
+        }
+      },
+      "pages": [
+        "v01-0346",
+        "v01-0347"
+      ],
+      "pairPages": {
+        "kinnikuman": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "bus-driver",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "bus driver: mustache, sunglasses, peaked cap, necktie; drives the school field-trip bus in the「恐怖のバスジャックの巻」chapter, grumbles (4th-wall joke) about only getting a minor role in the manga, then loses control of the bus and drives recklessly, nearly running someone over",
+      "faces": [
+        {
+          "page": "v01-0353",
+          "side": "raw",
+          "box": [
+            0.82,
+            0.1,
+            0.13,
+            0.15
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0353"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "zangyaku-alien",
+      "name": "",
+      "nameJa": "",
+      "aliases": [
+        "ザンギャク星人"
+      ],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "scaly shark/fish-faced humanoid alien with sharp pointed teeth, dark robe; speaks in rough Kyushu-style dialect (〜タイ, こげなもん, おしくなか); announces himself as one of the fearsome ザンギャク星人 (Zangyaku alien) race and hijacks the school bus in the「恐怖のバスジャックの巻」chapter; backstory: his father was killed 5 years ago (reportedly while trying to invade Earth, which he doubts/questions), and he has come specifically to defeat Kinnikuman to wash away that disgrace",
+      "faces": [
+        {
+          "page": "v01-0353",
+          "side": "raw",
+          "box": [
+            0.23,
+            0.48,
+            0.15,
+            0.16
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "オラ/おまえ (giọng địa phương Kyushu/Hakata) — công khai tuyên chiến, quyết tâm đánh bại để rửa nhục cho cha",
+          "moods": {
+            "nhượng bộ, đồng ý": "(không xưng rõ)/おまえ — よし いいだろう, chấp nhận thả con tin đổi lấy một mình đối thủ"
+          }
+        },
+        "akaiwa": {
+          "default": "(không xưng rõ)/(không gọi tên, quát nạt cả nhóm cảnh sát) とまれ! — gầm gừ đe doạ, lấy con tin ra uy hiếp"
+        }
+      },
+      "pages": [
+        "v01-0353",
+        "v01-0354",
+        "v01-0355",
+        "v01-0356",
+        "v01-0357"
+      ],
+      "pairPages": {
+        "kinnikuman": 2,
+        "akaiwa": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "akaiwa",
+      "name": "Akaiwa",
+      "nameJa": "赤岩",
+      "aliases": [
+        "赤さん"
+      ],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "tall tough police officer, dark hair combed back, sunglasses, white suit with black shirt/tie; leads a police squad (城西署 / \"赤岩軍団\") negotiating the bus hijack, addressed by his men as 赤さん; personally volunteers as the hostage-exchange target and gets grabbed/bitten by zangyaku-alien; ends up badly hurt (run over), and even half-dying keeps humming the children's song ぞうさん (Zou-san), which his teammates find endearingly cool despite the danger",
+      "faces": [
+        {
+          "page": "v01-0355",
+          "side": "raw",
+          "box": [
+            0.81,
+            0.08,
+            0.14,
+            0.17
+          ]
+        }
+      ],
+      "addresses": {
+        "zangyaku-alien": {
+          "default": "おれ/(không gọi tên, qua loa phóng thanh) — dõng dạc, ra lệnh đầu hàng qua loa"
+        }
+      },
+      "pages": [
+        "v01-0355",
+        "v01-0356"
+      ],
+      "pairPages": {
+        "zangyaku-alien": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "neighbor-oldman",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "elder",
+      "looks": "old man, bald, cane, traditional patterned yukata/robe; ho khan khi nói, xuất hiện than phiền/mắng mỏ giới trẻ hay biện hộ",
+      "faces": [
+        {
+          "page": "v01-0360",
+          "side": "raw",
+          "box": [
+            0.12,
+            0.75,
+            0.16,
+            0.22
+          ]
+        }
+      ],
+      "addresses": {
+        "meat": {
+          "default": "(không tự xưng rõ)/おまえ, ミートくん — cộc cằn hỏi vặn, xong lại trêu chọc đùa cợt khi thấy Meat bị đánh (hỏi mua phúng điếu)"
+        },
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/(không gọi tên rõ) — trêu chọc thân mật, nhận xét đầy ý cười về chuyện Kinnikuman ghen/bênh Mari"
+        }
+      },
+      "pages": [
+        "v01-0360",
+        "v01-0381"
+      ],
+      "pairPages": {
+        "kinnikuman": 2,
+        "meat": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "mama",
+      "name": "Mama",
+      "nameJa": "ママ",
+      "aliases": [],
+      "gender": "female",
+      "ageGroup": "",
+      "looks": "nhân vật khổng lồ đầu tròn hói, gợi tả có thân hình gợi cảm (được King Muscle ví như Vivien Leigh về vòng ngực/hông); Kinnikuman chạy tới gọi \"ママ~!!\" tưởng nhầm là mẹ ruột vì trùng tên/biệt danh \"ママ\", hoá ra là một đối thủ/quái vật đang thi đấu mà cả gia đình King Muscle trên Kinniku Star theo dõi và cổ vũ; chưa rõ có phải người cải trang lâu năm như King Muscle ám chỉ hay không",
+      "faces": [
+        {
+          "page": "v01-0364",
+          "side": "raw",
+          "box": [
+            0.1,
+            0.06,
+            0.17,
+            0.18
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0364"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "panda-man",
+      "name": "Panda Man",
+      "nameJa": "パンダマン",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "người đàn ông hói đầu, cơ bắp, ăn mặc thường phục khi đi tuần tra công viên thiện nguyện cùng lúc với Kinnikuman; mang phù hiệu/số \"40\" trên áo; bị một phụ nữ lạ mắng oan là hay bám theo ngắm phụ nữ, phản ứng ngượng ngùng phủ nhận và sửa lời (đòi gọi \"ケツ\" thay vì \"シリ\"); hào phóng mua quà bánh cho cả nhóm trẻ con ở công viên giải trí; hoá ra là siêu anh hùng truyền hình đang nổi \"Panda Man\" (パンダマン) — theo lời đồn hạ gục quái vật chỉ trong 30 giây, mặc bộ đồ/mặt nạ hoạ tiết gấu trúc khi lên sóng, thực chất bên trong chỉ là người thường đóng vai kiểu phim tokusatsu; cuối cùng bị Kinnikuman xông lên sân khấu thách đấu",
+      "faces": [
+        {
+          "page": "v01-0366",
+          "side": "raw",
+          "box": [
+            0.86,
+            0.09,
+            0.09,
+            0.11
+          ]
+        },
+        {
+          "page": "v01-0367",
+          "side": "raw",
+          "box": [
+            0.87,
+            0.2,
+            0.09,
+            0.1
+          ]
+        },
+        {
+          "page": "v01-0368",
+          "side": "raw",
+          "box": [
+            0.81,
+            0.06,
+            0.13,
+            0.15
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không tự xưng rõ)/王子! — vồn vã chào hỏi, có vẻ biết rõ thân phận hoàng tử của Kinnikuman, hào hứng vì cùng chí hướng tuần tra thiện nguyện",
+          "moods": {
+            "cảnh giác, bất ngờ trên sân khấu": "(không tự xưng rõ)/おまえ — ngạc nhiên, cảnh giác khi Kinnikuman bất ngờ xông lên sân khấu thách đấu",
+            "kính nể, khen ngợi": "(không tự xưng rõ)/おぬし (cổ kính, lịch sự) — trầm trồ nhận ra thế đứng/chiêu thức của Kinnikuman, khen hắn giỏi",
+            "van nài, sợ hãi": "ぼく/(không gọi tên rõ) — cuống quýt van xin, phân trần mình chỉ là nhân viên làm thêm, không muốn đấu"
+          }
+        }
+      },
+      "pages": [
+        "v01-0366",
+        "v01-0367",
+        "v01-0368",
+        "v01-0369"
+      ],
+      "pairPages": {
+        "kinnikuman": 3
+      },
+      "settledPairs": [
+        "kinnikuman"
+      ],
+      "settled": false,
+      "missing": [
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "shell-monster",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "",
+      "ageGroup": "",
+      "looks": "kaiju with a 肉 kanji mark on its pointed forehead (like Kinnikuman's own mark), huge toothy grin, muscular humanoid torso sitting atop a big egg/rock-shell-shaped lower body; title splash names his story 孤独のドジ怪獣の巻 (\"The Lonely, Clumsy Kaiju\"); not actually a villain — dreams of being a recognised superhero \"greater than Ultraman\", narrates his exploits to his absent parents, does a triumphant V-sign after fights and cries/mopes when people ignore, mock or easily beat him instead of praising him; claims (offscreen) to have defeated Panda Man",
+      "faces": [
+        {
+          "page": "v01-0369",
+          "side": "raw",
+          "box": [
+            0.04,
+            0.79,
+            0.14,
+            0.14
+          ]
+        },
+        {
+          "page": "v01-0370",
+          "side": "raw",
+          "box": [
+            0.56,
+            0.3,
+            0.1,
+            0.14
+          ]
+        },
+        {
+          "page": "v01-0370",
+          "side": "raw",
+          "box": [
+            0.12,
+            0.12,
+            0.13,
+            0.15
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0369",
+        "v01-0370",
+        "v01-0371",
+        "v01-0372"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "gender",
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "hired-fighter",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "muscular fighter with messy/spiky dark hair and a sneering grin; shows up declaring his \"job starts now\" (おれの仕事はこれからだぜ) and picks a fight with the shell-monster — reads as a mercenary/monster-hunter type, possibly paid like Terryman",
+      "faces": [
+        {
+          "page": "v01-0370",
+          "side": "raw",
+          "box": [
+            0.32,
+            0.29,
+            0.1,
+            0.12
+          ]
+        }
+      ],
+      "addresses": {
+        "shell-monster": {
+          "default": "(không tự xưng rõ)/(không gọi tên rõ) — ngạo mạn, xem đối thủ là chuyện vặt (ちょろいちょろい), đánh bại dễ dàng"
+        }
+      },
+      "pages": [
+        "v01-0370",
+        "v01-0371"
+      ],
+      "pairPages": {
+        "shell-monster": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "monster-roommate",
+      "name": "",
+      "nameJa": "",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "big burly man in a striped shirt, arms crossed; lives with the shell-monster and is used to his recurring nightmare about being a failure among heroes, answers the phone grumpily on his behalf",
+      "faces": [
+        {
+          "page": "v01-0372",
+          "side": "raw",
+          "box": [
+            0.3,
+            0.44,
+            0.09,
+            0.1
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v01-0372"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nachiguron",
+      "name": "Nachiguron",
+      "nameJa": "ナチグロン",
+      "aliases": [
+        "おちこぼれ怪獣"
+      ],
+      "gender": "male",
+      "ageGroup": "",
+      "looks": "round dark bald head with big round eyes, timid sweating expression; billed as the \"dropout/reject kaiju\" (おちこぼれ怪獣), 60m, 5万トン; crouches scared among fleeing crowds in the city before Kinnikuman confronts him; later reappears with a fluffy pale wig-like mane covering his head (different from his earlier plain bald look), sells goods door-to-door in town, and moves in as a housemate with Kinnikuman and Meat",
+      "faces": [
+        {
+          "page": "v01-0375",
+          "side": "raw",
+          "box": [
+            0.03,
+            0.07,
+            0.13,
+            0.13
+          ]
+        },
+        {
+          "page": "v01-0377",
+          "side": "raw",
+          "box": [
+            0.29,
+            0.33,
+            0.17,
+            0.14
+          ]
+        },
+        {
+          "page": "v01-0381",
+          "side": "raw",
+          "box": [
+            0.04,
+            0.84,
+            0.16,
+            0.16
+          ]
+        }
+      ],
+      "addresses": {
+        "kinnikuman": {
+          "default": "(không xưng rõ)/おまえ — phẫn nộ, cãi lại khi bị Kinnikuman chê bai (ví với ca sĩ nhóm Candies) và bảo \"年をかんがえろ\" (biết thân biết phận đi)",
+          "moods": {
+            "khóc lóc, van xin": "(không xưng rõ, giọng Kansai)/(không gọi tên) — ごめんな おかあちゃんにいわんといてや…, vừa khóc vừa xin đừng mách mẹ, sợ hãi hoàn toàn khác vẻ hung hăng lúc trước",
+            "kiêu hãnh, phản bác": "(không xưng rõ)/(không gọi tên) — おちこぼれのどこが悪い 世の中ウルトラマンやゴジラばっかりじゃないわい, tuyên bố đầy tự hào rằng không phải ai cũng cần là siêu anh hùng nổi tiếng",
+            "biết ơn, cảm kích": "(không xưng rõ)/スグルさん — gọi thẳng tên thật kèm さん, cảm ơn rối rít khi được cho ở nhờ, khác hẳn giọng khiêu khích ban đầu"
+          }
+        },
+        "meat": {
+          "default": "(không xưng rõ)/ミートさん — lễ phép, khép nép xin tha thứ, gọi kèm さん kính trọng"
+        }
+      },
+      "pages": [
+        "v01-0375",
+        "v01-0376",
+        "v01-0377",
+        "v01-0381",
+        "v01-0382",
+        "v01-0383",
+        "v01-0384"
+      ],
+      "pairPages": {
+        "kinnikuman": 4,
+        "meat": 1
+      },
+      "settledPairs": [
+        "kinnikuman"
+      ],
+      "settled": false,
+      "missing": [
+        "ageGroup"
+      ]
+    }
+  ]
+}

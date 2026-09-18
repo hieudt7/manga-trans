@@ -1,0 +1,762 @@
+{
+  "characters": [
+    {
+      "id": "kinnikuman",
+      "name": "Kinnikuman",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/kinnikuman/0.png",
+        "faces/kinnikuman/1.png",
+        "faces/kinnikuman/2.png"
+      ],
+      "traits": [
+        "The hero of the series: a clumsy, self-important superhero who turns out to be the exiled prince of Kinniku Star. Fights monsters on Earth for free, lives poor with Meat, is ruled by his stomach (gyudon, garlic) and by his vanity.",
+        "Boastful and posturing in public, cowardly and whiny the moment things go wrong; childish with his father, jealous of any hero more famous than him, but genuinely soft-hearted — he takes in the monsters he beats, and he goes to help even when the law forbids it."
+      ]
+    },
+    {
+      "id": "meat",
+      "name": "Mít (Meat)",
+      "gender": "male",
+      "ageGroup": "child",
+      "faces": [
+        "faces/meat/0.png",
+        "faces/meat/1.png",
+        "faces/meat/2.png"
+      ],
+      "traits": [
+        "Herald from Kinniku Star who reveals Kinnikuman's royal birth and then stays on Earth as his second, manager and conscience; a small boy in glasses and cape who attends Suminoe kindergarten (running gag) and secretly works night shifts to pay their way.",
+        "Devoted, sensible and long-suffering — the adult in the household despite being a child. Mutters about the prince's moods, takes the blame, and stands up to him only to defend someone weaker."
+      ]
+    },
+    {
+      "id": "king-muscle",
+      "name": "Vua Kinniku (King Muscle)",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/king-muscle/0.png",
+        "faces/king-muscle/1.png",
+        "faces/king-muscle/2.png"
+      ],
+      "traits": [
+        "King of Kinniku Star and Kinnikuman's father; lost his throne and the universal championship belt to the pig wrestler King Tone, and comes to Earth to beg his son to win the planet back.",
+        "Blustering, self-pitying and shameless — wheedles, bribes with gyudon, then shouts 親不孝者め when refused. Softens when speaking of Meat's sacrifices for his son."
+      ]
+    },
+    {
+      "id": "mari",
+      "name": "Mari",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/mari/0.png"
+      ],
+      "traits": [
+        "Nursery teacher (保母) at Suminoe kindergarten, Meat's teacher, and Kinnikuman's love interest from the 'かわいいキッスの巻' chapter on; quietly cooks breakfast for the pair.",
+        "Warm, unflappable, faintly amused by Kinnikuman; kind to Meat like a teacher to a small pupil."
+      ]
+    },
+    {
+      "id": "terryman",
+      "name": "Terryman",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/terryman/0.png",
+        "faces/terryman/1.png"
+      ],
+      "traits": [
+        "American wrestler-hero from Texas who comes to Japan, charges money for hero work, and is voted Japan's sole official hero — pushing Kinnikuman out of a job and into exile.",
+        "Cool, professional, mercenary; contemptuous of the unpaid amateur until Kinnikuman beats him, after which he warns him honestly of the danger he is in."
+      ]
+    },
+    {
+      "id": "nachiguron",
+      "name": "Nachiguron",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/nachiguron/0.png",
+        "faces/nachiguron/1.png",
+        "faces/nachiguron/2.png"
+      ],
+      "traits": [
+        "The 'dropout monster' (60m, 50,000 tons) Kinnikuman defeats, then befriends; ends up moving into their cramped house as a housemate.",
+        "Blustering when cornered, bursts into tears just as fast, and proud of being a nobody — 'おちこぼれのどこが悪い'. Warms into a grateful, polite housemate."
+      ]
+    },
+    {
+      "id": "nana",
+      "name": "Nana",
+      "gender": "female",
+      "ageGroup": "teen",
+      "faces": [
+        "faces/nana/0.png",
+        "faces/nana/1.png",
+        "faces/nana/2.png"
+      ],
+      "traits": [
+        "Teen idol singer Kinnikuman is a fan of; the target of his staged 'rescue operation' with a hired monster.",
+        "Sharp-tongued and impatient off stage, quite unlike her sweet stage image; softens only with Hitoshi."
+      ]
+    },
+    {
+      "id": "hitoshi",
+      "name": "Hitoshi",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/hitoshi/0.png",
+        "faces/hitoshi/1.png"
+      ],
+      "traits": [
+        "Nana's manager and childhood friend, secretly planning to propose to her; dismissive of Kinnikuman.",
+        "Cold and businesslike when interrupted, earnest and halting when he speaks of Nana."
+      ]
+    },
+    {
+      "id": "king-tone",
+      "name": "King Tone",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/king-tone/0.png",
+        "faces/king-tone/1.png"
+      ],
+      "traits": [
+        "Pig-faced wrestler who swept the martial-arts Olympics, took the universal championship from King Muscle, and now rules Kinniku Star as a tyrant. (May be the same character as the pig impostor seen posing as the prince in Kinniku Town — not confirmed in volume 1.)",
+        "Arrogant conqueror, contemptuous of the deposed royal family."
+      ]
+    },
+    {
+      "id": "zangyaku-alien",
+      "name": "Người Zangyaku",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/zangyaku-alien/0.png"
+      ],
+      "traits": [
+        "Shark-faced alien who hijacks a kindergarten bus to avenge the father Kinnikuman's side killed five years earlier.",
+        "Vengeful and theatrical, but keeps his word — releases the hostages once Kinnikuman offers himself."
+      ]
+    },
+    {
+      "id": "panda-man",
+      "name": "Panda Man",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/panda-man/0.png",
+        "faces/panda-man/1.png",
+        "faces/panda-man/2.png"
+      ],
+      "traits": [
+        "TV tokusatsu hero famous for 'beating monsters in 30 seconds' — in reality a part-time actor; Kinnikuman jealously challenges him to a real match.",
+        "Friendly and self-effacing off screen, panics when a real fight starts; oddly formal when impressed."
+      ]
+    },
+    {
+      "id": "franky",
+      "name": "Franky",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/franky/0.png"
+      ],
+      "traits": [
+        "Giant underground ape-monster who attacks the kindergarten neighbourhood hoping to become a TV star; turns out to be a man in a costume.",
+        "Loud-mouthed bully with a sense of grievance, pretends to be in the right."
+      ]
+    },
+    {
+      "id": "palace-maiden",
+      "name": "Thị nữ trong cung",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/palace-maiden/0.png"
+      ],
+      "traits": [
+        "Young woman at the Kinniku Star palace, devoted to King Muscle and unimpressed by the prince.",
+        "Loyal to the king, openly sarcastic about Suguru's antics."
+      ]
+    },
+    {
+      "id": "shell-monster",
+      "name": "Quái vật vỏ trứng",
+      "gender": "male",
+      "ageGroup": null,
+      "faces": [
+        "faces/shell-monster/0.png",
+        "faces/shell-monster/1.png",
+        "faces/shell-monster/2.png"
+      ],
+      "traits": [
+        "Lonely 'clumsy monster' of the 孤独のドジ怪獣 chapter, marked with a 肉 kanji like Kinnikuman's, who dreams of being recognised as a hero.",
+        "Insecure, desperate for approval, calls out to absent parents after every feat."
+      ]
+    },
+    {
+      "id": "defense-chief",
+      "name": "Chỉ huy trưởng",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/defense-chief/0.png",
+        "faces/defense-chief/1.png",
+        "faces/defense-chief/2.png"
+      ],
+      "traits": [
+        "Chief of the Earth Defense Force, who calls Kinnikuman in when monsters appear.",
+        "Brusque, easily flustered, fond of barking short interjections."
+      ]
+    },
+    {
+      "id": "radar-officer",
+      "name": "Sĩ quan radar",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/radar-officer/0.png",
+        "faces/radar-officer/1.png"
+      ],
+      "traits": [
+        "Young Defense Force operator at the radar console who relays monster sightings to the chief.",
+        "Cheeky for a subordinate — teases Kinnikuman about the 肉 mark on his mask."
+      ]
+    },
+    {
+      "id": "coordinator",
+      "name": "Người quản lý",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/coordinator/0.png",
+        "faces/coordinator/1.png"
+      ],
+      "traits": [
+        "Sunglasses-and-suit handler who announces Kinnikuman's matches, coaches him and reports to the Defense Force chief.",
+        "Businesslike, patient, a touch of the huckster."
+      ]
+    },
+    {
+      "id": "gorizaemon",
+      "name": "Gorizaemon",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/gorizaemon/0.png"
+      ],
+      "traits": [
+        "Gorilla-like underling monster (2m, 2000kg, 'specialty: dripping snot') Kinnikuman hires from a monster phone directory to stage a fake attack on Nana.",
+        "Fawning to his 'big brother', crude and grabby once he takes a liking to Nana — the staged attack turns real."
+      ]
+    },
+    {
+      "id": "station-chief",
+      "name": "Giám đốc đài",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/station-chief/0.png"
+      ],
+      "traits": [
+        "TV station chief who approves Kinnikuman's 'hunt Nessie live on air' proposal and then balks at the cost.",
+        "Budget-minded, easily sold on ratings."
+      ]
+    },
+    {
+      "id": "tugawa",
+      "name": "Ông chủ Tugawa",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/tugawa/0.png"
+      ],
+      "traits": [
+        "Burly owner of the gyudon/udon shop where Kinnikuman takes a part-time job.",
+        "Gruff boss, quick to scold the 新米 (rookie)."
+      ]
+    },
+    {
+      "id": "akaiwa",
+      "name": "Akaiwa",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/akaiwa/0.png"
+      ],
+      "traits": [
+        "Police squad leader from Jōsei station who negotiates the bus hijacking and volunteers himself as a hostage exchange; badly hurt, he keeps singing the children's song 'Zou-san'.",
+        "Brave, warm, stubbornly cheerful."
+      ]
+    },
+    {
+      "id": "goriki",
+      "name": "Goriki",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/goriki/0.png",
+        "faces/goriki/1.png"
+      ],
+      "traits": [
+        "Huge hairy wrestler, Kinnikuman's opponent in the cage deathmatch Meat sets up as a wager over whether he must return to Kinniku Star.",
+        "Proud of his strength, undone by laughter at Kinnikuman's funny faces."
+      ]
+    },
+    {
+      "id": "alien-envoy",
+      "name": "Sứ giả ngoài hành tinh",
+      "gender": "male",
+      "ageGroup": null,
+      "faces": [
+        "faces/alien-envoy/0.png",
+        "faces/alien-envoy/1.png"
+      ],
+      "traits": [
+        "Alien who first recruits Kinnikuman to fight for Earth; Kinnikuman nicknames him 'gyudon face'.",
+        "Officious; breaks the fourth wall by commenting on the panel layout."
+      ]
+    },
+    {
+      "id": "shigeru",
+      "name": "Shigeru",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/shigeru/0.png"
+      ],
+      "traits": [
+        "Youth of the Giant tribe from Planet Giants, adopted by King Muscle as a rival prince candidate — to Kinnikuman's fury.",
+        "Well-mannered and favoured, a foil to the spoiled prince."
+      ]
+    },
+    {
+      "id": "yosaku",
+      "name": "Yosaku",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/yosaku/0.png"
+      ],
+      "traits": [
+        "Rustic countryman who claims he already beat Nessie and demands his own TV special.",
+        "Boastful yokel."
+      ]
+    },
+    {
+      "id": "neighbor-oldman",
+      "name": "Ông hàng xóm",
+      "gender": "male",
+      "ageGroup": "elder",
+      "faces": [
+        "faces/neighbor-oldman/0.png"
+      ],
+      "traits": [
+        "Elderly neighbour with a cane who scolds Kinnikuman about 'kids these days'.",
+        "Nosy, teasing, quick to lecture."
+      ]
+    }
+  ],
+  "relationshipTree": [
+    {
+      "characterId": "kinnikuman",
+      "related": [
+        {
+          "characterId": "meat",
+          "coOccurrence": 55,
+          "label": "his herald, servant, secretary and only real companion; they live together and squabble like family",
+          "description": "ta/cậu, gọi tên 'Mít' (ミートくん) mặc định; tao/mày khi quát nạt hoặc bị chạm tự ái (バカヤロウ); tớ/Mít khi mếu máo kể lể, cầu an ủi; tôi/cậu (わたし/あなた) khi cãi lại, biện minh"
+        },
+        {
+          "characterId": "king-muscle",
+          "coOccurrence": 13,
+          "label": "his father, the King of Kinniku Star",
+          "description": "con/ba (パパ) — giọng trẻ con, nhõng nhẽo, ăn vạ, đặc biệt ngoan khi được dụ bằng cơm bò"
+        },
+        {
+          "characterId": "mari",
+          "coOccurrence": 10,
+          "label": "the kindergarten teacher he falls for at first sight",
+          "description": "tôi/cô Mari (わたくし/マリさん, です/ます) — trịnh trọng, cố tỏ ra lịch thiệp; chuyển sang 'Mari' thân mật (マリちゃん) khi mừng rỡ, xúc động"
+        },
+        {
+          "characterId": "terryman",
+          "coOccurrence": 6,
+          "label": "the paid American hero who replaces him as Japan's official hero — rival, then wary acquaintance",
+          "description": "tao/mày (ユー) — bực bội, nhại lại lối 'ミー/ユー' Tây hoá của Terryman"
+        },
+        {
+          "characterId": "nachiguron",
+          "coOccurrence": 7,
+          "label": "a 'dropout monster' he beats, then pities and lets move in with him",
+          "description": "ta/mày (おまえ) khi mỉa mai, khiêu khích; ta/Nachiguron (gọi thẳng tên) khi ân cần khuyên nhủ và khi cho ở nhờ — giọng dịu hẳn"
+        },
+        {
+          "characterId": "nana",
+          "coOccurrence": 7,
+          "label": "idol singer he is a fan of (fan club member no. 9999); he stages a monster attack to rescue her",
+          "description": "tôi/Nana (ナナちゃん) — hâm mộ, cố gây ấn tượng; 'cô Nana' (ナナさん) khi làm bộ đàng hoàng ra vẻ anh hùng"
+        },
+        {
+          "characterId": "panda-man",
+          "coOccurrence": 4,
+          "label": "a TV tokusatsu hero he meets on volunteer park patrol, then jealously challenges to a match",
+          "description": "tôi/anh — khiêm tốn, đồng cảm lúc đầu; nghiêm giọng thách đấu khi ghen tị"
+        },
+        {
+          "characterId": "zangyaku-alien",
+          "coOccurrence": 5,
+          "label": "the bus-hijacking alien he offers himself to in exchange for the hostages",
+          "description": "ta/ngươi (người Zangyaku) khi chất vấn; ta/mày (わたし/おまえ) khi khẩn khoản xin thả con tin, nhận mình là kẻ thù duy nhất"
+        },
+        {
+          "characterId": "tugawa",
+          "coOccurrence": 2,
+          "label": "the gyudon-shop owner he works a part-time job for",
+          "description": "cháu/ông chủ (ヘイ…今後気をつけやす) — giọng thợ học việc, cười trừ, cúi đầu xin lỗi"
+        },
+        {
+          "characterId": "coordinator",
+          "coOccurrence": 5,
+          "label": "his handler/announcer, who also reports to the Defense Force chief",
+          "description": "tôi/anh — lịch sự vừa phải, nghe theo chỉ dẫn"
+        },
+        {
+          "characterId": "shigeru",
+          "coOccurrence": 1,
+          "label": "the Giant-tribe youth his father adopts as a rival prince",
+          "description": "ta/thằng nhãi kia (きさま, コノヤロー) — giận dữ, gầm gừ khẳng định mình mới là hoàng tử thật"
+        },
+        {
+          "characterId": "franky",
+          "coOccurrence": 4,
+          "label": "the Kansai-speaking underground monster terrorising the kindergarten",
+          "description": "ta/ngươi — đối đầu, quát nạt"
+        }
+      ]
+    },
+    {
+      "characterId": "meat",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 55,
+          "label": "his prince and master, whom he serves, scolds and covers for",
+          "description": "em/ngài, hoàng tử (ぼく/王子, です/ます) mặc định; 'hoàng tử ơi' giọng van nài khi ngăn cản; giọng trách móc 'em/anh' (ぼく/あなた) khi đổ lỗi; hiếm hoi gằn giọng 'Hoàng tử im lặng giùm em!' (王子はだまっててください!) khi bênh vực người khác"
+        },
+        {
+          "characterId": "mari",
+          "coOccurrence": 8,
+          "label": "his kindergarten teacher, who also cooks for him and Kinnikuman",
+          "description": "con/cô (わたくし, です/ます) — lễ phép, hơi ấp úng như học trò với cô giáo; bỏ lễ phép thành 'tớ cũng!' (わしも!) khi nũng nịu đòi được hôn như hoàng tử"
+        },
+        {
+          "characterId": "nachiguron",
+          "coOccurrence": 6,
+          "label": "the dropout monster he befriends and gives a Kinniku whistle to",
+          "description": "anh/em (ぼく) — ấm áp, ân cần như đàn anh"
+        },
+        {
+          "characterId": "palace-maiden",
+          "coOccurrence": 4,
+          "label": "fellow palace staff; they tease the prince together",
+          "description": "em/chị — thân thiện, đồng minh"
+        }
+      ]
+    },
+    {
+      "characterId": "king-muscle",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 13,
+          "label": "his son, the prince he abandoned on Earth and now needs",
+          "description": "ta/con, gọi thẳng tên 'Suguru' (わし/おまえ, スグル) mặc định; van nài, dỗ ngọt bằng cơm bò; quát 'thằng con bất hiếu' (親不孝者め) khi bị từ chối; trầm giọng nghiêm túc khi kể chuyện Meat hi sinh"
+        },
+        {
+          "characterId": "shigeru",
+          "coOccurrence": 1,
+          "label": "the Giant-tribe youth he adopts as a replacement prince",
+          "description": "ta/Shigeru (シゲルくん) — vui mừng, cưng chiều đứa con nuôi mới"
+        }
+      ]
+    },
+    {
+      "characterId": "mari",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 10,
+          "label": "the odd neighbour-hero who courts her",
+          "description": "em/anh (あたし/あなた, です/ます) — tò mò rồi ngạc nhiên thích thú khi biết anh nổi tiếng"
+        },
+        {
+          "characterId": "meat",
+          "coOccurrence": 8,
+          "label": "her pupil at the kindergarten",
+          "description": "cô/Mít (わたし/ミートくん) — thân mật kiểu cô giáo với học trò nhỏ, âu yếm khi cảm ơn"
+        }
+      ]
+    },
+    {
+      "characterId": "terryman",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 6,
+          "label": "the local hero he displaces, then respects",
+          "description": "tôi/cậu (です/ます) khi mới gặp, như với người lạ; kiêu ngạo 'ミー/キミたち, そんなヤツ' khi coi thường; nghiêm túc 'tôi/cậu, Kinnikuman' (おまえ) khi cảnh báo anh về nguy cơ bị quân đội truy bắt"
+        }
+      ]
+    },
+    {
+      "characterId": "nachiguron",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 7,
+          "label": "the hero who beat him, mocked him, then took him in",
+          "description": "tao/mày (おまえ) khi phẫn nộ cãi lại; giọng Kansai khóc lóc van xin 'đừng mách mẹ tôi'; 'em/anh Suguru' (スグルさん) khi biết ơn, cảm kích"
+        },
+        {
+          "characterId": "meat",
+          "coOccurrence": 6,
+          "label": "the boy who gave him the Kinniku whistle",
+          "description": "em/anh Mít (ミートさん) — lễ phép, khép nép, gọi kèm さん kính trọng"
+        }
+      ]
+    },
+    {
+      "characterId": "nana",
+      "related": [
+        {
+          "characterId": "hitoshi",
+          "coOccurrence": 5,
+          "label": "her manager and childhood friend, who wants to propose",
+          "description": "em/anh Hitoshi (gọi tên + くん) — gần gũi như bạn thời thơ ấu; 'em/anh' (わたし/あなた) khi cảm động, biết ơn"
+        },
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 7,
+          "label": "an over-eager fan who stages a rescue for her",
+          "description": "tôi/(không gọi tên) (あたし) — xẵng giọng, khó chịu, mất kiên nhẫn"
+        }
+      ]
+    },
+    {
+      "characterId": "hitoshi",
+      "related": [
+        {
+          "characterId": "nana",
+          "coOccurrence": 5,
+          "label": "the childhood friend he loves and manages",
+          "description": "anh/em (ぼく) — rụt rè, ngập ngừng, chưa nói hết câu"
+        },
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 5,
+          "label": "a nuisance fan hanging around his singer",
+          "description": "tôi/mày (おまえ) — xem thường, trống không"
+        }
+      ]
+    },
+    {
+      "characterId": "king-tone",
+      "related": []
+    },
+    {
+      "characterId": "zangyaku-alien",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 5,
+          "label": "the enemy he has come to destroy",
+          "description": "tao/mày (オラ/おまえ, giọng Kyushu) — công khai tuyên chiến; giọng dịu một bậc khi nhượng bộ, đồng ý thả con tin"
+        },
+        {
+          "characterId": "akaiwa",
+          "coOccurrence": 2,
+          "label": "the police squad leader negotiating with him",
+          "description": "tao/lũ bay — gầm gừ đe doạ, lấy con tin ra uy hiếp"
+        }
+      ]
+    },
+    {
+      "characterId": "panda-man",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 4,
+          "label": "fellow volunteer patroller, then unwilling opponent",
+          "description": "tôi/hoàng tử (王子!) — vồn vã, có vẻ biết thân phận thật của anh; 'mày' (おまえ) khi cảnh giác trên sân khấu; 'ngài' (おぬし, cổ kính) khi kính nể; 'em/anh' (ぼく) khi van nài, sợ hãi"
+        }
+      ]
+    },
+    {
+      "characterId": "franky",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 4,
+          "label": "the hero who comes to stop him",
+          "description": "tao/thằng mặt xấu kia (ブ男, キン肉マン; giọng Kansai) — xấc xược, mỉa mai, già mồm ra vẻ chính nghĩa"
+        }
+      ]
+    },
+    {
+      "characterId": "palace-maiden",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 4,
+          "label": "the spoiled prince she serves",
+          "description": "tôi/hoàng tử (わたし/王子さま) — ngoài miệng lễ phép, thật ra khó chịu, hay mỉa mai"
+        },
+        {
+          "characterId": "king-muscle",
+          "coOccurrence": 4,
+          "label": "the king she serves and worries about",
+          "description": "tôi/Đại vương (わたし/大王さま) — trung thành, ân cần"
+        }
+      ]
+    },
+    {
+      "characterId": "shell-monster",
+      "related": []
+    },
+    {
+      "characterId": "defense-chief",
+      "related": [
+        {
+          "characterId": "radar-officer",
+          "coOccurrence": 3,
+          "label": "his radar operator",
+          "description": "ta/cậu — trên ra lệnh dưới"
+        },
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 6,
+          "label": "the hero he calls on",
+          "description": "ta/Kinnikuman (gọi thẳng tên) — thân mật, hồ hởi"
+        }
+      ]
+    },
+    {
+      "characterId": "radar-officer",
+      "related": [
+        {
+          "characterId": "defense-chief",
+          "coOccurrence": 3,
+          "label": "his commanding officer",
+          "description": "tôi/Chỉ huy (長官) — lễ phép, báo cáo"
+        },
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 2,
+          "label": "the hero he jokes about",
+          "description": "tôi/ông (không gọi rõ) — suồng sã, tinh nghịch"
+        }
+      ]
+    },
+    {
+      "characterId": "coordinator",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 5,
+          "label": "the hero he manages",
+          "description": "tôi/cậu Kinnikuman (キン肉マンくん, です/ます) — thân thiện nhưng vẫn giữ vai người quản lý"
+        },
+        {
+          "characterId": "defense-chief",
+          "coOccurrence": 4,
+          "label": "his superior",
+          "description": "tôi/Chỉ huy (長官) — lễ phép"
+        }
+      ]
+    },
+    {
+      "characterId": "gorizaemon",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 3,
+          "label": "his 'big brother' and employer",
+          "description": "em/đại ca (兄き) — kính trọng, xun xoe"
+        },
+        {
+          "characterId": "nana",
+          "coOccurrence": 3,
+          "label": "the idol he is supposed to fake-kidnap, then really wants",
+          "description": "tao/con nhỏ này (この女) — thô lỗ, trịch thượng"
+        }
+      ]
+    },
+    {
+      "characterId": "station-chief",
+      "related": []
+    },
+    {
+      "characterId": "tugawa",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 2,
+          "label": "his hopeless new part-timer",
+          "description": "tao/thằng lính mới (新米) — cộc, ra lệnh, mắng mỏ"
+        }
+      ]
+    },
+    {
+      "characterId": "akaiwa",
+      "related": [
+        {
+          "characterId": "zangyaku-alien",
+          "coOccurrence": 2,
+          "label": "the hijacker he negotiates with",
+          "description": "tôi/anh — giọng thương lượng, cố giữ bình tĩnh"
+        }
+      ]
+    },
+    {
+      "characterId": "goriki",
+      "related": []
+    },
+    {
+      "characterId": "alien-envoy",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 2,
+          "label": "the hero he recruits",
+          "description": "tôi/cậu (わたし/キミ) — trịnh trọng kiểu công vụ"
+        }
+      ]
+    },
+    {
+      "characterId": "shigeru",
+      "related": []
+    },
+    {
+      "characterId": "yosaku",
+      "related": []
+    },
+    {
+      "characterId": "neighbor-oldman",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 2,
+          "label": "the loud young man next door",
+          "description": "lão/mày — trêu chọc, hỏi vặn, dạy đời"
+        }
+      ]
+    }
+  ],
+  "isVerifiedByHuman": false
+}
