@@ -7,7 +7,10 @@ use koharu_types::commands::{
 };
 use rfd::FileDialog;
 
-use crate::{AppResources, state_tx::{self, ChangedField}};
+use crate::{
+    AppResources,
+    state_tx::{self, ChangedField},
+};
 
 use super::utils::{encode_image_with_dpi, load_documents, mime_from_ext};
 
@@ -185,9 +188,11 @@ pub async fn save_rendered(state: AppResources, payload: IndexPayload) -> anyhow
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("No rendered image for document '{}'", document.name))?;
 
-    let home = std::env::var("HOME")
-        .map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
-    let render_dir = std::path::Path::new(&home).join("Documents").join("AI_Trans");
+    let home =
+        std::env::var("HOME").map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
+    let render_dir = std::path::Path::new(&home)
+        .join("Documents")
+        .join("AI_Trans");
     std::fs::create_dir_all(&render_dir)?;
 
     let ext = document_ext(&document);
@@ -239,7 +244,8 @@ pub async fn release_page_resources(
 
             tracing::debug!(
                 index = payload.index,
-                orig_w = w, orig_h = h,
+                orig_w = w,
+                orig_h = h,
                 "page resources released"
             );
             Ok(())
@@ -255,9 +261,11 @@ pub async fn save_rendered_psd(state: AppResources, payload: IndexPayload) -> an
         anyhow::bail!("No rendered image for document '{}'", document.name);
     }
 
-    let home = std::env::var("HOME")
-        .map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
-    let render_dir = std::path::Path::new(&home).join("Documents").join("AI_Trans");
+    let home =
+        std::env::var("HOME").map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
+    let render_dir = std::path::Path::new(&home)
+        .join("Documents")
+        .join("AI_Trans");
     std::fs::create_dir_all(&render_dir)?;
 
     let output_path = render_dir.join(format!("{}.psd", document.name));
@@ -265,8 +273,8 @@ pub async fn save_rendered_psd(state: AppResources, payload: IndexPayload) -> an
         text_layer_mode: koharu_psd::TextLayerMode::Editable,
         ..koharu_psd::PsdExportOptions::default()
     };
-    let bytes = koharu_psd::export_document(&document, &options)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    let bytes =
+        koharu_psd::export_document(&document, &options).map_err(|e| anyhow::anyhow!("{e}"))?;
     std::fs::write(&output_path, bytes)?;
 
     release_page_resources(state, payload).await
@@ -279,9 +287,11 @@ pub async fn save_rendered_tiff(state: AppResources, payload: IndexPayload) -> a
         anyhow::bail!("No rendered image for document '{}'", document.name);
     }
 
-    let home = std::env::var("HOME")
-        .map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
-    let render_dir = std::path::Path::new(&home).join("Documents").join("AI_Trans");
+    let home =
+        std::env::var("HOME").map_err(|_| anyhow::anyhow!("Cannot determine home directory"))?;
+    let render_dir = std::path::Path::new(&home)
+        .join("Documents")
+        .join("AI_Trans");
     std::fs::create_dir_all(&render_dir)?;
 
     let output_path = render_dir.join(format!("{}.tif", document.name));
@@ -289,8 +299,8 @@ pub async fn save_rendered_tiff(state: AppResources, payload: IndexPayload) -> a
         text_layer_mode: koharu_psd::TextLayerMode::Editable,
         ..koharu_psd::PsdExportOptions::default()
     };
-    let bytes = koharu_tiff::export_document(&document, &options)
-        .map_err(|e| anyhow::anyhow!("{e}"))?;
+    let bytes =
+        koharu_tiff::export_document(&document, &options).map_err(|e| anyhow::anyhow!("{e}"))?;
     std::fs::write(&output_path, bytes)?;
 
     release_page_resources(state, payload).await

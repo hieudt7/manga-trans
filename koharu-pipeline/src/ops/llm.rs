@@ -127,21 +127,29 @@ fn merge_story_context(
     (!parts.is_empty()).then(|| parts.join("\n\n"))
 }
 
+/// The last API model loaded, so it can be loaded again when what goes into its
+/// story context changes.
+static LAST_API_LOAD: std::sync::Mutex<Option<LlmLoadPayload>> = std::sync::Mutex::new(None);
+
 #[instrument(level = "info", skip_all)]
 pub async fn llm_load(state: AppResources, payload: LlmLoadPayload) -> anyhow::Result<()> {
     if payload.id.contains(':') {
+        let remembered = payload.clone();
         let (provider_id, model_id) = payload.id.split_once(':').unwrap();
         let api_key = match payload.api_key {
             Some(key) if !key.trim().is_empty() => Some(key),
             _ => get_saved_api_key(provider_id)?,
         };
-        // Fold the character library into the story context, which stays byte
-        // identical for the whole session and therefore lands in the provider's
-        // prompt cache. Per-page context then only has to name who appears.
-        // The style profile a curator chose from a reference volume, if any.
+        // The style profile a curator chose and the character library both go
+        // into the story context, which stays byte identical for the whole
+        // session and therefore lands in the provider's prompt cache. Per-page
+        // context then only has to name who appears.
         let style = koharu_ml::bilingual::style::load_active().and_then(|p| p.to_context());
         if let Some(style) = &style {
-            tracing::info!(chars = style.len(), "story context includes the active style profile");
+            tracing::info!(
+                chars = style.len(),
+                "story context includes the active style profile"
+            );
         }
         let story_context = merge_story_context(
             payload.story_context.as_deref(),
@@ -164,11 +172,34 @@ pub async fn llm_load(state: AppResources, payload: LlmLoadPayload) -> anyhow::R
                 },
             )
             .await?;
+        if let Ok(mut last) = LAST_API_LOAD.lock() {
+            *last = Some(remembered);
+        }
     } else {
         let id = ModelId::from_str(&payload.id)?;
         state.llm.load(id).await;
     }
     Ok(())
+}
+
+/// Load the current API model again so its story context picks up a changed
+/// style profile or character library. Returns whether anything was reloaded.
+///
+/// Without this a profile chosen for translation would only apply after the
+/// user reloaded the model by hand, which nothing on screen tells them to do.
+pub async fn refresh_story_context(state: AppResources) -> anyhow::Result<bool> {
+    if !state.llm.is_api_ready().await {
+        return Ok(false);
+    }
+    let last = LAST_API_LOAD.lock().ok().and_then(|last| last.clone());
+    match last {
+        Some(payload) => {
+            llm_load(state, payload).await?;
+            tracing::info!("reloaded the API model with the new story context");
+            Ok(true)
+        }
+        None => Ok(false),
+    }
 }
 
 pub async fn llm_offload(state: AppResources) -> anyhow::Result<()> {
@@ -188,7 +219,10 @@ pub async fn llm_generate(state: AppResources, payload: LlmGeneratePayload) -> a
     // Scan the page for known characters and inject context into the translation prompt.
     let page_context = state.ml.scan_for_character_context(&updated.image);
     if let Some(ctx) = &page_context {
-        tracing::debug!(context_len = ctx.len(), "character context injected into translate");
+        tracing::debug!(
+            context_len = ctx.len(),
+            "character context injected into translate"
+        );
     }
 
     match payload.text_block_index {

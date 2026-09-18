@@ -143,7 +143,10 @@ pub fn read_checkpoint(out_dir: &Path) -> Option<ScanCheckpoint> {
 /// Write the final `manga_relationship_v1.json`.
 pub fn write_scan_result(out_dir: &Path, result: &ScanResult) -> Result<()> {
     std::fs::create_dir_all(out_dir)?;
-    std::fs::write(scan_result_path(out_dir), serde_json::to_string_pretty(result)?)?;
+    std::fs::write(
+        scan_result_path(out_dir),
+        serde_json::to_string_pretty(result)?,
+    )?;
     Ok(())
 }
 
@@ -185,7 +188,9 @@ pub async fn scan_one_image(
     doc.ensure_text_block_ids();
 
     let character_lib: &CharacterLibrary = &model.character_lib;
-    let (Some(face_det), Some(ccip)) = (character_lib.face_det.as_ref(), character_lib.ccip.as_ref()) else {
+    let (Some(face_det), Some(ccip)) =
+        (character_lib.face_det.as_ref(), character_lib.ccip.as_ref())
+    else {
         tracing::warn!(path = %path.display(), "character scanner: face detector/CCIP not loaded, skipping image");
         return Ok(());
     };
@@ -215,8 +220,11 @@ pub async fn scan_one_image(
         return Ok(());
     }
 
-    let balloons: Vec<(f32, f32, f32, f32)> =
-        doc.balloons.iter().map(|b| (b.x, b.y, b.width, b.height)).collect();
+    let balloons: Vec<(f32, f32, f32, f32)> = doc
+        .balloons
+        .iter()
+        .map(|b| (b.x, b.y, b.width, b.height))
+        .collect();
 
     let (geoms, face_data, face_panel_idx) =
         locate_speaker_faces(face_det, ccip, &doc.image, &blocks, &balloons, &panels);
@@ -228,7 +236,9 @@ pub async fn scan_one_image(
     // ── Step A: dialogue-linked occurrence + face harvesting ───────────────────
     for g in &geoms {
         let Some(face_idx) = g.face_idx else { continue };
-        let Some(text) = dialogue_by_id.get(&g.id) else { continue };
+        let Some(text) = dialogue_by_id.get(&g.id) else {
+            continue;
+        };
         let (face_box, _, _, embedding) = &face_data[face_idx];
 
         match match_provisional(characters, embedding) {
@@ -262,7 +272,10 @@ pub async fn scan_one_image(
         let Some(pidx) = panel_idx else { continue };
         let (_, _, _, embedding) = &face_data[i];
         if let Some(ci) = match_provisional(characters, embedding) {
-            panel_members.entry(*pidx).or_default().insert(characters[ci].id.clone());
+            panel_members
+                .entry(*pidx)
+                .or_default()
+                .insert(characters[ci].id.clone());
         }
     }
     for members in panel_members.values() {
@@ -300,10 +313,15 @@ fn match_provisional(characters: &[ProvisionalCharacter], embedding: &[f32]) -> 
         }
     }
 
-    let margin_ok =
-        characters.len() < 2 || best_sim >= HIGH_CONF_THRESHOLD || (best_sim - second_sim) >= MATCH_MARGIN;
+    let margin_ok = characters.len() < 2
+        || best_sim >= HIGH_CONF_THRESHOLD
+        || (best_sim - second_sim) >= MATCH_MARGIN;
 
-    if best_sim >= MATCH_THRESHOLD && margin_ok { best_idx } else { None }
+    if best_sim >= MATCH_THRESHOLD && margin_ok {
+        best_idx
+    } else {
+        None
+    }
 }
 
 fn create_provisional_character(
@@ -439,18 +457,24 @@ pub fn finalize_scan(characters: Vec<ProvisionalCharacter>) -> ScanResult {
                 continue;
             }
 
-            related.entry(a.id.clone()).or_default().push(RelationshipEdge {
-                character_id: b.id.clone(),
-                co_occurrence: shared,
-                label: None,
-                description: None,
-            });
-            related.entry(b.id.clone()).or_default().push(RelationshipEdge {
-                character_id: a.id.clone(),
-                co_occurrence: shared,
-                label: None,
-                description: None,
-            });
+            related
+                .entry(a.id.clone())
+                .or_default()
+                .push(RelationshipEdge {
+                    character_id: b.id.clone(),
+                    co_occurrence: shared,
+                    label: None,
+                    description: None,
+                });
+            related
+                .entry(b.id.clone())
+                .or_default()
+                .push(RelationshipEdge {
+                    character_id: a.id.clone(),
+                    co_occurrence: shared,
+                    label: None,
+                    description: None,
+                });
         }
     }
 
@@ -526,10 +550,17 @@ pub async fn generate_relationship_labels(
 
             let a_snippets = dialogue_by_id.get(&node.character_id).unwrap_or(&empty);
             let b_snippets = dialogue_by_id.get(&edge.character_id).unwrap_or(&empty);
-            let a_name = names.get(&node.character_id).map(String::as_str).unwrap_or("A");
-            let b_name = names.get(&edge.character_id).map(String::as_str).unwrap_or("B");
+            let a_name = names
+                .get(&node.character_id)
+                .map(String::as_str)
+                .unwrap_or("A");
+            let b_name = names
+                .get(&edge.character_id)
+                .map(String::as_str)
+                .unwrap_or("B");
 
-            let labeled_pair = label_relationship(llm, a_name, a_snippets, b_name, b_snippets).await;
+            let labeled_pair =
+                label_relationship(llm, a_name, a_snippets, b_name, b_snippets).await;
             labeled.insert(key, labeled_pair);
         }
     }
@@ -552,7 +583,11 @@ pub async fn generate_relationship_labels(
 }
 
 fn pair_key(a: &str, b: &str) -> (String, String) {
-    if a < b { (a.to_string(), b.to_string()) } else { (b.to_string(), a.to_string()) }
+    if a < b {
+        (a.to_string(), b.to_string())
+    } else {
+        (b.to_string(), a.to_string())
+    }
 }
 
 async fn label_relationship(
@@ -575,8 +610,9 @@ async fn label_relationship(
     );
 
     match llm.complete(SYSTEM_PROMPT, &user_prompt).await {
-        Ok(raw) => parse_relationship_response(&raw)
-            .unwrap_or_else(|| (fallback_label(), String::new())),
+        Ok(raw) => {
+            parse_relationship_response(&raw).unwrap_or_else(|| (fallback_label(), String::new()))
+        }
         Err(e) => {
             tracing::warn!(error = %e, "character scanner: relationship labeling failed, using fallback");
             (fallback_label(), String::new())

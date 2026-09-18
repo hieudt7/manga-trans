@@ -31,3 +31,6 @@ uuid = { workspace = true }
 koharu-llm = { workspace = true }
 koharu-psd = { workspace = true }
 koharu-tiff = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

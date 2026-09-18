@@ -55,7 +55,10 @@ pub(crate) fn encode_image_with_dpi(
 ) -> anyhow::Result<Vec<u8>> {
     // TIFF: use our own flat writer which embeds DPI directly in IFD tags.
     if ext == "tif" || ext == "tiff" {
-        return Ok(koharu_tiff::encode_flat(image, if dpi == 0 { 72 } else { dpi }));
+        return Ok(koharu_tiff::encode_flat(
+            image,
+            if dpi == 0 { 72 } else { dpi },
+        ));
     }
     let bytes = encode_image(image, ext)?;
     if dpi == 0 {
@@ -78,14 +81,24 @@ fn inject_dpi_jpeg(bytes: Vec<u8>, dpi: u32) -> Vec<u8> {
     let dpi = dpi.min(65535) as u16;
     // JFIF APP0: FF E0, length=16, "JFIF\0", v1.01, unit=1(DPI), xdpi, ydpi, 0, 0
     let app0: [u8; 18] = [
-        0xFF, 0xE0,
-        0x00, 0x10, // segment length = 16 (includes length field but not marker)
-        b'J', b'F', b'I', b'F', 0x00, // identifier
-        0x01, 0x01, // version 1.01
-        0x01,       // units = 1 (pixels per inch)
-        (dpi >> 8) as u8, (dpi & 0xFF) as u8, // X density
-        (dpi >> 8) as u8, (dpi & 0xFF) as u8, // Y density
-        0x00, 0x00, // thumbnail size (none)
+        0xFF,
+        0xE0,
+        0x00,
+        0x10, // segment length = 16 (includes length field but not marker)
+        b'J',
+        b'F',
+        b'I',
+        b'F',
+        0x00, // identifier
+        0x01,
+        0x01, // version 1.01
+        0x01, // units = 1 (pixels per inch)
+        (dpi >> 8) as u8,
+        (dpi & 0xFF) as u8, // X density
+        (dpi >> 8) as u8,
+        (dpi & 0xFF) as u8, // Y density
+        0x00,
+        0x00, // thumbnail size (none)
     ];
     let mut out = Vec::with_capacity(2 + app0.len() + bytes.len() - 2);
     out.extend_from_slice(&bytes[0..2]); // SOI
@@ -139,7 +152,11 @@ fn png_crc32(data: &[u8]) -> u32 {
     for &b in data {
         let mut c = crc ^ (b as u32);
         for _ in 0..8 {
-            c = if c & 1 != 0 { 0xEDB88320 ^ (c >> 1) } else { c >> 1 };
+            c = if c & 1 != 0 {
+                0xEDB88320 ^ (c >> 1)
+            } else {
+                c >> 1
+            };
         }
         crc = c;
     }

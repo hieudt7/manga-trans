@@ -26,12 +26,18 @@ const MIN_KEY_LEN: usize = 20;
 /// Environment variable holding keys for a provider, e.g.
 /// `KOHARU_GEMINI_API_KEYS=key1,key2`.
 fn keys_env_var(provider: &str) -> String {
-    format!("KOHARU_{}_API_KEYS", provider.to_ascii_uppercase().replace('-', "_"))
+    format!(
+        "KOHARU_{}_API_KEYS",
+        provider.to_ascii_uppercase().replace('-', "_")
+    )
 }
 
 /// Environment variable pointing at a key file.
 fn key_file_env_var(provider: &str) -> String {
-    format!("KOHARU_{}_KEY_FILE", provider.to_ascii_uppercase().replace('-', "_"))
+    format!(
+        "KOHARU_{}_KEY_FILE",
+        provider.to_ascii_uppercase().replace('-', "_")
+    )
 }
 
 /// Places a key file may live, in priority order.
@@ -174,13 +180,21 @@ impl ApiKeyPool {
             (start_index.max(1) as usize - 1).min(total - 1)
         };
         if start > 0 {
-            tracing::info!(provider, start_index = start + 1, total, "key pool starts mid-list");
+            tracing::info!(
+                provider,
+                start_index = start + 1,
+                total,
+                "key pool starts mid-list"
+            );
         }
         Self {
             provider,
             slots: Mutex::new(
                 keys.into_iter()
-                    .map(|key| Slot { key, resting_until: None })
+                    .map(|key| Slot {
+                        key,
+                        resting_until: None,
+                    })
                     .collect(),
             ),
             current: Mutex::new(start),
@@ -333,7 +347,10 @@ short
     #[test]
     fn parses_quoted_env_value() {
         let keys = parse_keys("KOHARU_GEMINI_API_KEYS=\"AIzaSyBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB1\"");
-        assert_eq!(keys, vec!["AIzaSyBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB1".to_string()]);
+        assert_eq!(
+            keys,
+            vec!["AIzaSyBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB1".to_string()]
+        );
     }
 
     #[test]
@@ -422,11 +439,15 @@ short
 
         // Out of range in either direction lands inside the list.
         assert_eq!(
-            ApiKeyPool::starting_at("gemini", keys.clone(), 99).active().as_deref(),
+            ApiKeyPool::starting_at("gemini", keys.clone(), 99)
+                .active()
+                .as_deref(),
             Some("c")
         );
         assert_eq!(
-            ApiKeyPool::starting_at("gemini", keys, 0).active().as_deref(),
+            ApiKeyPool::starting_at("gemini", keys, 0)
+                .active()
+                .as_deref(),
             Some("a")
         );
     }
@@ -436,12 +457,20 @@ short
         let pool = ApiKeyPool::new("gemini", vec!["a".into(), "b".into(), "c".into()]);
         assert_eq!(
             pool.status(),
-            Some(KeyPoolStatus { total: 3, available: 3, current: 1 })
+            Some(KeyPoolStatus {
+                total: 3,
+                available: 3,
+                current: 1
+            })
         );
         pool.rotate(DAILY_COOLDOWN);
         assert_eq!(
             pool.status(),
-            Some(KeyPoolStatus { total: 3, available: 2, current: 2 })
+            Some(KeyPoolStatus {
+                total: 3,
+                available: 2,
+                current: 2
+            })
         );
         assert_eq!(ApiKeyPool::new("gemini", Vec::new()).status(), None);
     }

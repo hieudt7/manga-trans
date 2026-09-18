@@ -14,6 +14,7 @@
 
 pub mod corpus;
 pub mod style;
+pub mod vision;
 
 use koharu_types::TextBlock;
 

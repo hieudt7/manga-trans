@@ -7,15 +7,14 @@ use std::{
 
 use koharu_llm::ModelId;
 use koharu_types::{
-    FolderFile, FolderFileInfo, FolderSession, FolderSessionInfo,
-    ProcessRequest,
+    FolderFile, FolderFileInfo, FolderSession, FolderSessionInfo, ProcessRequest,
     events::{PipelineProgress, PipelineStatus, PipelineStep},
 };
 use rfd::AsyncFileDialog;
 use tracing::instrument;
 
-use crate::{AppResources, pipeline};
 use super::utils::encode_image_with_dpi;
+use crate::{AppResources, pipeline};
 
 const IMAGE_EXTENSIONS: &[&str] = &["jpg", "jpeg", "png", "webp", "tif", "tiff"];
 const RESULT_DIR_NAME: &str = "result";
@@ -37,7 +36,11 @@ pub async fn open_folder_session(state: AppResources) -> anyhow::Result<FolderSe
 
     {
         let mut guard = state.state.write().await;
-        guard.folder_session = Some(FolderSession { root, result_dir, files });
+        guard.folder_session = Some(FolderSession {
+            root,
+            result_dir,
+            files,
+        });
     }
 
     Ok(info)
@@ -56,7 +59,11 @@ pub async fn open_folder_session_by_path(
     let info = build_session_info(&root, &result_dir, &files);
     {
         let mut guard = state.state.write().await;
-        guard.folder_session = Some(FolderSession { root, result_dir, files });
+        guard.folder_session = Some(FolderSession {
+            root,
+            result_dir,
+            files,
+        });
     }
     Ok(info)
 }
@@ -64,7 +71,10 @@ pub async fn open_folder_session_by_path(
 /// Return current folder session metadata without re-scanning.
 pub async fn get_folder_session(state: AppResources) -> anyhow::Result<Option<FolderSessionInfo>> {
     let guard = state.state.read().await;
-    Ok(guard.folder_session.as_ref().map(|s| build_session_info(&s.root, &s.result_dir, &s.files)))
+    Ok(guard
+        .folder_session
+        .as_ref()
+        .map(|s| build_session_info(&s.root, &s.result_dir, &s.files)))
 }
 
 /// Serve a source image by session index. Reads from disk, returns bytes, does NOT store in state.
@@ -134,7 +144,11 @@ async fn run_folder_pipeline(
 ) {
     let total_files = {
         let guard = resources.state.read().await;
-        guard.folder_session.as_ref().map(|s| s.files.len()).unwrap_or(0)
+        guard
+            .folder_session
+            .as_ref()
+            .map(|s| s.files.len())
+            .unwrap_or(0)
     };
     let total_steps = PipelineStep::ALL.len();
 
@@ -214,7 +228,11 @@ async fn run_folder_pipeline_inner(
         tracing::info!("all {} images already processed, nothing to do", total_docs);
         return Ok(());
     }
-    tracing::info!("folder pipeline: {} pending / {} total", pending, total_docs);
+    tracing::info!(
+        "folder pipeline: {} pending / {} total",
+        pending,
+        total_docs
+    );
 
     load_llm_if_needed(res, req, cancel).await?;
 
@@ -303,31 +321,34 @@ async fn load_llm_if_needed(
     }
 
     if model_id.contains(':') {
-        let (provider_id, model_part) = model_id.split_once(':').unwrap();
-        res.llm
-            .load_api(
-                provider_id,
-                model_part,
-                koharu_llm::providers::ProviderConfig {
-                    api_key: req.llm_api_key.clone(),
-                    base_url: req.llm_base_url.clone(),
-                    temperature: req.llm_temperature,
-                    max_tokens: req.llm_max_tokens,
-                    custom_system_prompt: req.llm_custom_system_prompt.clone(),
-                    story_context: None,
-                    // Fallback auto-load only; the explicit /llm/load from the
-                    // model picker is what carries the user's start index.
-                    key_start_index: None,
-                },
-            )
-            .await?;
+        // Through llm_load, so a fallback load carries the chosen style profile and
+        // the character library the same way an explicit load from the picker does.
+        crate::ops::llm_load(
+            res.clone(),
+            koharu_types::commands::LlmLoadPayload {
+                id: model_id.clone(),
+                api_key: req.llm_api_key.clone(),
+                base_url: req.llm_base_url.clone(),
+                temperature: req.llm_temperature,
+                max_tokens: req.llm_max_tokens,
+                custom_system_prompt: req.llm_custom_system_prompt.clone(),
+                story_context: None,
+                // The explicit /llm/load from the model picker carries the start index.
+                key_start_index: None,
+            },
+        )
+        .await?;
     } else {
         let id = ModelId::from_str(model_id)?;
         res.llm.load(id).await;
         for _ in 0..300 {
-            if res.llm.ready().await { break; }
+            if res.llm.ready().await {
+                break;
+            }
             tokio::time::sleep(Duration::from_millis(100)).await;
-            if cancel.load(Ordering::Relaxed) { return Ok(()); }
+            if cancel.load(Ordering::Relaxed) {
+                return Ok(());
+            }
         }
         if !res.llm.ready().await {
             anyhow::bail!("LLM failed to load within timeout");
@@ -407,7 +428,9 @@ async fn process_single_file(
 
 fn percent(doc: usize, step: usize, total_docs: usize, total_steps: usize) -> u8 {
     let total = total_docs * total_steps;
-    if total == 0 { return 0; }
+    if total == 0 {
+        return 0;
+    }
     (((doc * total_steps + step) as f64 / total as f64) * 100.0).round() as u8
 }
 
@@ -453,11 +476,21 @@ fn scan_folder_images(
         .into_iter()
         .map(|path| {
             let (width, height) = read_image_dimensions(&path).unwrap_or((0, 0));
-            let name = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            let name = path
+                .file_stem()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string();
             let has_result = result_dir
                 .join(path.file_name().unwrap_or_default())
                 .exists();
-            FolderFile { path, name, width, height, has_result }
+            FolderFile {
+                path,
+                name,
+                width,
+                height,
+                has_result,
+            }
         })
         .collect();
 
@@ -472,7 +505,11 @@ fn read_image_dimensions(path: &std::path::Path) -> anyhow::Result<(u32, u32)> {
     Ok(reader.into_dimensions()?)
 }
 
-fn build_session_info(root: &PathBuf, result_dir: &PathBuf, files: &[FolderFile]) -> FolderSessionInfo {
+fn build_session_info(
+    root: &PathBuf,
+    result_dir: &PathBuf,
+    files: &[FolderFile],
+) -> FolderSessionInfo {
     FolderSessionInfo {
         root: root.to_string_lossy().to_string(),
         result_dir: result_dir.to_string_lossy().to_string(),

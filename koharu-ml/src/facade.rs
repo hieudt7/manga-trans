@@ -364,7 +364,6 @@ impl Model {
         // Refit each text block to the Maximum Inscribed Rectangle of its balloon mask.
         refit_text_blocks_to_balloons(&mut doc.text_blocks, &detections);
 
-
         tracing::info!(
             count = doc.balloons.len(),
             elapsed_ms = started.elapsed().as_millis(),
@@ -399,7 +398,11 @@ impl Model {
     /// Per-block Vietnamese pronoun assignment using the existing tested speaker detection pipeline.
     /// For each block: detect panels → find the face nearest to each balloon (face det + WD Tagger)
     /// → derive pronouns from speaker/listener demographics.
-    pub fn scan_pronoun_context(&self, doc: &Document, custom_system_prompt: Option<&str>) -> Option<String> {
+    pub fn scan_pronoun_context(
+        &self,
+        doc: &Document,
+        custom_system_prompt: Option<&str>,
+    ) -> Option<String> {
         if doc.text_blocks.is_empty() {
             return None;
         }
@@ -408,25 +411,30 @@ impl Model {
 
         let panels = self.character_lib.detect_panels(image);
 
-        let blocks: Vec<(String, f32, f32, f32, f32)> = doc.text_blocks.iter()
+        let blocks: Vec<(String, f32, f32, f32, f32)> = doc
+            .text_blocks
+            .iter()
             .map(|b| (b.id.clone(), b.x, b.y, b.width, b.height))
             .collect();
-        let balloons: Vec<(f32, f32, f32, f32)> = doc.balloons.iter()
+        let balloons: Vec<(f32, f32, f32, f32)> = doc
+            .balloons
+            .iter()
             .map(|b| (b.x, b.y, b.width, b.height))
             .collect();
 
         // Reuse the existing tested pipeline: face detection per panel → nearest face to balloon
         // → WD Tagger for age/gender on unknown characters.
-        let speaker_assignments = self.character_lib.assign_speakers_to_blocks(
-            image, &blocks, &balloons, &panels,
-        );
+        let speaker_assignments = self
+            .character_lib
+            .assign_speakers_to_blocks(image, &blocks, &balloons, &panels);
 
         if speaker_assignments.iter().all(|(_, m)| m.is_none()) {
             return None;
         }
 
         // Build id → speaker label map.
-        let speaker_labels: std::collections::HashMap<&str, String> = speaker_assignments.iter()
+        let speaker_labels: std::collections::HashMap<&str, String> = speaker_assignments
+            .iter()
             .filter_map(|(id, m)| m.as_ref().map(|f| (id.as_str(), face_label(f))))
             .collect();
 
@@ -610,11 +618,22 @@ fn family_role(label: &str) -> Option<FamilyRole> {
 }
 
 #[derive(PartialEq, Eq)]
-enum FamilyRole { Father, Mother, Child, Grandfather, Grandmother, OlderBrother, OlderSister }
+enum FamilyRole {
+    Father,
+    Mother,
+    Child,
+    Grandfather,
+    Grandmother,
+    OlderBrother,
+    OlderSister,
+}
 
 /// Suggest Vietnamese first-person and second-person pronouns based on speaker/listener labels.
 /// Labels come either from WD Tagger ("Young Male", "Adult Female", …) or known character traits.
-fn suggest_vn_pronoun_pair(speaker_label: &str, listener_label: &str) -> (&'static str, &'static str) {
+fn suggest_vn_pronoun_pair(
+    speaker_label: &str,
+    listener_label: &str,
+) -> (&'static str, &'static str) {
     // Family relationship takes priority over age/gender heuristic.
     if let (Some(sp_role), _) = (family_role(speaker_label), family_role(listener_label)) {
         return match sp_role {
@@ -655,59 +674,76 @@ fn suggest_vn_pronoun_pair(speaker_label: &str, listener_label: &str) -> (&'stat
     // Khi một trong hai bên không rõ tuổi → chỉ dùng ngôi theo giới tính, không đổi ngôi
     if sp_age == Age::Unknown || ls_age == Age::Unknown {
         return match (sp_gen, ls_gen) {
-            (Gender::Male,    Gender::Female)  => ("tôi", "cô"),
-            (Gender::Male,    Gender::Male)    => ("tôi", "cậu"),
-            (Gender::Female,  Gender::Male)    => ("tôi", "anh"),
-            (Gender::Female,  Gender::Female)  => ("tôi", "cô"),
-            (Gender::Unknown, Gender::Female)  => ("tôi", "cô"),
-            (Gender::Unknown, Gender::Male)    => ("tôi", "anh"),
-            _                                  => ("tôi", "cậu"),
+            (Gender::Male, Gender::Female) => ("tôi", "cô"),
+            (Gender::Male, Gender::Male) => ("tôi", "cậu"),
+            (Gender::Female, Gender::Male) => ("tôi", "anh"),
+            (Gender::Female, Gender::Female) => ("tôi", "cô"),
+            (Gender::Unknown, Gender::Female) => ("tôi", "cô"),
+            (Gender::Unknown, Gender::Male) => ("tôi", "anh"),
+            _ => ("tôi", "cậu"),
         };
     }
 
     // Cả hai đều biết tuổi → xét chênh lệch già/trẻ để đổi ngôi
     match (sp_age, sp_gen, ls_age, ls_gen) {
         // Người già nói chuyện
-        (Age::Old, Gender::Male,   _, _) => ("ông", "cháu"),
-        (Age::Old, Gender::Female, _, _) => ("bà",  "cháu"),
+        (Age::Old, Gender::Male, _, _) => ("ông", "cháu"),
+        (Age::Old, Gender::Female, _, _) => ("bà", "cháu"),
 
         // Người trẻ nói với người già
-        (_, _, Age::Old, Gender::Male)   => ("cháu", "ông"),
+        (_, _, Age::Old, Gender::Male) => ("cháu", "ông"),
         (_, _, Age::Old, Gender::Female) => ("cháu", "bà"),
 
         // Lớn hơn (Adult) nói với nhỏ hơn (Young)
-        (Age::Adult, Gender::Male,   Age::Young, _) => ("anh", "em"),
+        (Age::Adult, Gender::Male, Age::Young, _) => ("anh", "em"),
         (Age::Adult, Gender::Female, Age::Young, _) => ("chị", "em"),
 
         // Nhỏ hơn (Young) nói với lớn hơn (Adult)
-        (Age::Young, _, Age::Adult, Gender::Male)   => ("em", "anh"),
+        (Age::Young, _, Age::Adult, Gender::Male) => ("em", "anh"),
         (Age::Young, _, Age::Adult, Gender::Female) => ("em", "chị"),
 
         // Cùng tầm tuổi → theo giới tính
-        (_, Gender::Male,    _, Gender::Female)  => ("tôi", "cô"),
-        (_, Gender::Male,    _, Gender::Male)    => ("tôi", "cậu"),
-        (_, Gender::Female,  _, Gender::Male)    => ("tôi", "anh"),
-        (_, Gender::Female,  _, Gender::Female)  => ("tôi", "cô"),
-        (_, Gender::Unknown, _, Gender::Female)  => ("tôi", "cô"),
-        (_, Gender::Unknown, _, Gender::Male)    => ("tôi", "anh"),
-        _                                        => ("tôi", "cậu"),
+        (_, Gender::Male, _, Gender::Female) => ("tôi", "cô"),
+        (_, Gender::Male, _, Gender::Male) => ("tôi", "cậu"),
+        (_, Gender::Female, _, Gender::Male) => ("tôi", "anh"),
+        (_, Gender::Female, _, Gender::Female) => ("tôi", "cô"),
+        (_, Gender::Unknown, _, Gender::Female) => ("tôi", "cô"),
+        (_, Gender::Unknown, _, Gender::Male) => ("tôi", "anh"),
+        _ => ("tôi", "cậu"),
     }
 }
 
 #[derive(Debug, PartialEq, Eq)]
-enum Age { Young, Adult, Old, Unknown }
+enum Age {
+    Young,
+    Adult,
+    Old,
+    Unknown,
+}
 
 #[derive(Debug, PartialEq, Eq)]
-enum Gender { Male, Female, Unknown }
+enum Gender {
+    Male,
+    Female,
+    Unknown,
+}
 
 fn parse_age_gender(label: &str) -> (Age, Gender) {
     let says = |phrase: &str| mentions(label, phrase);
 
-    let age = if says("old") || says("elder") || says("elderly") || says("senior")
-        || says("grandfather") || says("grandmother")
+    let age = if says("old")
+        || says("elder")
+        || says("elderly")
+        || says("senior")
+        || says("grandfather")
+        || says("grandmother")
     {
         Age::Old
-    } else if says("young") || says("teen") || says("child") || says("kid") || says("boy")
+    } else if says("young")
+        || says("teen")
+        || says("child")
+        || says("kid")
+        || says("boy")
         || says("girl")
     {
         Age::Young
@@ -1087,7 +1123,11 @@ fn refit_text_blocks_to_balloons(
                     } else if shared {
                         // A share too small to fit anything: leave the block as
                         // detected rather than forcing it into a sliver.
-                        tracing::debug!(balloon = bi, block = ti, "share too small, keeping detection");
+                        tracing::debug!(
+                            balloon = bi,
+                            block = ti,
+                            "share too small, keeping detection"
+                        );
                         continue;
                     } else {
                         bbox_inset(balloon)
@@ -1098,8 +1138,13 @@ fn refit_text_blocks_to_balloons(
             };
 
             tracing::info!(
-                balloon = bi, block = ti, shared,
-                mir_x = mir[0], mir_y = mir[1], mir_w = mir[2], mir_h = mir[3],
+                balloon = bi,
+                block = ti,
+                shared,
+                mir_x = mir[0],
+                mir_y = mir[1],
+                mir_w = mir[2],
+                mir_h = mir[3],
                 "refit"
             );
 
@@ -1122,7 +1167,11 @@ fn refit_text_blocks_to_balloons(
         }
     }
 
-    tracing::info!(refit = refit_count, total = text_blocks.len(), "text blocks refit to balloon MIR");
+    tracing::info!(
+        refit = refit_count,
+        total = text_blocks.len(),
+        "text blocks refit to balloon MIR"
+    );
 }
 
 /// Compute the Maximum Inscribed Rectangle from a binary mask via the classical
@@ -1289,11 +1338,9 @@ mod tests {
         let gray = image.to_luma8();
 
         for (x, y) in points {
-            let owner = balloons.iter().position(|b| {
-                b.mask
-                    .as_ref()
-                    .is_some_and(|m| m.get_pixel(x, y)[0] >= 128)
-            });
+            let owner = balloons
+                .iter()
+                .position(|b| b.mask.as_ref().is_some_and(|m| m.get_pixel(x, y)[0] >= 128));
             let in_bbox = balloons.iter().position(|b| {
                 x as f32 >= b.x
                     && x as f32 <= b.x + b.width
@@ -1337,7 +1384,12 @@ mod tests {
             let crop = image.crop_imm(left, 0, right - left, image.height());
             let found = detector.inference_one_fast(&crop, super::PP_DOCLAYOUT_THRESHOLD)?;
             let blocks = super::build_text_blocks(&found.regions);
-            println!("--- {name} ({}x{}) — {} blocks", crop.width(), crop.height(), blocks.len());
+            println!(
+                "--- {name} ({}x{}) — {} blocks",
+                crop.width(),
+                crop.height(),
+                blocks.len()
+            );
             for block in &blocks {
                 println!(
                     "    x {:>5.0}..{:<5.0} y {:>5.0}..{:<5.0}  {:>3.0}x{:<3.0}",
@@ -1412,8 +1464,10 @@ mod tests {
         let layout_detector = runtime.block_on(super::PPDocLayoutV3::load(true))?;
         let layout = layout_detector.inference_one_fast(&image, super::PP_DOCLAYOUT_THRESHOLD)?;
         let mut blocks = super::build_text_blocks(&layout.regions);
-        let before: Vec<(f32, f32, f32, f32)> =
-            blocks.iter().map(|b| (b.x, b.y, b.width, b.height)).collect();
+        let before: Vec<(f32, f32, f32, f32)> = blocks
+            .iter()
+            .map(|b| (b.x, b.y, b.width, b.height))
+            .collect();
 
         let detector = runtime.block_on(super::ComicBubbleDetector::load())?;
         let balloons = detector.detect(&image)?;
@@ -1425,18 +1479,24 @@ mod tests {
             balloons.len()
         );
 
-        println!("\n{:>3} {:>24} {:>24} {:>8} {:>6}", "b", "balloon bbox", "mir", "mir/bbox", "mask");
+        println!(
+            "\n{:>3} {:>24} {:>24} {:>8} {:>6}",
+            "b", "balloon bbox", "mir", "mir/bbox", "mask"
+        );
         for (i, balloon) in balloons.iter().enumerate() {
             let mir = match &balloon.mask {
-                Some(mask) => super::mir_from_mask(
-                    mask, balloon.x, balloon.y, balloon.width, balloon.height,
-                ),
+                Some(mask) => {
+                    super::mir_from_mask(mask, balloon.x, balloon.y, balloon.width, balloon.height)
+                }
                 None => [0.0; 4],
             };
             let ratio = (mir[2] * mir[3]) / (balloon.width * balloon.height).max(1.0);
             println!(
                 "{i:>3} {:>24} {:>24} {ratio:>7.2} {:>6}",
-                format!("{:.0},{:.0} {:.0}x{:.0}", balloon.x, balloon.y, balloon.width, balloon.height),
+                format!(
+                    "{:.0},{:.0} {:.0}x{:.0}",
+                    balloon.x, balloon.y, balloon.width, balloon.height
+                ),
                 format!("{:.0},{:.0} {:.0}x{:.0}", mir[0], mir[1], mir[2], mir[3]),
                 balloon.mask.is_some()
             );
@@ -1456,13 +1516,16 @@ mod tests {
             let src_glyph = ow.min(oh);
             let cx = ox + ow / 2.0;
             let cy = oy + oh / 2.0;
-            let in_balloon = balloons.iter().any(|b| {
-                cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height
-            });
+            let in_balloon = balloons
+                .iter()
+                .any(|b| cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height);
             println!(
                 "{i:>3} {:>22} {:>22} {grew:>6.1}x {:>6} {in_balloon:>10} {src_glyph:>9.0}",
                 format!("{ox:.0},{oy:.0} {ow:.0}x{oh:.0}"),
-                format!("{:.0},{:.0} {:.0}x{:.0}", block.x, block.y, block.width, block.height),
+                format!(
+                    "{:.0},{:.0} {:.0}x{:.0}",
+                    block.x, block.y, block.width, block.height
+                ),
                 block.lock_layout_box
             );
         }
@@ -1494,10 +1557,20 @@ mod tests {
                 }
             };
             for balloon in &balloons {
-                outline(balloon.x, balloon.y, balloon.width, balloon.height, [0, 160, 255]);
+                outline(
+                    balloon.x,
+                    balloon.y,
+                    balloon.width,
+                    balloon.height,
+                    [0, 160, 255],
+                );
             }
             for block in &blocks {
-                let colour = if block.lock_layout_box { [255, 0, 0] } else { [255, 160, 0] };
+                let colour = if block.lock_layout_box {
+                    [255, 0, 0]
+                } else {
+                    [255, 160, 0]
+                };
                 outline(block.x, block.y, block.width, block.height, colour);
             }
             canvas.save(std::path::PathBuf::from(out))?;
@@ -1506,7 +1579,12 @@ mod tests {
     }
 
     /// Two circles drawn overlapping — one white region, as merged balloons appear.
-    fn merged_balloon_mask(width: u32, height: u32, centres: &[(f32, f32)], radius: f32) -> image::GrayImage {
+    fn merged_balloon_mask(
+        width: u32,
+        height: u32,
+        centres: &[(f32, f32)],
+        radius: f32,
+    ) -> image::GrayImage {
         image::GrayImage::from_fn(width, height, |x, y| {
             let inside = centres.iter().any(|(cx, cy)| {
                 ((x as f32 - cx).powi(2) + (y as f32 - cy).powi(2)).sqrt() <= radius
@@ -1516,7 +1594,13 @@ mod tests {
     }
 
     fn block_at(cx: f32, cy: f32) -> TextBlock {
-        TextBlock { x: cx - 5.0, y: cy - 5.0, width: 10.0, height: 10.0, ..Default::default() }
+        TextBlock {
+            x: cx - 5.0,
+            y: cy - 5.0,
+            width: 10.0,
+            height: 10.0,
+            ..Default::default()
+        }
     }
 
     #[test]
@@ -1534,11 +1618,18 @@ mod tests {
         let centres = [(70.0f32, 80.0f32), (170.0, 80.0)];
         let mask = merged_balloon_mask(240, 160, &centres, 60.0);
         let balloon = bubble_det::BubbleBox {
-            x: 10.0, y: 20.0, width: 220.0, height: 120.0, score: 0.9,
+            x: 10.0,
+            y: 20.0,
+            width: 220.0,
+            height: 120.0,
+            score: 0.9,
             mask: Some(mask),
         };
 
-        let mut blocks = vec![block_at(centres[0].0, centres[0].1), block_at(centres[1].0, centres[1].1)];
+        let mut blocks = vec![
+            block_at(centres[0].0, centres[0].1),
+            block_at(centres[1].0, centres[1].1),
+        ];
         refit_text_blocks_to_balloons(&mut blocks, std::slice::from_ref(&balloon));
 
         // Both grew well past the 10x10 they were detected at.
@@ -1549,7 +1640,11 @@ mod tests {
         }
         // And neither reaches across the join into the other balloon.
         let left_right = blocks[0].x + blocks[0].width;
-        assert!(left_right <= blocks[1].x, "boxes overlap: {left_right} > {}", blocks[1].x);
+        assert!(
+            left_right <= blocks[1].x,
+            "boxes overlap: {left_right} > {}",
+            blocks[1].x
+        );
     }
 
     #[test]
@@ -1563,8 +1658,16 @@ mod tests {
             nearest_owner(x, y, &owners) == 0
         });
 
-        assert!(half[2] > 2.0 && half[3] > 2.0, "half should still be usable: {half:?}");
-        assert!(half[2] < whole[2], "half {:?} should be narrower than whole {:?}", half, whole);
+        assert!(
+            half[2] > 2.0 && half[3] > 2.0,
+            "half should still be usable: {half:?}"
+        );
+        assert!(
+            half[2] < whole[2],
+            "half {:?} should be narrower than whole {:?}",
+            half,
+            whole
+        );
         // The left share must stay left of the join.
         assert!(half[0] + half[2] <= 121.0, "{half:?}");
     }
@@ -1787,7 +1890,10 @@ mod tests {
         use super::{Age, Gender, parse_age_gender};
 
         // The names that used to settle this by accident.
-        assert_eq!(parse_age_gender("Kinnikuman"), (Age::Unknown, Gender::Unknown));
+        assert_eq!(
+            parse_age_gender("Kinnikuman"),
+            (Age::Unknown, Gender::Unknown)
+        );
         assert_eq!(parse_age_gender("Goldman"), (Age::Unknown, Gender::Unknown));
         // And what an actual description still says.
         assert_eq!(parse_age_gender("old male"), (Age::Old, Gender::Male));

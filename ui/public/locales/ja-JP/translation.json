@@ -380,8 +380,8 @@
     "loading": "読み込み中...",
     "progress": "ステップ {{current}} / {{total}}",
     "noResult": "文体プロファイルはまだありません",
-    "noResultHint": "スキャンすると、この巻の公式翻訳の人称・語り口・効果音・固有名詞の訳し方を学習します。",
-    "emptyHint": "raw/ に原稿、trans/ に公式翻訳を入れた参照フォルダを開いてください。",
+    "noResultHint": "スキャンすると、この翻訳の人称・語り口・効果音・固定訳語を学習します。Claude で読むには設定で Claude API キーが必要で、翻訳だけでも読めます。",
+    "emptyHint": "参照フォルダを開いてください：公式翻訳は trans/（またはフォルダ直下）、原稿があれば raw/ に。",
     "stats": "原稿 {{raw}} ページ中 {{paired}} ページを翻訳 {{translated}} ページと対応付け · 対訳 {{pairs}} 件",
     "reviewed": "確認済み",
     "notReviewed": "未確認",
@@ -389,7 +389,7 @@
     "saving": "保存中...",
     "use": "翻訳に使用",
     "inUse": "使用中",
-    "activeHint": "翻訳は使用中のプロファイルに従います。次に LLM を読み込んだときに反映されます。",
+    "activeHint": "翻訳は使用中のプロファイル（登場人物を含む）に従います。読み込み済みの API モデルにはすぐ反映されます。",
     "emptySection": "1 行に 1 項目",
     "sections": {
       "address": {
@@ -407,6 +407,10 @@
       "glossary": {
         "title": "固定訳語",
         "hint": "翻訳での表記どおりの名前・用語。"
+      },
+      "approach": {
+        "title": "訳し方",
+        "hint": "日本語をどう移しているか：話し方のレベル、敬称、ローカライズ、注釈。"
       }
     },
     "glossary": {
@@ -414,6 +418,45 @@
       "target": "ベトナム語",
       "add": "用語を追加",
       "remove": "削除"
+    },
+    "statsClaude": "Claude が読み取り · {{total}} ページ中 {{pages}} ページ",
+    "statsClaudeRaw": "Claude が原作のみから読み取り · {{total}} ページ中 {{pages}} ページ · 呼称は提案です",
+    "claudeHint": "誰が誰に話しているかまでページから読み取る、より正確なプロファイルは Claude Code で次を実行:",
+    "reader": {
+      "vision": "Claude で読む",
+      "vietocr": "ローカル OCR (vietocr)"
+    },
+    "statsClaudeApi": "{{model}} が原稿と翻訳から読み取り · {{pages}} ページ · {{lines}} 行",
+    "statsClaudeApiVietnamese": "{{model}} がベトナム語ページのみから読み取り · {{pages}} ページ · {{lines}} 行",
+    "library": {
+      "title": "保存済みプロファイル",
+      "hint": "プロジェクトの style_profiles フォルダに保存されます。選ぶと翻訳プロンプトとして使われます。",
+      "empty": "保存済みプロファイルはまだありません。スキャンが完了するとここに保存されます。",
+      "pages_one": "{{count}} ページ",
+      "pages_other": "{{count}} ページ",
+      "vietnameseOnly": "ベトナム語のみ"
+    },
+    "characters": {
+      "title": "登場人物",
+      "hint": "主要な登場人物と、互いの呼び方。すべての翻訳リクエストに含まれます。",
+      "add": "人物を追加",
+      "remove": "人物を削除",
+      "unnamed": "名前なし",
+      "name": "名前（訳）",
+      "nameJa": "日本語名",
+      "aliases": "別名・呼称（1 行に 1 つ）",
+      "role": "物語での役割",
+      "personality": "性格",
+      "speech": "話し方",
+      "selfTerms": "自称（1 行に 1 つ、例: ta (ヒーロー気取りのとき)）",
+      "relations": "関係と呼び方",
+      "pickCharacter": "人物を選択",
+      "relationKind": "相手との関係（父、家来…）",
+      "relationAddress": "呼び方 — 基本を先に、次に気分ごと（例: ta/ngươi; 親しいときは cậu）",
+      "addRelation": "関係を追加",
+      "removeRelation": "関係を削除",
+      "pages_one": "{{count}} ページ",
+      "pages_other": "{{count}} ページ"
     }
   }
 }

@@ -116,6 +116,24 @@ pub struct StyleScanResult {
     pub pair_count: usize,
     /// Set once a person has looked the profile over and saved it.
     pub is_verified_by_human: bool,
+    /// Who read the volume: `"vietocr"` for the app's own OCR scan,
+    /// `"claude-api"` for the app reading the pages through the Claude API,
+    /// `"claude"` for the `/style-read` command in Claude Code. `None` in
+    /// results written before this was recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    /// The model that read the pages, when a model did.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    /// Whether the original pages were read alongside the translation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub with_raw: Option<bool>,
+    /// The name it is kept under in the profile library.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// Seconds since the Unix epoch.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<u64>,
 }
 
 /// Where a scan is resumed from after an interruption.
@@ -237,6 +255,158 @@ pub fn read_pairs(out_dir: &Path) -> Result<Vec<super::SentencePair>> {
         .collect()
 }
 
+// ─── Reading pages through a vision model ─────────────────────────────────────
+
+/// The long side a page is reduced to before a model reads it. Small print in
+/// a balloon stays legible at this size, and a model downsamples anything much
+/// larger anyway.
+pub const READING_SIDE: u32 = 1500;
+
+/// A page as the reader is shown it: reduced to [`READING_SIDE`], as JPEG.
+pub fn reading_jpeg(path: &Path) -> Result<Vec<u8>> {
+    let image = image::open(path)?;
+    let long = image.width().max(image.height());
+    let image = if long > READING_SIDE {
+        image.resize(
+            READING_SIDE,
+            READING_SIDE,
+            image::imageops::FilterType::Lanczos3,
+        )
+    } else {
+        image
+    };
+    let mut bytes = Vec::new();
+    image::codecs::jpeg::JpegEncoder::new_with_quality(&mut bytes, 90)
+        .encode_image(&image.to_rgb8())?;
+    Ok(bytes)
+}
+
+/// A short ASCII name for a page. The source pages are called 表紙0297.JPG,
+/// and a name carrying that does not open from every tool.
+pub fn page_id(path: &Path, index: usize, taken: &mut std::collections::HashSet<String>) -> String {
+    let ident: String = path
+        .file_stem()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect();
+    let ident = if ident.is_empty() || taken.contains(&ident) {
+        format!("p{index:04}")
+    } else {
+        ident
+    };
+    taken.insert(ident.clone());
+    ident
+}
+
+fn page_notes_dir(out_dir: &Path) -> PathBuf {
+    out_dir.join("claude_api").join("pages")
+}
+
+pub fn read_page_notes(out_dir: &Path, page: &str) -> Option<super::vision::PageNotes> {
+    read_json(&page_notes_dir(out_dir).join(format!("{page}.json")))
+}
+
+pub fn write_page_notes(out_dir: &Path, notes: &super::vision::PageNotes) -> Result<()> {
+    write_json(
+        &page_notes_dir(out_dir).join(format!("{}.json", notes.page)),
+        notes,
+    )
+}
+
+// ─── The profile library ──────────────────────────────────────────────────────
+
+/// Where saved profiles live, to be picked from when translating.
+///
+/// `KOHARU_STYLE_PROFILES_DIR` when set; otherwise `style_profiles/` in the
+/// source tree the app was built from, when that tree is still there (a
+/// development build); otherwise the app's data directory.
+pub fn library_dir() -> PathBuf {
+    if let Some(dir) = std::env::var_os("KOHARU_STYLE_PROFILES_DIR") {
+        return PathBuf::from(dir);
+    }
+    let in_tree = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .map(|root| root.join("style_profiles"));
+    if let Some(dir) = in_tree.filter(|dir| dir.is_dir()) {
+        return dir;
+    }
+    dirs::data_local_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join("koharu")
+        .join("style_profiles")
+}
+
+/// A file name for a library entry, from whatever name it was given.
+pub fn library_file_name(name: &str) -> String {
+    let cleaned: String = name
+        .trim()
+        .chars()
+        .map(|c| {
+            if c.is_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '-'
+            }
+        })
+        .collect();
+    let cleaned = cleaned.trim_matches('-');
+    if cleaned.is_empty() {
+        "profile".to_string()
+    } else {
+        cleaned.to_string()
+    }
+}
+
+/// The default library name for a reference folder: its parent and itself, so
+/// `…/kinnikuman/tap1` does not collide with another series' `tap1`.
+pub fn default_library_name(root: &Path) -> String {
+    let part = |p: Option<&Path>| {
+        p.and_then(|p| p.file_name())
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_default()
+    };
+    let (parent, own) = (part(root.parent()), part(Some(root)));
+    library_file_name(&if parent.is_empty() {
+        own
+    } else {
+        format!("{parent}-{own}")
+    })
+}
+
+/// Keep `result` in the library under its name.
+pub fn save_to_library(dir: &Path, result: &StyleScanResult) -> Result<PathBuf> {
+    let name = result
+        .name
+        .as_deref()
+        .ok_or_else(|| anyhow::anyhow!("a library entry needs a name"))?;
+    let path = dir.join(format!("{}.json", library_file_name(name)));
+    write_json(&path, result)?;
+    Ok(path)
+}
+
+/// Every profile in the library, newest first.
+pub fn list_library(dir: &Path) -> Vec<StyleScanResult> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut results: Vec<StyleScanResult> = entries
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.extension().is_some_and(|e| e == "json"))
+        .filter_map(|p| {
+            let mut result: StyleScanResult = read_json(&p)?;
+            if result.name.is_none() {
+                result.name = p.file_stem().map(|s| s.to_string_lossy().to_string());
+            }
+            Some(result)
+        })
+        .collect();
+    results.sort_by(|a, b| b.created_at.cmp(&a.created_at).then(a.name.cmp(&b.name)));
+    results
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -334,6 +504,124 @@ mod tests {
             .map(|p| p.source)
             .collect();
         assert_eq!(sources, ["一"]);
+    }
+
+    /// `/style-read` writes this file from Python; the app has to take it as
+    /// written, and still read results from before `source` existed.
+    #[test]
+    fn a_result_written_by_style_read_loads() {
+        let claude: StyleScanResult = serde_json::from_str(
+            r#"{"profile":{"voice":["v"],"address":[],"soundEffects":[],"glossary":[["長官","sếp"]]},
+                "rawPages":94,"translatedPages":94,"pairedPages":94,"pairCount":0,
+                "isVerifiedByHuman":false,"source":"claude"}"#,
+        )
+        .unwrap();
+        assert_eq!(claude.source.as_deref(), Some("claude"));
+        assert_eq!(
+            claude.profile.glossary,
+            [["長官".to_string(), "sếp".to_string()]]
+        );
+
+        let older: StyleScanResult = serde_json::from_str(
+            r#"{"profile":{},"rawPages":1,"translatedPages":1,"pairedPages":1,"pairCount":3,"isVerifiedByHuman":true}"#,
+        )
+        .unwrap();
+        assert_eq!(older.source, None);
+    }
+
+    #[test]
+    fn page_ids_are_ascii_and_unique() {
+        let mut taken = std::collections::HashSet::new();
+        assert_eq!(
+            page_id(Path::new("trans/表紙0297.JPG"), 0, &mut taken),
+            "0297"
+        );
+        assert_eq!(
+            page_id(Path::new("raw/表紙0297.png"), 1, &mut taken),
+            "p0001"
+        );
+        assert_eq!(page_id(Path::new("表紙.jpg"), 2, &mut taken), "p0002");
+    }
+
+    #[test]
+    fn a_reading_copy_is_reduced_to_the_reading_side() {
+        let dir = scratch("reading");
+        let page = dir.join("big.png");
+        image::RgbImage::from_pixel(3000, 2000, image::Rgb([255, 255, 255]))
+            .save(&page)
+            .unwrap();
+        let copy = image::load_from_memory(&reading_jpeg(&page).unwrap()).unwrap();
+        assert_eq!((copy.width(), copy.height()), (1500, 1000));
+    }
+
+    #[test]
+    fn library_names_come_from_the_folder_and_its_parent() {
+        assert_eq!(
+            default_library_name(Path::new("/x/kinnikuman/tap1")),
+            "kinnikuman-tap1"
+        );
+        assert_eq!(
+            library_file_name("  Kinnikuman / tập 1 "),
+            "Kinnikuman---tập-1"
+        );
+        assert_eq!(library_file_name("///"), "profile");
+    }
+
+    #[test]
+    fn saved_profiles_list_newest_first() {
+        let dir = scratch("library");
+        for (name, at) in [("old", 1), ("new", 2)] {
+            save_to_library(
+                &dir,
+                &StyleScanResult {
+                    name: Some(name.to_string()),
+                    created_at: Some(at),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+        }
+        let names: Vec<String> = list_library(&dir)
+            .into_iter()
+            .filter_map(|r| r.name)
+            .collect();
+        assert_eq!(names, ["new", "old"]);
+    }
+
+    #[test]
+    fn page_notes_survive_being_written_and_read() {
+        let dir = scratch("notes");
+        let notes = crate::bilingual::vision::PageNotes {
+            page: "0309".to_string(),
+            summary: "Meat tìm hoàng tử".to_string(),
+            ..Default::default()
+        };
+        write_page_notes(&dir, &notes).unwrap();
+        assert_eq!(
+            read_page_notes(&dir, "0309").unwrap().summary,
+            "Meat tìm hoàng tử"
+        );
+        assert!(read_page_notes(&dir, "0310").is_none());
+    }
+
+    /// What `/style-read` writes, cast included, has to load as written.
+    #[test]
+    fn a_style_read_result_with_its_cast_loads() {
+        let result: StyleScanResult = serde_json::from_str(
+            r#"{"profile": {"approach": ["Keeps -chan"], "voice": [], "address": [], "soundEffects": [],
+                "glossary": [["", "Kinnikuman"]],
+                "characters": [{"id": "kinnikuman", "name": "Kinnikuman", "nameJa": "", "aliases": [],
+                  "gender": "male", "ageGroup": "young_adult", "role": "Hoàng tử", "personality": "",
+                  "speech": "", "selfTerms": [], "appearances": 2,
+                  "relations": [{"to": "meat", "relation": "servant", "address": "ta/ngươi"}]}]},
+              "rawPages": 0, "translatedPages": 2, "pairedPages": 2, "pairCount": 0,
+              "isVerifiedByHuman": false, "source": "claude", "withRaw": false,
+              "name": "tmp-vi-only", "createdAt": 1}"#,
+        )
+        .unwrap();
+        let cast = &result.profile.characters;
+        assert_eq!(cast[0].relations[0].address, "ta/ngươi");
+        assert_eq!(result.with_raw, Some(false));
     }
 
     #[test]

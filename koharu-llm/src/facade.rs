@@ -131,7 +131,7 @@ fn strip_wrapping_quotes(text: &str) -> String {
 /// the inner text (e.g. "Tiếng búa đập") which is still more useful than nothing.
 pub fn is_sfx_description(text: &str) -> bool {
     let t = text.trim();
-    t.starts_with('(') && t.ends_with(')') && !t[1..t.len()-1].contains('(')
+    t.starts_with('(') && t.ends_with(')') && !t[1..t.len() - 1].contains('(')
 }
 
 fn strip_sfx_description(text: &str) -> String {
@@ -153,7 +153,9 @@ fn strip_speaker_prefix(text: &str) -> String {
             && !prefix.contains('\n')
             && !prefix.contains('<')
             && !prefix.contains('>')
-            && !prefix.trim_start().starts_with(|c: char| c.is_ascii_digit());
+            && !prefix
+                .trim_start()
+                .starts_with(|c: char| c.is_ascii_digit());
         if looks_like_name {
             let stripped = text[colon_pos + 2..].trim().to_string();
             tracing::warn!(prefix = %prefix, "stripped speaker prefix from translation");
@@ -201,7 +203,11 @@ fn format_blocks<'a>(texts: impl Iterator<Item = &'a str>) -> String {
 }
 
 fn format_document_blocks(blocks: &[TextBlock]) -> String {
-    format_blocks(blocks.iter().map(|block| block.text.as_deref().unwrap_or("")))
+    format_blocks(
+        blocks
+            .iter()
+            .map(|block| block.text.as_deref().unwrap_or("")),
+    )
 }
 
 /// Parse a `[N]`-marked response into `expected` slots.
@@ -216,7 +222,12 @@ fn parse_marked_blocks(translation: &str, expected: usize) -> Option<Vec<String>
     let mut pending: Vec<&str> = Vec::new();
     let mut seen = 0usize;
 
-    fn flush(blocks: &mut [String], current: Option<usize>, pending: &mut Vec<&str>, seen: &mut usize) {
+    fn flush(
+        blocks: &mut [String],
+        current: Option<usize>,
+        pending: &mut Vec<&str>,
+        seen: &mut usize,
+    ) {
         let Some(id) = current else {
             pending.clear();
             return;
@@ -297,7 +308,11 @@ fn parse_tagged_blocks(
     }
 
     if parsed_count < expected_blocks {
-        tracing::warn!(parsed_count, expected_blocks, "Gemini returned fewer blocks than expected");
+        tracing::warn!(
+            parsed_count,
+            expected_blocks,
+            "Gemini returned fewer blocks than expected"
+        );
     }
 
     Ok(Some(blocks))
@@ -370,7 +385,11 @@ fn parse_numbered_list_blocks(translation: &str, expected_blocks: usize) -> Opti
     }
 
     if found_count < expected_blocks {
-        tracing::warn!(found_count, expected_blocks, "numbered list: fewer blocks than expected");
+        tracing::warn!(
+            found_count,
+            expected_blocks,
+            "numbered list: fewer blocks than expected"
+        );
     }
 
     Some(blocks.into_iter().map(|b| b.unwrap_or_default()).collect())
@@ -667,7 +686,9 @@ impl Translatable for TextBlock {
                 None => translation,
             },
         };
-        self.translation = Some(strip_sfx_description(&strip_speaker_prefix(&strip_wrapping_quotes(&translation))));
+        self.translation = Some(strip_sfx_description(&strip_speaker_prefix(
+            &strip_wrapping_quotes(&translation),
+        )));
         Ok(())
     }
 }
@@ -790,7 +811,8 @@ impl Model {
         doc: &mut impl Translatable,
         target_language: Option<&str>,
     ) -> anyhow::Result<()> {
-        self.translate_with_context(doc, target_language, None).await
+        self.translate_with_context(doc, target_language, None)
+            .await
     }
 
     /// Like `translate`, but injects `page_context` into the system prompt for
@@ -808,12 +830,14 @@ impl Model {
         block_debug_write(&format!("=== SEND ===\n{source}\n"));
         let mut guard = self.state.write().await;
         let translation = match &mut *guard {
-            State::Ready(llm) => {
-                llm.generate(&source, &GenerateOptions {
+            State::Ready(llm) => llm.generate(
+                &source,
+                &GenerateOptions {
                     story_context: page_context.map(str::to_owned),
                     ..GenerateOptions::default()
-                }, target_language)
-            }
+                },
+                target_language,
+            ),
             State::ApiReady {
                 provider, model, ..
             } => {
@@ -841,11 +865,13 @@ impl Model {
     pub async fn complete(&self, system_prompt: &str, user_prompt: &str) -> anyhow::Result<String> {
         let guard = self.state.read().await;
         match &*guard {
-            State::ApiReady { provider, model, .. } => {
-                provider.complete(system_prompt, user_prompt, model).await
-            }
+            State::ApiReady {
+                provider, model, ..
+            } => provider.complete(system_prompt, user_prompt, model).await,
             State::Ready(_) => {
-                anyhow::bail!("This action requires an API LLM provider (local models aren't supported yet)")
+                anyhow::bail!(
+                    "This action requires an API LLM provider (local models aren't supported yet)"
+                )
             }
             State::Loading { .. } => Err(anyhow::anyhow!("Model is still loading")),
             State::Failed(e) => Err(anyhow::anyhow!("Model failed to load: {e}")),
@@ -926,7 +952,11 @@ fn block_debug_write(content: &str) {
         .unwrap_or(std::path::Path::new("."))
         .join("debug-scan/debug_block.txt");
     let _ = std::fs::create_dir_all(debug_path.parent().unwrap());
-    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&debug_path) {
+    if let Ok(mut f) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&debug_path)
+    {
         let _ = writeln!(f, "[{ts}] {content}");
     }
 }
@@ -1129,9 +1159,18 @@ mod tests {
     fn document_translation_parses_numbered_list_format() -> anyhow::Result<()> {
         let mut doc = Document {
             text_blocks: vec![
-                TextBlock { text: Some("A".to_string()), ..Default::default() },
-                TextBlock { text: Some("B".to_string()), ..Default::default() },
-                TextBlock { text: Some("C".to_string()), ..Default::default() },
+                TextBlock {
+                    text: Some("A".to_string()),
+                    ..Default::default()
+                },
+                TextBlock {
+                    text: Some("B".to_string()),
+                    ..Default::default()
+                },
+                TextBlock {
+                    text: Some("C".to_string()),
+                    ..Default::default()
+                },
             ],
             ..Default::default()
         };
@@ -1140,9 +1179,18 @@ mod tests {
             "0\nFirst translation\n\n1\nSecond translation\n\n2\nThird translation".to_string(),
         )?;
 
-        assert_eq!(doc.text_blocks[0].translation.as_deref(), Some("First translation"));
-        assert_eq!(doc.text_blocks[1].translation.as_deref(), Some("Second translation"));
-        assert_eq!(doc.text_blocks[2].translation.as_deref(), Some("Third translation"));
+        assert_eq!(
+            doc.text_blocks[0].translation.as_deref(),
+            Some("First translation")
+        );
+        assert_eq!(
+            doc.text_blocks[1].translation.as_deref(),
+            Some("Second translation")
+        );
+        assert_eq!(
+            doc.text_blocks[2].translation.as_deref(),
+            Some("Third translation")
+        );
         Ok(())
     }
 
@@ -1150,9 +1198,18 @@ mod tests {
     fn document_translation_parses_numbered_list_with_single_char_block() -> anyhow::Result<()> {
         let mut doc = Document {
             text_blocks: vec![
-                TextBlock { text: Some("Hello".to_string()), ..Default::default() },
-                TextBlock { text: Some("?".to_string()), ..Default::default() },
-                TextBlock { text: Some("END".to_string()), ..Default::default() },
+                TextBlock {
+                    text: Some("Hello".to_string()),
+                    ..Default::default()
+                },
+                TextBlock {
+                    text: Some("?".to_string()),
+                    ..Default::default()
+                },
+                TextBlock {
+                    text: Some("END".to_string()),
+                    ..Default::default()
+                },
             ],
             ..Default::default()
         };
@@ -1190,7 +1247,11 @@ mod tests {
     #[test]
     fn marked_blocks_map_by_id_not_position() -> anyhow::Result<()> {
         let mut doc = Document {
-            text_blocks: vec![TextBlock::default(), TextBlock::default(), TextBlock::default()],
+            text_blocks: vec![
+                TextBlock::default(),
+                TextBlock::default(),
+                TextBlock::default(),
+            ],
             ..Default::default()
         };
         // Model answered out of order and skipped block 1.
@@ -1207,7 +1268,10 @@ mod tests {
     #[test]
     fn marked_blocks_keep_multiline_content() {
         let parsed = parse_marked_blocks("[0]\nline one\nline two\n[1]\nsolo", 2).unwrap();
-        assert_eq!(parsed, vec!["line one\nline two".to_string(), "solo".to_string()]);
+        assert_eq!(
+            parsed,
+            vec!["line one\nline two".to_string(), "solo".to_string()]
+        );
     }
 
     #[test]

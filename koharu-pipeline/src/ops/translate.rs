@@ -9,9 +9,9 @@
 //! 3. Retries re-send **only** the blocks still missing a translation, with the
 //!    per-block context narrowed to match, instead of re-paying for the page.
 
+use koharu_llm::Language;
 use koharu_llm::facade::{BlockSelection, Model, needs_translation};
 use koharu_llm::sfx_dict::{is_sfx, sfx_dictionary};
-use koharu_llm::Language;
 use koharu_types::{BalloonDetection, Document, TextBlock};
 
 /// How many times a batch of missing blocks is re-sent before falling back to
@@ -200,7 +200,12 @@ pub async fn translate_page(
 
     // ── 3. One request per straggler, with an SFX hint where it applies ───────
     for index in pending {
-        let source = doc.text_blocks[index].text.as_deref().unwrap_or("").trim().to_string();
+        let source = doc.text_blocks[index]
+            .text
+            .as_deref()
+            .unwrap_or("")
+            .trim()
+            .to_string();
         let mut context = remap_context(page_context, &[index]);
         if is_sfx(&source) {
             let hint = sfx_retry_hint(language);
@@ -220,7 +225,8 @@ pub async fn translate_page(
 
     // ── 4. Learn the SFX we just paid for, then backfill hopeless blocks ─────
     for block in &doc.text_blocks {
-        let (Some(source), Some(translation)) = (block.text.as_deref(), block.translation.as_deref())
+        let (Some(source), Some(translation)) =
+            (block.text.as_deref(), block.translation.as_deref())
         else {
             continue;
         };
@@ -348,7 +354,13 @@ mod tests {
     }
 
     fn balloon(x: f32, y: f32, w: f32, h: f32) -> BalloonDetection {
-        BalloonDetection { x, y, width: w, height: h, score: 0.9 }
+        BalloonDetection {
+            x,
+            y,
+            width: w,
+            height: h,
+            score: 0.9,
+        }
     }
 
     fn block_at(x: f32, y: f32, text: &str) -> TextBlock {
@@ -394,10 +406,23 @@ mod tests {
     fn pending_skips_blocks_without_source_or_already_translated() {
         let doc = Document {
             text_blocks: vec![
-                TextBlock { text: Some("あ".into()), ..Default::default() },
-                TextBlock { text: Some("い".into()), translation: Some("b".into()), ..Default::default() },
-                TextBlock { text: None, ..Default::default() },
-                TextBlock { text: Some("   ".into()), ..Default::default() },
+                TextBlock {
+                    text: Some("あ".into()),
+                    ..Default::default()
+                },
+                TextBlock {
+                    text: Some("い".into()),
+                    translation: Some("b".into()),
+                    ..Default::default()
+                },
+                TextBlock {
+                    text: None,
+                    ..Default::default()
+                },
+                TextBlock {
+                    text: Some("   ".into()),
+                    ..Default::default()
+                },
             ],
             ..Default::default()
         };
@@ -455,7 +480,8 @@ mod render_sample {
         runtime.block_on(ml.ocr(&mut doc))?;
         runtime.block_on(ml.detect_balloons(&mut doc))?;
 
-        if let (Some(seg), Some(dir)) = (doc.segment.as_ref(), std::env::var_os("KOHARU_TEST_SEG")) {
+        if let (Some(seg), Some(dir)) = (doc.segment.as_ref(), std::env::var_os("KOHARU_TEST_SEG"))
+        {
             let mask = seg.0.to_luma8();
             println!(
                 "segment tại (1162,1010) = {}  (255 nghĩa là mask đã đánh dấu chữ)",
@@ -478,12 +504,7 @@ mod render_sample {
                 key_start_index: None,
             },
         ))?;
-        let stats = runtime.block_on(super::translate_page(
-            &llm,
-            &mut doc,
-            Some("vi-VN"),
-            None,
-        ))?;
+        let stats = runtime.block_on(super::translate_page(&llm, &mut doc, Some("vi-VN"), None))?;
         println!("{stats:?}");
 
         runtime.block_on(ml.inpaint(&mut doc))?;
@@ -496,10 +517,18 @@ mod render_sample {
                 "{i:>3} box {:>3.0}x{:<3.0} font {:>5.1} src {:>4.0}\n    ja | {}\n    vi | {}",
                 block.width,
                 block.height,
-                block.style.as_ref().and_then(|s| s.font_size).unwrap_or(0.0),
+                block
+                    .style
+                    .as_ref()
+                    .and_then(|s| s.font_size)
+                    .unwrap_or(0.0),
                 block.detected_font_size_px.unwrap_or(0.0),
                 block.text.as_deref().unwrap_or("").replace('\n', " "),
-                block.translation.as_deref().unwrap_or("").replace('\n', " ")
+                block
+                    .translation
+                    .as_deref()
+                    .unwrap_or("")
+                    .replace('\n', " ")
             );
         }
 

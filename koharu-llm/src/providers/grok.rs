@@ -100,8 +100,10 @@ impl AnyProvider for GrokProvider {
                 .send()
                 .await?;
 
-            let resp: serde_json::Value =
-                ensure_provider_success("grok", response).await?.json().await?;
+            let resp: serde_json::Value = ensure_provider_success("grok", response)
+                .await?
+                .json()
+                .await?;
 
             resp["choices"][0]["message"]["content"]
                 .as_str()
@@ -211,7 +213,8 @@ impl AnyProvider for GrokProvider {
                 // so a broken cache prefix is visible instead of silent.
                 tracing::info!(
                     prompt_tokens = resp["usage"]["prompt_tokens"].as_u64(),
-                    cached_tokens = resp["usage"]["prompt_tokens_details"]["cached_tokens"].as_u64(),
+                    cached_tokens =
+                        resp["usage"]["prompt_tokens_details"]["cached_tokens"].as_u64(),
                     completion_tokens = resp["usage"]["completion_tokens"].as_u64(),
                     "Grok usage"
                 );

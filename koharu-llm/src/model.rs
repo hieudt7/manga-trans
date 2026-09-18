@@ -117,9 +117,11 @@ impl Llm {
             return Ok(String::new());
         }
 
-        let prompt = self
-            .prompt_renderer
-            .format_chat_prompt_with_context(prompt.to_string(), target_language, opts.story_context.as_deref())?;
+        let prompt = self.prompt_renderer.format_chat_prompt_with_context(
+            prompt.to_string(),
+            target_language,
+            opts.story_context.as_deref(),
+        )?;
         tracing::info!("Generating with prompt:\n{}", prompt);
 
         let prompt_tokens = self

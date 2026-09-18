@@ -47,10 +47,20 @@ pub const GROK: ApiProviderInfo = ApiProviderInfo {
 pub const CLAUDE: ApiProviderInfo = ApiProviderInfo {
     id: "claude",
     name: "Claude",
-    models: &[ApiModelInfo {
-        id: "claude-haiku-4-5",
-        name: "Claude Haiku 4.5",
-    }],
+    models: &[
+        ApiModelInfo {
+            id: "claude-opus-5",
+            name: "Claude Opus 5",
+        },
+        ApiModelInfo {
+            id: "claude-sonnet-5",
+            name: "Claude Sonnet 5",
+        },
+        ApiModelInfo {
+            id: "claude-haiku-4-5",
+            name: "Claude Haiku 4.5",
+        },
+    ],
 };
 
 pub const DEEPSEEK: ApiProviderInfo = ApiProviderInfo {

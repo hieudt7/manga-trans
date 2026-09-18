@@ -26,12 +26,13 @@ use koharu_psd::{PsdExportOptions, TextLayerMode};
 use koharu_tiff;
 use koharu_types::{
     ApiKeyGetPayload, ApiKeyResponse, ApiKeySetPayload, ApiKeyValue, CreateTextBlock, Document,
-    DocumentDetail, DocumentSummary, ExportLayer, ExportResult, FileEntry, FolderPipelineJobRequest,
-    FolderSessionInfo, FontFaceInfo, IndexPayload, InpaintPartialPayload, InpaintRegion, JobState,
-    JobStatus, LlmLoadPayload, LlmLoadRequest, LlmModelInfo, LlmPingRequest, LlmPingResponse,
-    MaskRegionRequest, MetaInfo, OpenDocumentsPayload, PipelineJobRequest, Region, RenderPayload,
-    RenderRequest, SerializableDynamicImage, TextBlock, TextBlockDetail, TextBlockPatch,
-    TranslateRequest, UpdateBrushLayerPayload, UpdateInpaintMaskPayload,
+    DocumentDetail, DocumentSummary, ExportLayer, ExportResult, FileEntry,
+    FolderPipelineJobRequest, FolderSessionInfo, FontFaceInfo, IndexPayload, InpaintPartialPayload,
+    InpaintRegion, JobState, JobStatus, LlmLoadPayload, LlmLoadRequest, LlmModelInfo,
+    LlmPingRequest, LlmPingResponse, MaskRegionRequest, MetaInfo, OpenDocumentsPayload,
+    PipelineJobRequest, Region, RenderPayload, RenderRequest, SerializableDynamicImage, TextBlock,
+    TextBlockDetail, TextBlockPatch, TranslateRequest, UpdateBrushLayerPayload,
+    UpdateInpaintMaskPayload,
 };
 use serde::Deserialize;
 
@@ -62,14 +63,20 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
         .route("/fonts", get(get_fonts))
         .route("/documents", get(list_documents))
         .route("/documents/import", post(import_documents))
-        .route("/documents/{document_id}", get(get_document).delete(delete_document))
+        .route(
+            "/documents/{document_id}",
+            get(get_document).delete(delete_document),
+        )
         .route("/documents/{document_id}/thumbnail", get(get_thumbnail))
         .route(
             "/documents/{document_id}/layers/{layer}",
             get(get_document_layer),
         )
         .route("/documents/{document_id}/detect", post(detect_document))
-        .route("/documents/{document_id}/detect-balloon", post(detect_balloon_document))
+        .route(
+            "/documents/{document_id}/detect-balloon",
+            post(detect_balloon_document),
+        )
         .route("/documents/{document_id}/ocr", post(ocr_document))
         .route("/documents/{document_id}/inpaint", post(inpaint_document))
         .route("/documents/{document_id}/render", post(render_document))
@@ -101,8 +108,14 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
             "/documents/{document_id}/text-blocks/{text_block_id}",
             patch(patch_text_block).delete(delete_text_block),
         )
-        .route("/documents/{document_id}/scan-characters", post(scan_characters_in_document))
-        .route("/documents/{document_id}/save-rendered", post(save_rendered_document))
+        .route(
+            "/documents/{document_id}/scan-characters",
+            post(scan_characters_in_document),
+        )
+        .route(
+            "/documents/{document_id}/save-rendered",
+            post(save_rendered_document),
+        )
         .route("/documents/{document_id}/export", get(export_document))
         .route(
             "/documents/{document_id}/export/json",
@@ -162,6 +175,7 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
         .route("/jobs/style-scan-folder", post(start_style_scan_job))
         .route("/style-scan/result", get(get_style_scan_result))
         .route("/style-scan/export", post(export_style_scan))
+        .route("/style-profiles", get(list_style_profiles))
         .route(
             "/style-profile/active",
             get(get_active_style_profile).put(set_active_style_profile),
@@ -795,8 +809,8 @@ async fn export_document_json(
     let resources = state.resources()?;
     let (_, document) = find_document(&resources, &document_id).await?;
     let detail = DocumentDetail::from(&document);
-    let json = serde_json::to_vec_pretty(&detail)
-        .map_err(|e| ApiError::internal(anyhow::anyhow!(e)))?;
+    let json =
+        serde_json::to_vec_pretty(&detail).map_err(|e| ApiError::internal(anyhow::anyhow!(e)))?;
     let filename = format!("{}_koharu.json", document.name);
     Ok(binary_response(json, "application/json", Some(filename)))
 }
@@ -1000,13 +1014,19 @@ async fn scan_characters_in_document(
         .map(|b| (b.x, b.y, b.width, b.height))
         .collect();
 
-    let panel_mode = if resources.ml.character_lib.has_panel_detector() { "ml" } else { "heuristic" };
+    let panel_mode = if resources.ml.character_lib.has_panel_detector() {
+        "ml"
+    } else {
+        "heuristic"
+    };
     let panels = resources.ml.character_lib.detect_panels(&document.image);
 
-    let assignments = resources
-        .ml
-        .character_lib
-        .assign_speakers_to_blocks(&document.image, &blocks, &balloons, &panels);
+    let assignments = resources.ml.character_lib.assign_speakers_to_blocks(
+        &document.image,
+        &blocks,
+        &balloons,
+        &panels,
+    );
 
     let panel_characters = resources
         .ml
@@ -1057,11 +1077,14 @@ async fn scan_characters_in_document(
             y: *y,
             width: *w,
             height: *h,
-            characters: chars.into_iter().map(|m| PanelCharacter {
-                name: m.name,
-                traits: m.traits,
-                is_known: m.is_known,
-            }).collect(),
+            characters: chars
+                .into_iter()
+                .map(|m| PanelCharacter {
+                    name: m.name,
+                    traits: m.traits,
+                    is_known: m.is_known,
+                })
+                .collect(),
         })
         .collect();
 
@@ -1163,16 +1186,14 @@ async fn add_character(
                     .text()
                     .await
                     .map_err(|e| ApiError::bad_request(e.to_string()))?;
-                traits = serde_json::from_str(&text)
-                    .unwrap_or_else(|_| vec![text]);
+                traits = serde_json::from_str(&text).unwrap_or_else(|_| vec![text]);
             }
             Some("relations") => {
                 let text = field
                     .text()
                     .await
                     .map_err(|e| ApiError::bad_request(e.to_string()))?;
-                relations = serde_json::from_str(&text)
-                    .unwrap_or_else(|_| vec![text]);
+                relations = serde_json::from_str(&text).unwrap_or_else(|_| vec![text]);
             }
             Some("face") | None => {
                 face_bytes_list.push(
@@ -1189,12 +1210,17 @@ async fn add_character(
 
     let name = name.ok_or_else(|| ApiError::bad_request("'name' field is required"))?;
     if face_bytes_list.is_empty() {
-        return Err(ApiError::bad_request("at least one 'face' image field is required"));
+        return Err(ApiError::bad_request(
+            "at least one 'face' image field is required",
+        ));
     }
 
     let face_images: Result<Vec<_>, _> = face_bytes_list
         .iter()
-        .map(|b| image::load_from_memory(b).map_err(|e| ApiError::bad_request(format!("invalid face image: {e}"))))
+        .map(|b| {
+            image::load_from_memory(b)
+                .map_err(|e| ApiError::bad_request(format!("invalid face image: {e}")))
+        })
         .collect();
     let face_images = face_images?;
 
@@ -1225,10 +1251,17 @@ async fn remove_character(
 type StyleScanResult = koharu_ml::bilingual::corpus::StyleScanResult;
 type StyleProfile = koharu_ml::bilingual::style::StyleProfile;
 
-async fn start_style_scan_job(State(state): State<ApiState>) -> ApiResult<Json<JobState>> {
+/// Body is optional: `{}` or none runs the local OCR reader;
+/// `{"reader": "vision", "model": "claude-opus-5", "name": "…"}` reads the
+/// pages through the Claude API.
+async fn start_style_scan_job(
+    State(state): State<ApiState>,
+    body: Option<Json<operations::StyleScanOptions>>,
+) -> ApiResult<Json<JobState>> {
     let resources = state.resources()?;
+    let options = body.map(|Json(options)| options).unwrap_or_default();
 
-    let (job_id, total_documents) = operations::start_style_scan_job(resources.clone())
+    let (job_id, total_documents) = operations::start_style_scan_job(resources.clone(), options)
         .await
         .map_err(ApiError::from)?;
 
@@ -1270,6 +1303,13 @@ async fn export_style_scan(
     Ok(StatusCode::NO_CONTENT)
 }
 
+async fn list_style_profiles() -> ApiResult<Json<Vec<StyleScanResult>>> {
+    let profiles = operations::list_style_profiles()
+        .await
+        .map_err(ApiError::from)?;
+    Ok(Json(profiles))
+}
+
 async fn get_active_style_profile() -> ApiResult<Json<Option<StyleProfile>>> {
     let profile = operations::get_active_style_profile()
         .await
@@ -1277,11 +1317,14 @@ async fn get_active_style_profile() -> ApiResult<Json<Option<StyleProfile>>> {
     Ok(Json(profile))
 }
 
-/// `null` stops translations following any profile.
+/// `null` stops translations following any profile. A loaded API model picks
+/// the change up at once.
 async fn set_active_style_profile(
+    State(state): State<ApiState>,
     Json(profile): Json<Option<StyleProfile>>,
 ) -> ApiResult<StatusCode> {
-    operations::set_active_style_profile(profile)
+    let resources = state.resources()?;
+    operations::set_active_style_profile(resources, profile)
         .await
         .map_err(ApiError::from)?;
     Ok(StatusCode::NO_CONTENT)
@@ -1520,12 +1563,24 @@ fn inject_dpi_jpeg(bytes: Vec<u8>, dpi: u32) -> Vec<u8> {
     }
     let dpi = dpi.min(65535) as u16;
     let app0: [u8; 18] = [
-        0xFF, 0xE0, 0x00, 0x10,
-        b'J', b'F', b'I', b'F', 0x00,
-        0x01, 0x01, 0x01,
-        (dpi >> 8) as u8, (dpi & 0xFF) as u8,
-        (dpi >> 8) as u8, (dpi & 0xFF) as u8,
-        0x00, 0x00,
+        0xFF,
+        0xE0,
+        0x00,
+        0x10,
+        b'J',
+        b'F',
+        b'I',
+        b'F',
+        0x00,
+        0x01,
+        0x01,
+        0x01,
+        (dpi >> 8) as u8,
+        (dpi & 0xFF) as u8,
+        (dpi >> 8) as u8,
+        (dpi & 0xFF) as u8,
+        0x00,
+        0x00,
     ];
     let mut out = Vec::with_capacity(bytes.len() + app0.len());
     out.extend_from_slice(&bytes[0..2]);
@@ -1569,7 +1624,11 @@ fn png_crc32(data: &[u8]) -> u32 {
     for &b in data {
         let mut c = crc ^ (b as u32);
         for _ in 0..8 {
-            c = if c & 1 != 0 { 0xEDB88320 ^ (c >> 1) } else { c >> 1 };
+            c = if c & 1 != 0 {
+                0xEDB88320 ^ (c >> 1)
+            } else {
+                c >> 1
+            };
         }
         crc = c;
     }
@@ -1711,9 +1770,7 @@ fn apply_text_block_patch(block: &mut TextBlock, patch: TextBlockPatch) {
 
 // ─── Folder session handlers ──────────────────────────────────────────────────
 
-async fn open_folder_session(
-    State(state): State<ApiState>,
-) -> ApiResult<Json<FolderSessionInfo>> {
+async fn open_folder_session(State(state): State<ApiState>) -> ApiResult<Json<FolderSessionInfo>> {
     let resources = state.resources()?;
     let info = operations::open_folder_session(resources)
         .await
@@ -1731,9 +1788,10 @@ async fn open_folder_session_by_path(
     Json(body): Json<OpenFolderByPathRequest>,
 ) -> ApiResult<Json<FolderSessionInfo>> {
     let resources = state.resources()?;
-    let info = operations::open_folder_session_by_path(resources, std::path::PathBuf::from(body.path))
-        .await
-        .map_err(ApiError::from)?;
+    let info =
+        operations::open_folder_session_by_path(resources, std::path::PathBuf::from(body.path))
+            .await
+            .map_err(ApiError::from)?;
     Ok(Json(info))
 }
 
@@ -1782,10 +1840,16 @@ async fn start_folder_pipeline_job(
 
     let total_documents = {
         let guard = resources.state.read().await;
-        guard.folder_session.as_ref().map(|s| s.files.len()).unwrap_or(0)
+        guard
+            .folder_session
+            .as_ref()
+            .map(|s| s.files.len())
+            .unwrap_or(0)
     };
     if total_documents == 0 {
-        return Err(ApiError::bad_request("No folder session active or folder is empty"));
+        return Err(ApiError::bad_request(
+            "No folder session active or folder is empty",
+        ));
     }
 
     let job_id = operations::start_folder_pipeline(

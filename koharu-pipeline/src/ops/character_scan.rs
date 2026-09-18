@@ -121,7 +121,9 @@ pub async fn start_character_scan_job(resources: AppResources) -> anyhow::Result
 
 /// Load a previously-written `manga_relationship_v1.json` from the currently-open
 /// folder session, without starting a new scan.
-pub async fn get_character_scan_result(resources: AppResources) -> anyhow::Result<Option<ScanResult>> {
+pub async fn get_character_scan_result(
+    resources: AppResources,
+) -> anyhow::Result<Option<ScanResult>> {
     let root = {
         let guard = resources.state.read().await;
         require_session(&guard)?.root.clone()
@@ -151,7 +153,9 @@ pub async fn export_character_scan_result(
 /// carry raw dialogue text. Persists the updated result to
 /// `manga_relationship_v1.json` (still `isVerifiedByHuman: false` — that flag is
 /// only set by the human's own Export action) and returns it.
-pub async fn generate_character_scan_relationships(resources: AppResources) -> anyhow::Result<ScanResult> {
+pub async fn generate_character_scan_relationships(
+    resources: AppResources,
+) -> anyhow::Result<ScanResult> {
     let root = {
         let guard = resources.state.read().await;
         require_session(&guard)?.root.clone()
@@ -160,8 +164,9 @@ pub async fn generate_character_scan_relationships(resources: AppResources) -> a
 
     let mut result = scanner::read_scan_result(&dir)
         .ok_or_else(|| anyhow::anyhow!("No character scan result found — run a scan first"))?;
-    let checkpoint = scanner::read_checkpoint(&dir)
-        .ok_or_else(|| anyhow::anyhow!("Scan checkpoint not found — dialogue data is unavailable"))?;
+    let checkpoint = scanner::read_checkpoint(&dir).ok_or_else(|| {
+        anyhow::anyhow!("Scan checkpoint not found — dialogue data is unavailable")
+    })?;
 
     let dialogue_by_id: std::collections::HashMap<String, Vec<String>> = checkpoint
         .characters

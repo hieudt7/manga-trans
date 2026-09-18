@@ -250,7 +250,10 @@ impl PaddleOcrVl {
         &mut self,
         image: &DynamicImage,
         task: PaddleOcrVlTask,
-    ) -> Result<(crate::safe::mtmd::MtmdInputChunks, crate::safe::mtmd::MtmdBitmap)> {
+    ) -> Result<(
+        crate::safe::mtmd::MtmdInputChunks,
+        crate::safe::mtmd::MtmdBitmap,
+    )> {
         let bitmap = bitmap_from_image(image)?;
         let prompt = self.render_prompt(task)?;
         let chunks = self
@@ -375,7 +378,10 @@ impl PaddleOcrVl {
         let started = Instant::now();
 
         // Pre-tokenize all images to find the largest context size needed.
-        type Prepared = (crate::safe::mtmd::MtmdInputChunks, crate::safe::mtmd::MtmdBitmap);
+        type Prepared = (
+            crate::safe::mtmd::MtmdInputChunks,
+            crate::safe::mtmd::MtmdBitmap,
+        );
         let mut prepared: Vec<Prepared> = Vec::with_capacity(images.len());
         let mut max_batch_tokens = 1usize;
         let mut max_prompt_positions = 1usize;

@@ -59,7 +59,9 @@ fn model_path_candidates() -> Vec<PathBuf> {
 
 /// First candidate that exists on disk.
 fn local_model_path() -> Option<PathBuf> {
-    model_path_candidates().into_iter().find(|path| path.exists())
+    model_path_candidates()
+        .into_iter()
+        .find(|path| path.exists())
 }
 
 pub fn is_available() -> bool {
@@ -111,7 +113,9 @@ impl ComicBubbleDetector {
             Ok(Session::builder()?.commit_from_file(&path)?)
         })
         .await??;
-        Ok(Self { session: Mutex::new(session) })
+        Ok(Self {
+            session: Mutex::new(session),
+        })
     }
 
     pub fn detect(&self, image: &DynamicImage) -> Result<Vec<BubbleBox>> {
@@ -167,7 +171,14 @@ impl ComicBubbleDetector {
             let y = ((cy - bh / 2.0) * scale_y).max(0.0);
             let width = (bw * scale_x).min(orig_w as f32 - x);
             let height = (bh * scale_y).min(orig_h as f32 - y);
-            candidates.push(Candidate { x, y, width, height, score: conf, anchor_idx: i });
+            candidates.push(Candidate {
+                x,
+                y,
+                width,
+                height,
+                score: conf,
+                anchor_idx: i,
+            });
         }
 
         // NMS
@@ -176,10 +187,17 @@ impl ComicBubbleDetector {
         let boxes: Vec<BubbleBox> = kept
             .into_iter()
             .map(|c| {
-                let mask = proto_masks.as_ref().map(|protos| {
-                    decode_mask(&out0, protos.view(), c.anchor_idx, orig_w, orig_h)
-                });
-                BubbleBox { x: c.x, y: c.y, width: c.width, height: c.height, score: c.score, mask }
+                let mask = proto_masks
+                    .as_ref()
+                    .map(|protos| decode_mask(&out0, protos.view(), c.anchor_idx, orig_w, orig_h));
+                BubbleBox {
+                    x: c.x,
+                    y: c.y,
+                    width: c.width,
+                    height: c.height,
+                    score: c.score,
+                    mask,
+                }
             })
             .collect();
 
@@ -214,7 +232,11 @@ fn decode_mask(
     for py in 0..PROTO_SIZE {
         for px in 0..PROTO_SIZE {
             let p = sigmoid(logits[py * PROTO_SIZE + px]);
-            mask_160.put_pixel(px as u32, py as u32, Luma([if p > MASK_THRESHOLD { 255u8 } else { 0u8 }]));
+            mask_160.put_pixel(
+                px as u32,
+                py as u32,
+                Luma([if p > MASK_THRESHOLD { 255u8 } else { 0u8 }]),
+            );
         }
     }
 
@@ -227,18 +249,31 @@ fn sigmoid(x: f32) -> f32 {
 }
 
 fn nms(mut candidates: Vec<Candidate>, iou_threshold: f32) -> Vec<Candidate> {
-    candidates.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    candidates.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     let mut suppressed = vec![false; candidates.len()];
     for i in 0..candidates.len() {
-        if suppressed[i] { continue; }
+        if suppressed[i] {
+            continue;
+        }
         for j in (i + 1)..candidates.len() {
-            if suppressed[j] { continue; }
+            if suppressed[j] {
+                continue;
+            }
             if iou_cand(&candidates[i], &candidates[j]) > iou_threshold {
                 suppressed[j] = true;
             }
         }
     }
-    candidates.into_iter().enumerate().filter(|(i, _)| !suppressed[*i]).map(|(_, c)| c).collect()
+    candidates
+        .into_iter()
+        .enumerate()
+        .filter(|(i, _)| !suppressed[*i])
+        .map(|(_, c)| c)
+        .collect()
 }
 
 fn iou_cand(a: &Candidate, b: &Candidate) -> f32 {
@@ -246,7 +281,9 @@ fn iou_cand(a: &Candidate, b: &Candidate) -> f32 {
     let iy1 = a.y.max(b.y);
     let ix2 = (a.x + a.width).min(b.x + b.width);
     let iy2 = (a.y + a.height).min(b.y + b.height);
-    if ix2 <= ix1 || iy2 <= iy1 { return 0.0; }
+    if ix2 <= ix1 || iy2 <= iy1 {
+        return 0.0;
+    }
     let inter = (ix2 - ix1) * (iy2 - iy1);
     inter / (a.width * a.height + b.width * b.height - inter)
 }
@@ -255,7 +292,9 @@ fn iou_cand(a: &Candidate, b: &Candidate) -> f32 {
 
 /// Square-kernel morphological erosion (separable: horizontal then vertical pass).
 pub fn erode_binary(mask: &GrayImage, radius: u32) -> GrayImage {
-    if radius == 0 { return mask.clone(); }
+    if radius == 0 {
+        return mask.clone();
+    }
     let (w, h) = mask.dimensions();
     let mut tmp = GrayImage::new(w, h);
     // Horizontal
@@ -263,7 +302,10 @@ pub fn erode_binary(mask: &GrayImage, radius: u32) -> GrayImage {
         for x in 0..w {
             let x1 = x.saturating_sub(radius);
             let x2 = (x + radius + 1).min(w);
-            let min = (x1..x2).map(|nx| mask.get_pixel(nx, y)[0]).min().unwrap_or(0);
+            let min = (x1..x2)
+                .map(|nx| mask.get_pixel(nx, y)[0])
+                .min()
+                .unwrap_or(0);
             tmp.put_pixel(x, y, Luma([min]));
         }
     }
@@ -273,7 +315,10 @@ pub fn erode_binary(mask: &GrayImage, radius: u32) -> GrayImage {
         for x in 0..w {
             let y1 = y.saturating_sub(radius);
             let y2 = (y + radius + 1).min(h);
-            let min = (y1..y2).map(|ny| tmp.get_pixel(x, ny)[0]).min().unwrap_or(0);
+            let min = (y1..y2)
+                .map(|ny| tmp.get_pixel(x, ny)[0])
+                .min()
+                .unwrap_or(0);
             out.put_pixel(x, y, Luma([min]));
         }
     }
@@ -320,9 +365,12 @@ pub fn fill_ratio(mask: &GrayImage, tx: f32, ty: f32, tw: f32, th: f32) -> f32 {
     let y1 = ty as u32;
     let x2 = ((tx + tw) as u32).min(mw);
     let y2 = ((ty + th) as u32).min(mh);
-    if x2 <= x1 || y2 <= y1 { return 0.0; }
+    if x2 <= x1 || y2 <= y1 {
+        return 0.0;
+    }
     let total = (x2 - x1) * (y2 - y1);
-    let inside: u32 = (y1..y2).flat_map(|y| (x1..x2).map(move |x| (x, y)))
+    let inside: u32 = (y1..y2)
+        .flat_map(|y| (x1..x2).map(move |x| (x, y)))
         .filter(|&(x, y)| mask.get_pixel(x, y)[0] >= 128)
         .count() as u32;
     inside as f32 / total as f32
@@ -376,7 +424,12 @@ mod tests {
         for b in balloons.iter().take(5) {
             println!(
                 "  {:.0},{:.0} {:.0}x{:.0} score={:.2} mask={}",
-                b.x, b.y, b.width, b.height, b.score, b.mask.is_some()
+                b.x,
+                b.y,
+                b.width,
+                b.height,
+                b.score,
+                b.mask.is_some()
             );
         }
 

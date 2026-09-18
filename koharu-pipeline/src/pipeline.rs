@@ -129,24 +129,23 @@ async fn run_pipeline_inner(
         && !res.llm.ready().await
     {
         if model_id.contains(':') {
-            let (provider_id, model_part) = model_id.split_once(':').unwrap();
-            res.llm
-                .load_api(
-                    provider_id,
-                    model_part,
-                    koharu_llm::providers::ProviderConfig {
-                        api_key: req.llm_api_key.clone(),
-                        base_url: req.llm_base_url.clone(),
-                        temperature: req.llm_temperature,
-                        max_tokens: req.llm_max_tokens,
-                        custom_system_prompt: req.llm_custom_system_prompt.clone(),
-                        story_context: None,
-                        // Fallback auto-load only; the explicit /llm/load from the
-                        // model picker is what carries the user's start index.
-                        key_start_index: None,
-                    },
-                )
-                .await?;
+            // Through llm_load, so a fallback load carries the chosen style profile and
+            // the character library the same way an explicit load from the picker does.
+            crate::ops::llm_load(
+                res.clone(),
+                koharu_types::commands::LlmLoadPayload {
+                    id: model_id.clone(),
+                    api_key: req.llm_api_key.clone(),
+                    base_url: req.llm_base_url.clone(),
+                    temperature: req.llm_temperature,
+                    max_tokens: req.llm_max_tokens,
+                    custom_system_prompt: req.llm_custom_system_prompt.clone(),
+                    story_context: None,
+                    // The explicit /llm/load from the model picker carries the start index.
+                    key_start_index: None,
+                },
+            )
+            .await?;
         } else {
             let id = ModelId::from_str(model_id)?;
             res.llm.load(id).await;
@@ -222,7 +221,10 @@ async fn run_pipeline_inner(
                                 page_ctx = ?page_ctx,
                                 "scan_for_character_context result"
                             );
-                            let pronoun_ctx = res.ml.scan_pronoun_context(&snapshot, req.llm_custom_system_prompt.as_deref());
+                            let pronoun_ctx = res.ml.scan_pronoun_context(
+                                &snapshot,
+                                req.llm_custom_system_prompt.as_deref(),
+                            );
                             tracing::info!(
                                 has_pronoun_ctx = pronoun_ctx.is_some(),
                                 pronoun_ctx = ?pronoun_ctx,

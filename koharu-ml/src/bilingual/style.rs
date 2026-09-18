@@ -45,6 +45,12 @@ const MAX_LENGTH_RATIO: f32 = 9.0;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StyleProfile {
+    /// How the translator carries the Japanese across: how register becomes
+    /// Vietnamese pronouns, what is localised and what is glossed, whether
+    /// honorifics are kept, how much the tone is sharpened. Kept apart from
+    /// `voice`, which is how the Vietnamese itself sounds.
+    #[serde(default)]
+    pub approach: Vec<String>,
     /// How the prose sounds: register, sentence length, what it does with
     /// exclamations.
     #[serde(default)]
@@ -59,17 +65,118 @@ pub struct StyleProfile {
     pub sound_effects: Vec<String>,
     /// Names and recurring terms, as `[japanese, vietnamese]`. These have to
     /// stay settled across a volume, and a model left to itself will not settle
-    /// them the same way twice.
+    /// them the same way twice. The Japanese side is empty when the profile was
+    /// read from a Vietnamese edition alone.
     #[serde(default)]
     pub glossary: Vec<[String; 2]>,
+    /// The recurring cast: who each character is, how they talk, and how they
+    /// address each of the others. Pronouns in Vietnamese follow the pair of
+    /// characters and their mood, so this is what keeps a translation's
+    /// forms of address steady from page to page.
+    #[serde(default)]
+    pub characters: Vec<CharacterProfile>,
+}
+
+/// One recurring character, as the translation presents them.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CharacterProfile {
+    /// Stable ASCII id, shared with the character scan and its face crops.
+    pub id: String,
+    /// The name the translation uses.
+    pub name: String,
+    /// The name as written in the original, when it was read.
+    pub name_ja: String,
+    /// Other names and titles the character goes by (`hoàng tử`, `Suguru`).
+    pub aliases: Vec<String>,
+    /// `male`, `female`, or empty when unclear.
+    pub gender: String,
+    /// `child`, `teen`, `young_adult`, `adult`, `middle_age`, `elder`, or empty.
+    pub age_group: String,
+    /// Who they are in the story.
+    pub role: String,
+    pub personality: String,
+    /// How they talk: register, particles, verbal tics.
+    pub speech: String,
+    /// How they refer to themselves, with the mood when it varies.
+    pub self_terms: Vec<String>,
+    /// Pages they appear on.
+    pub appearances: u32,
+    pub relations: Vec<CharacterRelation>,
+}
+
+/// How one character stands to another and addresses them.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CharacterRelation {
+    /// The other character's id.
+    pub to: String,
+    /// What the other character is to this one (`father`, `servant`, `rival`).
+    pub relation: String,
+    /// The pronouns and terms used, default first, then by mood.
+    pub address: String,
+}
+
+impl CharacterProfile {
+    /// One character as a few prompt lines.
+    fn describe(&self, names: &std::collections::HashMap<&str, &str>) -> String {
+        let mut head = format!("- {}", self.name);
+        let mut also: Vec<&str> = Vec::new();
+        if !self.name_ja.is_empty() {
+            also.push(&self.name_ja);
+        }
+        also.extend(self.aliases.iter().map(String::as_str));
+        if !also.is_empty() {
+            head.push_str(&format!(" ({})", also.join(", ")));
+        }
+        let facts: Vec<&str> = [self.gender.as_str(), self.age_group.as_str()]
+            .into_iter()
+            .filter(|f| !f.is_empty())
+            .collect();
+        if !facts.is_empty() {
+            head.push_str(&format!(" — {}", facts.join(", ").replace('_', " ")));
+        }
+
+        let mut lines = vec![head];
+        for (label, value) in [
+            ("Role", &self.role),
+            ("Personality", &self.personality),
+            ("Speech", &self.speech),
+        ] {
+            if !value.trim().is_empty() {
+                lines.push(format!("  {label}: {}", value.trim()));
+            }
+        }
+        if !self.self_terms.is_empty() {
+            lines.push(format!(
+                "  Refers to self as: {}",
+                self.self_terms.join("; ")
+            ));
+        }
+        for relation in &self.relations {
+            let other = names
+                .get(relation.to.as_str())
+                .copied()
+                .unwrap_or(relation.to.as_str());
+            let what = if relation.relation.trim().is_empty() {
+                String::new()
+            } else {
+                format!(" ({})", relation.relation.trim())
+            };
+            lines.push(format!("  → {other}{what}: {}", relation.address.trim()));
+        }
+        lines.join("\n")
+    }
 }
 
 impl StyleProfile {
     pub fn is_empty(&self) -> bool {
-        self.voice.is_empty()
+        self.approach.is_empty()
+            && self.voice.is_empty()
             && self.address.is_empty()
             && self.sound_effects.is_empty()
             && self.glossary.is_empty()
+            && self.characters.is_empty()
     }
 
     /// Render the profile for a provider's story context.
@@ -98,6 +205,7 @@ impl StyleProfile {
             Some(format!("{title}:\n{}", body.join("\n")))
         };
 
+        out.extend(section("Translation approach", &self.approach));
         out.extend(section("Voice", &self.voice));
         out.extend(section("Forms of address", &self.address));
         out.extend(section("Sound effects", &self.sound_effects));
@@ -106,11 +214,31 @@ impl StyleProfile {
             let terms: Vec<String> = self
                 .glossary
                 .iter()
-                .map(|[source, target]| format!("- {source} → {target}"))
+                .map(|[source, target]| {
+                    if source.is_empty() {
+                        format!("- {target}")
+                    } else {
+                        format!("- {source} → {target}")
+                    }
+                })
                 .collect();
             out.push(format!(
                 "Settled terms (use these spellings):\n{}",
                 terms.join("\n")
+            ));
+        }
+
+        if !self.characters.is_empty() {
+            let names: std::collections::HashMap<&str, &str> = self
+                .characters
+                .iter()
+                .map(|c| (c.id.as_str(), c.name.as_str()))
+                .collect();
+            let cast: Vec<String> = self.characters.iter().map(|c| c.describe(&names)).collect();
+            out.push(format!(
+                "Characters — who they are, how they speak, and how each addresses the others \
+                 (default first, then by mood; follow the scene's mood):\n{}",
+                cast.join("\n")
             ));
         }
 
@@ -254,8 +382,13 @@ pub fn ground(profile: &mut StyleProfile, pairs: &[SentencePair]) {
         .iter()
         .map(|pair| pair.target.replace('\n', " "))
         .collect::<Vec<_>>()
-        .join(" || ")
-        .to_lowercase();
+        .join(" || ");
+    ground_in(profile, &corpus);
+}
+
+/// [`ground`], against any Vietnamese text the profile was learned from.
+pub fn ground_in(profile: &mut StyleProfile, corpus: &str) {
+    let corpus = corpus.to_lowercase();
 
     profile
         .address
@@ -384,12 +517,87 @@ fn parse(reply: &str) -> anyhow::Result<StyleProfile> {
     };
     let raw: serde_json::Value = serde_json::from_str(body)?;
 
+    let sound_effects = if raw["soundEffects"].is_array() {
+        &raw["soundEffects"]
+    } else {
+        &raw["sound_effects"]
+    };
     Ok(StyleProfile {
+        approach: observations(&raw["approach"]),
         voice: observations(&raw["voice"]),
         address: observations(&raw["address"]),
-        sound_effects: observations(&raw["sound_effects"]),
+        sound_effects: observations(sound_effects),
         glossary: glossary(&raw["glossary"]),
+        characters: characters(&raw["characters"]),
     })
+}
+
+/// Characters as the model wrote them. A malformed entry is dropped rather than
+/// failing the whole profile; one without a name says nothing to follow.
+fn characters(value: &serde_json::Value) -> Vec<CharacterProfile> {
+    let Some(items) = value.as_array() else {
+        return Vec::new();
+    };
+    let mut taken = std::collections::HashSet::new();
+    items
+        .iter()
+        .filter_map(|item| serde_json::from_value::<CharacterProfile>(item.clone()).ok())
+        .filter(|c| !c.name.trim().is_empty())
+        .map(|mut c| {
+            if c.id.trim().is_empty() {
+                c.id = slug(&c.name);
+            }
+            let base = c.id.clone();
+            let mut n = 2;
+            while !taken.insert(c.id.clone()) {
+                c.id = format!("{base}-{n}");
+                n += 1;
+            }
+            c
+        })
+        .collect()
+}
+
+/// An ASCII id from a name: `Tổng tư lệnh` → `tong-tu-lenh`.
+pub fn slug(name: &str) -> String {
+    let folded: String = name
+        .chars()
+        .map(|c| match c {
+            'đ' | 'Đ' => 'd',
+            _ => c,
+        })
+        .flat_map(|c| {
+            // Strip Vietnamese tone and vowel marks by mapping to the base letter.
+            const FROM: &str = "àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ";
+            const TO: &str = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyy";
+            let lower = c.to_lowercase().next().unwrap_or(c);
+            let base = FROM
+                .chars()
+                .position(|f| f == lower)
+                .and_then(|i| TO.chars().nth(i))
+                .unwrap_or(lower);
+            Some(base)
+        })
+        .collect();
+    let mut out = String::new();
+    for c in folded.chars() {
+        if c.is_ascii_alphanumeric() {
+            out.push(c);
+        } else if !out.ends_with('-') && !out.is_empty() {
+            out.push('-');
+        }
+    }
+    let out = out.trim_end_matches('-').to_string();
+    if out.is_empty() {
+        "character".to_string()
+    } else {
+        out
+    }
+}
+
+/// [`parse`], for other readers of the same reply shape.
+pub(crate) fn parse_profile(reply: &str) -> anyhow::Result<StyleProfile> {
+    parse(reply)
 }
 
 /// Flatten whatever the model put in a list into one sentence per entry.
@@ -441,10 +649,11 @@ fn glossary(value: &serde_json::Value) -> Vec<[String; 2]> {
                 serde_json::Value::Object(fields) => fields.values().map(flatten).collect(),
                 _ => return None,
             };
+            // An empty Japanese side is a term read from a Vietnamese edition
+            // alone; an empty Vietnamese side says nothing to follow.
             match pair.as_slice() {
-                [source, target] if !source.is_empty() && !target.is_empty() => {
-                    Some([source.clone(), target.clone()])
-                }
+                [source, target] if !target.is_empty() => Some([source.clone(), target.clone()]),
+                [target] if !target.is_empty() => Some([String::new(), target.clone()]),
                 _ => None,
             }
         })
@@ -502,9 +711,39 @@ mod tests {
     /// A half-written entry would put an arrow with nothing on one side of it
     /// into the prompt.
     #[test]
-    fn an_incomplete_glossary_entry_is_dropped() {
-        let profile = parse(r#"{"glossary": [["長官"], ["", "Sếp"], ["エ", "Hả"]]}"#).unwrap();
+    fn a_glossary_entry_with_nothing_to_write_is_dropped() {
+        let profile = parse(r#"{"glossary": [["長官", ""], [], ["エ", "Hả"]]}"#).unwrap();
         assert_eq!(profile.glossary, [["エ".to_string(), "Hả".to_string()]]);
+    }
+
+    /// A Vietnamese edition read on its own has no Japanese to pair a name
+    /// with, and the name is still worth keeping settled.
+    #[test]
+    fn a_glossary_entry_without_japanese_is_kept_and_rendered_alone() {
+        let profile = parse(r#"{"glossary": [["", "Kinnikuman"], ["Meat"]]}"#).unwrap();
+        assert_eq!(
+            profile.glossary,
+            [
+                [String::new(), "Kinnikuman".to_string()],
+                [String::new(), "Meat".to_string()]
+            ]
+        );
+        let context = profile.to_context().unwrap();
+        assert!(context.contains("\n- Kinnikuman\n"), "{context}");
+        assert!(!context.contains("→ Kinnikuman"));
+    }
+
+    #[test]
+    fn the_translation_approach_is_read_and_rendered_first() {
+        let profile = parse(
+            r#"{"approach": ["Keigo becomes ngài/tôi"], "voice": ["Lóng mạng"], "soundEffects": ["Giữ SFX vẽ tay"]}"#,
+        )
+        .unwrap();
+        assert_eq!(profile.sound_effects, ["Giữ SFX vẽ tay"]);
+        let context = profile.to_context().unwrap();
+        let approach = context.find("Translation approach").unwrap();
+        let voice = context.find("Voice").unwrap();
+        assert!(approach < voice);
     }
 
     #[test]
@@ -629,6 +868,49 @@ mod tests {
     }
 
     #[test]
+    fn characters_are_read_given_ids_and_rendered_with_their_relations() {
+        let profile = parse(
+            r#"{"characters": [
+                {"name": "Kinnikuman", "nameJa": "キン肉マン", "aliases": ["Suguru", "hoàng tử"],
+                 "gender": "male", "ageGroup": "young_adult", "role": "Prince of planet Kinniku",
+                 "selfTerms": ["ta (posturing)", "tớ (pleading)"],
+                 "relations": [{"to": "meat", "relation": "servant", "address": "ta/ngươi; cậu when friendly"}]},
+                {"id": "meat", "name": "Meat", "relations": [{"to": "kinnikuman", "relation": "master", "address": "tôi/ngài"}]},
+                {"name": ""},
+                "not a character"
+            ]}"#,
+        )
+        .unwrap();
+
+        assert_eq!(profile.characters.len(), 2);
+        assert_eq!(profile.characters[0].id, "kinnikuman");
+        let context = profile.to_context().unwrap();
+        assert!(
+            context.contains("- Kinnikuman (キン肉マン, Suguru, hoàng tử) — male, young adult"),
+            "{context}"
+        );
+        assert!(
+            context.contains("  → Meat (servant): ta/ngươi; cậu when friendly"),
+            "{context}"
+        );
+        assert!(
+            context.contains("  → Kinnikuman (master): tôi/ngài"),
+            "{context}"
+        );
+        assert!(context.contains("Refers to self as: ta (posturing); tớ (pleading)"));
+    }
+
+    #[test]
+    fn ids_are_ascii_and_do_not_collide() {
+        assert_eq!(slug("Tổng tư lệnh"), "tong-tu-lenh");
+        assert_eq!(slug("Đại vương Kinniku"), "dai-vuong-kinniku");
+        assert_eq!(slug("キン肉マン"), "character");
+        let profile = parse(r#"{"characters": [{"name": "Meat"}, {"name": "meat"}]}"#).unwrap();
+        let ids: Vec<&str> = profile.characters.iter().map(|c| c.id.as_str()).collect();
+        assert_eq!(ids, ["meat", "meat-2"]);
+    }
+
+    #[test]
     fn an_empty_profile_contributes_no_context() {
         assert!(StyleProfile::default().to_context().is_none());
     }
@@ -636,10 +918,12 @@ mod tests {
     #[test]
     fn a_profile_renders_every_section_it_has() {
         let profile = StyleProfile {
+            approach: vec![],
             voice: vec!["Câu ngắn".to_string()],
             address: vec!["Meat dùng tớ/cậu với Terryman".to_string()],
             sound_effects: vec![],
             glossary: vec![["キン肉マン".to_string(), "Kinnikuman".to_string()]],
+            characters: vec![],
         };
 
         let context = profile.to_context().unwrap();

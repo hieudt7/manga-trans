@@ -380,8 +380,8 @@
     "loading": "Cargando...",
     "progress": "Paso {{current}} / {{total}}",
     "noResult": "Aún no hay perfil de estilo",
-    "noResultHint": "Escanea para aprender cómo se lee la traducción publicada de este tomo: tratamientos, voz, onomatopeyas y nombres fijados.",
-    "emptyHint": "Abre una carpeta de referencia con las páginas originales en raw/ y la traducción publicada en trans/.",
+    "noResultHint": "Escanea para aprender cómo se lee esta traducción: tratamientos, voz, onomatopeyas y nombres fijados. Leer con Claude requiere una clave de API de Claude en Ajustes y funciona solo con la traducción.",
+    "emptyHint": "Abre una carpeta de referencia: la traducción publicada en trans/ (o directamente en la carpeta) y el original en raw/ si lo tienes.",
     "stats": "{{paired}} de {{raw}} páginas originales emparejadas con {{translated}} traducidas · {{pairs}} pares de frases",
     "reviewed": "Revisado",
     "notReviewed": "Sin revisar",
@@ -389,7 +389,7 @@
     "saving": "Guardando...",
     "use": "Usar al traducir",
     "inUse": "En uso",
-    "activeHint": "Las traducciones siguen el perfil en uso. Se aplica la próxima vez que se cargue un LLM.",
+    "activeHint": "Las traducciones siguen el perfil en uso, reparto incluido. Un modelo de API cargado lo aplica al instante.",
     "emptySection": "Una observación por línea",
     "sections": {
       "address": {
@@ -407,6 +407,10 @@
       "glossary": {
         "title": "Términos fijados",
         "hint": "Nombres y términos recurrentes, escritos como en la traducción."
+      },
+      "approach": {
+        "title": "Enfoque de traducción",
+        "hint": "Cómo se trasladó el japonés: niveles de habla, honoríficos, localización, notas."
       }
     },
     "glossary": {
@@ -414,6 +418,45 @@
       "target": "Vietnamita",
       "add": "Añadir término",
       "remove": "Quitar"
+    },
+    "statsClaude": "Leído por Claude · {{pages}} de {{total}} páginas",
+    "statsClaudeRaw": "Leído por Claude solo del original · {{pages}} de {{total}} páginas · las formas de tratamiento son sugerencias",
+    "claudeHint": "Para un perfil más preciso —quién le dice qué a quién, leído de las propias páginas— ejecuta en Claude Code:",
+    "reader": {
+      "vision": "Leer con Claude",
+      "vietocr": "OCR local (vietocr)"
+    },
+    "statsClaudeApi": "Leído por {{model}} del original y la traducción · {{pages}} páginas · {{lines}} líneas",
+    "statsClaudeApiVietnamese": "Leído por {{model}} solo de las páginas en vietnamita · {{pages}} páginas · {{lines}} líneas",
+    "library": {
+      "title": "Perfiles guardados",
+      "hint": "Se guardan en la carpeta style_profiles del proyecto. Elige uno para usarlo como prompt de traducción.",
+      "empty": "Aún no hay perfiles guardados. Un escaneo terminado se guarda aquí.",
+      "pages_one": "{{count}} página",
+      "pages_other": "{{count}} páginas",
+      "vietnameseOnly": "Solo vietnamita"
+    },
+    "characters": {
+      "title": "Personajes",
+      "hint": "El reparto recurrente y cómo se tratan entre sí. Se envía con cada petición de traducción.",
+      "add": "Añadir personaje",
+      "remove": "Quitar personaje",
+      "unnamed": "Sin nombre",
+      "name": "Nombre (traducido)",
+      "nameJa": "Nombre japonés",
+      "aliases": "Otros nombres y títulos, uno por línea",
+      "role": "Papel en la historia",
+      "personality": "Personalidad",
+      "speech": "Forma de hablar",
+      "selfTerms": "Cómo se nombra a sí mismo, uno por línea (p. ej. ta (haciéndose el héroe))",
+      "relations": "Relaciones y tratamientos",
+      "pickCharacter": "Elige un personaje",
+      "relationKind": "Qué es para él (padre, criado…)",
+      "relationAddress": "Cómo le habla — primero lo habitual, luego según el ánimo (p. ej. ta/ngươi; cậu cuando hay confianza)",
+      "addRelation": "Añadir relación",
+      "removeRelation": "Quitar relación",
+      "pages_one": "{{count}} página",
+      "pages_other": "{{count}} páginas"
     }
   }
 }

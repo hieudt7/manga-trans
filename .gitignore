@@ -53,7 +53,9 @@ test-results/
 # Misc
 AGENTS.md
 claudedocs/
-/.claude
+/.claude/*
+# Project commands for Claude Code (/style-read) are shared; local settings are not.
+!/.claude/skills/
 /.serenarender/
 
 # API keys — never commit these
@@ -66,3 +68,8 @@ claudedocs/
 # Debug log the scanner appends to on every run — grows without bound and
 # writes into the source tree.
 debug-scan/
+
+# Scratch manga volumes used for local testing
+/test/
+# Style profiles are per-user scan output; the folder's README is tracked.
+/style_profiles/*.json

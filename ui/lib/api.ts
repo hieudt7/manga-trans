@@ -71,13 +71,54 @@ export type CharacterScanResult = {
 }
 
 /** How a published translation reads, learned from a reference volume. */
+export type CharacterRelation = {
+  /** The other character's id. */
+  to: string
+  /** What the other character is to this one. */
+  relation: string
+  /** Pronouns and terms used, default first, then by mood. */
+  address: string
+}
+
+/** One recurring character, as the translation presents them. */
+export type CharacterProfile = {
+  id: string
+  name: string
+  nameJa: string
+  aliases: string[]
+  /** `male`, `female`, or empty. */
+  gender: string
+  /** `child` … `elder`, or empty. */
+  ageGroup: string
+  role: string
+  personality: string
+  speech: string
+  selfTerms: string[]
+  appearances: number
+  relations: CharacterRelation[]
+}
+
 export type StyleProfile = {
+  /** How the Japanese is carried across: register, localisation, honorifics. */
+  approach: string[]
   voice: string[]
   /** Who calls whom what — the part of a translation most worth keeping. */
   address: string[]
   soundEffects: string[]
-  /** `[japanese, vietnamese]` */
+  /** `[japanese, vietnamese]`; the Japanese is empty when read from a Vietnamese edition alone. */
   glossary: [string, string][]
+  /** The recurring cast and how each addresses the others. */
+  characters: CharacterProfile[]
+}
+
+export type StyleReader = 'vision' | 'vietocr'
+
+export type StyleScanOptions = {
+  reader: StyleReader
+  /** Vision reader only, e.g. `claude-opus-5`. */
+  model?: string
+  /** Name in the profile library; derived from the folder when absent. */
+  name?: string
 }
 
 export type StyleScanResult = {
@@ -87,6 +128,13 @@ export type StyleScanResult = {
   pairedPages: number
   pairCount: number
   isVerifiedByHuman: boolean
+  /** `claude-api`, `vietocr`, or `claude` (the `/style-read` command in Claude Code). */
+  source?: string
+  model?: string
+  withRaw?: boolean
+  name?: string
+  /** Seconds since the Unix epoch. */
+  createdAt?: number
 }
 import {
   Document,
@@ -1103,9 +1151,19 @@ export const api = {
     })
   },
 
-  async startStyleScan(): Promise<JobState> {
+  async startStyleScan(options: StyleScanOptions): Promise<JobState> {
     return withRpcError('start_style_scan', () =>
-      fetchJson<JobState>('/jobs/style-scan-folder', { method: 'POST' }),
+      fetchJson<JobState>('/jobs/style-scan-folder', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(options),
+      }),
+    )
+  },
+
+  async listStyleProfiles(): Promise<StyleScanResult[]> {
+    return withRpcError('list_style_profiles', () =>
+      fetchJson<StyleScanResult[]>('/style-profiles'),
     )
   },
 

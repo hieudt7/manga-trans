@@ -383,8 +383,8 @@
     "loading": "Loading...",
     "progress": "Step {{current}} / {{total}}",
     "noResult": "No style profile yet",
-    "noResultHint": "Run a scan to learn how this volume's published translation reads: forms of address, voice, sound effects and settled names.",
-    "emptyHint": "Open a reference folder that holds the original pages in raw/ and the published translation in trans/.",
+    "noResultHint": "Run a scan to learn how this translation reads: forms of address, voice, sound effects and settled names. Reading with Claude needs a Claude API key in Settings and works with the translation alone.",
+    "emptyHint": "Open a reference folder: the published translation in trans/ (or directly in the folder), and the original in raw/ if you have it.",
     "stats": "{{paired}} of {{raw}} raw pages paired with {{translated}} translated pages · {{pairs}} sentence pairs",
     "reviewed": "Reviewed",
     "notReviewed": "Not reviewed yet",
@@ -392,7 +392,7 @@
     "saving": "Saving...",
     "use": "Use for translation",
     "inUse": "In use",
-    "activeHint": "Translations follow the profile in use. It takes effect the next time an LLM is loaded.",
+    "activeHint": "Translations follow the profile in use, including its cast. A loaded API model picks it up at once.",
     "emptySection": "One observation per line",
     "sections": {
       "address": {
@@ -410,6 +410,10 @@
       "glossary": {
         "title": "Settled terms",
         "hint": "Names and recurring terms, spelled as the translation spells them."
+      },
+      "approach": {
+        "title": "Translation approach",
+        "hint": "How the Japanese is carried across: speech levels, honorifics, localisation, glosses."
       }
     },
     "glossary": {
@@ -417,6 +421,45 @@
       "target": "Vietnamese",
       "add": "Add term",
       "remove": "Remove"
+    },
+    "statsClaude": "Read by Claude · {{pages}} of {{total}} pages",
+    "statsClaudeRaw": "Read by Claude from the original only · {{pages}} of {{total}} pages · forms of address are suggestions",
+    "claudeHint": "For a more accurate profile — who says what to whom, read from the pages themselves — run this in Claude Code:",
+    "reader": {
+      "vision": "Read with Claude",
+      "vietocr": "Local OCR (vietocr)"
+    },
+    "statsClaudeApi": "Read by {{model}} from the original and the translation · {{pages}} pages · {{lines}} lines",
+    "statsClaudeApiVietnamese": "Read by {{model}} from the Vietnamese pages only · {{pages}} pages · {{lines}} lines",
+    "library": {
+      "title": "Saved profiles",
+      "hint": "Kept in the project's style_profiles folder. Choose one to use it as the translation prompt.",
+      "empty": "No saved profiles yet. A finished scan is saved here.",
+      "pages_one": "{{count}} page",
+      "pages_other": "{{count}} pages",
+      "vietnameseOnly": "Vietnamese only"
+    },
+    "characters": {
+      "title": "Characters",
+      "hint": "The recurring cast and how each addresses the others. This goes into every translation request.",
+      "add": "Add character",
+      "remove": "Remove character",
+      "unnamed": "Unnamed",
+      "name": "Name (as translated)",
+      "nameJa": "Japanese name",
+      "aliases": "Other names and titles, one per line",
+      "role": "Role in the story",
+      "personality": "Personality",
+      "speech": "How they speak",
+      "selfTerms": "Refers to self as, one per line (e.g. ta (posing as a hero))",
+      "relations": "Relations and forms of address",
+      "pickCharacter": "Choose a character",
+      "relationKind": "What they are to them (father, servant…)",
+      "relationAddress": "How they address them — default first, then by mood (e.g. ta/ngươi; cậu when friendly)",
+      "addRelation": "Add relation",
+      "removeRelation": "Remove relation",
+      "pages_one": "{{count}} page",
+      "pages_other": "{{count}} pages"
     }
   }
 }

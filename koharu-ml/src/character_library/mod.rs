@@ -48,20 +48,53 @@ const WD_TAGGER_THRESHOLD: f32 = 0.35;
 
 /// Tags that indicate male gender (danbooru tag names).
 const MALE_TAGS: &[&str] = &[
-    "1boy", "male", "male_focus", "multiple_boys", "2boys", "3boys", "4boys", "5boys",
-    "bishounen", "boy", "old_man", "middle-aged_man",
+    "1boy",
+    "male",
+    "male_focus",
+    "multiple_boys",
+    "2boys",
+    "3boys",
+    "4boys",
+    "5boys",
+    "bishounen",
+    "boy",
+    "old_man",
+    "middle-aged_man",
 ];
 /// Tags that indicate female gender.
 const FEMALE_TAGS: &[&str] = &[
-    "1girl", "female", "female_focus", "multiple_girls", "2girls", "3girls", "4girls",
-    "girl", "woman", "bishoujo", "old_woman", "middle-aged_woman",
+    "1girl",
+    "female",
+    "female_focus",
+    "multiple_girls",
+    "2girls",
+    "3girls",
+    "4girls",
+    "girl",
+    "woman",
+    "bishoujo",
+    "old_woman",
+    "middle-aged_woman",
 ];
 /// Tags that indicate child age group.
-const CHILD_AGE_TAGS: &[&str] = &["loli", "shota", "child", "young_boy", "young_girl", "little_boy", "little_girl"];
+const CHILD_AGE_TAGS: &[&str] = &[
+    "loli",
+    "shota",
+    "child",
+    "young_boy",
+    "young_girl",
+    "little_boy",
+    "little_girl",
+];
 /// Tags that indicate teenage/youth age group.
 const TEEN_AGE_TAGS: &[&str] = &[
-    "teenage", "teen", "high_school_girl", "high_school_boy",
-    "school_uniform", "sailor_uniform", "student",
+    "teenage",
+    "teen",
+    "high_school_girl",
+    "high_school_boy",
+    "school_uniform",
+    "sailor_uniform",
+    "student",
 ];
 /// Tags that indicate a grown adult (younger than middle-age) — "thanh niên/trưởng thành".
 /// There is no reliable danbooru tag for "young adult" specifically, so this bucket
@@ -265,21 +298,27 @@ impl CharacterLibrary {
         if ccip.is_some() {
             tracing::info!("CCIP model loaded");
         } else {
-            tracing::warn!("CCIP model not found — character identification disabled. Run tools/export_ccip.py first.");
+            tracing::warn!(
+                "CCIP model not found — character identification disabled. Run tools/export_ccip.py first."
+            );
         }
 
         let face_det = load_session_opt(face_det_model_path());
         if face_det.is_some() {
             tracing::info!("Anime face detector loaded");
         } else {
-            tracing::info!("Anime face detector not found — per-page face scanning disabled; using full-library context");
+            tracing::info!(
+                "Anime face detector not found — per-page face scanning disabled; using full-library context"
+            );
         }
 
         let panel_det = load_session_opt(panel_det_model_path());
         if panel_det.is_some() {
             tracing::info!("Manga panel detector loaded");
         } else {
-            tracing::info!("Manga panel detector not found — using heuristic panel detection. Run tools/export_ccip.py --panel-only to download.");
+            tracing::info!(
+                "Manga panel detector not found — using heuristic panel detection. Run tools/export_ccip.py --panel-only to download."
+            );
         }
 
         let wd_tagger = load_wd_tagger();
@@ -334,8 +373,10 @@ impl CharacterLibrary {
         // the character will still be useful via the full-library fallback (all
         // characters are injected as context when face detection is unavailable).
         let embedding = if let Some(ccip) = &self.ccip {
-            let embeddings: Result<Vec<Vec<f32>>> =
-                face_images.iter().map(|img| embed_face(ccip, img)).collect();
+            let embeddings: Result<Vec<Vec<f32>>> = face_images
+                .iter()
+                .map(|img| embed_face(ccip, img))
+                .collect();
             let embeddings = embeddings?;
 
             let dim = embeddings[0].len();
@@ -352,7 +393,9 @@ impl CharacterLibrary {
             let norm: f32 = mean.iter().map(|x| x * x).sum::<f32>().sqrt().max(1e-8);
             mean.into_iter().map(|x| x / norm).collect()
         } else {
-            tracing::warn!("CCIP not loaded — storing character without face embedding; face recognition disabled");
+            tracing::warn!(
+                "CCIP not loaded — storing character without face embedding; face recognition disabled"
+            );
             Vec::new()
         };
 
@@ -418,7 +461,9 @@ impl CharacterLibrary {
                     return matches;
                 }
                 Ok(_) => {
-                    tracing::debug!("face detector found no faces on page — falling back to full-library context");
+                    tracing::debug!(
+                        "face detector found no faces on page — falling back to full-library context"
+                    );
                 }
                 Err(e) => {
                     tracing::warn!(error = %e, "face detection failed — falling back to full-library context");
@@ -498,7 +543,11 @@ impl CharacterLibrary {
 
         let mut lines = vec!["Cast of this series (context only — do NOT prefix translated lines with character names):".to_string()];
         for entry in entries.iter() {
-            lines.push(describe_character(&entry.name, &entry.traits, &entry.relations));
+            lines.push(describe_character(
+                &entry.name,
+                &entry.traits,
+                &entry.relations,
+            ));
         }
         Some(lines.join("\n"))
     }
@@ -549,9 +598,9 @@ impl CharacterLibrary {
                 let debug_mode = std::env::var("KOHARU_DEBUG_SCAN").is_ok();
                 let debug_cell = std::cell::RefCell::new(Vec::<DebugScanEntry>::new());
 
-                    // ─── Phase 3: CCIP match + gender fallback ───────────────────────────────
+                // ─── Phase 3: CCIP match + gender fallback ───────────────────────────────
 
-                    let results: Vec<(String, Option<FaceMatch>)> = geoms
+                let results: Vec<(String, Option<FaceMatch>)> = geoms
                         .iter()
                         .map(|g| {
                             // Narration/SFX or balloon outside all panels.
@@ -658,13 +707,12 @@ impl CharacterLibrary {
                         })
                         .collect();
 
-                    if debug_mode {
-                        let debug_entries = debug_cell.into_inner();
-                        save_debug_scan(image, &face_data, &debug_entries, panels);
-                    }
+                if debug_mode {
+                    let debug_entries = debug_cell.into_inner();
+                    save_debug_scan(image, &face_data, &debug_entries, panels);
+                }
 
-                    return results;
-
+                return results;
             }
         }
 
@@ -713,7 +761,9 @@ impl CharacterLibrary {
                     return sort_manga_reading_order(panels);
                 }
                 Ok(_) => {
-                    tracing::warn!("panel detection: ML returned 0 panels — falling back to heuristic");
+                    tracing::warn!(
+                        "panel detection: ML returned 0 panels — falling back to heuristic"
+                    );
                 }
                 Err(e) => {
                     tracing::warn!(error = %e, "panel detection: ML failed — falling back to heuristic");
@@ -962,118 +1012,115 @@ fn locate_speaker_faces(
     blocks: &[(String, f32, f32, f32, f32)],
     balloons: &[(f32, f32, f32, f32)],
     panels: &[(f32, f32, f32, f32)],
-) -> (Vec<BlockGeom>, Vec<(FaceBox, f32, f32, Vec<f32>)>, Vec<Option<usize>>) {
-            // Run face detection per panel so each panel fills the 640×640 detector
-            // input.  On the full-page pass small faces in large panels are scaled down
-            // too much and missed; cropping brings them to a detectable size.
-            let face_boxes: Vec<FaceBox> = {
-                let mut all: Vec<FaceBox> = Vec::new();
-                for (px, py, pw, ph) in panels.iter() {
-                    let cx = px.max(0.0) as u32;
-                    let cy = py.max(0.0) as u32;
-                    let cw = (pw.max(0.0) as u32).min(image.width().saturating_sub(cx));
-                    let ch = (ph.max(0.0) as u32).min(image.height().saturating_sub(cy));
-                    if cw < 16 || ch < 16 {
-                        continue;
-                    }
-                    let crop = image.crop_imm(cx, cy, cw, ch);
-                    if let Ok(high_faces) = detect_faces(face_det, &crop) {
-                        // Always run a second pass at low threshold to catch faces the
-                        // normal threshold misses (unusual angles, art style, elderly
-                        // characters, etc.).  Merge the two lists, keeping only new
-                        // detections that don't overlap (IOU < 0.3) with an existing one.
-                        let mut faces = high_faces;
-                        if let Ok(low_faces) = detect_faces_threshold(face_det, &crop, 0.15) {
-                            for lf in low_faces {
-                                let overlaps = faces.iter().any(|hf| {
-                                    let ix = (lf.x + lf.width).min(hf.x + hf.width)
-                                        - lf.x.max(hf.x);
-                                    let iy = (lf.y + lf.height).min(hf.y + hf.height)
-                                        - lf.y.max(hf.y);
-                                    if ix <= 0.0 || iy <= 0.0 {
-                                        return false;
-                                    }
-                                    let inter = ix * iy;
-                                    let union = lf.width * lf.height
-                                        + hf.width * hf.height
-                                        - inter;
-                                    inter / union > 0.3
-                                });
-                                if !overlaps {
-                                    faces.push(lf);
-                                }
+) -> (
+    Vec<BlockGeom>,
+    Vec<(FaceBox, f32, f32, Vec<f32>)>,
+    Vec<Option<usize>>,
+) {
+    // Run face detection per panel so each panel fills the 640×640 detector
+    // input.  On the full-page pass small faces in large panels are scaled down
+    // too much and missed; cropping brings them to a detectable size.
+    let face_boxes: Vec<FaceBox> = {
+        let mut all: Vec<FaceBox> = Vec::new();
+        for (px, py, pw, ph) in panels.iter() {
+            let cx = px.max(0.0) as u32;
+            let cy = py.max(0.0) as u32;
+            let cw = (pw.max(0.0) as u32).min(image.width().saturating_sub(cx));
+            let ch = (ph.max(0.0) as u32).min(image.height().saturating_sub(cy));
+            if cw < 16 || ch < 16 {
+                continue;
+            }
+            let crop = image.crop_imm(cx, cy, cw, ch);
+            if let Ok(high_faces) = detect_faces(face_det, &crop) {
+                // Always run a second pass at low threshold to catch faces the
+                // normal threshold misses (unusual angles, art style, elderly
+                // characters, etc.).  Merge the two lists, keeping only new
+                // detections that don't overlap (IOU < 0.3) with an existing one.
+                let mut faces = high_faces;
+                if let Ok(low_faces) = detect_faces_threshold(face_det, &crop, 0.15) {
+                    for lf in low_faces {
+                        let overlaps = faces.iter().any(|hf| {
+                            let ix = (lf.x + lf.width).min(hf.x + hf.width) - lf.x.max(hf.x);
+                            let iy = (lf.y + lf.height).min(hf.y + hf.height) - lf.y.max(hf.y);
+                            if ix <= 0.0 || iy <= 0.0 {
+                                return false;
                             }
+                            let inter = ix * iy;
+                            let union = lf.width * lf.height + hf.width * hf.height - inter;
+                            inter / union > 0.3
+                        });
+                        if !overlaps {
+                            faces.push(lf);
                         }
-                        if faces.len() > 0 {
-                            tracing::info!(
-                                panel_x = cx, panel_y = cy,
-                                count = faces.len(),
-                                "panel faces detected (merged high+low threshold)"
-                            );
-                        }
-                        for fb in &mut faces {
-                            fb.x += cx as f32;
-                            fb.y += cy as f32;
-                        }
-                        all.extend(faces);
                     }
                 }
-                all
-            };
-            tracing::info!(
-                result = format!("ok faces={}", face_boxes.len()),
-                "face detection result (per-panel)"
-            );
-            if !face_boxes.is_empty() {
-                    // Embed all faces sequentially; store box + absolute pixel centre + embedding.
-                    // (FaceBox is kept so we can re-crop for gender classification.)
-                    let face_data: Vec<(FaceBox, f32, f32, Vec<f32>)> = face_boxes
-                        .iter()
-                        .filter_map(|b| {
-                            let crop = crop_face(image, b);
-                            let emb = embed_face(ccip, &crop).ok()?;
-                            let cx = b.x + b.width / 2.0;
-                            let cy = b.y + b.height / 2.0;
-                            Some((b.clone(), cx, cy, emb))
-                        })
-                        .collect();
-
-                    // Pre-group faces by panel index for fast per-panel lookup.
-                    // face_panel_idx[i] = Some(panel_index) or None if face is outside all panels.
-                    let face_panel_idx: Vec<Option<usize>> = face_data
-                        .iter()
-                        .map(|(_, fcx, fcy, _)| {
-                            panels.iter().position(|(px, py, pw, ph)| {
-                                *fcx >= *px
-                                    && *fcx <= px + pw
-                                    && *fcy >= *py
-                                    && *fcy <= py + ph
-                            })
-                        })
-                        .collect();
-
+                if faces.len() > 0 {
                     tracing::info!(
-                        total_faces = face_data.len(),
-                        faces_per_panel = ?face_panel_idx.iter().enumerate()
-                            .map(|(i, p)| format!("face{}→panel{:?}", i, p))
-                            .collect::<Vec<_>>(),
-                        "speaker assign: face-panel grouping"
+                        panel_x = cx,
+                        panel_y = cy,
+                        count = faces.len(),
+                        "panel faces detected (merged high+low threshold)"
                     );
-                    // Keep a ref to face_data for borrow in the block closure below.
-                    let face_data_ref = &face_data;
+                }
+                for fb in &mut faces {
+                    fb.x += cx as f32;
+                    fb.y += cy as f32;
+                }
+                all.extend(faces);
+            }
+        }
+        all
+    };
+    tracing::info!(
+        result = format!("ok faces={}", face_boxes.len()),
+        "face detection result (per-panel)"
+    );
+    if !face_boxes.is_empty() {
+        // Embed all faces sequentially; store box + absolute pixel centre + embedding.
+        // (FaceBox is kept so we can re-crop for gender classification.)
+        let face_data: Vec<(FaceBox, f32, f32, Vec<f32>)> = face_boxes
+            .iter()
+            .filter_map(|b| {
+                let crop = crop_face(image, b);
+                let emb = embed_face(ccip, &crop).ok()?;
+                let cx = b.x + b.width / 2.0;
+                let cy = b.y + b.height / 2.0;
+                Some((b.clone(), cx, cy, emb))
+            })
+            .collect();
 
-                    // Pre-convert image to grayscale once; used for balloon tail detection
-                    // inside the per-block closure below.
-                    let page_gray = image.to_luma8();
+        // Pre-group faces by panel index for fast per-panel lookup.
+        // face_panel_idx[i] = Some(panel_index) or None if face is outside all panels.
+        let face_panel_idx: Vec<Option<usize>> = face_data
+            .iter()
+            .map(|(_, fcx, fcy, _)| {
+                panels.iter().position(|(px, py, pw, ph)| {
+                    *fcx >= *px && *fcx <= px + pw && *fcy >= *py && *fcy <= py + ph
+                })
+            })
+            .collect();
 
-                    // ─── Phase 1: per-block geometry (balloon → panel → nearest face) ─────
-                    //
-                    // Compute which face each block would choose, plus the match type and
-                    // score, WITHOUT running CCIP yet.  This lets Phase 2 resolve conflicts
-                    // before we pay for any embedding comparisons.
+        tracing::info!(
+            total_faces = face_data.len(),
+            faces_per_panel = ?face_panel_idx.iter().enumerate()
+                .map(|(i, p)| format!("face{}→panel{:?}", i, p))
+                .collect::<Vec<_>>(),
+            "speaker assign: face-panel grouping"
+        );
+        // Keep a ref to face_data for borrow in the block closure below.
+        let face_data_ref = &face_data;
 
+        // Pre-convert image to grayscale once; used for balloon tail detection
+        // inside the per-block closure below.
+        let page_gray = image.to_luma8();
 
-                    let mut geoms: Vec<BlockGeom> = blocks
+        // ─── Phase 1: per-block geometry (balloon → panel → nearest face) ─────
+        //
+        // Compute which face each block would choose, plus the match type and
+        // score, WITHOUT running CCIP yet.  This lets Phase 2 resolve conflicts
+        // before we pay for any embedding comparisons.
+
+        let mut geoms: Vec<BlockGeom> = blocks
                         .iter()
                         .enumerate()
                         .map(|(block_idx, (id, x, y, w, h))| {
@@ -1337,106 +1384,105 @@ fn locate_speaker_faces(
                         })
                         .collect();
 
-                    // ─── Phase 2: face deduplication per panel ───────────────────────────────
-                    //
-                    // Each detected face may be claimed by at most ONE balloon per panel.
-                    // When more balloons compete for the same face (panel has fewer detected
-                    // faces than speakers), the winner is chosen by:
-                    //   1. tail-ray match (stronger geometric evidence)
-                    //   2. lowest geometry score (closer / better aligned)
-                    // Losers have their face_idx cleared → they fall through to gender in P3.
-                    {
-                        let mut contested: std::collections::HashMap<(usize, usize), Vec<usize>> =
-                            std::collections::HashMap::new();
-                        for (gi, g) in geoms.iter().enumerate() {
-                            if let (Some(pidx), Some(fidx)) = (g.panel_idx, g.face_idx) {
-                                contested.entry((pidx, fidx)).or_default().push(gi);
-                            }
-                        }
-                        for ((pidx, _fidx), claimants) in &contested {
-                            if claimants.len() <= 1 {
-                                continue;
-                            }
-                            // ── Step 3: single-character panel → all balloons share that face ──
-                            // Count how many distinct faces are in this panel.
-                            let faces_in_this_panel = face_panel_idx
-                                .iter()
-                                .filter(|&&p| p == Some(*pidx))
-                                .count();
-                            if faces_in_this_panel <= 1 {
-                                tracing::info!(
-                                    panel_idx = pidx,
-                                    "Step 3: single face in panel — all balloons keep same face"
-                                );
-                                continue;
-                            }
-                            // Winner = highest priority (tail-ray bit, then lowest score).
-                            let winner = *claimants
-                                .iter()
-                                .max_by(|&&a, &&b| {
-                                    let ga = &geoms[a];
-                                    let gb = &geoms[b];
-                                    let ra = u8::from(ga.used_tail_ray);
-                                    let rb = u8::from(gb.used_tail_ray);
-                                    ra.cmp(&rb).then_with(|| {
-                                        // Lower score wins; reverse comparison for max_by.
-                                        gb.score
-                                            .partial_cmp(&ga.score)
-                                            .unwrap_or(std::cmp::Ordering::Equal)
-                                    })
-                                })
-                                .unwrap();
-                            // Collect all faces in this panel sorted by index.
-                            let panel_faces_sorted: Vec<usize> = face_panel_idx
-                                .iter()
-                                .enumerate()
-                                .filter(|(_, p)| **p == Some(*pidx))
-                                .map(|(i, _)| i)
-                                .collect();
+        // ─── Phase 2: face deduplication per panel ───────────────────────────────
+        //
+        // Each detected face may be claimed by at most ONE balloon per panel.
+        // When more balloons compete for the same face (panel has fewer detected
+        // faces than speakers), the winner is chosen by:
+        //   1. tail-ray match (stronger geometric evidence)
+        //   2. lowest geometry score (closer / better aligned)
+        // Losers have their face_idx cleared → they fall through to gender in P3.
+        {
+            let mut contested: std::collections::HashMap<(usize, usize), Vec<usize>> =
+                std::collections::HashMap::new();
+            for (gi, g) in geoms.iter().enumerate() {
+                if let (Some(pidx), Some(fidx)) = (g.panel_idx, g.face_idx) {
+                    contested.entry((pidx, fidx)).or_default().push(gi);
+                }
+            }
+            for ((pidx, _fidx), claimants) in &contested {
+                if claimants.len() <= 1 {
+                    continue;
+                }
+                // ── Step 3: single-character panel → all balloons share that face ──
+                // Count how many distinct faces are in this panel.
+                let faces_in_this_panel =
+                    face_panel_idx.iter().filter(|&&p| p == Some(*pidx)).count();
+                if faces_in_this_panel <= 1 {
+                    tracing::info!(
+                        panel_idx = pidx,
+                        "Step 3: single face in panel — all balloons keep same face"
+                    );
+                    continue;
+                }
+                // Winner = highest priority (tail-ray bit, then lowest score).
+                let winner = *claimants
+                    .iter()
+                    .max_by(|&&a, &&b| {
+                        let ga = &geoms[a];
+                        let gb = &geoms[b];
+                        let ra = u8::from(ga.used_tail_ray);
+                        let rb = u8::from(gb.used_tail_ray);
+                        ra.cmp(&rb).then_with(|| {
+                            // Lower score wins; reverse comparison for max_by.
+                            gb.score
+                                .partial_cmp(&ga.score)
+                                .unwrap_or(std::cmp::Ordering::Equal)
+                        })
+                    })
+                    .unwrap();
+                // Collect all faces in this panel sorted by index.
+                let panel_faces_sorted: Vec<usize> = face_panel_idx
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, p)| **p == Some(*pidx))
+                    .map(|(i, _)| i)
+                    .collect();
 
-                            // Track which face is claimed by the winner so losers
-                            // can be redirected to the next-best unclaimed face.
-                            let winner_face = geoms[winner].face_idx;
+                // Track which face is claimed by the winner so losers
+                // can be redirected to the next-best unclaimed face.
+                let winner_face = geoms[winner].face_idx;
 
-                            for &gi in claimants {
-                                if gi != winner {
-                                    // Try to assign the loser to the closest unclaimed face.
-                                    let g = &geoms[gi];
-                                    let (bbal_x, bbal_y, bbal_w, bbal_h) =
-                                        g.balloon_box.unwrap_or((0.0, 0.0, 0.0, 0.0));
-                                    let bcx = bbal_x + bbal_w / 2.0;
-                                    let bcy = bbal_y + bbal_h / 2.0;
-                                    let alt_face = panel_faces_sorted.iter()
-                                        .filter(|&&fi| Some(fi) != winner_face)
-                                        .min_by(|&&a, &&b| {
-                                            let (_, fcx_a, fcy_a, _) = &face_data_ref[a];
-                                            let (_, fcx_b, fcy_b, _) = &face_data_ref[b];
-                                            let da = ((*fcx_a - bcx).powi(2) + (*fcy_a - bcy).powi(2)).sqrt();
-                                            let db = ((*fcx_b - bcx).powi(2) + (*fcy_b - bcy).powi(2)).sqrt();
-                                            da.partial_cmp(&db).unwrap_or(std::cmp::Ordering::Equal)
-                                        })
-                                        .copied();
-                                    if let Some(alt) = alt_face {
-                                        tracing::info!(
-                                            block_id = %geoms[gi].id,
-                                            alt_face_idx = alt,
-                                            "face deduped — reassigned to next-best face"
-                                        );
-                                        geoms[gi].face_idx = Some(alt);
-                                    } else {
-                                        tracing::info!(
-                                            block_id = %geoms[gi].id,
-                                            "face deduped — no alt face, falling back to gender"
-                                        );
-                                        geoms[gi].face_idx = None;
-                                    }
-                                }
-                            }
+                for &gi in claimants {
+                    if gi != winner {
+                        // Try to assign the loser to the closest unclaimed face.
+                        let g = &geoms[gi];
+                        let (bbal_x, bbal_y, bbal_w, bbal_h) =
+                            g.balloon_box.unwrap_or((0.0, 0.0, 0.0, 0.0));
+                        let bcx = bbal_x + bbal_w / 2.0;
+                        let bcy = bbal_y + bbal_h / 2.0;
+                        let alt_face = panel_faces_sorted
+                            .iter()
+                            .filter(|&&fi| Some(fi) != winner_face)
+                            .min_by(|&&a, &&b| {
+                                let (_, fcx_a, fcy_a, _) = &face_data_ref[a];
+                                let (_, fcx_b, fcy_b, _) = &face_data_ref[b];
+                                let da = ((*fcx_a - bcx).powi(2) + (*fcy_a - bcy).powi(2)).sqrt();
+                                let db = ((*fcx_b - bcx).powi(2) + (*fcy_b - bcy).powi(2)).sqrt();
+                                da.partial_cmp(&db).unwrap_or(std::cmp::Ordering::Equal)
+                            })
+                            .copied();
+                        if let Some(alt) = alt_face {
+                            tracing::info!(
+                                block_id = %geoms[gi].id,
+                                alt_face_idx = alt,
+                                "face deduped — reassigned to next-best face"
+                            );
+                            geoms[gi].face_idx = Some(alt);
+                        } else {
+                            tracing::info!(
+                                block_id = %geoms[gi].id,
+                                "face deduped — no alt face, falling back to gender"
+                            );
+                            geoms[gi].face_idx = None;
                         }
                     }
-
-                return (geoms, face_data, face_panel_idx);
+                }
             }
+        }
+
+        return (geoms, face_data, face_panel_idx);
+    }
 
     (Vec::new(), Vec::new(), Vec::new())
 }
@@ -1499,7 +1545,11 @@ fn detect_faces(face_det: &Mutex<Session>, image: &DynamicImage) -> Result<Vec<F
     detect_faces_threshold(face_det, image, FACE_CONF_THRESHOLD)
 }
 
-fn detect_faces_threshold(face_det: &Mutex<Session>, image: &DynamicImage, threshold: f32) -> Result<Vec<FaceBox>> {
+fn detect_faces_threshold(
+    face_det: &Mutex<Session>,
+    image: &DynamicImage,
+    threshold: f32,
+) -> Result<Vec<FaceBox>> {
     let orig_w = image.width();
     let orig_h = image.height();
     let scale_x = orig_w as f32 / FACE_SIZE as f32;
@@ -1546,8 +1596,15 @@ fn detect_faces_threshold(face_det: &Mutex<Session>, image: &DynamicImage, thres
                 if conf < threshold {
                     continue;
                 }
-                let (cx, cy, bw, bh) = (view[[0, 0, i]], view[[0, 1, i]], view[[0, 2, i]], view[[0, 3, i]]);
-                candidates.push(scale_box(cx, cy, bw, bh, conf, scale_x, scale_y, orig_w, orig_h));
+                let (cx, cy, bw, bh) = (
+                    view[[0, 0, i]],
+                    view[[0, 1, i]],
+                    view[[0, 2, i]],
+                    view[[0, 3, i]],
+                );
+                candidates.push(scale_box(
+                    cx, cy, bw, bh, conf, scale_x, scale_y, orig_w, orig_h,
+                ));
             }
         } else if dim2 >= 5 {
             // [1, N, >=5]
@@ -1557,8 +1614,15 @@ fn detect_faces_threshold(face_det: &Mutex<Session>, image: &DynamicImage, thres
                 if conf < threshold {
                     continue;
                 }
-                let (cx, cy, bw, bh) = (view[[0, i, 0]], view[[0, i, 1]], view[[0, i, 2]], view[[0, i, 3]]);
-                candidates.push(scale_box(cx, cy, bw, bh, conf, scale_x, scale_y, orig_w, orig_h));
+                let (cx, cy, bw, bh) = (
+                    view[[0, i, 0]],
+                    view[[0, i, 1]],
+                    view[[0, i, 2]],
+                    view[[0, i, 3]],
+                );
+                candidates.push(scale_box(
+                    cx, cy, bw, bh, conf, scale_x, scale_y, orig_w, orig_h,
+                ));
             }
         }
     }
@@ -1567,8 +1631,15 @@ fn detect_faces_threshold(face_det: &Mutex<Session>, image: &DynamicImage, thres
 }
 
 fn scale_box(
-    cx: f32, cy: f32, bw: f32, bh: f32, score: f32,
-    sx: f32, sy: f32, img_w: u32, img_h: u32,
+    cx: f32,
+    cy: f32,
+    bw: f32,
+    bh: f32,
+    score: f32,
+    sx: f32,
+    sy: f32,
+    img_w: u32,
+    img_h: u32,
 ) -> FaceBox {
     FaceBox {
         x: ((cx - bw / 2.0) * sx).max(0.0),
@@ -1580,7 +1651,11 @@ fn scale_box(
 }
 
 fn nms_boxes(mut candidates: Vec<FaceBox>, iou_threshold: f32) -> Vec<FaceBox> {
-    candidates.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    candidates.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     let mut suppressed = vec![false; candidates.len()];
     for i in 0..candidates.len() {
         if suppressed[i] {
@@ -1624,8 +1699,12 @@ fn crop_face(image: &DynamicImage, bbox: &FaceBox) -> DynamicImage {
     let my = bbox.height * FACE_CROP_MARGIN;
     let x = (bbox.x - mx).max(0.0) as u32;
     let y = (bbox.y - my).max(0.0) as u32;
-    let w = ((bbox.width + 2.0 * mx) as u32).min(image.width().saturating_sub(x)).max(1);
-    let h = ((bbox.height + 2.0 * my) as u32).min(image.height().saturating_sub(y)).max(1);
+    let w = ((bbox.width + 2.0 * mx) as u32)
+        .min(image.width().saturating_sub(x))
+        .max(1);
+    let h = ((bbox.height + 2.0 * my) as u32)
+        .min(image.height().saturating_sub(y))
+        .max(1);
     image.crop_imm(x, y, w, h)
 }
 
@@ -1634,11 +1713,11 @@ fn crop_face(image: &DynamicImage, bbox: &FaceBox) -> DynamicImage {
 /// One entry per balloon block: the face that was selected (if any) plus
 /// the geometry used for debugging.
 struct DebugScanEntry {
-    block_idx:    usize,
-    char_name:    String,
-    balloon_box:  (f32, f32, f32, f32), // (x, y, w, h) pixels
-    tail_dir:     Option<(f32, f32)>,
-    face_box:     Option<FaceBox>,      // None when no candidate face was found
+    block_idx: usize,
+    char_name: String,
+    balloon_box: (f32, f32, f32, f32), // (x, y, w, h) pixels
+    tail_dir: Option<(f32, f32)>,
+    face_box: Option<FaceBox>, // None when no candidate face was found
 }
 
 /// When the environment variable `KOHARU_DEBUG_SCAN` is set, save two kinds
@@ -1667,24 +1746,24 @@ fn save_debug_scan(
     let (img_w, img_h) = (overview.width() as i32, overview.height() as i32);
 
     // Draw all face boxes in cyan.
-    let cyan    = Rgb([0u8,   220u8, 220u8]);
-    let yellow  = Rgb([255u8, 220u8, 0u8]);
-    let magenta = Rgb([220u8, 0u8,   220u8]);
-    let green   = Rgb([0u8,   220u8, 0u8]);
-    let red     = Rgb([220u8, 0u8,   0u8]);
+    let cyan = Rgb([0u8, 220u8, 220u8]);
+    let yellow = Rgb([255u8, 220u8, 0u8]);
+    let magenta = Rgb([220u8, 0u8, 220u8]);
+    let green = Rgb([0u8, 220u8, 0u8]);
+    let red = Rgb([220u8, 0u8, 0u8]);
 
     // Panel colour palette — 10 distinct colours, cycling for more panels.
     let panel_colors: [Rgb<u8>; 10] = [
-        Rgb([255, 80,  80 ]),  // 0 red
-        Rgb([255, 165, 0  ]),  // 1 orange
-        Rgb([255, 255, 0  ]),  // 2 yellow
-        Rgb([0,   200, 60 ]),  // 3 green
-        Rgb([0,   180, 255]),  // 4 sky-blue
-        Rgb([0,   80,  255]),  // 5 blue
-        Rgb([160, 0,   255]),  // 6 violet
-        Rgb([255, 0,   180]),  // 7 pink
-        Rgb([255, 255, 255]),  // 8 white
-        Rgb([180, 255, 180]),  // 9 mint
+        Rgb([255, 80, 80]),   // 0 red
+        Rgb([255, 165, 0]),   // 1 orange
+        Rgb([255, 255, 0]),   // 2 yellow
+        Rgb([0, 200, 60]),    // 3 green
+        Rgb([0, 180, 255]),   // 4 sky-blue
+        Rgb([0, 80, 255]),    // 5 blue
+        Rgb([160, 0, 255]),   // 6 violet
+        Rgb([255, 0, 180]),   // 7 pink
+        Rgb([255, 255, 255]), // 8 white
+        Rgb([180, 255, 180]), // 9 mint
     ];
 
     // Draw panel outlines (thick = 3px) before everything else so they appear
@@ -1694,10 +1773,10 @@ fn save_debug_scan(
         for off in 0i32..3 {
             let rx = (*px as i32 + off).max(0);
             let ry = (*py as i32 + off).max(0);
-            let rw = ((*pw as i32 - 2 * off) as u32)
-                .min(overview.width().saturating_sub(rx as u32));
-            let rh = ((*ph as i32 - 2 * off) as u32)
-                .min(overview.height().saturating_sub(ry as u32));
+            let rw =
+                ((*pw as i32 - 2 * off) as u32).min(overview.width().saturating_sub(rx as u32));
+            let rh =
+                ((*ph as i32 - 2 * off) as u32).min(overview.height().saturating_sub(ry as u32));
             if rw > 0 && rh > 0 {
                 draw_hollow_rect_mut(&mut overview, Rect::at(rx, ry).of_size(rw, rh), col);
             }
@@ -1726,8 +1805,7 @@ fn save_debug_scan(
     );
 
     for (fb, _, _, _) in face_data {
-        let r = Rect::at(fb.x as i32, fb.y as i32)
-            .of_size(fb.width as u32, fb.height as u32);
+        let r = Rect::at(fb.x as i32, fb.y as i32).of_size(fb.width as u32, fb.height as u32);
         draw_hollow_rect_mut(&mut overview, r, cyan);
     }
 
@@ -1742,14 +1820,12 @@ fn save_debug_scan(
             for off in 0i32..=1 {
                 let rx = (fb.x as i32 - off).max(0);
                 let ry = (fb.y as i32 - off).max(0);
-                let rw = ((fb.width as i32 + 2 * off) as u32).min(overview.width().saturating_sub(rx as u32));
-                let rh = ((fb.height as i32 + 2 * off) as u32).min(overview.height().saturating_sub(ry as u32));
+                let rw = ((fb.width as i32 + 2 * off) as u32)
+                    .min(overview.width().saturating_sub(rx as u32));
+                let rh = ((fb.height as i32 + 2 * off) as u32)
+                    .min(overview.height().saturating_sub(ry as u32));
                 if rw > 0 && rh > 0 {
-                    draw_hollow_rect_mut(
-                        &mut overview,
-                        Rect::at(rx, ry).of_size(rw, rh),
-                        yellow,
-                    );
+                    draw_hollow_rect_mut(&mut overview, Rect::at(rx, ry).of_size(rw, rh), yellow);
                 }
             }
         }
@@ -1777,11 +1853,15 @@ fn save_debug_scan(
             let ey = (cy + dy * arrow_len).clamp(0.0, img_h as f32 - 1.0);
 
             // Green if the face-in-tail-direction check passed, red if fallback.
-            let used_ray = e.face_box.as_ref().map(|fb| {
-                let fcx = fb.x + fb.width / 2.0;
-                let fcy = fb.y + fb.height / 2.0;
-                (fcx - cx) * dx + (fcy - cy) * dy > 0.0
-            }).unwrap_or(false);
+            let used_ray = e
+                .face_box
+                .as_ref()
+                .map(|fb| {
+                    let fcx = fb.x + fb.width / 2.0;
+                    let fcy = fb.y + fb.height / 2.0;
+                    (fcx - cx) * dx + (fcy - cy) * dy > 0.0
+                })
+                .unwrap_or(false);
             let arrow_col = if used_ray { green } else { red };
 
             for i in -1i32..=1 {
@@ -1836,7 +1916,9 @@ fn load_wd_tagger() -> Option<WdTaggerModel> {
     let session = match load_session_opt(model_path) {
         Some(s) => s,
         None => {
-            tracing::info!("WD Tagger model not found — unknown characters shown as 'Unknown character'. Download wd_tagger.onnx + wd_tagger_tags.csv to ~/.cache/koharu/models/");
+            tracing::info!(
+                "WD Tagger model not found — unknown characters shown as 'Unknown character'. Download wd_tagger.onnx + wd_tagger_tags.csv to ~/.cache/koharu/models/"
+            );
             return None;
         }
     };
@@ -1844,7 +1926,10 @@ fn load_wd_tagger() -> Option<WdTaggerModel> {
     let csv = match std::fs::read_to_string(&tags_path) {
         Ok(c) => c,
         Err(_) => {
-            tracing::info!("WD Tagger tags CSV not found ({}), tagger disabled.", tags_path.display());
+            tracing::info!(
+                "WD Tagger tags CSV not found ({}), tagger disabled.",
+                tags_path.display()
+            );
             return None;
         }
     };
@@ -1941,12 +2026,22 @@ fn wd_tagger_probs(model: &WdTaggerModel, crop: &DynamicImage) -> Result<Vec<f32
     let resized = {
         let (w, h) = (crop.width(), crop.height());
         let max_side = w.max(h);
-        let mut canvas = image::RgbImage::from_pixel(max_side, max_side, image::Rgb([255u8, 255, 255]));
+        let mut canvas =
+            image::RgbImage::from_pixel(max_side, max_side, image::Rgb([255u8, 255, 255]));
         let offset_x = (max_side - w) / 2;
         let offset_y = (max_side - h) / 2;
-        image::imageops::overlay(&mut canvas, &crop.to_rgb8(), offset_x as i64, offset_y as i64);
+        image::imageops::overlay(
+            &mut canvas,
+            &crop.to_rgb8(),
+            offset_x as i64,
+            offset_y as i64,
+        );
         image::DynamicImage::ImageRgb8(canvas)
-            .resize_exact(WD_TAGGER_SIZE, WD_TAGGER_SIZE, imageops::FilterType::Lanczos3)
+            .resize_exact(
+                WD_TAGGER_SIZE,
+                WD_TAGGER_SIZE,
+                imageops::FilterType::Lanczos3,
+            )
             .to_rgb8()
     };
 
@@ -1954,7 +2049,7 @@ fn wd_tagger_probs(model: &WdTaggerModel, crop: &DynamicImage) -> Result<Vec<f32
     let mut data = vec![0f32; s * s * 3];
     for (x, y, pixel) in resized.enumerate_pixels() {
         let base = (y as usize * s + x as usize) * 3;
-        data[base]     = pixel[2] as f32; // B
+        data[base] = pixel[2] as f32; // B
         data[base + 1] = pixel[1] as f32; // G
         data[base + 2] = pixel[0] as f32; // R
     }
@@ -1962,7 +2057,9 @@ fn wd_tagger_probs(model: &WdTaggerModel, crop: &DynamicImage) -> Result<Vec<f32
     let array = ndarray::Array::from_shape_vec([1usize, s, s, 3], data)?;
     let input_tensor = ort::value::Tensor::from_array(array)?;
 
-    let mut session = model.session.lock()
+    let mut session = model
+        .session
+        .lock()
         .map_err(|_| anyhow::anyhow!("WD Tagger mutex poisoned"))?;
     let input_name = session.inputs()[0].name().to_string();
     let outputs = session.run(ort::inputs! { input_name.as_str() => input_tensor })?;
@@ -1973,28 +2070,41 @@ fn wd_tagger_probs(model: &WdTaggerModel, crop: &DynamicImage) -> Result<Vec<f32
 
 /// Score for each category = max probability among matching tag indices.
 fn wd_tag_score(probs: &[f32], indices: &[usize]) -> f32 {
-    indices.iter().map(|&i| probs.get(i).copied().unwrap_or(0.0)).fold(0.0_f32, f32::max)
+    indices
+        .iter()
+        .map(|&i| probs.get(i).copied().unwrap_or(0.0))
+        .fold(0.0_f32, f32::max)
 }
 
 fn classify_with_wd_tagger(model: &WdTaggerModel, crop: &DynamicImage) -> Result<String> {
     let probs = wd_tagger_probs(model, crop)?;
 
-    let male_score   = wd_tag_score(&probs, &model.male_indices);
+    let male_score = wd_tag_score(&probs, &model.male_indices);
     let female_score = wd_tag_score(&probs, &model.female_indices);
-    let child_score  = wd_tag_score(&probs, &model.child_indices);
-    let teen_score   = wd_tag_score(&probs, &model.teen_indices);
-    let elder_score  = wd_tag_score(&probs, &model.elder_indices);
+    let child_score = wd_tag_score(&probs, &model.child_indices);
+    let teen_score = wd_tag_score(&probs, &model.teen_indices);
+    let elder_score = wd_tag_score(&probs, &model.elder_indices);
 
     tracing::info!(
-        male = male_score, female = female_score,
-        child = child_score, teen = teen_score, elder = elder_score,
+        male = male_score,
+        female = female_score,
+        child = child_score,
+        teen = teen_score,
+        elder = elder_score,
         "WD Tagger scores"
     );
 
-    let gender = if male_score >= female_score { "Male" } else { "Female" };
+    let gender = if male_score >= female_score {
+        "Male"
+    } else {
+        "Female"
+    };
 
     // Determine age group from the highest-scoring age tag (above threshold).
-    let age_label = if child_score >= AGE_THRESHOLD && child_score >= teen_score && child_score >= elder_score {
+    let age_label = if child_score >= AGE_THRESHOLD
+        && child_score >= teen_score
+        && child_score >= elder_score
+    {
         Some("Young")
     } else if teen_score >= AGE_THRESHOLD && teen_score >= elder_score {
         Some("Teenage")
@@ -2024,16 +2134,26 @@ fn classify_with_wd_tagger(model: &WdTaggerModel, crop: &DynamicImage) -> Result
 fn classify_gender_age(model: &WdTaggerModel, crop: &DynamicImage) -> Result<(String, String)> {
     let probs = wd_tagger_probs(model, crop)?;
 
-    let male_score       = wd_tag_score(&probs, &model.male_indices);
-    let female_score     = wd_tag_score(&probs, &model.female_indices);
-    let child_score      = wd_tag_score(&probs, &model.child_indices);
-    let teen_score        = wd_tag_score(&probs, &model.teen_indices);
-    let elder_score       = wd_tag_score(&probs, &model.elder_indices);
-    let middle_age_score  = wd_tag_score(&probs, &model.middle_age_indices);
-    let adult_score       = wd_tag_score(&probs, &model.adult_indices);
+    let male_score = wd_tag_score(&probs, &model.male_indices);
+    let female_score = wd_tag_score(&probs, &model.female_indices);
+    let child_score = wd_tag_score(&probs, &model.child_indices);
+    let teen_score = wd_tag_score(&probs, &model.teen_indices);
+    let elder_score = wd_tag_score(&probs, &model.elder_indices);
+    let middle_age_score = wd_tag_score(&probs, &model.middle_age_indices);
+    let adult_score = wd_tag_score(&probs, &model.adult_indices);
 
-    let gender = if male_score >= female_score { "male" } else { "female" };
-    let age_group = age_bucket_from_scores(child_score, teen_score, elder_score, middle_age_score, adult_score);
+    let gender = if male_score >= female_score {
+        "male"
+    } else {
+        "female"
+    };
+    let age_group = age_bucket_from_scores(
+        child_score,
+        teen_score,
+        elder_score,
+        middle_age_score,
+        adult_score,
+    );
 
     Ok((gender.to_string(), age_group.to_string()))
 }
@@ -2055,9 +2175,16 @@ fn age_bucket_from_scores(
         && child_score >= adult_score
     {
         "child"
-    } else if teen_score >= AGE_THRESHOLD && teen_score >= elder_score && teen_score >= middle_age_score && teen_score >= adult_score {
+    } else if teen_score >= AGE_THRESHOLD
+        && teen_score >= elder_score
+        && teen_score >= middle_age_score
+        && teen_score >= adult_score
+    {
         "teen"
-    } else if elder_score >= AGE_THRESHOLD && elder_score >= middle_age_score && elder_score >= adult_score {
+    } else if elder_score >= AGE_THRESHOLD
+        && elder_score >= middle_age_score
+        && elder_score >= adult_score
+    {
         "elder"
     } else if middle_age_score >= AGE_THRESHOLD && middle_age_score >= adult_score {
         "middle_age"
@@ -2195,7 +2322,12 @@ fn detect_panels_ml(
             (dim2, dim1, true)
         };
 
-        tracing::info!(num_attrs, num_dets, transposed, "panel detector layout parsed");
+        tracing::info!(
+            num_attrs,
+            num_dets,
+            transposed,
+            "panel detector layout parsed"
+        );
 
         let get = |attr: usize, i: usize| -> f32 {
             if transposed {
@@ -2225,7 +2357,13 @@ fn detect_panels_ml(
             let w = ((x2 - x1) * scale_x).min(orig_w as f32);
             let h = ((y2 - y1) * scale_y).min(orig_h as f32);
             if w > 0.0 && h > 0.0 {
-                candidates.push(FaceBox { x, y, width: w, height: h, score: conf });
+                candidates.push(FaceBox {
+                    x,
+                    y,
+                    width: w,
+                    height: h,
+                    score: conf,
+                });
             }
         }
     }
@@ -2236,7 +2374,10 @@ fn detect_panels_ml(
     );
 
     // Model already applied NMS internally — no second pass needed.
-    Ok(candidates.into_iter().map(|b| (b.x, b.y, b.width, b.height)).collect())
+    Ok(candidates
+        .into_iter()
+        .map(|b| (b.x, b.y, b.width, b.height))
+        .collect())
 }
 
 // ─── Manga panel detection (heuristic fallback) ───────────────────────────────
@@ -2318,13 +2459,30 @@ fn detect_manga_panels(image: &DynamicImage) -> Vec<(f32, f32, f32, f32)> {
 /// Ray origin (ox, oy), direction (dx, dy) — must be unit-length.
 /// Rectangle (rx, ry, rw, rh) as top-left + size.
 /// Returns true when the ray hits the rectangle (including starting inside it).
-fn ray_intersects_rect(ox: f32, oy: f32, dx: f32, dy: f32, rx: f32, ry: f32, rw: f32, rh: f32) -> bool {
+fn ray_intersects_rect(
+    ox: f32,
+    oy: f32,
+    dx: f32,
+    dy: f32,
+    rx: f32,
+    ry: f32,
+    rw: f32,
+    rh: f32,
+) -> bool {
     // If origin is already inside the rect, count as a hit.
     if ox >= rx && ox <= rx + rw && oy >= ry && oy <= ry + rh {
         return true;
     }
-    let inv_dx = if dx.abs() > 1e-9 { 1.0 / dx } else { f32::INFINITY };
-    let inv_dy = if dy.abs() > 1e-9 { 1.0 / dy } else { f32::INFINITY };
+    let inv_dx = if dx.abs() > 1e-9 {
+        1.0 / dx
+    } else {
+        f32::INFINITY
+    };
+    let inv_dy = if dy.abs() > 1e-9 {
+        1.0 / dy
+    } else {
+        f32::INFINITY
+    };
     let tx1 = (rx - ox) * inv_dx;
     let tx2 = (rx + rw - ox) * inv_dx;
     let ty1 = (ry - oy) * inv_dy;
@@ -2444,7 +2602,9 @@ fn detect_balloon_tail_direction(
         while found < SCAN_ROWS && r >= y0 as i32 && r < y1 as i32 {
             let row = r as u32;
             let first = (x0..x1).find(|&c| gray.get_pixel(c, row).0[0] <= DARK);
-            let last  = (x0..x1).rev().find(|&c| gray.get_pixel(c, row).0[0] <= DARK);
+            let last = (x0..x1)
+                .rev()
+                .find(|&c| gray.get_pixel(c, row).0[0] <= DARK);
             if let (Some(f), Some(l)) = (first, last) {
                 let span = (l - f + 1) as f32 / box_w;
                 if span < min_span {
@@ -2466,7 +2626,9 @@ fn detect_balloon_tail_direction(
         while found < SCAN_ROWS && c >= x0 as i32 && c < x1 as i32 {
             let col = c as u32;
             let first = (y0..y1).find(|&r| gray.get_pixel(col, r).0[0] <= DARK);
-            let last  = (y0..y1).rev().find(|&r| gray.get_pixel(col, r).0[0] <= DARK);
+            let last = (y0..y1)
+                .rev()
+                .find(|&r| gray.get_pixel(col, r).0[0] <= DARK);
             if let (Some(f), Some(l)) = (first, last) {
                 let span = (l - f + 1) as f32 / box_h;
                 if span < min_span {
@@ -2481,18 +2643,24 @@ fn detect_balloon_tail_direction(
 
     // ── scan all four edges ────────────────────────────────────────────────────
 
-    let top   = min_h_span(y0 as i32,      1);  // inward from top
-    let bot   = min_h_span(y1 as i32 - 1, -1);  // inward from bottom
-    let left  = min_v_span(x0 as i32,      1);  // inward from left
-    let right = min_v_span(x1 as i32 - 1, -1);  // inward from right
+    let top = min_h_span(y0 as i32, 1); // inward from top
+    let bot = min_h_span(y1 as i32 - 1, -1); // inward from bottom
+    let left = min_v_span(x0 as i32, 1); // inward from left
+    let right = min_v_span(x1 as i32 - 1, -1); // inward from right
 
-    tracing::info!(top, bot, left, right, "balloon outermost dark-span (normalised)");
+    tracing::info!(
+        top,
+        bot,
+        left,
+        right,
+        "balloon outermost dark-span (normalised)"
+    );
 
     let sides = [
-        (top,   0.0f32, -1.0f32),  // tail points up
-        (bot,   0.0,     1.0),     // tail points down
-        (left, -1.0,     0.0),     // tail points left
-        (right, 1.0,     0.0),     // tail points right
+        (top, 0.0f32, -1.0f32), // tail points up
+        (bot, 0.0, 1.0),        // tail points down
+        (left, -1.0, 0.0),      // tail points left
+        (right, 1.0, 0.0),      // tail points right
     ];
 
     let max_span = sides.iter().map(|(s, _, _)| *s).fold(0.0f32, f32::max);
@@ -2507,8 +2675,17 @@ fn detect_balloon_tail_direction(
 
     // Require the tail to have a meaningful minimum width (not just 1–2 px) to
     // avoid treating the oval crown of the balloon body as a tail.
-    if min_span > MIN_TAIL_SPAN && min_span < TAIL_WIDTH_RATIO && min_span / max_span < TAIL_VS_BODY_RATIO {
-        tracing::info!(min_span, max_span, dx, dy, "balloon tail direction detected");
+    if min_span > MIN_TAIL_SPAN
+        && min_span < TAIL_WIDTH_RATIO
+        && min_span / max_span < TAIL_VS_BODY_RATIO
+    {
+        tracing::info!(
+            min_span,
+            max_span,
+            dx,
+            dy,
+            "balloon tail direction detected"
+        );
         Some((dx, dy))
     } else {
         None
@@ -2561,7 +2738,10 @@ mod tests {
 
     #[test]
     fn age_bucket_picks_middle_age_over_adult() {
-        assert_eq!(age_bucket_from_scores(0.0, 0.0, 0.0, 0.5, 0.3), "middle_age");
+        assert_eq!(
+            age_bucket_from_scores(0.0, 0.0, 0.0, 0.5, 0.3),
+            "middle_age"
+        );
     }
 
     #[test]
@@ -2571,6 +2751,9 @@ mod tests {
 
     #[test]
     fn age_bucket_falls_back_to_young_adult_when_nothing_clears_threshold() {
-        assert_eq!(age_bucket_from_scores(0.05, 0.05, 0.05, 0.05, 0.05), "young_adult");
+        assert_eq!(
+            age_bucket_from_scores(0.05, 0.05, 0.05, 0.05, 0.05),
+            "young_adult"
+        );
     }
 }

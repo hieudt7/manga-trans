@@ -380,8 +380,8 @@
     "loading": "加载中...",
     "progress": "步骤 {{current}} / {{total}}",
     "noResult": "尚无文风档案",
-    "noResultHint": "扫描后将学习本卷正式译本的称谓、语气、拟声词和固定译名。",
-    "emptyHint": "请打开参考文件夹：raw/ 放原稿，trans/ 放正式译本。",
+    "noResultHint": "扫描后将学习该译本的称谓、语气、拟声词和固定译名。用 Claude 阅读需要在设置中填写 Claude API 密钥，只有译本也可以。",
+    "emptyHint": "请打开参考文件夹：正式译本放在 trans/（或直接放在文件夹中），如有原稿放在 raw/。",
     "stats": "{{raw}} 页原稿中有 {{paired}} 页与 {{translated}} 页译本配对 · {{pairs}} 组对译句",
     "reviewed": "已审阅",
     "notReviewed": "尚未审阅",
@@ -389,7 +389,7 @@
     "saving": "保存中...",
     "use": "用于翻译",
     "inUse": "使用中",
-    "activeHint": "翻译将遵循正在使用的档案，下次加载 LLM 时生效。",
+    "activeHint": "翻译将遵循正在使用的档案（包括角色）。已加载的 API 模型会立即生效。",
     "emptySection": "每行一条",
     "sections": {
       "address": {
@@ -407,6 +407,10 @@
       "glossary": {
         "title": "固定译名",
         "hint": "按译本写法记录的名字和常用词。"
+      },
+      "approach": {
+        "title": "翻译方式",
+        "hint": "如何转换日文：语体、敬称、本地化、注释。"
       }
     },
     "glossary": {
@@ -414,6 +418,45 @@
       "target": "越南语",
       "add": "添加词条",
       "remove": "删除"
+    },
+    "statsClaude": "由 Claude 阅读 · {{total}} 页中的 {{pages}} 页",
+    "statsClaudeRaw": "由 Claude 仅从原作阅读 · {{total}} 页中的 {{pages}} 页 · 称呼为建议",
+    "claudeHint": "想要更准确的档案（直接从页面读出谁对谁说话），请在 Claude Code 中运行：",
+    "reader": {
+      "vision": "用 Claude 阅读",
+      "vietocr": "本地 OCR (vietocr)"
+    },
+    "statsClaudeApi": "由 {{model}} 对照原稿和译本阅读 · {{pages}} 页 · {{lines}} 行",
+    "statsClaudeApiVietnamese": "由 {{model}} 仅从越南语页面阅读 · {{pages}} 页 · {{lines}} 行",
+    "library": {
+      "title": "已保存的档案",
+      "hint": "保存在项目的 style_profiles 文件夹中。选择一个即可作为翻译提示词使用。",
+      "empty": "尚无已保存的档案。扫描完成后会保存在这里。",
+      "pages_one": "{{count}} 页",
+      "pages_other": "{{count}} 页",
+      "vietnameseOnly": "仅越南语"
+    },
+    "characters": {
+      "title": "角色",
+      "hint": "主要角色及其相互称呼。会随每次翻译请求一起发送。",
+      "add": "添加角色",
+      "remove": "删除角色",
+      "unnamed": "未命名",
+      "name": "名字（译名）",
+      "nameJa": "日文名",
+      "aliases": "其他名字和称号，每行一个",
+      "role": "在故事中的身份",
+      "personality": "性格",
+      "speech": "说话方式",
+      "selfTerms": "自称，每行一个（如 ta（扮英雄时））",
+      "relations": "关系与称呼",
+      "pickCharacter": "选择角色",
+      "relationKind": "对方是其什么人（父亲、仆人…）",
+      "relationAddress": "如何称呼对方——先写默认，再按情绪（如 ta/ngươi；亲近时 cậu）",
+      "addRelation": "添加关系",
+      "removeRelation": "删除关系",
+      "pages_one": "{{count}} 页",
+      "pages_other": "{{count}} 页"
     }
   }
 }
