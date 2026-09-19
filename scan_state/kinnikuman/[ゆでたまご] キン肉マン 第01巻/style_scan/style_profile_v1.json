@@ -4,12 +4,19 @@
     "voice": [],
     "address": [
       "Kinnikuman's register flips with his posture, not with the listener: swaggering 'ta' while posing as a hero, whining 'tớ/con' the moment he is scared, hungry or scolded. Keep both in Vietnamese — the flip is the running joke.",
-      "Meat keeps です/ます and 王子 for Kinnikuman in every mood, even while complaining or blaming him. Render as a steady polite 'em/ngài (hoàng tử)'; never let him drop into 'tao/mày'.",
-      "Aliens, monsters and palace staff call Kinnikuman 王子 (Hoàng tử) — that title, not his name, is the sign they know his true identity. Keep it as 'Hoàng tử'.",
-      "Dialect marks the one-off characters: Kansai for Franky and Nachiguron's crying, Kyushu/Hakata for the Zangyaku alien, country speech for Yosaku and old villagers. Give each a distinct Vietnamese regional voice rather than neutral speech, and keep it the same on every reappearance.",
-      "Terryman's ミー/ユー is Westernised Japanese, not English dialogue — carry it as a consistent foreign-sounding self term throughout the series.",
-      "Monsters Kinnikuman has befriended (Nachiguron) switch from 'tao/mày' to 'em/anh' with さん-forms; the change of pronoun is the point of their scene.",
-      "Family speech on Kinniku Star is deliberately low and comic: the king says わし/おまえ and スグル, the prince answers パパ. Use plain 'ta/con' and 'ba/con', not royal register."
+      "Meat keeps です/ます and 王子 for Kinnikuman in every mood, even while complaining or blaming him. Render as a steady polite 'em/ngài (hoàng tử)'. The rare times he drops to おまえ or barks うるさい! are deliberate breaks — let them show.",
+      "Aliens, monsters and palace staff call Kinnikuman 王子 (Hoàng tử) — that title, not his name, is the sign they know his true identity. Keep it as 'Hoàng tử'. Characters who use his real name スグル (Natsuko when proud of him, his father) are being intimate; keep 'Suguru' there.",
+      "Dialect marks the cast: Kansai for Natsuko (うち, 〜んや — she keeps it in every scene), for Franky and for Nachiguron's crying; Kyushu/Hakata for the Zangyaku alien; country speech for Yosaku, the frog monster and old villagers. Give each a distinct Vietnamese regional voice rather than neutral speech, and keep it identical on every reappearance.",
+      "Terryman's ミー/ユー is Westernised Japanese, not English dialogue — carry it as one consistent foreign-sounding self term for the whole series, and do not re-invent it per chapter.",
+      "The monster of the week is rarely a villain: Nachiguron, the shell monster, Nagaashi Gon, Tendon and the frog monster are all lonely, proud or desperate creatures, and their chapters end in pity or reconciliation. Keep their Vietnamese sympathetic — 'tao/mày' while they bluster, softening to 'em/anh' or a plain 'tôi' when they break down. Flattening them into generic villain-speak loses the point of the series.",
+      "Henchmen and crowds call Kinkotsuman 先生 — he is treated as a celebrity expert, not just a boss. Keep a title ('tiên sinh') rather than 'ông chủ'.",
+      "Family speech on Kinniku Star is deliberately low and comic: the king says わし/おまえ and スグル, the prince answers パパ. Use plain 'ta/con' and 'ba/con', not royal register.",
+      "Volume 3 turns the series into a tournament, and the Hero Olympics fighters are national stereotypes by design (Britain's armoured knight, China's kung-fu devil, Germany's Nazi, India's curry head, Mexico's masked showman). Keep each one's register distinct and period-appropriate rather than levelling them into one 'wrestler voice'.",
+      "Broadcast scenes have their own register: the announcer and commentator keep です/ます and さん for everyone, however absurd the action. Keep that formality — the contrast with the fighters' rough speech is the joke.",
+      "Titles carry rank in this cast: 先生 for the schemers' leader (and for Kinkotsuman), 委員長 for the Olympic chairman, 長官 for the Defense Force chief, 王子 for Kinnikuman among those who know him. Translate the title, not the name.",
+      "Westernised pronouns are a marker of foreignness across the whole cast, not a quirk of one character: Terryman (American), Robin Mask and his trainer Gania Mask (English), Kazu Nakano (Nisei) and Duke Kamata (Hawaii promoter) all reach for ミー and ユー. Pick ONE Vietnamese rendering for this and use it for every one of them, so the reader hears 'foreigner' the same way each time.",
+      "Anger does not simply strip politeness away — Robin Mask's coldest threat ('死んでもらいます!') keeps the polite ます form, and Meat stays in です/ます even while blaming the prince. Do not flatten every angry line into 'tao/mày'; the politeness held under fury is often the point.",
+      "Volume 4 leaves one relationship deliberately unexplained: the scarred おじさん who swore to kill Kinnikuman and then seconded him to the title, and whatever ties him to Natsuko. Keep his address to her ('Natsuko', gọi thẳng tên) and to everyone else exactly as it is — do not smooth it into a settled uncle/niece register until the story says so."
     ],
     "soundEffects": [],
     "glossary": [
@@ -54,10 +61,6 @@
         "Terryman"
       ],
       [
-        "ザ・テリーマン",
-        "The Terryman"
-      ],
-      [
         "ナチグロン",
         "Nachiguron"
       ],
@@ -74,24 +77,8 @@
         "Franky"
       ],
       [
-        "ゴリザエモン",
-        "Gorizaemon"
-      ],
-      [
-        "ゴーリキ",
-        "Goriki"
-      ],
-      [
         "ザンギャク星人",
         "người Zangyaku"
-      ],
-      [
-        "シーク星人",
-        "người sao Sheik"
-      ],
-      [
-        "アクロバット星人",
-        "người sao Acrobat"
       ],
       [
         "高原ナナ",
@@ -106,28 +93,12 @@
         "Nikaidou Mari"
       ],
       [
-        "シゲル",
-        "Shigeru"
-      ],
-      [
         "与作",
         "Yosaku"
       ],
       [
-        "赤岩",
-        "Akaiwa"
-      ],
-      [
-        "王山ハゲ照",
-        "Oyama Hageteru"
-      ],
-      [
         "長官",
         "Chỉ huy trưởng"
-      ],
-      [
-        "局長",
-        "Giám đốc đài"
       ],
       [
         "防衛軍",
@@ -142,116 +113,152 @@
         "cô giáo mẫu giáo"
       ],
       [
-        "キン肉フラッシュ",
-        "Kinniku Flash"
+        "翔野ナツコ",
+        "Shouno Natsuko"
       ],
       [
-        "キン肉ビーム",
-        "Kinniku Beam"
+        "ナッちゃん",
+        "Nát (biệt danh Kinnikuman gọi Natsuko)"
       ],
       [
-        "キン肉スペシャル",
-        "Kinniku Special"
+        "キンちゃん",
+        "Kin (biệt danh thân mật gọi Kinnikuman)"
       ],
       [
-        "キン肉風車",
-        "Kinniku Windmill"
+        "週刊HERO",
+        "Tuần san HERO"
       ],
       [
-        "フィンガーポップス",
-        "Finger Pops"
+        "編集長",
+        "Tổng biên tập"
       ],
       [
-        "バックドロップ",
-        "Back Drop"
+        "キン骨マン",
+        "Kinkotsuman"
       ],
       [
-        "ベアーハッグ",
-        "Bear Hug"
+        "しゃれこうべ星",
+        "sao Sọ Người"
       ],
       [
-        "必殺技",
-        "tuyệt kỹ"
+        "先生",
+        "tiên sinh (cách gọi Kinkotsuman)"
       ],
       [
-        "金網デスマッチ",
-        "trận tử chiến lồng sắt"
+        "モンスターガン",
+        "Monster Gun (súng quái vật)"
       ],
       [
-        "60分3本勝負",
-        "trận 60 phút, thắng 3 hiệp"
+        "イワオ",
+        "Iwao"
       ],
       [
-        "タッグマッチ",
-        "trận đấu đôi"
+        "スプリンタソード",
+        "Sprinter Sword"
       ],
       [
-        "格闘技オリンピック",
-        "Olympic Võ thuật"
+        "テンドン",
+        "Tendon"
       ],
       [
-        "格闘技宇宙一決定戦",
-        "trận Chung kết Võ thuật Vô địch Vũ trụ"
+        "エビ子",
+        "Ebiko"
       ],
       [
-        "ニンニクエネルギー",
-        "năng lượng tỏi"
+        "バズーガーラ",
+        "Buzzugara"
       ],
       [
-        "ニンニク男",
-        "gã tỏi (biệt danh giễu Kinnikuman)"
+        "カッパトロン",
+        "Kappatoron"
       ],
       [
-        "牛丼",
-        "cơm thịt bò (gyudon)"
+        "長足ゴン",
+        "Nagaashi Gon"
       ],
       [
-        "牛丼愛好会",
-        "Hội những người mê cơm bò"
+        "ダイキング",
+        "Daiking"
       ],
       [
-        "とんかつ",
-        "tonkatsu"
+        "超人オリンピック",
+        "Olympic Siêu nhân"
       ],
       [
-        "シュワッチ",
-        "Shuwatchi (tiếng hô nhại Ultraman)"
+        "委員長",
+        "Chủ tịch ban tổ chức"
       ],
       [
-        "ウルトラマン",
-        "Ultraman"
+        "ロビン・マスク",
+        "Robin Mask"
       ],
       [
-        "ゴジラ",
-        "Godzilla"
+        "ラーメンマン",
+        "Ramenman"
       ],
       [
-        "ネッシー",
-        "Nessie"
+        "東洋の悪魔",
+        "Ác quỷ phương Đông"
       ],
       [
-        "ネス湖",
-        "hồ Loch Ness"
+        "ブロッケンマン",
+        "Brockenman"
       ],
       [
-        "雪男",
-        "Người tuyết (Yeti)"
+        "カレクック",
+        "Karekkuku"
       ],
       [
-        "怪獣電話帳",
-        "danh bạ điện thoại quái vật"
+        "スカイマン",
+        "Skyman"
       ],
       [
-        "おちこぼれ",
-        "kẻ kém cỏi, kẻ bị bỏ lại"
+        "カナディアンマン",
+        "Canadian Man"
       ],
       [
-        "うさぎ小屋",
-        "chuồng thỏ (nhà chật hẹp)"
+        "中国拳法",
+        "quyền pháp Trung Hoa"
       ],
       [
-        "ジャイアンツ星の巨人族",
-        "tộc Người Khổng Lồ sao Giants"
+        "キャメルクラッチ",
+        "Camel Clutch"
+      ],
+      [
+        "バックブリーカー",
+        "Back Breaker"
+      ],
+      [
+        "火事場のバカ力",
+        "sức mạnh liều của kẻ cùng đường"
+      ],
+      [
+        "カウント3",
+        "luật Count-3"
+      ],
+      [
+        "国外追放",
+        "trục xuất khỏi đất nước"
+      ],
+      [
+        "モンスターガン",
+        "Monster Gun (súng quái vật)"
+      ],
+      [
+        "ガニア・マスク",
+        "Gania Mask"
+      ],
+      [
+        "アリサ",
+        "Alisa"
+      ],
+      [
+        "世界超人協会",
+        "Hiệp hội Siêu nhân Thế giới"
+      ],
+      [
+        "ドーロ・フレアース",
+        "Doro Flairs"
       ]
     ],
     "characters": [
@@ -268,16 +275,16 @@
         ],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "The hero of the series: a clumsy, self-important superhero who turns out to be the exiled prince of Kinniku Star. Fights monsters on Earth for free, lives poor with Meat, is ruled by his stomach (gyudon, garlic) and by his vanity.",
-        "personality": "Boastful and posturing in public, cowardly and whiny the moment things go wrong; childish with his father, jealous of any hero more famous than him, but genuinely soft-hearted — he takes in the monsters he beats, and he goes to help even when the law forbids it.",
-        "speech": "Plain, rough Japanese (わたし, おまえ, バカヤロウ, コンニャロー) that keeps slipping into mock-formal です/ます when he strikes a heroic pose — the mismatch is the joke ('への つっぱりはいらんですよ!'). Laughs ヌフフフ / ヌハハハ when pleased, shouts ヌオオ〜〜 when angry, and yells シュワッチ (Ultraman parody) when he attacks. Keeps boasting 'actually I'm good at THIS one' after every defeat. In Vietnamese: swaggering 'ta' in front of a crowd, whining 'tớ/con' when scared or begging, polite 'tôi' only when courting Mari.",
+        "role": "The hero of the series: a clumsy, self-important superhero who turns out to be the exiled prince of Kinniku Star. Volumes 3–4 are the Hero Olympics (超人オリンピック), which he enters as Japan's representative and — against every expectation, his own included — **wins**, beating Robin Mask in the final. Volume 4 ends with him on a champion's world tour, starting in Hawaii.",
+        "personality": "Boastful and posturing in public, cowardly and whiny the moment things go wrong; childish with his father, jealous of any hero more famous than him, and an incorrigible skirt-chaser. Genuinely soft-hearted underneath: he takes in the monsters he beats, mourns the ones that die, and goes to help even when the law forbids it. His wins come from 火事場のバカ力 — blind survival instinct — not skill, and he often cannot remember afterwards what he did.",
+        "speech": "Plain, rough Japanese (わたし, おまえ, バカヤロウ, コンニャロー) that keeps slipping into mock-formal です/ます when he strikes a heroic pose — the mismatch is the joke ('への つっぱりはいらんですよ!'). Laughs ヌフフフ / ヌハハハ when pleased, shouts ヌオオ〜〜 when angry, and yells シュワッチ (Ultraman parody) when he attacks. Keeps boasting 'actually I'm good at THIS one' after every defeat. In Vietnamese: swaggering 'ta' in front of a crowd, whining 'tớ/con' when scared or begging, polite 'tôi' only when courting Mari. Breaks the fourth wall to complain straight to 読者のみなさん (quý độc giả) when things go badly — keep that as direct address to the reader.",
         "selfTerms": [
           "ta (わたし, posing as a hero, to strangers and monsters)",
           "tôi (わたくし, です/ます, being formal to impress — to Mari, to officials)",
           "con (to his father, パパ — childish, wheedling)",
           "tớ (whining, crying, begging Meat)"
         ],
-        "appearances": 91,
+        "appearances": 321,
         "relations": [
           {
             "to": "meat",
@@ -310,34 +317,54 @@
             "address": "tôi/Nana (ナナちゃん) — hâm mộ, cố gây ấn tượng; 'cô Nana' (ナナさん) khi làm bộ đàng hoàng ra vẻ anh hùng"
           },
           {
-            "to": "panda-man",
-            "relation": "a TV tokusatsu hero he meets on volunteer park patrol, then jealously challenges to a match",
-            "address": "tôi/anh — khiêm tốn, đồng cảm lúc đầu; nghiêm giọng thách đấu khi ghen tị"
+            "to": "natsuko",
+            "relation": "the HERO magazine reporter who covers him, mocks him and becomes a fixture at his side",
+            "address": "ta/cô (わたし/あなた) khi mới gặp, còn cảnh giác; thân rồi gọi biệt danh 'Nát' (ナッちゃん) — tự tin nhờ vả, đùa cợt; nổi giận ghen tuông thì 'mày, con nhỏ lăng nhăng' (おまえ, 尻軽女)"
           },
           {
-            "to": "zangyaku-alien",
-            "relation": "the bus-hijacking alien he offers himself to in exchange for the hostages",
-            "address": "ta/ngươi (người Zangyaku) khi chất vấn; ta/mày (わたし/おまえ) khi khẩn khoản xin thả con tin, nhận mình là kẻ thù duy nhất"
+            "to": "kinkotsuman",
+            "relation": "the skeleton alien who keeps coming back to destroy him — his first recurring enemy",
+            "address": "bọn ta/(không gọi tên) (ぼくたち) khi tuyên bố chính nghĩa; 'ta/ngươi' (貴様) khi giễu cợt lúc hắn mất vũ khí; giọng nể phục 'gã đó' (やつ) khi thấy hắn thua mà vẫn gan lì"
           },
           {
-            "to": "tugawa",
-            "relation": "the gyudon-shop owner he works a part-time job for",
-            "address": "cháu/ông chủ (ヘイ…今後気をつけやす) — giọng thợ học việc, cười trừ, cúi đầu xin lỗi"
+            "to": "ukon",
+            "relation": "the boastful pig-faced monster on Roots Island who turns out to be an immortal robot",
+            "address": "ta/mày (おまえ) — bực bội phản pháo khi bị chê giữa trận: 'やな性格だのうおまえ'"
           },
           {
-            "to": "coordinator",
-            "relation": "his handler/announcer, who also reports to the Defense Force chief",
-            "address": "tôi/anh — lịch sự vừa phải, nghe theo chỉ dẫn"
+            "to": "robin-mask",
+            "relation": "the armoured British champion who first uses him as a sparring partner, then becomes a respected rival",
+            "address": "ta/anh — bực bội khi bị coi thường, chuyển sang lo lắng và nể trọng khi thấy anh thi đấu đàng hoàng"
           },
           {
-            "to": "shigeru",
-            "relation": "the Giant-tribe youth his father adopts as a rival prince",
-            "address": "ta/thằng nhãi kia (きさま, コノヤロー) — giận dữ, gầm gừ khẳng định mình mới là hoàng tử thật"
+            "to": "ramenman",
+            "relation": "China's representative, the 'Oriental Devil', who fights him on an ice ring",
+            "address": "ta/mày — đối đầu, cảnh giác trước một đối thủ tàn nhẫn"
           },
           {
-            "to": "franky",
-            "relation": "the Kansai-speaking underground monster terrorising the kindergarten",
-            "address": "ta/ngươi — đối đầu, quát nạt"
+            "to": "karekkuku",
+            "relation": "India's representative, the curry-headed fighter he beats in Block B",
+            "address": "ta/mày — coi thường, đùa cợt trước một đối thủ kỳ quặc"
+          },
+          {
+            "to": "olympic-chairman",
+            "relation": "the committee head who first bars Japan, then picks him",
+            "address": "ta/ông — tức giận chất vấn khi bị loại, lễ phép hơn khi được chọn"
+          },
+          {
+            "to": "vengeful-stranger",
+            "relation": "the scarred man who swore to kill him and became his ringside second",
+            "address": "ta/ông (chưa rõ tên) — lúc đầu cảnh giác, sau tin tưởng nghe theo chiến thuật ông chỉ"
+          },
+          {
+            "to": "gania-mask",
+            "relation": "Robin Mask's trainer, who breaks ranks to warn him his pupil means to kill him",
+            "address": "ta/ông — nghe lời cảnh báo giữa lúc hỗn loạn"
+          },
+          {
+            "to": "kazu-nakano",
+            "relation": "his Nisei manager and guide on the Hawaii leg of the world tour",
+            "address": "ta/ông Kazu — hoàng tử với người hướng dẫn, suồng sã dần"
           }
         ]
       },
@@ -353,14 +380,14 @@
         "gender": "male",
         "ageGroup": "child",
         "role": "Herald from Kinniku Star who reveals Kinnikuman's royal birth and then stays on Earth as his second, manager and conscience; a small boy in glasses and cape who attends Suminoe kindergarten (running gag) and secretly works night shifts to pay their way.",
-        "personality": "Devoted, sensible and long-suffering — the adult in the household despite being a child. Mutters about the prince's moods, takes the blame, and stands up to him only to defend someone weaker.",
-        "speech": "Keeps です/ます with Kinnikuman almost always, calling him 王子 / 王子さま; self term ぼく, sliding to わたくし when very formal and to a childish わし when he sulks and wants the same treatment as the prince. Loves the ニクイ / 肉 pun. In Vietnamese: 'em/ngài' or 'em/hoàng tử', polite register kept even while complaining.",
+        "personality": "Devoted, sensible and long-suffering — the adult in the household despite being a child. Mutters about the prince's moods, takes the blame, and stands up to him only to defend someone weaker. By volume 2 he also teases the prince outright, setting him up for pratfalls and needling him about his failed romances.",
+        "speech": "Keeps です/ます with Kinnikuman almost always, calling him 王子 / 王子さま; self term ぼく, sliding to わたくし when very formal and to a childish わし when he sulks and wants the same treatment as the prince. Loves the ニクイ / 肉 pun. In Vietnamese: 'em/ngài' or 'em/hoàng tử', polite register kept even while complaining. Rarely drops to a blunt おまえ — when he does (an うるさい! or a worried 'おまえだから心配なんじゃねえか'), it marks a real break in the usual deference; keep the shift visible in Vietnamese.",
         "selfTerms": [
           "em (ぼく, với Kinnikuman và người lớn, giữ です/ます)",
           "con (わたくし, lễ phép với cô giáo Mari)",
           "tớ (わし, nũng nịu, đòi công bằng — hiếm)"
         ],
-        "appearances": 55,
+        "appearances": 202,
         "relations": [
           {
             "to": "kinnikuman",
@@ -378,9 +405,75 @@
             "address": "anh/em (ぼく) — ấm áp, ân cần như đàn anh"
           },
           {
-            "to": "palace-maiden",
-            "relation": "fellow palace staff; they tease the prince together",
-            "address": "em/chị — thân thiện, đồng minh"
+            "to": "terryman",
+            "relation": "the American hero who treats him as a friend",
+            "address": "em/anh Terryman (gọi thẳng tên, hớt hải) khi cảnh báo nguy hiểm; giữ です/ます lịch sự khi giải thích, từ chối lời rủ"
+          },
+          {
+            "to": "natsuko",
+            "relation": "the reporter who treats him as a little brother",
+            "address": "em/chị — ngắn gọn, thân mật, không kính ngữ"
+          },
+          {
+            "to": "yosaku",
+            "relation": "the rustic old man who appoints himself Kinnikuman's boxing trainer",
+            "address": "em/ông (ぼく/じいさん, です/ます) — lễ phép nhưng nài nỉ"
+          },
+          {
+            "to": "king-muscle",
+            "relation": "the king, who drills and scolds him while they train the prince",
+            "address": "em/Đại vương (大王さま, です/ます) — lễ phép nhưng dám càu nhàu lại"
+          }
+        ]
+      },
+      {
+        "id": "robin-mask",
+        "name": "Robin Mask",
+        "nameJa": "ロビン・マスク",
+        "aliases": [
+          "ロビン"
+        ],
+        "gender": "male",
+        "ageGroup": "",
+        "role": "Britain's armoured champion — full plate armour and a closed knight's helmet. He won the previous Hero Olympics and returns as defending champion, first treating Kinnikuman as a disposable sparring partner, then beating a wounded Terryman on a technicality and withdrawing rather than take a hollow win. In the final against Kinnikuman he loses his mask, loses his temper, and finally loses the match to a reversed backbreaker. He takes the silver, declines Kinnikuman's offer of a home in Japan, and leaves on his own tour with his wife Alisa — admitting he is simply tired of being champion.",
+        "personality": "Haughty and condescending, but fundamentally honourable — he refuses a win he does not think he earned, and concedes cleanly when beaten. Under real humiliation (his mask torn off in front of a crowd) that control snaps and he turns genuinely murderous, which is the arc of the final.",
+        "speech": "His register is the most nuanced in the cast and is easy to get wrong. Baseline: formal わたし with キミ for the listener, reflective and polite. Under strain he drops to blunt rough forms — だぜ while he has a hold locked on, 許さん and おれん when furious, アンポンタンめ when jeering. But he does NOT simply abandon politeness with anger: his coldest line, announcing he will kill Kinnikuman, keeps the polite ます form — 「死んでもらいます!」. Being English, he also reaches for Westernised ユーたち. In Vietnamese: 'ta/cậu' quý tộc trịch thượng làm nền, gằn xuống 'tao/mày' khi đang khoá đòn hoặc điên tiết — nhưng câu doạ giết phải giữ vẻ lịch sự lạnh gáy ('mời cậu chết đi' chứ không phải 'tao giết mày'), vì chính chỗ lịch sự đó mới rợn.",
+        "selfTerms": [
+          "ta (わたし, trịch thượng, mặc định)",
+          "tao (khi khoá đòn hoặc nổi điên)",
+          "Mi (ユー, kiểu Tây hoá, hiếm)"
+        ],
+        "appearances": 94,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "the reject he recruits as a sparring partner, then comes to respect",
+            "address": "ta/cậu (わたし/キミ) — kiêu ngạo, bề trên; 'tao/mày' đe doạ ép đầu hàng khi khoá đòn"
+          },
+          {
+            "to": "terryman",
+            "relation": "his semifinal opponent, whom he beats on a technicality and then defers to",
+            "address": "ta/(quát trống) 'じゃまだ!!' khi hung hãn; gần như van nài 'おねがいだ…おきてこないでくれ' khi lo cho đối thủ; trang trọng gọi đủ tên 'Terryman' khi tuyên bố nhường suất chung kết"
+          },
+          {
+            "to": "hero-olympics-commentator",
+            "relation": "the ringside commentator he answers curtly and then teases",
+            "address": "ta/(không gọi tên) — đáp cộc lốc, rồi túm chân xốc ngược ông ta lên đùa nghịch"
+          },
+          {
+            "to": "gania-mask",
+            "relation": "his personal trainer and second",
+            "address": "ta/Gania (gọi tên rút gọn) — thừa nhận đã nương tay; quát 'どけガニア!!' xua ông ra khi đang điên"
+          },
+          {
+            "to": "king-muscle",
+            "relation": "his opponent's father, whom he answers politely",
+            "address": "tôi/(không gọi tên) (わたし, です/ます) — lễ phép, điềm tĩnh; thú nhận thật lòng rằng mình đã mệt với ngôi vô địch"
+          },
+          {
+            "to": "olympic-chairman",
+            "relation": "the committee head he petitions",
+            "address": "tôi/Chủ tịch (委員長, です/ます) — trịnh trọng đề đạt luật Count-3 vì thấy chênh lệch thực lực quá lớn"
           }
         ]
       },
@@ -394,13 +487,13 @@
         ],
         "gender": "male",
         "ageGroup": "middle_age",
-        "role": "King of Kinniku Star and Kinnikuman's father; lost his throne and the universal championship belt to the pig wrestler King Tone, and comes to Earth to beg his son to win the planet back.",
+        "role": "King of Kinniku Star and Kinnikuman's father; lost his throne to King Tone. In volume 3 he comes to Earth as his son's cornerman — pleading with the Olympic committee to let Japan compete, then drilling, panicking over and cheering for him from ringside.",
         "personality": "Blustering, self-pitying and shameless — wheedles, bribes with gyudon, then shouts 親不孝者め when refused. Softens when speaking of Meat's sacrifices for his son.",
         "speech": "Old-man plain speech, self term わし, calls his son by his real name スグル or おまえ. In Vietnamese: 'ta/con', rough and familiar, with a whining edge when he wants something.",
         "selfTerms": [
           "ta (わし, với mọi người)"
         ],
-        "appearances": 13,
+        "appearances": 82,
         "relations": [
           {
             "to": "kinnikuman",
@@ -408,9 +501,189 @@
             "address": "ta/con, gọi thẳng tên 'Suguru' (わし/おまえ, スグル) mặc định; van nài, dỗ ngọt bằng cơm bò; quát 'thằng con bất hiếu' (親不孝者め) khi bị từ chối; trầm giọng nghiêm túc khi kể chuyện Meat hi sinh"
           },
           {
-            "to": "shigeru",
-            "relation": "the Giant-tribe youth he adopts as a replacement prince",
-            "address": "ta/Shigeru (シゲルくん) — vui mừng, cưng chiều đứa con nuôi mới"
+            "to": "meat",
+            "relation": "his son's herald, whom he drills alongside him",
+            "address": "ta/Mít (ミートくん) — quát tháo trong lúc huấn luyện, lo lắng khi cần tin tức"
+          },
+          {
+            "to": "olympic-chairman",
+            "relation": "the committee head who humiliates him",
+            "address": "ta/ông — nài nỉ rồi phẫn nộ khi bị gạt phắt và bị chê là 'nỗi nhục của Nhật Bản'"
+          },
+          {
+            "to": "queen",
+            "relation": "his wife, the Queen of Kinniku Star",
+            "address": "ta/bà (あなた) — vợ chồng thân mật; bà là người kéo ông về với nghĩa vụ hoàng tộc"
+          },
+          {
+            "to": "mayumi",
+            "relation": "the official who taunts him about his son",
+            "address": "ta/cậu Mayumi — quát nạt, tát thẳng rồi viện điều lệ số 264"
+          }
+        ]
+      },
+      {
+        "id": "terryman",
+        "name": "Terryman",
+        "nameJa": "テリーマン",
+        "aliases": [
+          "ザ・テリーマン",
+          "The Terryman"
+        ],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "American wrestler-hero from Texas who charges money for hero work. Across volumes 2–3 he turns from rival into Kinnikuman's closest ally: he confesses his love to Natsuko, takes Kinkotsuman's rifle bullet in the leg to save Kinnikuman, and then fights the Olympic semifinal against Robin Mask on that ruined leg.",
+        "personality": "Cool, professional and mercenary on the surface — he says plainly he does not work for free — but volumes 2 and 3 give him the series' first real heart: he loves Natsuko, he takes a bullet for a rival, and he fights hurt rather than withdraw. He also fights dirty when cornered (a hidden knuckle-duster against Robin Mask), and is ashamed of it afterwards.",
+        "speech": "Mixes Westernised pronouns ミー (me) and ユー (you) into Japanese — his signature, used sparingly and mostly when he is being superior or teasing. Otherwise polite です/ます with strangers and a rough おれ when he means business; drops English tags ('ベリーナイス') when pleased. In Vietnamese: keep the foreign flavour with a consistent rendering of ミー/ユー across the whole series — pick one and never vary it.",
+        "selfTerms": [
+          "ミー = tôi (kiểu Tây hoá, giữ nét ngoại quốc khi dịch)"
+        ],
+        "appearances": 74,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "the local hero he displaces, then respects",
+            "address": "tôi/cậu (です/ます) khi mới gặp, như với người lạ; kiêu ngạo 'ミー/キミたち, そんなヤツ' khi coi thường; nghiêm túc 'tôi/cậu, Kinnikuman' (おまえ) khi cảnh báo anh về nguy cơ bị quân đội truy bắt"
+          },
+          {
+            "to": "natsuko",
+            "relation": "the reporter he charms, then falls genuinely in love with",
+            "address": "tôi/cô (わたし/おじょうさん, です/ます) khi tán tỉnh khéo; gọi thẳng tên tha thiết 'Natsuko' khi van xin và thổ lộ — 'ナツコを愛している‼'"
+          },
+          {
+            "to": "meat",
+            "relation": "Kinnikuman's boy herald, whom he treats as a pal",
+            "address": "tôi/Mít (ミートくん) — thân thiện, rủ đi chơi như bạn bè"
+          },
+          {
+            "to": "roots-princess",
+            "relation": "the island princess who hires him for money",
+            "address": "tôi/(không gọi tên) (おれ) khi nhận việc, ngầm hiểu sẽ được trả hậu; 'Mi/các người' (ミー/ユーたち) khi giễu cợt cách trả công bằng tiền đá cổ lỗ"
+          },
+          {
+            "to": "robin-mask",
+            "relation": "the armoured champion he fights in the Olympic semifinal, who then hands him the final place",
+            "address": "tôi/anh — căng thẳng đối đầu; hoảng hốt van nài 'đừng đứng dậy nữa' khi sợ thua; nhận suất chung kết trong ngượng ngùng"
+          },
+          {
+            "to": "kinkotsuman",
+            "relation": "the villain whose sniper bullet he took in the leg",
+            "address": "tôi/hắn (キン骨マン, gọi thẳng tên) — kể lại vụ bắn lén bằng giọng nghiêm trọng, đau đớn"
+          },
+          {
+            "to": "western-girl",
+            "relation": "the young girl who stays at his side when he is hurt",
+            "address": "anh/em — thân thiết, che chở"
+          }
+        ]
+      },
+      {
+        "id": "natsuko",
+        "name": "Natsuko",
+        "nameJa": "翔野ナツコ",
+        "aliases": [
+          "Shouno Natsuko",
+          "ナッちゃん"
+        ],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Reporter and photographer for 週刊HERO magazine, which runs a reader-voted hero ranking that puts Kinnikuman last. She meets him chasing the Kappatoron story and then stays — covering his fights, photographing Terryman, and being turned into a giantess by Kinkotsuman's Monster Gun. After Mari, the second woman in Kinnikuman's orbit and the more constant presence.",
+        "personality": "Brash, fearless and teasing — she mocks Kinnikuman's failures to his face, then swings to open admiration once she watches him fight. Jealous and sharp-tongued with Mari, professionally pushy with her editor.",
+        "speech": "Kansai dialect throughout: self term うち, endings 〜んや/〜へん, あんた for the listener. Switches to a formal わたくし + です/ます only when introducing herself as a reporter, and swears freely (バッキャロー) when angry. In Vietnamese: give her one consistent regional voice (suồng sã 'tui/anh'), never neutral polite speech — the dialect is half the character.",
+        "selfTerms": [
+          "tui (うち, giọng Kansai, thường ngày)",
+          "tôi (わたくし, です/ます, khi tự giới thiệu với tư cách phóng viên)",
+          "tụi mình (うちら, khi nói gộp cả nhóm)"
+        ],
+        "appearances": 40,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "the hero she covers, mocks, then champions",
+            "address": "tui/anh (うち/あんた, giọng Kansai) mặc định; gọi thẳng tên thật 'Suguru' (スグル) khi tự hào khoe với đám đông; biệt danh thân mật 'Kin' (キンちゃん) khi nhắc tới anh với người khác; quát 'đồ khốn' (バッキャロー) khi anh đập phá đồ của cô"
+          },
+          {
+            "to": "terryman",
+            "relation": "the American hero she photographs and openly admires",
+            "address": "em/anh Terryman (わたし/テリーマンさん) — ngưỡng mộ, hơi say mê; bỏ さん gọi trống 'anh' (あなた) khi chủ động rủ chụp ảnh chung"
+          },
+          {
+            "to": "mari",
+            "relation": "her rival for Kinnikuman's attention",
+            "address": "tui/cô ta (gọi trống, mỉa mai) — ghen tị, châm chọc vẻ trong sáng giả tạo"
+          },
+          {
+            "to": "meat",
+            "relation": "Kinnikuman's boy herald, whom she treats as a little brother",
+            "address": "tui/Mít (ミートくん) — suồng sã, thân mật"
+          }
+        ]
+      },
+      {
+        "id": "kinkotsuman",
+        "name": "Kinkotsuman",
+        "nameJa": "キン骨マン",
+        "aliases": [
+          "先生"
+        ],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Skeleton-themed alien from 「しゃれこうべ星」 and the series' recurring villain. Volumes 3–4 reveal he is also the bone-faced mastermind sabotaging the Hero Olympics: an invisibility ray, a voice-command mic, a fake referee, a rifle shot from the stands that hit Terryman instead, and two attempts to kidnap Kinnikuman before the weigh-in. His henchmen call him 先生. He is chased off by the space police but always escapes.",
+        "personality": "Grandiose and gloating while winning, snivelling and tearful the instant he loses, and never done vowing revenge. His underlings and even crowds call him 先生 — he is a celebrity as much as a villain.",
+        "speech": "Archaic villain register (じゃ, さらばじゃ, 貴様), signature rasping cackle ムヒョヒョ, and a childish sobbing わ~ん when beaten. In Vietnamese: lối nói ác nhân cổ trang 'ta/lũ ngươi', rồi mếu máo như trẻ con khi thua — chính chỗ tương phản đó là trò đùa.",
+        "selfTerms": [
+          "ta (giọng ác nhân, じゃ/貴様)"
+        ],
+        "appearances": 36,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "his arch-enemy",
+            "address": "ta/lũ ngươi (おまえたち, gộp cả Mít) khi ngạo mạn; gọi thẳng tên 'Kinnikuman' khi đắc thắng lộ bẫy; thua vẫn gằn 'ここのうらみはわすれんからな!'"
+          },
+          {
+            "to": "iwao",
+            "relation": "his round-bodied lackey",
+            "address": "ta/Iwao (gọi thẳng tên) — sai khiến, khen thưởng cộc lốc ('でかしたぞイワオ!')"
+          },
+          {
+            "to": "buzzugara",
+            "relation": "the cannon-snouted monster he deploys against Terryman",
+            "address": "ta/Buzzugara (gọi thẳng tên) — bàn mưu, gạt phắt khi không tin, rồi cáu tiết đổ lỗi khi hắn bắn trúng đĩa bay của chính mình"
+          },
+          {
+            "to": "terryman",
+            "relation": "the hero who took his sniper bullet",
+            "address": "ta/mày — bắn lén từ khán đài, không đối mặt"
+          },
+          {
+            "to": "stone-schemer",
+            "relation": "his rock-faced lieutenant",
+            "address": "ta/mày — gắt gỏng, sai khiến; nhận báo cáo trinh sát"
+          }
+        ]
+      },
+      {
+        "id": "ramenman",
+        "name": "Ramenman",
+        "nameJa": "ラーメンマン",
+        "aliases": [
+          "東洋の悪魔"
+        ],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "China's representative, billed as the 東洋の悪魔 (Oriental Devil). He kills Brockenman in the ring, fights Kinnikuman on an ice ring, and is disqualified from the third-place match for fouling Terryman with a chained weapon. Afterwards he reveals he once lost a death-match to Kinnikuman, and demands — half furious, half pleading — that Kinnikuman take the final seriously instead of trusting to luck, or his own defeat will have meant nothing.",
+        "personality": "Cold and genuinely cruel in the ring, and a showman about it — but volume 4 gives him pride and hurt underneath: he needs the man who beat him to be worth having lost to.",
+        "speech": "Triumphant cackle だはははは; mocking nicknames for opponents (曲芸師 'acrobat' for Kinnikuman dodging along the ropes). In Vietnamese: 'ta/mày' lạnh lùng, tàn nhẫn — giữ tiếng cười đắc thắng và lối gọi giễu.",
+        "selfTerms": [
+          "ta (lạnh lùng, tàn nhẫn)"
+        ],
+        "appearances": 32,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "his Block B opponent on the ice ring",
+            "address": "ta/'tay làm xiếc' (曲芸師) — giễu cợt khi đối thủ nhảy nhót né đòn"
           }
         ]
       },
@@ -425,13 +698,13 @@
         "gender": "female",
         "ageGroup": "young_adult",
         "role": "Nursery teacher (保母) at Suminoe kindergarten, Meat's teacher, and Kinnikuman's love interest from the 'かわいいキッスの巻' chapter on; quietly cooks breakfast for the pair.",
-        "personality": "Warm, unflappable, faintly amused by Kinnikuman; kind to Meat like a teacher to a small pupil.",
+        "personality": "Warm, unflappable, faintly amused by Kinnikuman; kind to Meat like a teacher to a small pupil. Has a sharp side too — she rounds on Kinnikuman when he abuses a rescue for a grope, and trades barbs with Natsuko.",
         "speech": "です/ます, self term あたし / わたし, calls people by name + くん/さん. In Vietnamese: 'em/anh' with Kinnikuman, 'cô/Mít' with Meat.",
         "selfTerms": [
           "em (あたし, với Kinnikuman)",
           "cô (わたし, với Mít và trẻ mẫu giáo)"
         ],
-        "appearances": 10,
+        "appearances": 22,
         "relations": [
           {
             "to": "kinnikuman",
@@ -442,31 +715,316 @@
             "to": "meat",
             "relation": "her pupil at the kindergarten",
             "address": "cô/Mít (わたし/ミートくん) — thân mật kiểu cô giáo với học trò nhỏ, âu yếm khi cảm ơn"
+          },
+          {
+            "to": "natsuko",
+            "relation": "her rival for Kinnikuman's attention",
+            "address": "em/cô (わたし/あなた, です/ます nhưng gằn giọng) — khó chịu khi bị dò hỏi; châm chọc ngược 'わたしで69人めだ!' khi bị xúc phạm"
           }
         ]
       },
       {
-        "id": "terryman",
-        "name": "Terryman",
-        "nameJa": "テリーマン",
-        "aliases": [
-          "ザ・テリーマン",
-          "The Terryman"
-        ],
+        "id": "hero-olympics-announcer",
+        "name": "Bình luận viên dẫn",
+        "nameJa": "",
+        "aliases": [],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "American wrestler-hero from Texas who comes to Japan, charges money for hero work, and is voted Japan's sole official hero — pushing Kinnikuman out of a job and into exile.",
-        "personality": "Cool, professional, mercenary; contemptuous of the unpaid amateur until Kinnikuman beats him, after which he warns him honestly of the danger he is in.",
-        "speech": "Mixes Westernised pronouns ミー (me) and ユー (you) into Japanese — his signature. Polite です/ます with strangers, dropping it when he sneers. In Vietnamese: keep the foreign flavour ('Mi/Diu' or a consistently Western-sounding 'tôi/cậu'), and keep it consistent across the whole series.",
+        "role": "Young afro-haired ringside announcer calling the play-by-play of the Hero Olympics broadcast, paired with an older commentator.",
+        "personality": "Professional, unflappable, keeps the broadcast moving through absurdity.",
+        "speech": "Broadcast です/ます throughout, names everyone with さん. In Vietnamese: 'tôi/anh, ông' lịch sự kiểu truyền hình — giữ giọng tường thuật trang trọng bất kể chuyện trên sàn có vô lý đến đâu.",
         "selfTerms": [
-          "ミー = tôi (kiểu Tây hoá, giữ nét ngoại quốc khi dịch)"
+          "tôi (です/ます)"
         ],
-        "appearances": 7,
+        "appearances": 21,
+        "relations": [
+          {
+            "to": "robin-mask",
+            "relation": "the champion he interviews at ringside",
+            "address": "tôi/anh Robin (ロビンさん, です/ます) — lịch sự, trang trọng trước ống kính"
+          },
+          {
+            "to": "hero-olympics-commentator",
+            "relation": "his broadcast partner",
+            "address": "tôi/ông Tazahama (タザハマさん, です/ます) — lịch sự mời bình luận"
+          }
+        ]
+      },
+      {
+        "id": "vengeful-stranger",
+        "name": "Ông chú (chưa rõ tên)",
+        "nameJa": "",
+        "aliases": [
+          "おじさん"
+        ],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "A gruff, scarred man in a plaid shirt who appears at the end of volume 3 telling Natsuko 「おれはキン肉マンを殺す……!」 and manhandling her until Terryman intervenes — then, across volume 4, quietly becomes Kinnikuman's ringside second: he feeds him the tactics that beat Robin Mask, protests Robin's sneak attack from the stands, thaws Robin with a defrost gun, restrains a panicking Meat, and consoles Robin after the silver medal. Everyone calls him おじさん. **His name and what he is to Natsuko are still unexplained at the end of volume 4** — the biggest open thread in the series so far.",
+        "personality": "Starts as a threat and turns into the group's gruff uncle: blunt, practical, protective of everyone including his former target, and the only adult who talks sense at ringside.",
+        "speech": "Rough おれ and bare imperatives when angry (殺してやるーっ!!, ヘイ とにかく きくんだ‼), but he keeps です/ます with King Muscle even while calling him おじさん. In Vietnamese: 'tao/mày' lúc hung hãn, chuyển sang 'tôi/ông' cộc lốc mà lễ phép với bậc trên, và 'chú/cháu' với Mít và Terryman.",
+        "selfTerms": [
+          "tao (おれ, lúc hung hãn)",
+          "tôi (khi nói với King Muscle, giữ です/ます)",
+          "chú (với Mít, Terryman)"
+        ],
+        "appearances": 21,
+        "relations": [
+          {
+            "to": "natsuko",
+            "relation": "the woman he threatened over Kinnikuman — the connection is never explained",
+            "address": "tao/Natsuko (gọi thẳng tên) — gầm lên đầy hận thù, ghì chặt không buông"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "the man he swore to kill, then seconded to the championship",
+            "address": "tao/Kinnikuman (gọi thẳng tên) — gấp gáp, ra lệnh ở sát dây đài, ép nghe chiến thuật"
+          },
+          {
+            "to": "robin-mask",
+            "relation": "his man's opponent, whom he defends, rescues and then consoles",
+            "address": "tôi/Robin Mask (gọi đủ tên) khi phẫn nộ tố cáo đánh úp; 'Robin' rút gọn, dịu hẳn khi cứu và an ủi"
+          },
+          {
+            "to": "king-muscle",
+            "relation": "the king he guides and argues with at the stadium",
+            "address": "tôi/ông (おじさん thân mật nhưng giữ ですか lịch sự) — vừa can ngăn vừa lo thật lòng cho con trai ông"
+          },
+          {
+            "to": "meat",
+            "relation": "the boy he calms down",
+            "address": "chú/Mít (ミートくん) — ghì giữ, trấn an bằng giọng thân thiết"
+          },
+          {
+            "to": "terryman",
+            "relation": "a hero he already seems to know",
+            "address": "chú/cậu Terryman (テリーマンくん) — thân mật như quen từ trước"
+          }
+        ]
+      },
+      {
+        "id": "hero-olympics-commentator",
+        "name": "Tazahama",
+        "nameJa": "タザハマ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Older bald, bespectacled commentator beside the announcer, whipping up excitement with a hand-drum.",
+        "personality": "Excitable and easily deflated; keeps his manners even when Robin Mask picks him up by the ankles mid-broadcast.",
+        "speech": "です/ます, gushing ガンバレガンバレ, polite even when sulking ('そ…それだけですか…ありがとうございました'). In Vietnamese: 'tôi/anh' lịch sự, hào hứng quá đà rồi hụt hẫng.",
+        "selfTerms": [
+          "tôi (わたし, です/ます)"
+        ],
+        "appearances": 16,
+        "relations": [
+          {
+            "to": "robin-mask",
+            "relation": "the champion he tries to interview",
+            "address": "tôi/anh Robin (ロビンさん, です/ます) — lịch sự; giãy nảy 'わー ゆするな' khi bị túm chân đùa nghịch"
+          }
+        ]
+      },
+      {
+        "id": "olympic-chairman",
+        "name": "Chủ tịch Ban tổ chức",
+        "nameJa": "委員長",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "elder",
+        "role": "Portly, bearded head of the Hero Olympics committee, who rules Japan out of the tournament once Ultraman declines, sneers at King Muscle's pleas — then personally delivers the news when Kinnikuman is picked after all.",
+        "personality": "Pompous and cruel when he has the upper hand, all smiles once the decision goes the other way.",
+        "speech": "Self term わし with a contemptuous おまえ/キサマ downward, booming わっはっはっは. In Vietnamese: 'ta/ngươi' trịch thượng khi gạt phắt, đổi sang 'ta/cậu' hồ hởi khi báo tin vui.",
+        "selfTerms": [
+          "ta (わし)"
+        ],
+        "appearances": 15,
+        "relations": [
+          {
+            "to": "king-muscle",
+            "relation": "the foreign king he humiliates",
+            "address": "ta/ngươi (おまえ, キサマ) — coi thường, cười khẩy 'それこそ日本の恥ですわ!'"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "the fighter he eventually selects",
+            "address": "ta/cậu (わし/キミ) — hồ hởi chúc mừng khi báo tin được chọn"
+          }
+        ]
+      },
+      {
+        "id": "gania-mask",
+        "name": "Gania Mask",
+        "nameJa": "ガニア・マスク",
+        "aliases": [
+          "ガニア"
+        ],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Robin Mask's personal trainer and second — bald, deeply lined, built like a bull in a plain tracksuit. Rides a bicycle beside his pupil on training runs, fields the press for him, and in the final breaks through the crowd to warn Kinnikuman that Robin means to kill him.",
+        "personality": "Gruff, loyal and increasingly frightened of what his own pupil is becoming; the one person who tries to stop the final going too far.",
+        "speech": "Blunt plain speech with his pupil, shouting バカモノ〜ッ at anyone flippant; despite being an older Englishman he uses the Westernised ユー for Kinnikuman. In Vietnamese: 'tôi/cậu' cộc cằn mà tận tuỵ, giữ cách gọi kiểu Tây hoá đúng như Terryman và Robin Mask.",
+        "selfTerms": [
+          "tôi (cộc cằn)"
+        ],
+        "appearances": 12,
+        "relations": [
+          {
+            "to": "robin-mask",
+            "relation": "his pupil",
+            "address": "tôi/Robin (gọi tên rút gọn) — lo lắng gọi tên; kinh hãi khi đoán ra học trò sắp tung đòn cấm"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "his pupil's opponent, whom he runs to warn",
+            "address": "tôi/cậu (ユー, kiểu Tây hoá) — hớt hải: 'ロビンはユーを殺すつもりだ!!'"
+          },
+          {
+            "to": "hero-olympics-commentator",
+            "relation": "the commentator he rounds on",
+            "address": "tôi/đồ ngốc (バカモノ) — quát mắng và giẫm lên ông ta vì buông lời khen thản nhiên trước một đòn chết người"
+          }
+        ]
+      },
+      {
+        "id": "mayumi",
+        "name": "Mayumi",
+        "nameJa": "真弓",
+        "aliases": [
+          "真弓くん"
+        ],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Bearded caped official-cum-competitor at the Hero Olympics — works the microphone before the seeding draw, gets scolded from the judges' box for growing giant, and is drafted to help lift the living-monster barbell. Addressed by everyone as 真弓くん.",
+        "personality": "Willing, put-upon, a little ridiculous.",
+        "speech": "Ordinary plain speech; addressed with くん by superiors. In Vietnamese: 'tôi/anh', và để người khác gọi anh ta là 'cậu Mayumi'.",
+        "selfTerms": [
+          "tôi"
+        ],
+        "appearances": 11,
+        "relations": []
+      },
+      {
+        "id": "ukon",
+        "name": "Ukon",
+        "nameJa": "ウコン",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "",
+        "role": "The last and strongest of the three monsters ravaging Roots Island; pig-faced, endlessly boastful, and revealed mid-fight to be an immortal robot — beaten only when the islanders summon the legendary Manmora.",
+        "personality": "Loud, jeering and insufferably pleased with himself; genuinely touchy about being called a pig.",
+        "speech": "Booming laughter わはははは / うわはははは, blunt self term おれ, contemptuous のう endings. Snaps 'だれがブタじゃ!' when mocked for his face. In Vietnamese: giọng đại ca ngạo mạn 'tao/mày', cười lớn, cợt nhả.",
+        "selfTerms": [
+          "tao (おれ)"
+        ],
+        "appearances": 10,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "the local hero he displaces, then respects",
-            "address": "tôi/cậu (です/ます) khi mới gặp, như với người lạ; kiêu ngạo 'ミー/キミたち, そんなヤツ' khi coi thường; nghiêm túc 'tôi/cậu, Kinnikuman' (おまえ) khi cảnh báo anh về nguy cơ bị quân đội truy bắt"
+            "relation": "the hero sent to drive him off the island",
+            "address": "tao/mày (おまえ) — khinh miệt, chê bai giữa trận ('なさけないのうおまえ'); cười lớn ngạo nghễ khi đòn Kinniku Flash bật ngược"
+          }
+        ]
+      },
+      {
+        "id": "roots-princess",
+        "name": "Công chúa Kunta",
+        "nameJa": "クンタ王女",
+        "aliases": [
+          "クンタ",
+          "Kunta"
+        ],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Princess of the southern Roots Island (ルーツ島), who flies in on her pet bird Miss Karasu to beg Kinnikuman to drive three monsters off her island; she knows his royal identity and calls him 王子.",
+        "personality": "Earnest and dignified, but desperate enough to promise any sum; her island pays in useless giant stone money.",
+        "speech": "です/ます, self term わたし, addresses Kinnikuman by his title 王子. In Vietnamese: 'em/hoàng tử', lễ phép, tha thiết.",
+        "selfTerms": [
+          "em (わたし, です/ます)"
+        ],
+        "appearances": 10,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "the prince she comes to beg for help",
+            "address": "em/hoàng tử (わたし/王子, です/ます) — tha thiết cầu xin, biết rõ thân phận thật của anh"
+          },
+          {
+            "to": "terryman",
+            "relation": "the hero she hires for money",
+            "address": "em/anh (わたし) — khẩn khoản, hứa trả bao nhiêu cũng được"
+          }
+        ]
+      },
+      {
+        "id": "stone-schemer",
+        "name": "Kẻ mặt đá",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "",
+        "role": "Angular, rock-faceted lieutenant to Kinkotsuman in the Hero Olympics sabotage plot — scouts, reports back, and personally runs the 「ニイタカヤマノボレ」 operation, using a Monster Gun at a zoo to enlarge animals and loose them on a reception full of superhumans.",
+        "personality": "Sly and needling with his own side, ominously courteous to his targets.",
+        "speech": "Three registers by audience: teasing plain speech with his allies, deferential です/ます and 先生 to Kinkotsuman, and a chilling politeness to Kinnikuman, whom he greets by his real name — 「おまちしておりましたスグルさん」. In Vietnamese: giữ đúng ba bậc đó; chỗ lễ phép lạnh gáy với Kinnikuman là điểm nhấn.",
+        "selfTerms": [
+          "tao (với đồng bọn)",
+          "em (với Kinkotsuman)",
+          "tôi (giả lễ phép với Kinnikuman)"
+        ],
+        "appearances": 9,
+        "relations": [
+          {
+            "to": "kinkotsuman",
+            "relation": "his leader",
+            "address": "em/tiên sinh (先生, です/ます) khi báo cáo; suồng sã trêu lại khi thấy hắn cũng nhảy múa ăn mừng"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "the target he greets by his real name",
+            "address": "tôi/cậu Suguru (スグルさん) — lễ phép lạnh gáy, cho thấy hắn biết rõ thân phận thật"
+          }
+        ]
+      },
+      {
+        "id": "tabuchi",
+        "name": "Tabuchi",
+        "nameJa": "タブーチ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Roots Island's self-styled 'last warrior' — the others died fighting the island's monsters. Plays childish pranks on Kinnikuman (darts, sabotage) and blames them on the local children.",
+        "personality": "Short-tempered and proud, secretly childish; breaks down frustrated ('くやしい') when caught out, but ends the arc speaking seriously about what makes a hero worth a legend.",
+        "speech": "Rough plain speech, self term オレ, calls Kinnikuman 王子. In Vietnamese: 'tao/mày' bốp chát khi phá đám, chuyển sang 'tôi/hoàng tử' khi nghiêm túc.",
+        "selfTerms": [
+          "tao (オレ)",
+          "tôi (khi nói chuyện nghiêm túc)"
+        ],
+        "appearances": 8,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "the outsider hero he resents, pranks, then respects",
+            "address": "tôi/hoàng tử (オレ/王子) — trầm ngâm, động viên anh phải trở thành anh hùng xứng tầm truyền thuyết"
+          }
+        ]
+      },
+      {
+        "id": "iwao",
+        "name": "Iwao",
+        "nameJa": "イワオ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Round-bodied, goggle-eyed lackey to Kinkotsuman; fetches Kinnikuman's victims as 'material' for the Monster Gun, works the device, and cheers the resulting kaiju on from the sidelines.",
+        "personality": "Eager, fawning, delighted by his own usefulness.",
+        "speech": "Deferential 先生 with です/ます upward, excitable shouting at the monsters he handles. In Vietnamese: 'em/tiên sinh' xun xoe với cấp trên.",
+        "selfTerms": [
+          "em (với Kinkotsuman)"
+        ],
+        "appearances": 8,
+        "relations": [
+          {
+            "to": "kinkotsuman",
+            "relation": "his master",
+            "address": "em/tiên sinh (先生) — lễ phép báo cáo, xin ý kiến ('いかがでしょうか先生!')"
           }
         ]
       },
@@ -521,178 +1079,11 @@
         "appearances": 7,
         "relations": [
           {
-            "to": "hitoshi",
-            "relation": "her manager and childhood friend, who wants to propose",
-            "address": "em/anh Hitoshi (gọi tên + くん) — gần gũi như bạn thời thơ ấu; 'em/anh' (わたし/あなた) khi cảm động, biết ơn"
-          },
-          {
             "to": "kinnikuman",
             "relation": "an over-eager fan who stages a rescue for her",
             "address": "tôi/(không gọi tên) (あたし) — xẵng giọng, khó chịu, mất kiên nhẫn"
           }
         ]
-      },
-      {
-        "id": "hitoshi",
-        "name": "Hitoshi",
-        "nameJa": "ヒトシ",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "young_adult",
-        "role": "Nana's manager and childhood friend, secretly planning to propose to her; dismissive of Kinnikuman.",
-        "personality": "Cold and businesslike when interrupted, earnest and halting when he speaks of Nana.",
-        "speech": "ぼく, curt おまえ to Kinnikuman; borrows Kinnikuman's own コンニャロー when he unexpectedly floors Gorizaemon (a joke — he steals the hero's line).",
-        "selfTerms": [
-          "tôi (ぼく)"
-        ],
-        "appearances": 5,
-        "relations": [
-          {
-            "to": "nana",
-            "relation": "the childhood friend he loves and manages",
-            "address": "anh/em (ぼく) — rụt rè, ngập ngừng, chưa nói hết câu"
-          },
-          {
-            "to": "kinnikuman",
-            "relation": "a nuisance fan hanging around his singer",
-            "address": "tôi/mày (おまえ) — xem thường, trống không"
-          }
-        ]
-      },
-      {
-        "id": "king-tone",
-        "name": "King Tone",
-        "nameJa": "キング・トーン",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Pig-faced wrestler who swept the martial-arts Olympics, took the universal championship from King Muscle, and now rules Kinniku Star as a tyrant. (May be the same character as the pig impostor seen posing as the prince in Kinniku Town — not confirmed in volume 1.)",
-        "personality": "Arrogant conqueror, contemptuous of the deposed royal family.",
-        "speech": "Loud and overbearing. Not enough lines yet to fix his register — Vietnamese 'ta/lũ ngươi' fits what is shown.",
-        "selfTerms": [
-          "ta"
-        ],
-        "appearances": 6,
-        "relations": []
-      },
-      {
-        "id": "zangyaku-alien",
-        "name": "Người Zangyaku",
-        "nameJa": "ザンギャク星人",
-        "aliases": [
-          "ザンギャク星人"
-        ],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Shark-faced alien who hijacks a kindergarten bus to avenge the father Kinnikuman's side killed five years earlier.",
-        "personality": "Vengeful and theatrical, but keeps his word — releases the hostages once Kinnikuman offers himself.",
-        "speech": "Heavy Kyushu/Hakata dialect: オラ, 〜タイ, こげなもん, おしくなか, おはん. In Vietnamese, carry it as a strong regional voice (giọng miền Trung/miền Nam đặc sệt), not neutral speech — the dialect is the character.",
-        "selfTerms": [
-          "tao (オラ, giọng địa phương)"
-        ],
-        "appearances": 5,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "the enemy he has come to destroy",
-            "address": "tao/mày (オラ/おまえ, giọng Kyushu) — công khai tuyên chiến; giọng dịu một bậc khi nhượng bộ, đồng ý thả con tin"
-          },
-          {
-            "to": "akaiwa",
-            "relation": "the police squad leader negotiating with him",
-            "address": "tao/lũ bay — gầm gừ đe doạ, lấy con tin ra uy hiếp"
-          }
-        ]
-      },
-      {
-        "id": "panda-man",
-        "name": "Panda Man",
-        "nameJa": "パンダマン",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "TV tokusatsu hero famous for 'beating monsters in 30 seconds' — in reality a part-time actor; Kinnikuman jealously challenges him to a real match.",
-        "personality": "Friendly and self-effacing off screen, panics when a real fight starts; oddly formal when impressed.",
-        "speech": "Ordinary polite speech, but uses the archaic おぬし when praising; begs ぼく… when frightened. Joke about シリ vs ケツ ('mông' lịch sự hay thô).",
-        "selfTerms": [
-          "tôi (ぼく khi hoảng sợ)"
-        ],
-        "appearances": 4,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "fellow volunteer patroller, then unwilling opponent",
-            "address": "tôi/hoàng tử (王子!) — vồn vã, có vẻ biết thân phận thật của anh; 'mày' (おまえ) khi cảnh giác trên sân khấu; 'ngài' (おぬし, cổ kính) khi kính nể; 'em/anh' (ぼく) khi van nài, sợ hãi"
-          }
-        ]
-      },
-      {
-        "id": "franky",
-        "name": "Franky",
-        "nameJa": "フランキー",
-        "aliases": [
-          "地底怪獣フランキー"
-        ],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Giant underground ape-monster who attacks the kindergarten neighbourhood hoping to become a TV star; turns out to be a man in a costume.",
-        "personality": "Loud-mouthed bully with a sense of grievance, pretends to be in the right.",
-        "speech": "Broad Kansai dialect (ワテ, 〜やんけ, 〜とちゃうか, せえへんで) plus monster growls. In Vietnamese: a comic regional voice, cocky and street-smart.",
-        "selfTerms": [
-          "tao (ワテ, giọng Kansai)"
-        ],
-        "appearances": 4,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "the hero who comes to stop him",
-            "address": "tao/thằng mặt xấu kia (ブ男, キン肉マン; giọng Kansai) — xấc xược, mỉa mai, già mồm ra vẻ chính nghĩa"
-          }
-        ]
-      },
-      {
-        "id": "palace-maiden",
-        "name": "Thị nữ trong cung",
-        "nameJa": "",
-        "aliases": [],
-        "gender": "female",
-        "ageGroup": "young_adult",
-        "role": "Young woman at the Kinniku Star palace, devoted to King Muscle and unimpressed by the prince.",
-        "personality": "Loyal to the king, openly sarcastic about Suguru's antics.",
-        "speech": "わたし with さま-forms — polite on the surface, needling underneath.",
-        "selfTerms": [
-          "tôi (わたし)"
-        ],
-        "appearances": 4,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "the spoiled prince she serves",
-            "address": "tôi/hoàng tử (わたし/王子さま) — ngoài miệng lễ phép, thật ra khó chịu, hay mỉa mai"
-          },
-          {
-            "to": "king-muscle",
-            "relation": "the king she serves and worries about",
-            "address": "tôi/Đại vương (わたし/大王さま) — trung thành, ân cần"
-          }
-        ]
-      },
-      {
-        "id": "shell-monster",
-        "name": "Quái vật vỏ trứng",
-        "nameJa": "",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "",
-        "role": "Lonely 'clumsy monster' of the 孤独のドジ怪獣 chapter, marked with a 肉 kanji like Kinnikuman's, who dreams of being recognised as a hero.",
-        "personality": "Insecure, desperate for approval, calls out to absent parents after every feat.",
-        "speech": "Catchphrase 父さん 母さん みてるかい ('Cha ơi mẹ ơi, có thấy con không?'); calls himself おちこぼれ. In Vietnamese, keep the wistful child-like note.",
-        "selfTerms": [
-          "con (khi gọi cha mẹ)",
-          "tôi"
-        ],
-        "appearances": 4,
-        "relations": []
       },
       {
         "id": "defense-chief",
@@ -710,219 +1101,11 @@
         "appearances": 7,
         "relations": [
           {
-            "to": "radar-officer",
-            "relation": "his radar operator",
-            "address": "ta/cậu — trên ra lệnh dưới"
-          },
-          {
             "to": "kinnikuman",
             "relation": "the hero he calls on",
             "address": "ta/Kinnikuman (gọi thẳng tên) — thân mật, hồ hởi"
           }
         ]
-      },
-      {
-        "id": "radar-officer",
-        "name": "Sĩ quan radar",
-        "nameJa": "",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "young_adult",
-        "role": "Young Defense Force operator at the radar console who relays monster sightings to the chief.",
-        "personality": "Cheeky for a subordinate — teases Kinnikuman about the 肉 mark on his mask.",
-        "speech": "Polite 長官 upward, casual and joking sideways.",
-        "selfTerms": [
-          "tôi (với chỉ huy)"
-        ],
-        "appearances": 3,
-        "relations": [
-          {
-            "to": "defense-chief",
-            "relation": "his commanding officer",
-            "address": "tôi/Chỉ huy (長官) — lễ phép, báo cáo"
-          },
-          {
-            "to": "kinnikuman",
-            "relation": "the hero he jokes about",
-            "address": "tôi/ông (không gọi rõ) — suồng sã, tinh nghịch"
-          }
-        ]
-      },
-      {
-        "id": "coordinator",
-        "name": "Người quản lý",
-        "nameJa": "",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Sunglasses-and-suit handler who announces Kinnikuman's matches, coaches him and reports to the Defense Force chief.",
-        "personality": "Businesslike, patient, a touch of the huckster.",
-        "speech": "です/ます, fond of hypothetical coaching questions ではこうきたら?",
-        "selfTerms": [
-          "tôi (です/ます)"
-        ],
-        "appearances": 5,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "the hero he manages",
-            "address": "tôi/cậu Kinnikuman (キン肉マンくん, です/ます) — thân thiện nhưng vẫn giữ vai người quản lý"
-          },
-          {
-            "to": "defense-chief",
-            "relation": "his superior",
-            "address": "tôi/Chỉ huy (長官) — lễ phép"
-          }
-        ]
-      },
-      {
-        "id": "gorizaemon",
-        "name": "Gorizaemon",
-        "nameJa": "ゴリザエモン",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Gorilla-like underling monster (2m, 2000kg, 'specialty: dripping snot') Kinnikuman hires from a monster phone directory to stage a fake attack on Nana.",
-        "personality": "Fawning to his 'big brother', crude and grabby once he takes a liking to Nana — the staged attack turns real.",
-        "speech": "Yakuza-flunkey register: calls Kinnikuman 兄き, snarls この女 about Nana.",
-        "selfTerms": [
-          "em (với đàn anh)",
-          "tao (khi lộ bản chất)"
-        ],
-        "appearances": 3,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "his 'big brother' and employer",
-            "address": "em/đại ca (兄き) — kính trọng, xun xoe"
-          },
-          {
-            "to": "nana",
-            "relation": "the idol he is supposed to fake-kidnap, then really wants",
-            "address": "tao/con nhỏ này (この女) — thô lỗ, trịch thượng"
-          }
-        ]
-      },
-      {
-        "id": "station-chief",
-        "name": "Giám đốc đài",
-        "nameJa": "局長",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "middle_age",
-        "role": "TV station chief who approves Kinnikuman's 'hunt Nessie live on air' proposal and then balks at the cost.",
-        "personality": "Budget-minded, easily sold on ratings.",
-        "speech": "Business Japanese, です/ます.",
-        "selfTerms": [
-          "tôi"
-        ],
-        "appearances": 3,
-        "relations": []
-      },
-      {
-        "id": "tugawa",
-        "name": "Ông chủ Tugawa",
-        "nameJa": "",
-        "aliases": [
-          "TUGAWA"
-        ],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Burly owner of the gyudon/udon shop where Kinnikuman takes a part-time job.",
-        "personality": "Gruff boss, quick to scold the 新米 (rookie).",
-        "speech": "Curt, commanding shop-owner speech.",
-        "selfTerms": [
-          "tao/tôi (ông chủ)"
-        ],
-        "appearances": 2,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "his hopeless new part-timer",
-            "address": "tao/thằng lính mới (新米) — cộc, ra lệnh, mắng mỏ"
-          }
-        ]
-      },
-      {
-        "id": "akaiwa",
-        "name": "Akaiwa",
-        "nameJa": "赤岩",
-        "aliases": [
-          "赤さん",
-          "赤岩軍団"
-        ],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Police squad leader from Jōsei station who negotiates the bus hijacking and volunteers himself as a hostage exchange; badly hurt, he keeps singing the children's song 'Zou-san'.",
-        "personality": "Brave, warm, stubbornly cheerful.",
-        "speech": "Official but human; sings a nursery song at his lowest moment.",
-        "selfTerms": [
-          "tôi"
-        ],
-        "appearances": 2,
-        "relations": [
-          {
-            "to": "zangyaku-alien",
-            "relation": "the hijacker he negotiates with",
-            "address": "tôi/anh — giọng thương lượng, cố giữ bình tĩnh"
-          }
-        ]
-      },
-      {
-        "id": "goriki",
-        "name": "Goriki",
-        "nameJa": "ゴーリキ",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Huge hairy wrestler, Kinnikuman's opponent in the cage deathmatch Meat sets up as a wager over whether he must return to Kinniku Star.",
-        "personality": "Proud of his strength, undone by laughter at Kinnikuman's funny faces.",
-        "speech": "Growling boasts, self term わたし ('なんのキン肉ならわたしもまけんぞ!').",
-        "selfTerms": [
-          "ta (わたし)"
-        ],
-        "appearances": 2,
-        "relations": []
-      },
-      {
-        "id": "alien-envoy",
-        "name": "Sứ giả ngoài hành tinh",
-        "nameJa": "",
-        "aliases": [
-          "牛丼野郎"
-        ],
-        "gender": "male",
-        "ageGroup": "",
-        "role": "Alien who first recruits Kinnikuman to fight for Earth; Kinnikuman nicknames him 'gyudon face'.",
-        "personality": "Officious; breaks the fourth wall by commenting on the panel layout.",
-        "speech": "Neutral polite Japanese, with a fourth-wall joke about コマ (panels).",
-        "selfTerms": [
-          "tôi"
-        ],
-        "appearances": 2,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "the hero he recruits",
-            "address": "tôi/cậu (わたし/キミ) — trịnh trọng kiểu công vụ"
-          }
-        ]
-      },
-      {
-        "id": "shigeru",
-        "name": "Shigeru",
-        "nameJa": "シゲル",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "young_adult",
-        "role": "Youth of the Giant tribe from Planet Giants, adopted by King Muscle as a rival prince candidate — to Kinnikuman's fury.",
-        "personality": "Well-mannered and favoured, a foil to the spoiled prince.",
-        "speech": "Polite, deferential to the king.",
-        "selfTerms": [
-          "con (với Đại vương)"
-        ],
-        "appearances": 1,
-        "relations": []
       },
       {
         "id": "yosaku",
@@ -931,46 +1114,171 @@
         "aliases": [],
         "gender": "male",
         "ageGroup": "adult",
-        "role": "Rustic countryman who claims he already beat Nessie and demands his own TV special.",
-        "personality": "Boastful yokel.",
+        "role": "Rustic countryman who claims he already beat Nessie and demands his own TV special; returns in 「ジャパニーズ・ドリームの巻」 bursting in with a cape and a hero pose to appoint himself Kinnikuman's boxing trainer, drilling him by chasing chickens and running roadwork.",
+        "personality": "Boastful yokel, gruff but wholehearted; rides the fame the moment his pupil wins.",
         "speech": "Heavy country speech: self term おら, endings だ/だべ. In Vietnamese, keep a rural voice ('tui/tao' + giọng quê) consistently.",
         "selfTerms": [
           "tui (おら, giọng nhà quê)"
         ],
-        "appearances": 1,
-        "relations": []
-      },
-      {
-        "id": "neighbor-oldman",
-        "name": "Ông hàng xóm",
-        "nameJa": "",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "elder",
-        "role": "Elderly neighbour with a cane who scolds Kinnikuman about 'kids these days'.",
-        "personality": "Nosy, teasing, quick to lecture.",
-        "speech": "Old-man speech, もんくでもあんのか, calls arguments へりくつ.",
-        "selfTerms": [
-          "lão/tao"
-        ],
-        "appearances": 2,
+        "appearances": 7,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "the loud young man next door",
-            "address": "lão/mày — trêu chọc, hỏi vặn, dạy đời"
+            "relation": "the fighter he appoints himself trainer to",
+            "address": "tui/mày (わし/おまえ, giọng quê) — cộc cằn nhưng nhiệt tình; mắng mỏ khi thấy hắn nhát gan trước trận"
+          }
+        ]
+      },
+      {
+        "id": "buzzugara",
+        "name": "Buzzugara",
+        "nameJa": "バズーガーラ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "",
+        "role": "Rhino-like kaiju with twin cannon barrels fused to its snout, carrying the growth-ray 'モンスターガン'; Kinkotsuman's weapon in 「巨人ナツコの巻」, where he gigantifies Natsuko to turn her against Terryman.",
+        "personality": "Eager to please his boss and proud of his own detective work; loud and triumphant when the ray lands.",
+        "speech": "Deferential 先生 upward, booming グハハハ laughter at his victims. In Vietnamese: 'tôi/tiên sinh' với cấp trên, 'tao/mày' hống hách với nạn nhân.",
+        "selfTerms": [
+          "tôi (với Kinkotsuman)",
+          "tao (khi ra tay)"
+        ],
+        "appearances": 7,
+        "relations": [
+          {
+            "to": "kinkotsuman",
+            "relation": "his master",
+            "address": "tôi/tiên sinh (先生) — chủ động hiến kế, tự tin khoe đã tìm ra điểm yếu của Terryman"
+          },
+          {
+            "to": "natsuko",
+            "relation": "the reporter he turns into a giantess",
+            "address": "tao/Natsuko (gọi thẳng tên) — hô lớn rồi bắn tia, cười đắc thắng"
+          }
+        ]
+      },
+      {
+        "id": "karekkuku",
+        "name": "Karekkuku",
+        "nameJa": "カレクック",
+        "aliases": [
+          "カレック"
+        ],
+        "gender": "male",
+        "ageGroup": "",
+        "role": "India's representative in Block B — a round curry-bun head marked 肉, no visible mouth. Fights Kinnikuman using curry roux smeared into his forehead wound, and loses when his head cracks open.",
+        "personality": "Unsettling to look at and treated with disgust by the other fighters, but revealed to be a frightened, childish creature the moment he is hurt.",
+        "speech": "High, childish shrieking when scared ('ひぇ〜〜っわれちゃったーっ'). In Vietnamese: giọng non nớt, trẻ con khi hoảng — tương phản với vẻ ngoài ghê rợn.",
+        "selfTerms": [
+          "tôi (わたし)"
+        ],
+        "appearances": 7,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "his Block B opponent",
+            "address": "tôi/(không gọi tên) — la hoảng bằng giọng trẻ con khi bị phản đòn"
+          }
+        ]
+      },
+      {
+        "id": "queen",
+        "name": "Hoàng hậu",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "middle_age",
+        "role": "Queen of Kinniku Star, King Muscle's wife and Kinnikuman's mother — a robed woman in a pointed hood-like headdress who appears at the palace and at ringside.",
+        "personality": "Warm with her husband and with Meat, and the steelier of the two parents: when King Muscle wants to pull their son out, she is the one who invokes the throne's duty and makes him let the boy fight.",
+        "speech": "わたし with あなた for her husband — the ordinary married pronoun — and です/ます when she turns stern. Calls Meat ミートくん, softening to ミートちゃん. In Vietnamese: 'em/mình (anh)' vợ chồng thân mật, đổi sang giọng nghiêm nghị khi nhắc nghĩa vụ; 'cô/cháu Mít' với Mít.",
+        "selfTerms": [
+          "em (わたし, với chồng)",
+          "ta (khi nghiêm nghị nhắc nghĩa vụ hoàng tộc)"
+        ],
+        "appearances": 7,
+        "relations": [
+          {
+            "to": "king-muscle",
+            "relation": "her husband",
+            "address": "em/mình (わたし/あなた) — trấn an dịu dàng; vẫn あなた nhưng giọng nghiêm khắc khi quở trách: 'スグルは わたしたちの息子である前にキン肉星の王子です'"
+          },
+          {
+            "to": "meat",
+            "relation": "her son's herald",
+            "address": "cô/cháu Mít (ミートくん, dịu thành ミートちゃん) — nhờ vả nhẹ nhàng, vẫn giữ khoảng cách chủ-tớ"
+          }
+        ]
+      },
+      {
+        "id": "king-tone",
+        "name": "King Tone",
+        "nameJa": "キング・トーン",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "",
+        "role": "Pig-faced wrestler who swept the martial-arts Olympics, took the universal championship from King Muscle, and now rules Kinniku Star as a tyrant. Two things about him are still unresolved after volume 2: whether he is the same pig who impersonated the prince in Kinniku Town, and whether the v01-0321 flashback nickname トンカツ屋のイクヱちゃん (recorded under King Muscle) is really his own past. Do not merge or reassign either until a later volume settles it.",
+        "personality": "Arrogant conqueror, contemptuous of the deposed royal family.",
+        "speech": "Loud and overbearing. Not enough lines yet to fix his register — Vietnamese 'ta/lũ ngươi' fits what is shown.",
+        "selfTerms": [
+          "ta"
+        ],
+        "appearances": 6,
+        "relations": []
+      },
+      {
+        "id": "western-girl",
+        "name": "Cô bé cao bồi",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "child",
+        "role": "A young girl in a flat cap and denim overalls — a cowgirl look matching the 「よみがえる西部魂の巻」 chapter — who stays beside Terryman after Kinkotsuman's bullet wrecks his leg, scolds him for insisting on fighting hurt, and begs him to stop mid-match. She has no name yet.",
+        "personality": "Fierce and tearful in equal measure; the only person who tells Terryman the truth about his own condition.",
+        "speech": "Familiar shortening of his name — テリー, even テリ — with pleading endings (のよぉ). In Vietnamese: 'em/anh Terry' thân mật, nghẹn ngào, gọi rút gọn chứ không gọi đủ 'Terryman'.",
+        "selfTerms": [
+          "em"
+        ],
+        "appearances": 6,
+        "relations": [
+          {
+            "to": "terryman",
+            "relation": "the hero she stays beside",
+            "address": "em/anh Terry (テリー, rút gọn thân mật) — hoảng hốt gọi tên, trách móc vì anh liều mạng, rồi khẩn cầu anh dừng trận đấu"
+          }
+        ]
+      },
+      {
+        "id": "kazu-nakano",
+        "name": "Kazu Nakano",
+        "nameJa": "カズ・ナカーノ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "A Nisei (日系二世) manager and guide assigned to Kinnikuman for the Hawaii leg of the champion's world tour — bald, round-glassed, portly, in an aloha shirt.",
+        "personality": "Cheerful, business-minded and fond of withholding a surprise; lectures his charge about punctuality and 'time is money'.",
+        "speech": "Japanese-American pidgin: self term ミー, キミ for the listener, English tags (ウェルカムチャンピオン, タイムイズマネー) and です/ます colliding with plain endings and an old-man のう. Also calls Kinnikuman 王子. In Vietnamese: giọng Việt kiều — pha tiếng Anh, lúc lịch sự lúc suồng sã, giữ cách tự xưng kiểu Tây hoá giống Terryman.",
+        "selfTerms": [
+          "Mi (ミー, kiểu Tây hoá)",
+          "tôi (khi chuyển sang です/ます)"
+        ],
+        "appearances": 5,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "the champion he manages in Hawaii",
+            "address": "Mi/cậu, hoàng tử (ミー/キミ, 王子) — đón tiếp nồng nhiệt, hay đùa giữ bí mật, xen lời dặn về giờ giấc"
           }
         ]
       }
     ]
   },
-  "rawPages": 94,
+  "rawPages": 375,
   "translatedPages": 0,
-  "pairedPages": 94,
+  "pairedPages": 375,
   "pairCount": 0,
   "isVerifiedByHuman": false,
   "source": "claude",
   "withRaw": true,
   "name": "kinnikuman-raw",
-  "createdAt": 1789691385
+  "createdAt": 1789795650
 }

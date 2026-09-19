@@ -71,3 +71,7 @@ debug-scan/
 
 # Scratch manga volumes used for local testing
 /test/
+
+# Python bytecode from the style-read scripts
+__pycache__/
+*.pyc
