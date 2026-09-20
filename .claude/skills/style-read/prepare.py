@@ -41,7 +41,9 @@ import progress
 
 MATCH_FLOOR = 0.69
 GAP_COST = 0.05
-READING_SIDE = 1500
+# 1568 is where a page stops getting clearer to the reader: above it the image
+# is scaled back down before it is looked at, so the tokens buy nothing.
+READING_SIDE = 1568
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff")
 
 try:
@@ -144,16 +146,74 @@ def page_id(path, index, taken):
     return ident
 
 
-def reading_copy(source, target):
-    if os.path.exists(target) and os.path.getmtime(target) >= os.path.getmtime(source):
-        return
-    image = Image.open(source).convert("RGB")
+def fresh(target, source):
+    """A copy already made at the size we want now."""
+    if not os.path.exists(target) or os.path.getmtime(target) < os.path.getmtime(source):
+        return False
+    try:
+        with Image.open(target) as made:
+            return max(made.size) >= READING_SIDE - 1 or max(made.size) == max(
+                Image.open(source).size
+            )
+    except OSError:
+        return False
+
+
+def half_is_fresh(target, source):
+    """A half is remade unless it has already been brought up to size."""
+    if not os.path.exists(target) or os.path.getmtime(target) < os.path.getmtime(source):
+        return False
+    try:
+        with Image.open(target) as made:
+            return max(made.size) >= READING_SIDE - 1
+    except OSError:
+        return False
+
+
+def fit(image, enlarge=False):
+    """Bring an image to the size the reader is given.
+
+    Scans of this vintage are often smaller than that, and a half-spread from
+    one is very small indeed. Enlarging does not add detail, but it does spread
+    the lettering over more of the picture the reader is shown, which is what
+    cropping a panel used to do by hand."""
     scale = READING_SIDE / max(image.size)
-    if scale < 1:
+    if scale < 1 or (enlarge and scale > 1):
         image = image.resize(
             (round(image.width * scale), round(image.height * scale)), Image.LANCZOS
         )
-    image.save(target, quality=90)
+    return image
+
+
+def reading_copy(source, target):
+    """The page as the reader sees it, plus each half on its own.
+
+    A scan is a two-page spread, so at one image a spread each page is only
+    half as wide as the reader is given — small enough that readers used to
+    crop panels to make out the lettering, which cost more than the page. The
+    halves are the same spread at twice the size, to fall back on; the spread
+    stays the one the face boxes are fractions of.
+    """
+    made = []
+    if not fresh(target, source):
+        image = Image.open(source).convert("RGB")
+        fit(image).save(target, quality=90)
+        made.append(target)
+    stem, extension = os.path.splitext(target)
+    halves = {}
+    for suffix, side in (("_r", "right"), ("_l", "left")):
+        halves[side] = stem + suffix + extension
+    if not all(half_is_fresh(h, source) for h in halves.values()):
+        image = Image.open(source).convert("RGB")
+        middle = image.width // 2
+        # Right half first: a spread is read right to left.
+        fit(image.crop((middle, 0, image.width, image.height)), enlarge=True).save(
+            halves["right"], quality=90
+        )
+        fit(image.crop((0, 0, middle, image.height)), enlarge=True).save(
+            halves["left"], quality=90
+        )
+    return halves
 
 
 def work_dir(root, raw_only):
@@ -282,8 +342,11 @@ def main():
     out = work_dir(root, raw_only)
     pages_dir = os.path.join(out, "pages")
     notes_dir = os.path.join(out, "notes")
+    # Where each batch leaves what it found; progress.py folds it into the cast.
+    updates_dir = os.path.join(out, progress.UPDATES_DIR)
     os.makedirs(pages_dir, exist_ok=True)
     os.makedirs(notes_dir, exist_ok=True)
+    os.makedirs(updates_dir, exist_ok=True)
 
     only = {x.strip() for x in args.only.split(",") if x.strip()}
     pages, skipped, taken, listed = [], [], set(), []
@@ -308,14 +371,14 @@ def main():
             taken.add(ident)
             if only and ident not in only and base not in only:
                 continue
-            trans_copy = None
+            trans_copy = trans_halves = None
             if t is not None:
                 trans_copy = os.path.join(pages_dir, f"{ident}_trans.jpg")
-                reading_copy(translated[t], trans_copy)
-            raw_copy = None
+                trans_halves = reading_copy(translated[t], trans_copy)
+            raw_copy = raw_halves = None
             if r is not None:
                 raw_copy = os.path.join(pages_dir, f"{ident}_raw.jpg")
-                reading_copy(raw[r], raw_copy)
+                raw_halves = reading_copy(raw[r], raw_copy)
             note = os.path.join(notes_dir, f"{ident}.md")
             pages.append(
                 {
@@ -323,6 +386,8 @@ def main():
                     "volume": volume,
                     "raw": raw_copy,
                     "trans": trans_copy,
+                    "rawHalves": raw_halves,
+                    "transHalves": trans_halves,
                     "rawSource": raw[r] if r is not None else None,
                     "transSource": translated[t] if t is not None else None,
                     "rawFile": os.path.basename(raw[r]) if r is not None else None,
@@ -348,6 +413,8 @@ def main():
         "pages": pages,
         "skipped": skipped,
         "cast": os.path.join(out, "cast.json"),
+        "known": os.path.join(out, "known.md"),
+        "updates": updates_dir,
         "profile": os.path.join(out, "profile.json"),
     }
     progress.record(manifest)

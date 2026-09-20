@@ -55,7 +55,9 @@ AGENTS.md
 claudedocs/
 /.claude/*
 # Project commands for Claude Code (/style-read) are shared; local settings are not.
+# The reader agent goes with the skill: /style-read starts it for every batch.
 !/.claude/skills/
+!/.claude/agents/
 /.serenarender/
 
 # API keys — never commit these

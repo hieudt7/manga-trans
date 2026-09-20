@@ -210,8 +210,9 @@ def check_profile(profile, cast, with_raw, with_translation):
 def crop_faces(faces_dir, manifest, cast, characters):
     """Cut each character's face out of the page it was noted on.
 
-    Boxes are fractions of the page, so they apply to the full-size original as
-    well as to the reading copy they were noted on.
+    Boxes are fractions of the image the face was seen on, so they apply to the
+    full-size original as well as to the reading copy. A box noted on one half
+    of the spread carries `half`, and is mapped back onto the whole page here.
     """
     pages = {p["id"]: p for p in manifest["pages"]}
     cast_by_id = {c.get("id"): c for c in cast}
@@ -231,6 +232,13 @@ def crop_faces(faces_dir, manifest, cast, characters):
             except OSError:
                 continue
             x, y, w, h = (float(v) for v in box)
+            # A box taken off one half of the spread covers half its width.
+            half = str(face.get("half", "")).lower()
+            if half in ("right", "left"):
+                x, w = x / 2, w / 2
+                if half == "right":
+                    # The right half is the second half of the image file.
+                    x += 0.5
             pad_w, pad_h = w * FACE_PADDING, h * FACE_PADDING
             left = max(0, int((x - pad_w) * image.width))
             top = max(0, int((y - pad_h) * image.height))

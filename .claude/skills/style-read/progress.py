@@ -9,11 +9,17 @@ see whether it has been read, how far, and the command that carries on. A page
 counts as read once its note exists; the note is the last thing written for a
 page, so a run cut off mid-page reads that page again.
 
-It also keeps the cast up to date from the notes: which pages each character
-is on, which pairs have been seen addressing each other and on how many pages,
-and which characters and pairs are settled — known well enough that later
-pages need not describe them again. The settled ones are listed in known.md in
-the work folder, which each batch reads before it starts.
+It also keeps the cast up to date. A batch never opens cast.json — the file
+grows past what one read can hold, and two batches writing it would collide —
+so each page's findings go to updates/<page id>.json and are folded in here,
+then set aside under updates/applied/. From the notes it works out which pages
+each character is on, which pairs have been seen addressing each other and on
+how many pages, and which characters and pairs are settled — known well enough
+that later pages need not describe them again.
+
+known.md, beside cast.json, is what the next batch reads instead: every
+character in one line, with the forms of address already recorded named but not
+quoted, so it stays a list the reader can hold in its head.
 
 prepare.py runs this when it finishes, the reading loop after every batch, and
 finish.py after publishing.
@@ -35,6 +41,28 @@ STATE_FILE = "profile_state.json"
 SETTLED_PAGES = 6
 SETTLED_PAIR_PAGES = 3
 GENDERS = ("male", "female")
+
+# Where a batch leaves what it found, and the shape known.md keeps it in. The
+# limits are what stops the file a batch reads from growing with the cast: a
+# mood is a tag ("giận"), not the retelling of a scene.
+UPDATES_DIR = "updates"
+APPLIED_FILE = "cast_applied.json"
+# The cast block a note ends with, which is how a page reports what it found
+# without spending a second call on a file of its own.
+CAST_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
+FACES_PER_CHARACTER = 3
+MOOD_KEY_MAX = 28
+MOOD_VALUE_MAX = 90
+LOOKS_MAX = 110
+ONCE_LOOKS_MAX = 60
+MOODS_SHOWN = 8
+PAIRS_SHOWN = 12
+OPEN_PAIRS_SHOWN = 10
+# An open character last seen long ago is unlikely to walk back on; it is kept
+# in the list so it is not given a second id, but not described in full.
+RECENT_PAGES = 80
+# Kept by the scripts from the notes; an update file may not set them.
+SCRIPT_FIELDS = ("id", "pages", "pairPages", "settled", "settledPairs", "missing")
 
 ADDRESS_LINE = re.compile(r"ADDRESS\s+(.+?)\s*(?:→|->)\s*(.+?)\s*(?:\[|:)")
 
@@ -144,6 +172,151 @@ def evidence(pages, characters):
     return on_pages, pair_pages
 
 
+def short(text, limit):
+    text = " ".join(str(text or "").split())
+    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
+
+
+def mood_key(key):
+    """A mood is a tag. Readers write whole clauses ("cãi lại, biện minh"), and
+    every one of them is repeated to every later batch, so keep the first
+    clause and let the note carry the rest."""
+    first = re.split(r"[,;、，]", " ".join(str(key or "").split()))[0].strip()
+    return short(first, MOOD_KEY_MAX)
+
+
+def merge_character(target, source):
+    """Fold one update entry into a cast entry: fill what is empty, add what is
+    new, and never overwrite what is already recorded — a settled character is
+    not described again, and a batch working from a stale known.md must not be
+    able to undo a later one."""
+    for key, value in source.items():
+        if key in SCRIPT_FIELDS:
+            continue
+        if key == "faces":
+            faces = target.setdefault("faces", [])
+            seen = {(f.get("page"), f.get("side")) for f in faces}
+            for face in value or []:
+                if len(faces) >= FACES_PER_CHARACTER:
+                    break
+                mark = (face.get("page"), face.get("side"))
+                if mark not in seen:
+                    faces.append(face)
+                    seen.add(mark)
+        elif key == "addresses":
+            addresses = target.setdefault("addresses", {})
+            for other, entry in (value or {}).items():
+                kept = addresses.setdefault(other, {})
+                default = str((entry or {}).get("default", "")).strip()
+                if default and not str(kept.get("default", "")).strip():
+                    kept["default"] = short(default, MOOD_VALUE_MAX)
+                for mood, how in ((entry or {}).get("moods") or {}).items():
+                    tag = mood_key(mood)
+                    if tag and tag not in kept.setdefault("moods", {}):
+                        kept["moods"][tag] = short(how, MOOD_VALUE_MAX)
+        elif key == "aliases":
+            aliases = target.setdefault("aliases", [])
+            for alias in value or []:
+                if alias and alias not in aliases:
+                    aliases.append(alias)
+        elif key == "looks":
+            if not str(target.get("looks", "")).strip():
+                target["looks"] = short(value, LOOKS_MAX)
+        elif str(value or "").strip() and not str(target.get(key, "")).strip():
+            target[key] = value
+    return target
+
+
+def cast_block(note_path):
+    """The JSON a note ends with: what that page found out about the cast.
+
+    It rides in the note so that reading a page costs one write, not two — the
+    calls a batch makes are most of what it costs."""
+    try:
+        with open(note_path, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return None
+    matches = CAST_BLOCK.findall(text)
+    if not matches:
+        return None
+    try:
+        return json.loads(matches[-1])
+    except json.JSONDecodeError:
+        return False  # there is one, and it is broken: worth saying so
+
+
+def apply_updates(cast_path, pages=()):
+    """Fold what the batches found into cast.json, once each.
+
+    Two sources: the cast block at the end of each note, and any standalone
+    updates/*.json a reader wrote. Both are folded in once — notes by page id
+    in cast_applied.json, files by being moved to updates/applied/ — so that a
+    character retired by hand is not conjured back on the next run."""
+    work = os.path.dirname(cast_path)
+    state = read_json(os.path.join(work, APPLIED_FILE), {}) or {}
+    done = set(state.get("pages") or [])
+
+    fresh_notes, broken = [], []
+    for page in pages:
+        if page["id"] in done or not note_written(page):
+            continue
+        block = cast_block(page["note"])
+        if block is False:
+            broken.append(page["id"])
+            continue
+        done.add(page["id"])  # a note with no block has nothing to fold in
+        if block:
+            fresh_notes.append((page["id"], block))
+
+    updates = os.path.join(work, UPDATES_DIR)
+    files = (
+        sorted(f for f in os.listdir(updates) if f.endswith(".json"))
+        if os.path.isdir(updates)
+        else []
+    )
+    if not fresh_notes and not files:
+        if broken:
+            print("  broken cast block in: " + ", ".join(broken), file=sys.stderr)
+        return 0, []
+
+    cast = read_json(cast_path, None) or {"characters": []}
+    characters = cast.setdefault("characters", [])
+    by_id = {c.get("id"): c for c in characters}
+    added = []
+
+    def fold(update):
+        for entry in (update or {}).get("characters") or []:
+            ident = str(entry.get("id", "")).strip()
+            if not ident:
+                continue
+            if ident not in by_id:
+                by_id[ident] = {"id": ident}
+                characters.append(by_id[ident])
+                added.append(ident)
+            merge_character(by_id[ident], entry)
+
+    for _, block in fresh_notes:
+        fold(block)
+
+    applied = os.path.join(updates, "applied")
+    for name in files:
+        path = os.path.join(updates, name)
+        update = read_json(path, None)
+        if update is None:
+            print(f"  {name} is not valid JSON — left in {UPDATES_DIR}/ for a look", file=sys.stderr)
+            continue
+        fold(update)
+        os.makedirs(applied, exist_ok=True)
+        os.replace(path, os.path.join(applied, name))
+
+    write_json(cast_path, cast)
+    write_json(os.path.join(work, APPLIED_FILE), {"pages": sorted(done)})
+    if broken:
+        print("  broken cast block in: " + ", ".join(broken), file=sys.stderr)
+    return len(fresh_notes) + len(files), added
+
+
 def missing_for_settling(c, with_raw):
     missing = []
     if not str(c.get("name", "")).strip():
@@ -164,9 +337,12 @@ def missing_for_settling(c, with_raw):
 
 
 def settle(manifest):
-    """Bring cast.json's page counts and settled flags up to date, and write
-    known.md for the next batch."""
+    """Fold in what the last batch found, bring cast.json's page counts and
+    settled flags up to date, and write known.md for the next batch."""
     cast_path = manifest["cast"]
+    files, added = apply_updates(cast_path, manifest["pages"])
+    if files:
+        print(f"folded in {files} page(s) of cast findings" + (f", new: {', '.join(added)}" if added else ""))
     cast = read_json(cast_path, None)
     if not cast or not cast.get("characters"):
         return
@@ -196,35 +372,93 @@ def settle(manifest):
     lines = [
         "# Known characters",
         "",
-        "Settled: recognise them and name them by id, but do not describe them again,",
-        "and add no face for them. For a settled pair, write no ADDRESS line unless",
-        "the form of address differs from the one given (a new mood counts).",
+        "This is the cast. Never open cast.json — it is far larger than one read",
+        "holds, so what you would see is a fraction of it. Write what you find to",
+        "your update file instead; a script folds it in.",
+        "",
+        "Settled characters are identified for good: recognise them, name them by id,",
+        "do not describe them again and add no face for them. Under each one are the",
+        "pairs already settled — the usual form of address, then in brackets the moods",
+        "already recorded. Write an ADDRESS line for a settled pair only when the form",
+        "is neither the default nor one of those moods.",
+        "",
+        "## Settled",
         "",
     ]
     for c in characters:
         if not c["settled"]:
             continue
-        pairs = []
-        for b in c["settledPairs"]:
-            entry = c.get("addresses", {}).get(b, {})
-            moods = "; ".join(f"{k}: {v}" for k, v in (entry.get("moods") or {}).items())
-            pairs.append(f"{b}: {entry.get('default', '')}" + (f" ({moods})" if moods else ""))
         lines.append(
-            f"- **{c['id']}** — {c.get('name', '')} ({c.get('nameJa', '')}), {c.get('gender', '')}, "
-            f"{c.get('ageGroup', '')}; looks: {c.get('looks', '')}; aliases: {', '.join(c.get('aliases') or [])}"
+            f"- **{c['id']}** — {c.get('name', '')}"
+            + (f" ({c['nameJa']})" if c.get("nameJa") else "")
+            + f", {c.get('gender', '')}, {c.get('ageGroup', '')}"
+            + (f"; aka {', '.join(c.get('aliases') or [])}" if c.get("aliases") else "")
+            + (f"; {short(c.get('looks', ''), LOOKS_MAX)}" if c.get("looks") else "")
         )
-        if pairs:
-            lines.append("  - settled pairs → " + " | ".join(pairs))
-    lines += ["", "# Still open — complete these when they appear", ""]
-    for c in characters:
-        if c["settled"]:
+        for b in c["settledPairs"][:PAIRS_SHOWN]:
+            entry = c.get("addresses", {}).get(b, {})
+            tags = [mood_key(k) for k in (entry.get("moods") or {})]
+            shown = ", ".join(tags[:MOODS_SHOWN]) + (
+                f", +{len(tags) - MOODS_SHOWN}" if len(tags) > MOODS_SHOWN else ""
+            )
+            lines.append(
+                f"    → {b}: {short(entry.get('default', ''), MOOD_VALUE_MAX)}"
+                + (f" [{shown}]" if tags else "")
+            )
+        if len(c["settledPairs"]) > PAIRS_SHOWN:
+            lines.append(f"    → …{len(c['settledPairs']) - PAIRS_SHOWN} more settled pairs")
+    lines += [
+        "",
+        "## Still open — complete these when they appear",
+        "",
+        "These are what the effort goes on. `looks` is there so you can tell them",
+        "apart; a character held open is one two readings disagree about — never",
+        "merge it into another id yourself, say so in your report instead.",
+        "",
+    ]
+    # Most-seen first: those are the ones likely to walk back onto a page.
+    open_cast = sorted(
+        (c for c in characters if not c["settled"]),
+        key=lambda c: (-len(c.get("pages", [])), c["id"]),
+    )
+    read_so_far = [p["id"] for p in manifest["pages"] if note_written(p)]
+    recent = set(read_so_far[-RECENT_PAGES:])
+
+    def worth_describing(c):
+        if c.get("hold") or len(c.get("pages", [])) >= 3:
+            return True
+        return bool(recent.intersection(c.get("pages", [])))
+
+    once = []
+    for c in open_cast:
+        if not worth_describing(c):
+            once.append(c)
             continue
         open_pairs = [b for b in c.get("pairPages", {}) if b not in c["settledPairs"] and b in by_id]
         lines.append(
-            f"- **{c['id']}** — {c.get('name', '')}: missing {', '.join(c['missing']) or 'nothing'}"
-            + ("; held open" if c.get("hold") else "")
-            + (f"; open pairs → {', '.join(open_pairs)}" if open_pairs else "")
+            f"- **{c['id']}** — {c.get('name', '')}"
+            + (f" ({c['nameJa']})" if c.get("nameJa") else "")
+            + f": missing {', '.join(c['missing']) or 'nothing'}"
+            + ("; HELD OPEN" if c.get("hold") else "")
+            + (f"; {short(c.get('looks', ''), LOOKS_MAX)}" if c.get("looks") else "")
+            + (
+                f"; open pairs → {', '.join(open_pairs[:OPEN_PAIRS_SHOWN])}"
+                if open_pairs
+                else ""
+            )
         )
+    if once:
+        lines += [
+            "",
+            "Seen once, or not for a long time — check against these before giving",
+            "anyone a new id, but do not go looking for them:",
+            "",
+        ]
+        for c in once:
+            lines.append(
+                f"- **{c['id']}** — {c.get('name', '')}"
+                + (f"; {short(c.get('looks', ''), ONCE_LOOKS_MAX)}" if c.get("looks") else "")
+            )
     with open(os.path.join(os.path.dirname(cast_path), "known.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 

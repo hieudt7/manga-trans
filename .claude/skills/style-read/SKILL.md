@@ -50,8 +50,8 @@ turn that into the flags.
   character tree, read from the Japanese. Nobody has translated it yet, so the
   Vietnamese names and forms of address are **your suggestions**, and there is
   no translator's style to describe. Work folder
-  `<folder>/style_scan/claude_raw/`. Pass `--raw-only` to both scripts whenever
-  the manifest says `"withTranslation": false`.
+  `<folder>/style_scan/claude_raw/`. Pass `--raw-only` to every script
+  whenever the manifest says `"withTranslation": false`.
 
 The steps are the same; where they differ, it is said below.
 
@@ -63,7 +63,13 @@ python3 .claude/skills/style-read/prepare.py <folder> [--from VOL --to VOL] [--r
 
 This pairs each translated page with its original (in the translation mode,
 pages only the original has are skipped), writes reading copies, and writes
-`pages.json` in the work folder. If it cannot find a volume, it lists the
+`pages.json` in the work folder, along with the `notes/` and `updates/` folders
+the batches write into.
+
+Each page gets three images: the spread, and its right and left halves
+(`rawHalves`, `transHalves` in the manifest). A reader looks at the spread and
+falls back to a half only for a balloon it cannot read — which is why it needs
+no shell and cannot crop. Face boxes stay fractions of the spread. If it cannot find a volume, it lists the
 folders it saw — pick the right bound from them, or ask the user.
 
 Read the manifest: `withTranslation` says which mode this is, `withRaw`
@@ -73,25 +79,50 @@ an interrupted run continues where it stopped, in this session or a later one.
 
 ## 2. Read the pages in batches, with a shared cast
 
-Split the pages not yet `done` into batches of **6**, in page order (volume by
+Split the pages not yet `done` into batches of **4**, in page order (volume by
 volume, never mixing two volumes in a batch), and read them **one batch after
 another** — never in parallel: each batch needs the cast the previous one left
 behind, or the same character ends up under two names.
 
+Four, and measured: a batch costs the calls it makes times the context each one
+carries, and both grow with the batch — the pages stay in front of the reader
+to the end, and it takes more turns to work through them. Batches of 8 cost
+143k input tokens a page against 96k at 4; the fixed part is not what dominates.
+
 Tell the user once, before the first batch: how many pages and batches there
 are, and that the run can be stopped at any time and carried on later.
 
-For each batch, start one subagent (Agent tool, `subagent_type: general-purpose`,
-`model` from `--reader`) with the brief below, filled in. Do not open the page
-images yourself; the subagents do, which keeps this session's context small.
+For each batch, start one subagent with the **`manga-page-reader`** type
+(`model` from `--reader`). It carries the whole brief — how to read a spread,
+what to write, both note formats — so the prompt is only the batch:
+
+> Mode: original only *(or: with a translation)*.
+> Pages, in this order — read the right half, then the left:
+> - `v05-061` — right `<path>` left `<path>` (whole spread, if ever needed:
+>   `<path>`) *(with a translation, the translated halves and the raw halves)*
+> - …
+> known.md: `<work>/known.md`
+> Previous page's note: `<work>/notes/v05-060.md` *(or "none")*
+> Notes folder: `<work>/notes/`
+
+If `manga-page-reader` is not among the agent types this session offers, use
+`general-purpose` and open the prompt with: "Read
+`.claude/agents/manga-page-reader.md` and follow it." Do not paste the brief
+into the prompt, and do not open the page images yourself — the subagents do,
+which is what keeps this session's context small.
+
 Wait for it, check its short report, then record the progress:
 
 ```
 python3 .claude/skills/style-read/progress.py <folder> [--raw-only]
 ```
 
-It does two things:
+It does three things:
 
+- folds the `### Cast` block at the end of each new note into `cast.json`,
+  once per page (`cast_applied.json` remembers which) — a character already
+  recorded is never overwritten, so a stale batch cannot undo a later one, and
+  a character retired by hand is not conjured back;
 - writes `style_scan/style_read_progress.json` into every volume being read
   (`status` `not_started` / `reading` / `read` / `published`, pages read, the
   last page read, the next one, and the `resume` command);
@@ -106,169 +137,61 @@ It does two things:
   Set `"hold": true` on a character in `cast.json` to keep it open (two people
   who look alike, a disguise, a character whose age is unclear).
 
+`known.md` is what a batch reads, and it is written to stay small as the cast
+grows: one line a character, the forms of address already recorded named but
+not quoted, one-page walk-ons gathered at the end. Never hand a batch
+`cast.json` instead — it outgrows a single read early in a series, so a reader
+given it sees a fraction of the cast and invents ids for people already in it.
+
 If the report says a volume just ended, update the dictionary (step 3) before
 the next batch. If a batch reports a page it could not read, retry that page
-once in the next batch.
+once in the next batch. If it says it thinks two ids are the same person, look
+at the two yourself before merging them — it was told not to.
 
 ### Stopping and carrying on
 
-The notes, `cast.json` and `profile.json` are the whole state; nothing is kept
-in this session. When the run stops — the plan's limit, the user, a closed
-window — it carries on by running the same command again (the `resume` value
-in any volume's `style_read_progress.json`), in this session or a new one:
-prepare.py marks every page with a note as done, and reading starts at the
-first page without one, with the cast and dictionary as they were. If
-progress.py says a volume is "read but not yet in the profile", do step 3 for
-it first. Never delete the work folder to "start clean" unless the user asks —
-that throws away every page read.
+The notes, the update files, `cast.json` and `profile.json` are the whole
+state; nothing is kept in this session. When the run stops — the plan's limit,
+the user, a closed window — it carries on by running the same command again
+(the `resume` value in any volume's `style_read_progress.json`), in this
+session or a new one: prepare.py marks every page with a note as done and folds
+in any update file left behind, and reading starts at the first page without a
+note, with the cast and dictionary as they were. If progress.py says a volume
+is "read but not yet in the profile", do step 3 for it first. Never delete the
+work folder to "start clean" unless the user asks — that throws away every page
+read.
 
 When the user says to stop, or the limit is close, finish the batch in hand,
 run progress.py, and tell the user how far it got and the command to carry on.
-
-### Subagent brief
-
-> You are reading pages of a manga volume and its published Vietnamese
-> translation to learn how the translation was made. Read these pages, in this
-> order: `<list: id, trans path, raw path or "none">`.
->
-> *(Original only: "You are reading pages of a Japanese manga volume, not yet
-> translated, to learn who its characters are and how they speak to each
-> other, so that a translator can give each of them a consistent Vietnamese
-> voice. Read these pages, in this order: `<list: id, raw path>`." Then the
-> steps below with "the page" in place of "the translated page", and the
-> original-only note format.)*
->
-> First read what is already known: `<known.md path>` (it may not exist yet)
-> and the cast `<cast.json path>` (it may not exist yet), and the note of the
-> page just before your first one, if there is one: `<previous note path or
-> "none">`.
->
-> Characters marked **settled** in known.md are identified for good: recognise
-> them by their looks and name, refer to them by id, and do not describe them
-> again, re-check their details, or add faces for them. Spend the effort on
-> everyone else — new characters, and the open ones known.md lists with what
-> they are still missing — and on how each pair talks.
->
-> For each page:
-> 1. Open the translated page with the Read tool. Pages are usually two-page
->    spreads, read right to left. If there is a raw page, open it too — it is
->    the same page in Japanese.
-> 2. Work out who is on the page and who says each line: follow balloon tails,
->    faces and panel order. Match characters against the cast by appearance and
->    name. A new recurring character gets a new entry.
-> 3. Update `<cast.json path>` — only what is new; page lists and counts are
->    kept by a script, so do not edit `pages`, `pairPages`, `settled`,
->    `settledPairs` or `missing`:
->    - a new character: `id`, `name`, `nameJa`, `aliases`, `gender`,
->      `ageGroup`, `looks` (what tells them apart at a glance);
->    - an open character: whatever known.md says is missing and this page
->      shows;
->    - a face, for a character that is not settled and has fewer than 3: `box`
->      is `[x, y, width, height]` as fractions of the page image, `side` is
->      `trans` or `raw`; pick a clear, front-facing face;
->    - `addresses`: for each pair that is not settled, or a settled pair
->      speaking in a way not recorded yet, set the speaker's
->      `addresses[<listener id>]` — `default` is how they usually address
->      them, `moods` holds the variants (`{"angry": "tao/mày"}`).
-> 4. Then write the page's note to `<note path>` (Vietnamese, format below),
->    and only then open the next page. The note is what marks the page as read,
->    so it comes last: a run cut off before it reads the page again.
->
-> In notes, name characters by their cast id — `Nhân vật:` and `ADDRESS` lines
-> are read by a script, which matches ids, names and aliases and nothing else.
->
-> Note format:
->
-> ```markdown
-> ## <page id> — <what happens, a few words>
-> Nhân vật: <ids of the characters on the page, comma-separated>
->
-> ### Lời thoại
-> - <speaker> → <listener> [<mood>]: <Vietnamese exactly as lettered, line breaks as spaces> ⟵ <Japanese, if raw>
-> - (narration|sign|sfx): <text>
->
-> ### Xưng hô
-> - ADDRESS <speaker id> → <listener id> [<mood>]: <self term>/<term for the listener> — "<quote>"
->
-> ### Cách dịch
-> - REGISTER: <Japanese expression> → <what it became> (<note, e.g. keigo → ngài … ạ; harsher than the original>)
-> - LOCALISED: <source> → <Vietnamese> (<note>)
-> - NOTE: <anything the translator explained in brackets, quoted>
-> - TERM: <Japanese name or term> → <Vietnamese>
-> - VOICE: <slang, regional words, idioms, particles, jokes — quoted>
-> - SFX: <what was left in Japanese, translated, glossed, romanised>
-> ```
->
-> Original-only note format:
->
-> ```markdown
-> ## <page id> — <what happens, a few words>
-> Nhân vật: <ids of the characters on the page, comma-separated>
->
-> ### Lời thoại
-> - <speaker> → <listener> [<mood>]: <Japanese exactly as lettered>
-> - (đã biết) <speaker> → <listener>: <n> câu, xưng hô như cũ
-> - (narration|sign|sfx): <text>
->
-> ### Xưng hô
-> - ADDRESS <speaker id> → <listener id> [<mood>]: <self term>/<term for the listener> (<speech level: plain, です/ます, keigo, rough, childish…>) ⇒ gợi ý <Vietnamese self term>/<term for the listener> — "<quote>"
->
-> ### Tên và thuật ngữ
-> - TERM: <Japanese name, title, attack or place> → <suggested Vietnamese>
-> - SPEECH: <verbal tics, dialect, sentence endings, catchphrases — quoted>
-> ```
->
-> With a translation, write every line: the translation's style is learned from
-> them. Original only, write a line out only when it involves a character who
-> is not settled, a pair that is not settled, or a way of speaking not recorded
-> for that pair; lines between a settled pair that match what is recorded are
-> one `(đã biết)` line per pair. Write an ADDRESS line for every pair that is
-> not settled, and for a settled pair only when it differs from what is
-> recorded.
->
-> Suggest Vietnamese the way a Vietnamese manga translation would carry the
-> relationship (age, rank, closeness, mood) — not a word-for-word 私/あなた.
-> Names are romanised as in the usual Vietnamese releases of the series when
-> you know them; say so when you are guessing.
->
-> Quote the Vietnamese exactly, with its punctuation and capitals; never correct
-> it. Leave out any balloon you cannot read and say so in the note. Only write
-> what is on the page. Without a raw page, leave out `⟵` and REGISTER, and give
-> TERM without the Japanese.
->
-> `cast.json`:
->
-> ```json
-> {"characters": [
->   {"id": "kinnikuman", "name": "Kinnikuman", "nameJa": "キン肉マン",
->    "aliases": ["Suguru", "hoàng tử"], "gender": "male", "ageGroup": "young_adult",
->    "looks": "mask with 肉 on the forehead, huge muscles",
->    "faces": [{"page": "v01-0296", "side": "raw", "box": [0.61, 0.08, 0.12, 0.15]}],
->    "addresses": {"meat": {"default": "ta/ngươi (わたし/お前)", "moods": {"scolding": "tao/mày (おれ/てめえ)"}}}}
-> ]}
-> ```
->
-> `id` is lower-case ASCII with dashes. `gender` is `male`, `female` or `""`;
-> `ageGroup` is `child`, `teen`, `young_adult`, `adult`, `middle_age`, `elder`
-> or `""`. Leave a field empty rather than guess.
->
-> Reply with at most five lines: pages done, pages you could not read, any new
-> character, and whether the last page read was the last page of its volume.
 
 ## 3. Write the profile — the series' character dictionary
 
 `profile.json` in the work folder is the dictionary: it grows volume by volume
 and never starts over.
 
+Read the volume's notes and the cast with `digest.py`, not file by file: a
+volume is around a hundred notes, and `cast.json` carries page lists and face
+boxes that only the scripts use.
+
+```
+python3 .claude/skills/style-read/digest.py <folder> --volume <name or number> [--raw-only]
+python3 .claude/skills/style-read/digest.py <folder> --cast [--raw-only]
+```
+
+The first prints that volume's notes in one go (reading the original alone, the
+dialogue transcript is left out — there the notes are evidence about the cast,
+and the profile never quotes them). The second prints the cast in the shape the
+profile is written from.
+
 - **A series:** update it each time a volume has been read to the end (the
   batch report says so; progress.py lists it as "read but not yet in the
-  profile"). Read `known.md`, `cast.json`, the current `profile.json` (if any)
-  and **only the notes of that volume** — the volumes before it are already in
-  the profile. Keep what is there, correct it where the new volume shows it was
-  wrong, and add what is new: new characters, new relations, new mood
-  variants, more examples.
-- **One folder:** write it once, when every page has a note, from all the
-  notes.
+  profile"). Read the current `profile.json` (if any), `digest.py --cast`, and
+  the digest of **only that volume** — the volumes before it are already in the
+  profile. Keep what is there, correct it where the new volume shows it was
+  wrong, and add what is new: new characters, new relations, new mood variants,
+  more examples.
+- **One folder:** write it once, when every page has a note, from the digest of
+  all the notes.
 
 This text goes to the top of every translation request, so every entry must be
 something a translator can act on — in English, with Vietnamese quoted as the
@@ -298,13 +221,13 @@ translation writes it.
 ```
 
 - **characters** (at most 30): the recurring cast — everyone on at least 3
-  pages, plus anyone central. Take ids, names, gender and age from
-  `cast.json`, merging any duplicates it still has. Write `role`, `personality`
+  pages, plus anyone central. Take ids, names, gender and age from the cast
+  digest, merging any duplicates it still shows. Write `role`, `personality`
   and `speech` from what the notes show. `relations`: for each character they
-  speak to on more than one page (`pairPages`), what that character is to them
-  and how they address them — the default first, then each mood variant, from
-  the cast's `addresses` and the ADDRESS lines. `appearances` is the number of
-  pages they are on (`pages` in the cast). Over 30 across a long series, keep
+  speak to on more than one page (the `(Np)` beside each `→` line), what that
+  character is to them and how they address them — the default first, then each
+  mood variant, from that line and the ADDRESS lines. `appearances` is the
+  digest's appearance count. Over 30 across a long series, keep
   the ones a translator meets most.
 - **approach** (at most 10): how the Japanese is carried across — how speech
   levels become Vietnamese pronouns and particles, what is localised and what is
