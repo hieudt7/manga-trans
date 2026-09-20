@@ -1,6 +1,6 @@
 # Kinnikuman — trạng thái đọc /style-read (raw-only)
 
-Cập nhật: 2026-09-19. Đọc tới **436/469 trang**. Tập 1–4 đã publish, tập 5 đang dở ở **61/94**.
+Cập nhật: 2026-09-20. **Đọc xong 469/469 trang, tập 1–5 đều đã publish.**
 
 | Tập | Trang | Trạng thái |
 |---|---|---|
@@ -8,9 +8,35 @@ Cập nhật: 2026-09-19. Đọc tới **436/469 trang**. Tập 1–4 đã publi
 | 第02巻 | 93/93 | published |
 | 第03巻 | 94/94 | published |
 | 第04巻 | 94/94 | published |
-| 第05巻 | 61/94 | đang đọc — trang kế: `v05-061` |
+| 第05巻 | 94/94 | published |
 
-Cast: 115 nhân vật, 22 settled. Profile: 30 nhân vật (mức trần), 14 quy tắc xưng hô, 60 mục glossary.
+Cast: 116 nhân vật, 23 settled. Profile: 30 nhân vật (trần), 14 quy tắc xưng hô, 60 glossary.
+
+Tập 5 đưa vào profile 10 nhân vật mới của mạch Hawaii + Mỹ — `kamehame`, `jesse-mayvia`,
+`duke-kamata`, `hawaii-announcer`, `doro-flairs`, `skull-bose`, `sheik-seijin`,
+`beauty-rhodes`, `iyadesu-harisun`, `rhodes-companion` — và đẩy 10 nhân vật một-tập ra khỏi
+trần 30 (`nachiguron`, `nana`, `defense-chief`, `yosaku`, `buzzugara`, `karekkuku`, `queen`,
+`king-tone`, `western-girl`, `kazu-nakano`). Họ vẫn còn đủ trong `cast.json`, chỉ là không
+nằm trong profile gửi kèm mỗi lần dịch.
+
+## Chi phí đo được (8 lượt đọc tập 5, mỗi lượt 4 trang)
+
+| | trước (tập 1, 17 lượt × 6 trang) | nay |
+|---|---|---|
+| input/trang | 577.040 | **~55.000** |
+| lần gọi API/trang | 5,8 | **1,3** |
+| output/trang | 8.144 | ~8.300 |
+
+Cả 33 trang còn lại của tập 5 tốn khoảng 1,5M input — trước đây một tập tốn ~59M.
+
+## Đọc tập tiếp theo (tập 6 trở đi)
+
+```
+<venv>/bin/python .claude/skills/style-read/prepare.py "<đường dẫn Kinnikuman>" --from 1 --to 6 --raw-only
+```
+
+Giữ `--from 1` để cast và profile nối tiếp, không bắt đầu lại. `prepare.py` sẽ báo
+"469 already have notes" rồi chỉ đọc phần mới.
 
 ## Chạy tiếp trên máy khác
 
@@ -37,7 +63,8 @@ Cast: 115 nhân vật, 22 settled. Profile: 30 nhân vật (mức trần), 14 qu
    EOF
    ```
 
-3. **Cần Pillow.** Ba script `prepare.py` / `progress.py` / `finish.py` đều `import PIL`.
+3. **Cần Pillow.** `prepare.py` / `progress.py` / `finish.py` đều `import PIL`
+   (`digest.py` thì không).
    Homebrew Python là externally-managed nên không `pip install` thẳng được; tạo venv riêng:
 
    ```
@@ -52,25 +79,67 @@ Cast: 115 nhân vật, 22 settled. Profile: 30 nhân vật (mức trần), 14 qu
    <venv>/bin/python .claude/skills/style-read/prepare.py "/đường/dẫn/tới/Kinnikuman" --from 1 --to 5 --raw-only
    ```
 
-   Phải báo **"436 already have notes"**. Nếu báo 0 → state chưa nằm đúng chỗ, **dừng lại**,
+   Phải báo **"469 already have notes"**. Nếu báo 0 → state chưa nằm đúng chỗ, **dừng lại**,
    đừng đọc lại từ đầu.
 
-5. **Đọc tiếp từ `v05-061`**, mỗi lượt 6 trang, tuần tự từng lượt (không song song — lượt sau
-   cần cast của lượt trước), reader là `sonnet`. Sau mỗi lượt chạy `progress.py`. Hết tập 5
-   thì tự viết `profile.json` rồi chạy `finish.py`.
+5. **Cách chạy một lượt đọc** (skill đã đổi từ 2026-09-20):
 
-   **Không bao giờ xoá `style_scan/claude_raw/` để "chạy lại cho sạch"** — mất hết 436 trang đã đọc.
+   - mỗi lượt **4 trang** (trước là 6), tuần tự từng lượt — không song song.
+     Chi phí một lượt = số lần gọi tool × context mỗi lần, mà ảnh và note của
+     trang trước nằm lại trong context đến hết lượt, nên lượt càng dài càng đắt
+     theo cấp số nhân, không phải tuyến tính;
+   - reader là subagent kiểu **`manga-page-reader`** (`.claude/agents/`), đã mang
+     sẵn toàn bộ brief; prompt chỉ gồm danh sách trang + đường dẫn;
+   - reader **không mở `cast.json`** nữa. Nó đọc `known.md` và ghi phát hiện vào
+     `style_scan/claude_raw/updates/<page-id>.json`; `progress.py` gộp vào cast
+     rồi dời sang `updates/applied/`;
+   - reader chỉ có `Read` + `Write`, **không có Bash nên không crop được**. Bù lại
+     `prepare.py` cắt sẵn và phóng to nửa trang lên 993x1568 (so với 760px/trang
+     nếu đọc cả spread);
+   - **mỗi trang chỉ ghi MỘT file**: note, kết thúc bằng khối `### Cast` chứa JSON.
+     `progress.py` bóc khối đó ra, gộp vào cast, ghi nhận vào `cast_applied.json`
+     nên không gộp lại lần hai;
+   - **reader chỉ đọc hai NỬA trang** (phải trước, trái sau), không đọc spread —
+     trước đây nó mở spread rồi lại mở nửa của đúng trang đó, tức trả tiền hai lần.
+     Spread chỉ dùng khi tranh vắt ngang gáy. Face box ghi kèm `"half": "right"|"left"`,
+     `finish.py` quy đổi về toạ độ spread;
+   - sau mỗi lượt vẫn chạy `progress.py`.
+
+   Lần chạy `prepare.py` đầu tiên sẽ sinh thêm ảnh nửa trang cho cả 469 trang và
+   render lại reading copy ở 1568px. Chỉ tốn CPU, không tốn token, và không đụng
+   vào note đã có.
+
+   Hết một tập thì viết `profile.json` từ `digest.py --volume N` và `digest.py --cast`
+   (đừng đọc từng note hay đọc thẳng `cast.json` — cast đã hơn 7.500 dòng, vượt xa
+   một lần đọc), rồi chạy `finish.py`.
+
+   `finish.py` bắt buộc mọi nhân vật phải có `name` và mọi `relations.to` phải trỏ tới
+   một nhân vật **còn trong profile** — khi đẩy ai đó ra khỏi trần 30 thì phải gỡ luôn
+   các quan hệ trỏ tới họ.
+
+   **Không bao giờ xoá `style_scan/claude_raw/` để "chạy lại cho sạch"** — mất hết
+   469 trang đã đọc. `cast_applied.json` cũng đừng xoá: nó ghi những trang đã gộp
+   khối `### Cast` vào cast, xoá đi là gộp lại lần hai.
 
 ## Lưu ý khi giao việc cho reader
 
-- **Thứ tự trang:** mỗi file scan là một spread hai trang, đọc **nửa PHẢI trước, nửa TRÁI sau**
-  (phải sang trái), panel trong mỗi nửa cũng phải sang trái. Một reader ở tập 3 đã đoán ngược
-  lúc đầu; từ đó trở đi brief luôn nói rõ điều này và bảo đối chiếu số trang ở chân trang.
-  Vài spread ở tập 1–2 có thể còn bị đảo thứ tự nội bộ.
-- Luôn nhắc reader giữ các nhân vật cameo/gag một lần ra ngoài `cast.json` — riêng arc Olympic
-  và các trang bìa chương có rất nhiều đô vật do độc giả gửi, chỉ ai thật sự đánh một trận
-  hoặc thoại nhiều lần mới cho vào cast.
-- Nhắc reader **không tự gộp id** đang `hold` — báo về để người chạy quyết định.
+Ba điều dưới đây **đã được đưa hẳn vào `.claude/agents/manga-page-reader.md`**,
+không cần nhắc lại trong prompt mỗi lượt nữa — ghi ở đây để biết vì sao chúng có
+trong brief:
+
+- **Thứ tự trang:** mỗi file scan là một spread hai trang, đọc **nửa PHẢI trước,
+  nửa TRÁI sau**, panel trong mỗi nửa cũng phải sang trái, và đối chiếu số trang
+  ở chân trang. Một reader ở tập 3 đã đoán ngược lúc đầu. Vài spread ở tập 1–2 có
+  thể còn bị đảo thứ tự nội bộ.
+- **Cameo:** nhân vật gag/đám đông một lần không vào cast — riêng arc Olympic và
+  các trang bìa chương có rất nhiều đô vật do độc giả gửi. Chỉ ai thật sự đánh một
+  trận, được gọi tên, hoặc thoại ở hơn một trang mới cho vào.
+- **Không tự gộp id đang `hold`** — báo về để người chạy quyết định.
+
+Còn lại một việc phải tự tay làm: **`king-muscle` đã settled** nên reader được
+dặn không xem lại. Nếu cần sửa mục `トンカツ屋のイクヱちゃん` nằm nhầm dưới id này
+(xem phần dưới), phải sửa trực tiếp `cast.json` — update file không ghi đè được
+trường đã có.
 
 ## Câu hỏi còn treo
 
@@ -83,8 +152,8 @@ Cast: 115 nhân vật, 22 settled. Profile: 30 nhân vật (mức trần), 14 qu
 - **king-tone / pig-impostor** — hai nhân vật mặt lợn, có thể là một. Chưa có trang nào xác nhận.
   Đã thấy vài nhân vật mặt lợn khác (ukon, một bóng người đeo dấu "K" ở tập 4) nhưng **không** liên quan.
 - **トンカツ屋のイクヱちゃん** (hồi tưởng v01-0321) hiện ghi dưới `king-muscle`, nhiều khả năng là quá
-  khứ của `king-tone`. `king-muscle` đã settled nên reader thường không xem lại — brief phải nói rõ
-  đây là ngoại lệ được phép sửa.
+  khứ của `king-tone`. `king-muscle` đã settled nên reader không xem lại, và update file cũng
+  không ghi đè được trường đã có — muốn sửa thì sửa thẳng `cast.json`.
 - **nakano-kazuo (中野和雄)** và **kazuo (和雄)** trùng tên và trùng gag tóc giả "アデランスの和雄".
   Chưa rõ là một người hay hai. Cả hai **khác** `kazu-nakano` (カズ・ナカーノ, hướng dẫn viên Hawaii).
 - **western-girl** (mũ lưỡi trai, yếm bò, gọi テリー) và **terry-girl** (tóc dài gợn sóng) — hai entry

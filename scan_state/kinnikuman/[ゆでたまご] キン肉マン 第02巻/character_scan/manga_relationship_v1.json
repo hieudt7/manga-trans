@@ -11,7 +11,7 @@
         "faces/kinnikuman/2.png"
       ],
       "traits": [
-        "The hero of the series: a clumsy, self-important superhero who turns out to be the exiled prince of Kinniku Star. Volumes 3–4 are the Hero Olympics (超人オリンピック), which he enters as Japan's representative and — against every expectation, his own included — **wins**, beating Robin Mask in the final. Volume 4 ends with him on a champion's world tour, starting in Hawaii.",
+        "The hero of the series: a clumsy, self-important superhero who turns out to be the exiled prince of Kinniku Star. Volumes 3–4 are the Hero Olympics (超人オリンピック), which he enters as Japan's representative and — against every expectation, his own included — **wins**, beating Robin Mask in the final. Volume 4 ends with him on a champion's world tour, starting in Hawaii. Volume 5 is his American tour: he loses to the old master Kamehame in seven seconds, is thrown out of Jesse Mayvia's gym, and is rebuilt by Kamehame into 'a body like steel' before taking the Hawaii belt in a no-rope death match — then hands the belt straight back to his teacher and swims to California because he gave the prize money away too. In America he works undercover for Doro Flairs as 'Chanel Man', wrecking rival champions to set the WSF and WSC at each other's throats, and nearly gives himself away by blurting 'パパ!' at a photograph of his own father. The volume ends at the Grand Canyon: offered a guaranteed title defence by pushing a broken Robin Mask into the gorge, he refuses — and then blows the ring apart to save him.",
         "Boastful and posturing in public, cowardly and whiny the moment things go wrong; childish with his father, jealous of any hero more famous than him, and an incorrigible skirt-chaser. Genuinely soft-hearted underneath: he takes in the monsters he beats, mourns the ones that die, and goes to help even when the law forbids it. His wins come from 火事場のバカ力 — blind survival instinct — not skill, and he often cannot remember afterwards what he did."
       ]
     },
@@ -26,7 +26,7 @@
         "faces/meat/2.png"
       ],
       "traits": [
-        "Herald from Kinniku Star who reveals Kinnikuman's royal birth and then stays on Earth as his second, manager and conscience; a small boy in glasses and cape who attends Suminoe kindergarten (running gag) and secretly works night shifts to pay their way.",
+        "Herald from Kinniku Star who reveals Kinnikuman's royal birth and then stays on Earth as his second, manager and conscience; a small boy in glasses and cape who attends Suminoe kindergarten (running gag) and secretly works night shifts to pay their way. Through volume 5 he is at the prince's shoulder for the whole American tour, disguised alongside him as part of the Chanel Man cover, buying toy sunglasses because there are five dollars left in the budget, and — at the Grand Canyon — urging Kinnikuman to throw Robin into the gorge because 'a champion has to be ruthless'. He is overruled.",
         "Devoted, sensible and long-suffering — the adult in the household despite being a child. Mutters about the prince's moods, takes the blame, and stands up to him only to defend someone weaker. By volume 2 he also teases the prince outright, setting him up for pratfalls and needling him about his failed romances."
       ]
     },
@@ -41,7 +41,7 @@
         "faces/robin-mask/2.png"
       ],
       "traits": [
-        "Britain's armoured champion — full plate armour and a closed knight's helmet. He won the previous Hero Olympics and returns as defending champion, first treating Kinnikuman as a disposable sparring partner, then beating a wounded Terryman on a technicality and withdrawing rather than take a hollow win. In the final against Kinnikuman he loses his mask, loses his temper, and finally loses the match to a reversed backbreaker. He takes the silver, declines Kinnikuman's offer of a home in Japan, and leaves on his own tour with his wife Alisa — admitting he is simply tired of being champion.",
+        "Britain's armoured champion — full plate armour and a closed knight's helmet. He won the previous Hero Olympics and returns as defending champion, first treating Kinnikuman as a disposable sparring partner, then beating a wounded Terryman on a technicality and withdrawing rather than take a hollow win. In the final against Kinnikuman he loses his mask, loses his temper, and finally loses the match to a reversed backbreaker. He takes the silver, declines Kinnikuman's offer of a home in Japan, and leaves on his own tour with his wife Alisa — admitting he is simply tired of being champion. Volume 5 breaks him. Stripped of the title, he has left his wife Alisa, been picked up by Sheik Seijin and used as a piece by the Alliance; he no longer remembers his own life and mistakes his opponent for Kinnikuman mid-match. He smuggles food into Kinnikuman's cell, goads him into the Grand Canyon title match, feints with the sight of Alisa in the crowd, and finally offers himself to be thrown into the gorge so his friend can keep the belt. When Kinnikuman refuses, he calls him a fool and tries to finish him with the Tower Bridge.",
         "Haughty and condescending, but fundamentally honourable — he refuses a win he does not think he earned, and concedes cleanly when beaten. Under real humiliation (his mask torn off in front of a crowd) that control snaps and he turns genuinely murderous, which is the arc of the final."
       ]
     },
@@ -110,7 +110,8 @@
       "ageGroup": "young_adult",
       "faces": [
         "faces/ramenman/0.png",
-        "faces/ramenman/1.png"
+        "faces/ramenman/1.png",
+        "faces/ramenman/2.png"
       ],
       "traits": [
         "China's representative, billed as the 東洋の悪魔 (Oriental Devil). He kills Brockenman in the ring, fights Kinnikuman on an ice ring, and is disqualified from the third-place match for fouling Terryman with a chained weapon. Afterwards he reveals he once lost a death-match to Kinnikuman, and demands — half furious, half pleading — that Kinnikuman take the final seriously instead of trusting to luck, or his own defeat will have meant nothing.",
@@ -118,16 +119,17 @@
       ]
     },
     {
-      "id": "mari",
-      "name": "Mari",
-      "gender": "female",
-      "ageGroup": "young_adult",
+      "id": "doro-flairs",
+      "name": "Doro Flairs",
+      "gender": "male",
+      "ageGroup": "middle_age",
       "faces": [
-        "faces/mari/0.png"
+        "faces/doro-flairs/0.png",
+        "faces/doro-flairs/1.png"
       ],
       "traits": [
-        "Nursery teacher (保母) at Suminoe kindergarten, Meat's teacher, and Kinnikuman's love interest from the 'かわいいキッスの巻' chapter on; quietly cooks breakfast for the pair.",
-        "Warm, unflappable, faintly amused by Kinnikuman; kind to Meat like a teacher to a small pupil. Has a sharp side too — she rounds on Kinnikuman when he abuses a rescue for a grope, and trades barbs with Natsuko."
+        "Chairman (会長) of the World Superhuman Association (世界超人協会 / WSA), the body that invited Kinnikuman to America. Volume 5's American arc is his war: driven out of Los Angeles and then St. Louis by the rival WSF and WSC, he rebuilds at the hidden 'Supermen World' park in a Missouri canyon and sets Kinnikuman to work undercover as 'Chanel Man', beating up rival champions to make the two other bodies blame each other. The plan works, and by the volume's end he is openly scheming with the enemy champion Skull Bose and watching the Grand Canyon ring explode with satisfaction.",
+        "A showman and a schemer in equal parts — he builds a superhuman museum and a Disneyland knock-off out of genuine sentiment for dead wrestlers, then spends the same breath plotting. Boastful about his park, maudlin about the past, and entirely willing to spend Kinnikuman as a game piece. Treat his warmth as real and his loyalty as conditional; the volume ends without telling you which side he is on."
       ]
     },
     {
@@ -142,6 +144,19 @@
       "traits": [
         "Young afro-haired ringside announcer calling the play-by-play of the Hero Olympics broadcast, paired with an older commentator.",
         "Professional, unflappable, keeps the broadcast moving through absurdity."
+      ]
+    },
+    {
+      "id": "mari",
+      "name": "Mari",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/mari/0.png"
+      ],
+      "traits": [
+        "Nursery teacher (保母) at Suminoe kindergarten, Meat's teacher, and Kinnikuman's love interest from the 'かわいいキッスの巻' chapter on; quietly cooks breakfast for the pair.",
+        "Warm, unflappable, faintly amused by Kinnikuman; kind to Meat like a teacher to a small pupil. Has a sharp side too — she rounds on Kinnikuman when he abuses a rescue for a grope, and trades barbs with Natsuko."
       ]
     },
     {
@@ -160,6 +175,20 @@
       ]
     },
     {
+      "id": "jesse-mayvia",
+      "name": "Jesse Mayvia",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/jesse-mayvia/0.png",
+        "faces/jesse-mayvia/1.png"
+      ],
+      "traits": [
+        "Hawaii champion and owner of the Jesse Palace gym, defending his belt for the 999th time when Kinnikuman challenges him. He years ago stole the championship from Kamehame and kept him on as a valet, which is the grudge the whole Hawaii arc turns on. In the double-title 'no-rope death match' he is nicknamed BIG MOUNTAIN for a defence nothing can move, until Kinnikuman's feigned despair draws him out and the 48 Killer Techniques finish him.",
+        "Contemptuous and image-conscious — he throws Kinnikuman out of his gym for losing, sneers at his 'pig body', and rigs the rules (removing the ropes) rather than fight straight. Arrogant enough to be careless at the exact moment it costs him the match."
+      ]
+    },
+    {
       "id": "hero-olympics-commentator",
       "name": "Tazahama",
       "gender": "male",
@@ -174,6 +203,49 @@
       ]
     },
     {
+      "id": "kamehame",
+      "name": "Kamehame",
+      "gender": "male",
+      "ageGroup": "elder",
+      "faces": [
+        "faces/kamehame/0.png",
+        "faces/kamehame/1.png",
+        "faces/kamehame/2.png"
+      ],
+      "traits": [
+        "The old Hawaiian master who becomes Kinnikuman's teacher — the volume's emotional spine. Introduced as Jesse Mayvia's shabby valet, he beats the world champion in seven seconds, then reveals he is the man Mayvia robbed of the Hawaii belt and has been waiting years to take it back. He trains Kinnikuman into 'a body like steel' and hands down the 48 Killer Techniques (48の殺人技). When Kinnikuman wins and gives him the belt, he says his part is done and walks away.",
+        "Rough-looking, shaggy and bearded, but calm, courteous and deliberate — the contrast is the point. Carries an old defeat without self-pity, teaches by plain instruction rather than shouting, and lets his student inherit the dream he can no longer finish himself."
+      ]
+    },
+    {
+      "id": "skull-bose",
+      "name": "Skull Bose",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/skull-bose/0.png",
+        "faces/skull-bose/1.png",
+        "faces/skull-bose/2.png"
+      ],
+      "traits": [
+        "Champion of the Superhuman Alliance (超人同盟 / WSF) — bald, tattooed head to foot with the word SUKARU, and the most dangerous mind in the American arc. He takes the West from the WSA, sends his tattooed thugs to seize its headquarters, headlines the WSF's lethal Lumberjack Show, and personally sets the trap that exposes 'Chanel Man', going undercover in a deerstalker and round glasses to do it. By the volume's end the rigged plane crash has made him the new world champion.",
+        "Polite, patient and entirely ruthless — he vouches for Kinnikuman in public while building the trap that will unmask him. Takes decisions over his own chairman's head. He is the one who calls Kinnikuman by his real name スグル to watch his face."
+      ]
+    },
+    {
+      "id": "sheik-seijin",
+      "name": "Sheik Seijin",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/sheik-seijin/0.png"
+      ],
+      "traits": [
+        "Chairman of the Superhuman Alliance (超人同盟 / WSF), the body the public calls the Superhuman Mafia — it runs the Lumberjack Show, where superhumans kill each other for a betting crowd. He allies with the WSC to destroy the WSA, then falls out with it over who gets to deal with 'Chanel Man', and it is he who picks up the broken Robin Mask and turns him into a piece on the board.",
+        "Blunt, territorial and openly contemptuous — he throws the wounded Beauty Rhodes at his allies' feet as a 'gift'. Given to grand philosophical talk about good and evil while running a death show. Impatient with his own champion's slow scheming."
+      ]
+    },
+    {
       "id": "olympic-chairman",
       "name": "Chủ tịch Ban tổ chức",
       "gender": "male",
@@ -184,6 +256,21 @@
       "traits": [
         "Portly, bearded head of the Hero Olympics committee, who rules Japan out of the tournament once Ultraman declines, sneers at King Muscle's pleas — then personally delivers the news when Kinnikuman is picked after all.",
         "Pompous and cruel when he has the upper hand, all smiles once the decision goes the other way."
+      ]
+    },
+    {
+      "id": "beauty-rhodes",
+      "name": "Beauty Rhodes",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/beauty-rhodes/0.png",
+        "faces/beauty-rhodes/1.png",
+        "faces/beauty-rhodes/2.png"
+      ],
+      "traits": [
+        "Champion of the Superhuman Council (超人評議会 / WSC) and 'the Emperor of New York' — blonde, curled, in a fur cloak and a studded eagle belt, defending his title at Madison Square Garden with an elbow drop off the top rope. Kinnikuman, disguised as Chanel Man, floors him in the crowd; later Sheik Seijin beats him bloody and dumps him in front of his own chairman, which turns the manufactured WSC–WSF quarrel into a real one.",
+        "Vain and theatrical, playing the star at every moment; genuinely a top-class wrestler under the posing, which is why his humiliation lands so hard."
       ]
     },
     {
@@ -202,6 +289,33 @@
       ]
     },
     {
+      "id": "duke-kamata",
+      "name": "Duke Kamata",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/duke-kamata/0.png",
+        "faces/duke-kamata/1.png"
+      ],
+      "traits": [
+        "Jesse Mayvia's manager and promoter in Hawaii — bald, moustached, in a white suit, at his champion's shoulder through the whole Hawaii arc, arguing rules and working the crowd.",
+        "A fixer: smooth in public, sour in private, quick to quibble over regulations when it suits his man."
+      ]
+    },
+    {
+      "id": "iwao",
+      "name": "Iwao",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/iwao/0.png"
+      ],
+      "traits": [
+        "Round-bodied, goggle-eyed lackey to Kinkotsuman; fetches Kinnikuman's victims as 'material' for the Monster Gun, works the device, and cheers the resulting kaiju on from the sidelines.",
+        "Eager, fawning, delighted by his own usefulness."
+      ]
+    },
+    {
       "id": "mayumi",
       "name": "Mayumi",
       "gender": "male",
@@ -212,6 +326,19 @@
       "traits": [
         "Bearded caped official-cum-competitor at the Hero Olympics — works the microphone before the seeding draw, gets scolded from the judges' box for growing giant, and is drafted to help lift the living-monster barbell. Addressed by everyone as 真弓くん.",
         "Willing, put-upon, a little ridiculous."
+      ]
+    },
+    {
+      "id": "roots-princess",
+      "name": "Công chúa Kunta",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/roots-princess/0.png"
+      ],
+      "traits": [
+        "Princess of the southern Roots Island (ルーツ島), who flies in on her pet bird Miss Karasu to beg Kinnikuman to drive three monsters off her island; she knows his royal identity and calls him 王子.",
+        "Earnest and dignified, but desperate enough to promise any sum; her island pays in useless giant stone money."
       ]
     },
     {
@@ -229,16 +356,17 @@
       ]
     },
     {
-      "id": "roots-princess",
-      "name": "Công chúa Kunta",
-      "gender": "female",
-      "ageGroup": "young_adult",
+      "id": "iyadesu-harisun",
+      "name": "Iyadesu Harisun",
+      "gender": "male",
+      "ageGroup": "middle_age",
       "faces": [
-        "faces/roots-princess/0.png"
+        "faces/iyadesu-harisun/0.png",
+        "faces/iyadesu-harisun/1.png"
       ],
       "traits": [
-        "Princess of the southern Roots Island (ルーツ島), who flies in on her pet bird Miss Karasu to beg Kinnikuman to drive three monsters off her island; she knows his royal identity and calls him 王子.",
-        "Earnest and dignified, but desperate enough to promise any sum; her island pays in useless giant stone money."
+        "Chairman of the Superhuman Council (超人評議会 / WSC), which holds the East and South. He fronts the press after his champions are beaten one by one, blames the WSF, and devises the 踏絵 test — making 'Chanel Man' trample a portrait of King Muscle to prove he is not Kinnikuman, the trap that nearly exposes him.",
+        "Corporate and composed in public, quick to shift blame, and cruel in a procedural way — his 'test' turns into a beating while he admires the accuracy of the blows."
       ]
     },
     {
@@ -257,6 +385,21 @@
       ]
     },
     {
+      "id": "rhodes-companion",
+      "name": "Người tháp tùng của Rhodes (chưa rõ tên)",
+      "gender": "female",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/rhodes-companion/0.png",
+        "faces/rhodes-companion/1.png",
+        "faces/rhodes-companion/2.png"
+      ],
+      "traits": [
+        "The unnamed woman who accompanies Beauty Rhodes everywhere — the 'beautiful companion' Doro Flairs says every touring champion keeps. She speaks for him when he cannot: calming him in the crowd, screaming for help when Chanel Man floors him, facing down Sheik Seijin over his body, and finally declaring war on the WSF herself.",
+        "Cool and unimpressed at first, and the most clear-headed voice in the WSC camp once things turn violent — it is she, not the chairman, who names the WSF as the enemy."
+      ]
+    },
+    {
       "id": "tabuchi",
       "name": "Tabuchi",
       "gender": "male",
@@ -270,158 +413,18 @@
       ]
     },
     {
-      "id": "iwao",
-      "name": "Iwao",
+      "id": "hawaii-announcer",
+      "name": "Xướng ngôn viên Hawaii",
       "gender": "male",
       "ageGroup": "adult",
       "faces": [
-        "faces/iwao/0.png"
+        "faces/hawaii-announcer/0.png",
+        "faces/hawaii-announcer/1.png",
+        "faces/hawaii-announcer/2.png"
       ],
       "traits": [
-        "Round-bodied, goggle-eyed lackey to Kinkotsuman; fetches Kinnikuman's victims as 'material' for the Monster Gun, works the device, and cheers the resulting kaiju on from the sidelines.",
-        "Eager, fawning, delighted by his own usefulness."
-      ]
-    },
-    {
-      "id": "nachiguron",
-      "name": "Nachiguron",
-      "gender": "male",
-      "ageGroup": "young_adult",
-      "faces": [
-        "faces/nachiguron/0.png",
-        "faces/nachiguron/1.png",
-        "faces/nachiguron/2.png"
-      ],
-      "traits": [
-        "The 'dropout monster' (60m, 50,000 tons) Kinnikuman defeats, then befriends; ends up moving into their cramped house as a housemate.",
-        "Blustering when cornered, bursts into tears just as fast, and proud of being a nobody — 'おちこぼれのどこが悪い'. Warms into a grateful, polite housemate."
-      ]
-    },
-    {
-      "id": "nana",
-      "name": "Nana",
-      "gender": "female",
-      "ageGroup": "teen",
-      "faces": [
-        "faces/nana/0.png",
-        "faces/nana/1.png",
-        "faces/nana/2.png"
-      ],
-      "traits": [
-        "Teen idol singer Kinnikuman is a fan of; the target of his staged 'rescue operation' with a hired monster.",
-        "Sharp-tongued and impatient off stage, quite unlike her sweet stage image; softens only with Hitoshi."
-      ]
-    },
-    {
-      "id": "defense-chief",
-      "name": "Chỉ huy trưởng",
-      "gender": "male",
-      "ageGroup": "middle_age",
-      "faces": [
-        "faces/defense-chief/0.png",
-        "faces/defense-chief/1.png",
-        "faces/defense-chief/2.png"
-      ],
-      "traits": [
-        "Chief of the Earth Defense Force, who calls Kinnikuman in when monsters appear.",
-        "Brusque, easily flustered, fond of barking short interjections."
-      ]
-    },
-    {
-      "id": "yosaku",
-      "name": "Yosaku",
-      "gender": "male",
-      "ageGroup": "adult",
-      "faces": [
-        "faces/yosaku/0.png"
-      ],
-      "traits": [
-        "Rustic countryman who claims he already beat Nessie and demands his own TV special; returns in 「ジャパニーズ・ドリームの巻」 bursting in with a cape and a hero pose to appoint himself Kinnikuman's boxing trainer, drilling him by chasing chickens and running roadwork.",
-        "Boastful yokel, gruff but wholehearted; rides the fame the moment his pupil wins."
-      ]
-    },
-    {
-      "id": "buzzugara",
-      "name": "Buzzugara",
-      "gender": "male",
-      "ageGroup": null,
-      "faces": [
-        "faces/buzzugara/0.png",
-        "faces/buzzugara/1.png"
-      ],
-      "traits": [
-        "Rhino-like kaiju with twin cannon barrels fused to its snout, carrying the growth-ray 'モンスターガン'; Kinkotsuman's weapon in 「巨人ナツコの巻」, where he gigantifies Natsuko to turn her against Terryman.",
-        "Eager to please his boss and proud of his own detective work; loud and triumphant when the ray lands."
-      ]
-    },
-    {
-      "id": "karekkuku",
-      "name": "Karekkuku",
-      "gender": "male",
-      "ageGroup": null,
-      "faces": [
-        "faces/karekkuku/0.png"
-      ],
-      "traits": [
-        "India's representative in Block B — a round curry-bun head marked 肉, no visible mouth. Fights Kinnikuman using curry roux smeared into his forehead wound, and loses when his head cracks open.",
-        "Unsettling to look at and treated with disgust by the other fighters, but revealed to be a frightened, childish creature the moment he is hurt."
-      ]
-    },
-    {
-      "id": "queen",
-      "name": "Hoàng hậu",
-      "gender": "female",
-      "ageGroup": "middle_age",
-      "faces": [
-        "faces/queen/0.png",
-        "faces/queen/1.png",
-        "faces/queen/2.png"
-      ],
-      "traits": [
-        "Queen of Kinniku Star, King Muscle's wife and Kinnikuman's mother — a robed woman in a pointed hood-like headdress who appears at the palace and at ringside.",
-        "Warm with her husband and with Meat, and the steelier of the two parents: when King Muscle wants to pull their son out, she is the one who invokes the throne's duty and makes him let the boy fight."
-      ]
-    },
-    {
-      "id": "king-tone",
-      "name": "King Tone",
-      "gender": "male",
-      "ageGroup": null,
-      "faces": [
-        "faces/king-tone/0.png",
-        "faces/king-tone/1.png"
-      ],
-      "traits": [
-        "Pig-faced wrestler who swept the martial-arts Olympics, took the universal championship from King Muscle, and now rules Kinniku Star as a tyrant. Two things about him are still unresolved after volume 2: whether he is the same pig who impersonated the prince in Kinniku Town, and whether the v01-0321 flashback nickname トンカツ屋のイクヱちゃん (recorded under King Muscle) is really his own past. Do not merge or reassign either until a later volume settles it.",
-        "Arrogant conqueror, contemptuous of the deposed royal family."
-      ]
-    },
-    {
-      "id": "western-girl",
-      "name": "Cô bé cao bồi",
-      "gender": "female",
-      "ageGroup": "child",
-      "faces": [
-        "faces/western-girl/0.png",
-        "faces/western-girl/1.png",
-        "faces/western-girl/2.png"
-      ],
-      "traits": [
-        "A young girl in a flat cap and denim overalls — a cowgirl look matching the 「よみがえる西部魂の巻」 chapter — who stays beside Terryman after Kinkotsuman's bullet wrecks his leg, scolds him for insisting on fighting hurt, and begs him to stop mid-match. She has no name yet.",
-        "Fierce and tearful in equal measure; the only person who tells Terryman the truth about his own condition."
-      ]
-    },
-    {
-      "id": "kazu-nakano",
-      "name": "Kazu Nakano",
-      "gender": "male",
-      "ageGroup": "middle_age",
-      "faces": [
-        "faces/kazu-nakano/0.png"
-      ],
-      "traits": [
-        "A Nisei (日系二世) manager and guide assigned to Kinnikuman for the Hawaii leg of the champion's world tour — bald, round-glassed, portly, in an aloha shirt.",
-        "Cheerful, business-minded and fond of withholding a surprise; lectures his charge about punctuality and 'time is money'."
+        "The ringside announcer for the Hawaii matches, calling the Special Match and the double-title bout alongside the commentator Tazahama.",
+        "Professional and faintly weary — he has seen Kinnikuman's ridiculous ring entrances too many times to be impressed."
       ]
     }
   ],
@@ -431,13 +434,13 @@
       "related": [
         {
           "characterId": "meat",
-          "coOccurrence": 194,
+          "coOccurrence": 257,
           "label": "his herald, servant, secretary and only real companion; they live together and squabble like family",
           "description": "ta/cậu, gọi tên 'Mít' (ミートくん) mặc định; tao/mày khi quát nạt hoặc bị chạm tự ái (バカヤロウ); tớ/Mít khi mếu máo kể lể, cầu an ủi; tôi/cậu (わたし/あなた) khi cãi lại, biện minh"
         },
         {
           "characterId": "king-muscle",
-          "coOccurrence": 73,
+          "coOccurrence": 75,
           "label": "his father, the King of Kinniku Star",
           "description": "con/ba (パパ) — giọng trẻ con, nhõng nhẽo, ăn vạ, đặc biệt ngoan khi được dụ bằng cơm bò"
         },
@@ -454,18 +457,6 @@
           "description": "tao/mày (ユー) — bực bội, nhại lại lối 'ミー/ユー' Tây hoá của Terryman"
         },
         {
-          "characterId": "nachiguron",
-          "coOccurrence": 7,
-          "label": "a 'dropout monster' he beats, then pities and lets move in with him",
-          "description": "ta/mày (おまえ) khi mỉa mai, khiêu khích; ta/Nachiguron (gọi thẳng tên) khi ân cần khuyên nhủ và khi cho ở nhờ — giọng dịu hẳn"
-        },
-        {
-          "characterId": "nana",
-          "coOccurrence": 7,
-          "label": "idol singer he is a fan of (fan club member no. 9999); he stages a monster attack to rescue her",
-          "description": "tôi/Nana (ナナちゃん) — hâm mộ, cố gây ấn tượng; 'cô Nana' (ナナさん) khi làm bộ đàng hoàng ra vẻ anh hùng"
-        },
-        {
           "characterId": "natsuko",
           "coOccurrence": 33,
           "label": "the HERO magazine reporter who covers him, mocks him and becomes a fixture at his side",
@@ -473,7 +464,7 @@
         },
         {
           "characterId": "kinkotsuman",
-          "coOccurrence": 27,
+          "coOccurrence": 28,
           "label": "the skeleton alien who keeps coming back to destroy him — his first recurring enemy",
           "description": "bọn ta/(không gọi tên) (ぼくたち) khi tuyên bố chính nghĩa; 'ta/ngươi' (貴様) khi giễu cợt lúc hắn mất vũ khí; giọng nể phục 'gã đó' (やつ) khi thấy hắn thua mà vẫn gan lì"
         },
@@ -485,21 +476,15 @@
         },
         {
           "characterId": "robin-mask",
-          "coOccurrence": 72,
+          "coOccurrence": 96,
           "label": "the armoured British champion who first uses him as a sparring partner, then becomes a respected rival",
           "description": "ta/anh — bực bội khi bị coi thường, chuyển sang lo lắng và nể trọng khi thấy anh thi đấu đàng hoàng"
         },
         {
           "characterId": "ramenman",
-          "coOccurrence": 23,
+          "coOccurrence": 24,
           "label": "China's representative, the 'Oriental Devil', who fights him on an ice ring",
           "description": "ta/mày — đối đầu, cảnh giác trước một đối thủ tàn nhẫn"
-        },
-        {
-          "characterId": "karekkuku",
-          "coOccurrence": 7,
-          "label": "India's representative, the curry-headed fighter he beats in Block B",
-          "description": "ta/mày — coi thường, đùa cợt trước một đối thủ kỳ quặc"
         },
         {
           "characterId": "olympic-chairman",
@@ -520,10 +505,34 @@
           "description": "ta/ông — nghe lời cảnh báo giữa lúc hỗn loạn"
         },
         {
-          "characterId": "kazu-nakano",
-          "coOccurrence": 5,
-          "label": "his Nisei manager and guide on the Hawaii leg of the world tour",
-          "description": "ta/ông Kazu — hoàng tử với người hướng dẫn, suồng sã dần"
+          "characterId": "kamehame",
+          "coOccurrence": 18,
+          "label": "the old Hawaiian master who rebuilds him and hands down the 48 Killer Techniques",
+          "description": "con/thầy — mở đầu cảnh giác, gọi trống 'thằng kia' (きさま), rồi chuyển sang lịch sự 'ông' (あなた, です/ます) khi nể phục, và gọi thẳng tên 'Kamehame' lúc hoảng hốt cầu cứu giữa trận"
+        },
+        {
+          "characterId": "jesse-mayvia",
+          "coOccurrence": 18,
+          "label": "the Hawaii champion he beats for the double title",
+          "description": "tôi/cậu Meibia (メイビアくん) khi nhún nhường trước đám đông; 'mày' (きさま) khinh miệt lúc tung đòn quyết định; 'anh' (キミ) đắc thắng khi lật tẩy màn kịch"
+        },
+        {
+          "characterId": "doro-flairs",
+          "coOccurrence": 30,
+          "label": "the WSA chairman who employs him and sends him undercover",
+          "description": "con/ngài chủ tịch (会長) — lịch sự, có phần e dè trước bề trên; vẫn giữ 会長 cả khi lo lắng trách nhẹ"
+        },
+        {
+          "characterId": "skull-bose",
+          "coOccurrence": 16,
+          "label": "the enemy champion who shelters him in public and traps him in private",
+          "description": "tôi/Skull (スカル, gọi trống tên, suồng sã) — giọng 'Chanel Man' bụi bặm, không phải giọng thường ngày"
+        },
+        {
+          "characterId": "sheik-seijin",
+          "coOccurrence": 15,
+          "label": "the WSF chairman who suspects his cover from the first day",
+          "description": "tao (オレ, giọng đường phố của vỏ bọc Chanel Man) — thô lỗ, gắt, cố tình tách mình khỏi 'cái tên Kinnikuman dở hơi kia'"
         }
       ]
     },
@@ -532,7 +541,7 @@
       "related": [
         {
           "characterId": "kinnikuman",
-          "coOccurrence": 194,
+          "coOccurrence": 257,
           "label": "his prince and master, whom he serves, scolds and covers for",
           "description": "em/ngài, hoàng tử (ぼく/王子, です/ます) mặc định; 'hoàng tử ơi' giọng van nài khi ngăn cản; giọng trách móc 'em/anh' (ぼく/あなた) khi đổ lỗi; hiếm hoi gằn giọng 'Hoàng tử im lặng giùm em!' (王子はだまっててください!) khi bênh vực người khác"
         },
@@ -541,12 +550,6 @@
           "coOccurrence": 16,
           "label": "his kindergarten teacher, who also cooks for him and Kinnikuman",
           "description": "con/cô (わたくし, です/ます) — lễ phép, hơi ấp úng như học trò với cô giáo; bỏ lễ phép thành 'tớ cũng!' (わしも!) khi nũng nịu đòi được hôn như hoàng tử"
-        },
-        {
-          "characterId": "nachiguron",
-          "coOccurrence": 6,
-          "label": "the dropout monster he befriends and gives a Kinniku whistle to",
-          "description": "anh/em (ぼく) — ấm áp, ân cần như đàn anh"
         },
         {
           "characterId": "terryman",
@@ -561,16 +564,16 @@
           "description": "em/chị — ngắn gọn, thân mật, không kính ngữ"
         },
         {
-          "characterId": "yosaku",
-          "coOccurrence": 6,
-          "label": "the rustic old man who appoints himself Kinnikuman's boxing trainer",
-          "description": "em/ông (ぼく/じいさん, です/ます) — lễ phép nhưng nài nỉ"
-        },
-        {
           "characterId": "king-muscle",
-          "coOccurrence": 55,
+          "coOccurrence": 57,
           "label": "the king, who drills and scolds him while they train the prince",
           "description": "em/Đại vương (大王さま, です/ます) — lễ phép nhưng dám càu nhàu lại"
+        },
+        {
+          "characterId": "robin-mask",
+          "coOccurrence": 61,
+          "label": "the fallen champion he walks through the prison corridor with, then screams a warning to",
+          "description": "em/anh Robin — hoảng loạn gọi gộp 'Vương tử, Robin, chạy đi!' khi máy bay lao xuống"
         }
       ]
     },
@@ -579,7 +582,7 @@
       "related": [
         {
           "characterId": "kinnikuman",
-          "coOccurrence": 72,
+          "coOccurrence": 96,
           "label": "the reject he recruits as a sparring partner, then comes to respect",
           "description": "ta/cậu (わたし/キミ) — kiêu ngạo, bề trên; 'tao/mày' đe doạ ép đầu hàng khi khoá đòn"
         },
@@ -591,7 +594,7 @@
         },
         {
           "characterId": "hero-olympics-commentator",
-          "coOccurrence": 10,
+          "coOccurrence": 12,
           "label": "the ringside commentator he answers curtly and then teases",
           "description": "ta/(không gọi tên) — đáp cộc lốc, rồi túm chân xốc ngược ông ta lên đùa nghịch"
         },
@@ -612,6 +615,12 @@
           "coOccurrence": 7,
           "label": "the committee head he petitions",
           "description": "tôi/Chủ tịch (委員長, です/ます) — trịnh trọng đề đạt luật Count-3 vì thấy chênh lệch thực lực quá lớn"
+        },
+        {
+          "characterId": "meat",
+          "coOccurrence": 61,
+          "label": "the prince's herald, who he snaps at across the ring",
+          "description": "ta/thằng ngốc (バカモノ, わい) — cộc cằn, khinh miệt"
         }
       ]
     },
@@ -620,13 +629,13 @@
       "related": [
         {
           "characterId": "kinnikuman",
-          "coOccurrence": 73,
+          "coOccurrence": 75,
           "label": "his son, the prince he abandoned on Earth and now needs",
           "description": "ta/con, gọi thẳng tên 'Suguru' (わし/おまえ, スグル) mặc định; van nài, dỗ ngọt bằng cơm bò; quát 'thằng con bất hiếu' (親不孝者め) khi bị từ chối; trầm giọng nghiêm túc khi kể chuyện Meat hi sinh"
         },
         {
           "characterId": "meat",
-          "coOccurrence": 55,
+          "coOccurrence": 57,
           "label": "his son's herald, whom he drills alongside him",
           "description": "ta/Mít (ミートくん) — quát tháo trong lúc huấn luyện, lo lắng khi cần tin tức"
         },
@@ -635,12 +644,6 @@
           "coOccurrence": 11,
           "label": "the committee head who humiliates him",
           "description": "ta/ông — nài nỉ rồi phẫn nộ khi bị gạt phắt và bị chê là 'nỗi nhục của Nhật Bản'"
-        },
-        {
-          "characterId": "queen",
-          "coOccurrence": 7,
-          "label": "his wife, the Queen of Kinniku Star",
-          "description": "ta/bà (あなた) — vợ chồng thân mật; bà là người kéo ông về với nghĩa vụ hoàng tộc"
         },
         {
           "characterId": "mayumi",
@@ -688,12 +691,6 @@
           "coOccurrence": 9,
           "label": "the villain whose sniper bullet he took in the leg",
           "description": "tôi/hắn (キン骨マン, gọi thẳng tên) — kể lại vụ bắn lén bằng giọng nghiêm trọng, đau đớn"
-        },
-        {
-          "characterId": "western-girl",
-          "coOccurrence": 6,
-          "label": "the young girl who stays at his side when he is hurt",
-          "description": "anh/em — thân thiết, che chở"
         }
       ]
     },
@@ -731,21 +728,15 @@
       "related": [
         {
           "characterId": "kinnikuman",
-          "coOccurrence": 27,
+          "coOccurrence": 28,
           "label": "his arch-enemy",
           "description": "ta/lũ ngươi (おまえたち, gộp cả Mít) khi ngạo mạn; gọi thẳng tên 'Kinnikuman' khi đắc thắng lộ bẫy; thua vẫn gằn 'ここのうらみはわすれんからな!'"
         },
         {
           "characterId": "iwao",
-          "coOccurrence": 5,
+          "coOccurrence": 7,
           "label": "his round-bodied lackey",
           "description": "ta/Iwao (gọi thẳng tên) — sai khiến, khen thưởng cộc lốc ('でかしたぞイワオ!')"
-        },
-        {
-          "characterId": "buzzugara",
-          "coOccurrence": 4,
-          "label": "the cannon-snouted monster he deploys against Terryman",
-          "description": "ta/Buzzugara (gọi thẳng tên) — bàn mưu, gạt phắt khi không tin, rồi cáu tiết đổ lỗi khi hắn bắn trúng đĩa bay của chính mình"
         },
         {
           "characterId": "terryman",
@@ -766,9 +757,55 @@
       "related": [
         {
           "characterId": "kinnikuman",
-          "coOccurrence": 23,
+          "coOccurrence": 24,
           "label": "his Block B opponent on the ice ring",
           "description": "ta/'tay làm xiếc' (曲芸師) — giễu cợt khi đối thủ nhảy nhót né đòn"
+        }
+      ]
+    },
+    {
+      "characterId": "doro-flairs",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 30,
+          "label": "the champion he invited to America and then used as an undercover weapon against the rival bodies",
+          "description": "ta/ngươi (わし/きさま) khi ra lệnh, nghiêm giọng bề trên; 'cái thằng Kinnikuman này' (キン肉マンめ) khi càu nhàu sau lưng; 'các ngươi' (キミたち) khi hài lòng khen ngầm cả hai thầy trò"
+        },
+        {
+          "characterId": "skull-bose",
+          "coOccurrence": 9,
+          "label": "the enemy body's champion he ends up scheming with",
+          "description": "ta/Skull (スカル, gọi trống tên, không kính ngữ) — xẳng giọng chất vấn, rồi khen 'スカルよくやったぞ' khi vừa ý"
+        },
+        {
+          "characterId": "robin-mask",
+          "coOccurrence": 12,
+          "label": "the fallen champion he tries to buy",
+          "description": "ta/ông (gọi đủ 'ロビン・マスク') — lịch sự có tính mua chuộc"
+        },
+        {
+          "characterId": "iwao",
+          "coOccurrence": 3,
+          "label": "the henchman he sends to crash the plane into the ring",
+          "description": "ta/Iwao (gọi trống tên, ra lệnh cộc lốc)"
+        }
+      ]
+    },
+    {
+      "characterId": "hero-olympics-announcer",
+      "related": [
+        {
+          "characterId": "robin-mask",
+          "coOccurrence": 16,
+          "label": "the champion he interviews at ringside",
+          "description": "tôi/anh Robin (ロビンさん, です/ます) — lịch sự, trang trọng trước ống kính"
+        },
+        {
+          "characterId": "hero-olympics-commentator",
+          "coOccurrence": 15,
+          "label": "his broadcast partner",
+          "description": "tôi/ông Tazahama (タザハマさん, です/ます) — lịch sự mời bình luận"
         }
       ]
     },
@@ -792,23 +829,6 @@
           "coOccurrence": 5,
           "label": "her rival for Kinnikuman's attention",
           "description": "em/cô (わたし/あなた, です/ます nhưng gằn giọng) — khó chịu khi bị dò hỏi; châm chọc ngược 'わたしで69人めだ!' khi bị xúc phạm"
-        }
-      ]
-    },
-    {
-      "characterId": "hero-olympics-announcer",
-      "related": [
-        {
-          "characterId": "robin-mask",
-          "coOccurrence": 15,
-          "label": "the champion he interviews at ringside",
-          "description": "tôi/anh Robin (ロビンさん, です/ます) — lịch sự, trang trọng trước ống kính"
-        },
-        {
-          "characterId": "hero-olympics-commentator",
-          "coOccurrence": 14,
-          "label": "his broadcast partner",
-          "description": "tôi/ông Tazahama (タザハマさん, です/ます) — lịch sự mời bình luận"
         }
       ]
     },
@@ -854,13 +874,105 @@
       ]
     },
     {
+      "characterId": "jesse-mayvia",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 18,
+          "label": "the visiting champion he despises, then loses both belts to",
+          "description": "ta/(không gọi tên) khinh miệt, 'đồ ngu' (バカもの!) khi gắt; ta/cậu Meibia… ngược lại, gọi 'vương tử' (王子) hoặc thêm くん khi làm ra vẻ lịch thiệp trước đám đông"
+        },
+        {
+          "characterId": "duke-kamata",
+          "coOccurrence": 8,
+          "label": "his manager and fixer",
+          "description": "ta/Kamata (gọi trống tên, plain) — tin cậy, bàn mưu ngang hàng"
+        },
+        {
+          "characterId": "kamehame",
+          "coOccurrence": 12,
+          "label": "the man he took the belt from and kept as his valet",
+          "description": "ta/(gọi trống, khinh) — coi như người hầu, không bao giờ gọi bằng tên tôn trọng"
+        }
+      ]
+    },
+    {
       "characterId": "hero-olympics-commentator",
       "related": [
         {
           "characterId": "robin-mask",
-          "coOccurrence": 10,
+          "coOccurrence": 12,
           "label": "the champion he tries to interview",
           "description": "tôi/anh Robin (ロビンさん, です/ます) — lịch sự; giãy nảy 'わー ゆするな' khi bị túm chân đùa nghịch"
+        }
+      ]
+    },
+    {
+      "characterId": "kamehame",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 18,
+          "label": "his student and the heir to his unfinished dream",
+          "description": "thầy/con (わたし/キミ, キン肉マン) mặc định, trầm tĩnh; chuyển sang giọng giảng bài lịch sự (です/ます) khi dạy đòn, vẫn giọng đó khi trêu 'vương tử dở hơi'; nghiêm giọng ra lệnh 'よくきけ' lúc mách nước giữa trận"
+        },
+        {
+          "characterId": "jesse-mayvia",
+          "coOccurrence": 12,
+          "label": "the man who took his belt and made him a valet",
+          "description": "ta/hắn (やつ) — nói về chứ hiếm khi nói với; giọng nén, không gào"
+        }
+      ]
+    },
+    {
+      "characterId": "skull-bose",
+      "related": [
+        {
+          "characterId": "sheik-seijin",
+          "coOccurrence": 10,
+          "label": "his chairman, whom he manages as much as he serves",
+          "description": "tôi/Sheik (わたし/シーク, です/ます) — lịch sự nhưng cứng rắn khi biện hộ; nâng lên 'ngài Sheik' (シークさま) khi trấn an hoặc cần được cho qua"
+        },
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 16,
+          "label": "the infiltrator he protects in public and traps in private",
+          "description": "tôi/Chanel Man (シャネルマン) trước mặt mọi người, quát 'いいかげんにしろ' khi cần diễn; gọi thẳng tên thật 'cậu Suguru' (スグルくん) khi dò phản ứng — đó là lúc nguy hiểm nhất"
+        },
+        {
+          "characterId": "doro-flairs",
+          "coOccurrence": 9,
+          "label": "the rival chairman he ends up scheming with",
+          "description": "tôi/(không gọi tên, です/ます) — trình bày mưu kế như báo cáo công việc"
+        }
+      ]
+    },
+    {
+      "characterId": "sheik-seijin",
+      "related": [
+        {
+          "characterId": "skull-bose",
+          "coOccurrence": 10,
+          "label": "his champion, who increasingly acts without him",
+          "description": "ta/Skull à (スカルよ, gọi trống kèm よ, bề trên) — thúc giục, chất vấn"
+        },
+        {
+          "characterId": "doro-flairs",
+          "coOccurrence": 5,
+          "label": "the rival chairman he hunts out of two cities",
+          "description": "ta/lão Flairs (フレアースよ, おまえ) — xấc xược, gọi trống tên"
+        },
+        {
+          "characterId": "beauty-rhodes",
+          "coOccurrence": 4,
+          "label": "the allied champion he mocks and then maims",
+          "description": "ta/mày (おまえ) — mỉa mai, gọi 'thân hình béo phì' (肥満体)"
+        },
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 15,
+          "label": "the infiltrator he suspects from the first day",
+          "description": "tụi tao/tụi bay (わしら/きさまら) khi tố cáo; 'mày' (おまえ) giễu cợt khi vạch vỏ bọc"
         }
       ]
     },
@@ -878,6 +990,23 @@
           "coOccurrence": 11,
           "label": "the fighter he eventually selects",
           "description": "ta/cậu (わし/キミ) — hồ hởi chúc mừng khi báo tin được chọn"
+        }
+      ]
+    },
+    {
+      "characterId": "beauty-rhodes",
+      "related": [
+        {
+          "characterId": "sheik-seijin",
+          "coOccurrence": 4,
+          "label": "nominal ally, then the man who maims him",
+          "description": "ta/anh Sheik (シーク, gọi trống tên) — xẵng nhưng vẫn õng ẹo, tranh phần trước"
+        },
+        {
+          "characterId": "doro-flairs",
+          "coOccurrence": 4,
+          "label": "the rival chairman he cuts off mid-sentence",
+          "description": "ta/ông (không gọi tên) — ngạo mạn, cười ホホホホホ"
         }
       ]
     },
@@ -905,19 +1034,30 @@
       ]
     },
     {
-      "characterId": "mayumi",
-      "related": []
-    },
-    {
-      "characterId": "ukon",
+      "characterId": "duke-kamata",
       "related": [
         {
-          "characterId": "kinnikuman",
-          "coOccurrence": 10,
-          "label": "the hero sent to drive him off the island",
-          "description": "tao/mày (おまえ) — khinh miệt, chê bai giữa trận ('なさけないのうおまえ'); cười lớn ngạo nghễ khi đòn Kinniku Flash bật ngược"
+          "characterId": "jesse-mayvia",
+          "coOccurrence": 8,
+          "label": "his champion and employer",
+          "description": "tôi/anh (không gọi tên) — chờ lệnh, hỏi lại ngắn 'なにかね'"
         }
       ]
+    },
+    {
+      "characterId": "iwao",
+      "related": [
+        {
+          "characterId": "kinkotsuman",
+          "coOccurrence": 7,
+          "label": "his master",
+          "description": "em/tiên sinh (先生) — lễ phép báo cáo, xin ý kiến ('いかがでしょうか先生!')"
+        }
+      ]
+    },
+    {
+      "characterId": "mayumi",
+      "related": []
     },
     {
       "characterId": "roots-princess",
@@ -933,6 +1073,40 @@
           "coOccurrence": 3,
           "label": "the hero she hires for money",
           "description": "em/anh (わたし) — khẩn khoản, hứa trả bao nhiêu cũng được"
+        }
+      ]
+    },
+    {
+      "characterId": "ukon",
+      "related": [
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 10,
+          "label": "the hero sent to drive him off the island",
+          "description": "tao/mày (おまえ) — khinh miệt, chê bai giữa trận ('なさけないのうおまえ'); cười lớn ngạo nghễ khi đòn Kinniku Flash bật ngược"
+        }
+      ]
+    },
+    {
+      "characterId": "iyadesu-harisun",
+      "related": [
+        {
+          "characterId": "beauty-rhodes",
+          "coOccurrence": 4,
+          "label": "his champion",
+          "description": "tôi/Rhodes (gọi trống tên) — bàng hoàng gọi tên khi thấy anh ta bị đánh gục"
+        },
+        {
+          "characterId": "kinnikuman",
+          "coOccurrence": 8,
+          "label": "the suspect he tests with his father's portrait",
+          "description": "tôi/anh (あんた) — dò hỏi lịch sự vừa phải, bên dưới là nghi ngờ"
+        },
+        {
+          "characterId": "sheik-seijin",
+          "coOccurrence": 6,
+          "label": "ally against the WSA, then rival over jurisdiction",
+          "description": "tôi/(không gọi tên, です/ます) — giữ lễ ngay cả khi tranh quyền"
         }
       ]
     },
@@ -954,6 +1128,23 @@
       ]
     },
     {
+      "characterId": "rhodes-companion",
+      "related": [
+        {
+          "characterId": "beauty-rhodes",
+          "coOccurrence": 5,
+          "label": "the champion she accompanies and speaks for",
+          "description": "tôi/Rhodes (gọi trống tên) — thản nhiên khi trấn an, hét gọi khi hoảng"
+        },
+        {
+          "characterId": "sheik-seijin",
+          "coOccurrence": 5,
+          "label": "the enemy chairman she confronts over Rhodes' body",
+          "description": "tôi/Sheik (gọi trống tên) — lạnh, dò xét, rồi tuyên chiến"
+        }
+      ]
+    },
+    {
       "characterId": "tabuchi",
       "related": [
         {
@@ -965,134 +1156,13 @@
       ]
     },
     {
-      "characterId": "iwao",
+      "characterId": "hawaii-announcer",
       "related": [
         {
-          "characterId": "kinkotsuman",
-          "coOccurrence": 5,
-          "label": "his master",
-          "description": "em/tiên sinh (先生) — lễ phép báo cáo, xin ý kiến ('いかがでしょうか先生!')"
-        }
-      ]
-    },
-    {
-      "characterId": "nachiguron",
-      "related": [
-        {
-          "characterId": "kinnikuman",
-          "coOccurrence": 7,
-          "label": "the hero who beat him, mocked him, then took him in",
-          "description": "tao/mày (おまえ) khi phẫn nộ cãi lại; giọng Kansai khóc lóc van xin 'đừng mách mẹ tôi'; 'em/anh Suguru' (スグルさん) khi biết ơn, cảm kích"
-        },
-        {
-          "characterId": "meat",
-          "coOccurrence": 6,
-          "label": "the boy who gave him the Kinniku whistle",
-          "description": "em/anh Mít (ミートさん) — lễ phép, khép nép, gọi kèm さん kính trọng"
-        }
-      ]
-    },
-    {
-      "characterId": "nana",
-      "related": [
-        {
-          "characterId": "kinnikuman",
-          "coOccurrence": 7,
-          "label": "an over-eager fan who stages a rescue for her",
-          "description": "tôi/(không gọi tên) (あたし) — xẵng giọng, khó chịu, mất kiên nhẫn"
-        }
-      ]
-    },
-    {
-      "characterId": "defense-chief",
-      "related": [
-        {
-          "characterId": "kinnikuman",
-          "coOccurrence": 6,
-          "label": "the hero he calls on",
-          "description": "ta/Kinnikuman (gọi thẳng tên) — thân mật, hồ hởi"
-        }
-      ]
-    },
-    {
-      "characterId": "yosaku",
-      "related": [
-        {
-          "characterId": "kinnikuman",
-          "coOccurrence": 7,
-          "label": "the fighter he appoints himself trainer to",
-          "description": "tui/mày (わし/おまえ, giọng quê) — cộc cằn nhưng nhiệt tình; mắng mỏ khi thấy hắn nhát gan trước trận"
-        }
-      ]
-    },
-    {
-      "characterId": "buzzugara",
-      "related": [
-        {
-          "characterId": "kinkotsuman",
-          "coOccurrence": 4,
-          "label": "his master",
-          "description": "tôi/tiên sinh (先生) — chủ động hiến kế, tự tin khoe đã tìm ra điểm yếu của Terryman"
-        },
-        {
-          "characterId": "natsuko",
-          "coOccurrence": 6,
-          "label": "the reporter he turns into a giantess",
-          "description": "tao/Natsuko (gọi thẳng tên) — hô lớn rồi bắn tia, cười đắc thắng"
-        }
-      ]
-    },
-    {
-      "characterId": "karekkuku",
-      "related": [
-        {
-          "characterId": "kinnikuman",
-          "coOccurrence": 7,
-          "label": "his Block B opponent",
-          "description": "tôi/(không gọi tên) — la hoảng bằng giọng trẻ con khi bị phản đòn"
-        }
-      ]
-    },
-    {
-      "characterId": "queen",
-      "related": [
-        {
-          "characterId": "king-muscle",
-          "coOccurrence": 7,
-          "label": "her husband",
-          "description": "em/mình (わたし/あなた) — trấn an dịu dàng; vẫn あなた nhưng giọng nghiêm khắc khi quở trách: 'スグルは わたしたちの息子である前にキン肉星の王子です'"
-        },
-        {
-          "characterId": "meat",
-          "coOccurrence": 4,
-          "label": "her son's herald",
-          "description": "cô/cháu Mít (ミートくん, dịu thành ミートちゃん) — nhờ vả nhẹ nhàng, vẫn giữ khoảng cách chủ-tớ"
-        }
-      ]
-    },
-    {
-      "characterId": "king-tone",
-      "related": []
-    },
-    {
-      "characterId": "western-girl",
-      "related": [
-        {
-          "characterId": "terryman",
-          "coOccurrence": 6,
-          "label": "the hero she stays beside",
-          "description": "em/anh Terry (テリー, rút gọn thân mật) — hoảng hốt gọi tên, trách móc vì anh liều mạng, rồi khẩn cầu anh dừng trận đấu"
-        }
-      ]
-    },
-    {
-      "characterId": "kazu-nakano",
-      "related": [
-        {
-          "characterId": "kinnikuman",
-          "coOccurrence": 5,
-          "label": "the champion he manages in Hawaii",
-          "description": "Mi/cậu, hoàng tử (ミー/キミ, 王子) — đón tiếp nồng nhiệt, hay đùa giữ bí mật, xen lời dặn về giờ giấc"
+          "characterId": "hero-olympics-commentator",
+          "coOccurrence": 2,
+          "label": "the commentator beside him at the desk",
+          "description": "tôi/anh Tazahama (タザハマさん, です/ます) — than thở thân mật trong lúc chờ trận"
         }
       ]
     }

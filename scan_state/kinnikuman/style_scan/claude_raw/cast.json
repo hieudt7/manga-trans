@@ -669,7 +669,38 @@
         "v05-057",
         "v05-058",
         "v05-059",
-        "v05-060"
+        "v05-060",
+        "v05-061",
+        "v05-062",
+        "v05-063",
+        "v05-064",
+        "v05-065",
+        "v05-066",
+        "v05-067",
+        "v05-068",
+        "v05-070",
+        "v05-071",
+        "v05-072",
+        "v05-073",
+        "v05-074",
+        "v05-075",
+        "v05-076",
+        "v05-077",
+        "v05-079",
+        "v05-080",
+        "v05-081",
+        "v05-082",
+        "v05-083",
+        "v05-084",
+        "v05-085",
+        "v05-086",
+        "v05-087",
+        "v05-088",
+        "v05-089",
+        "v05-090",
+        "v05-091",
+        "v05-092",
+        "v05-093"
       ],
       "pairPages": {
         "alien-envoy": 1,
@@ -677,7 +708,7 @@
         "hitoshi": 1,
         "nana": 2,
         "gorizaemon": 1,
-        "meat": 21,
+        "meat": 22,
         "king-muscle": 7,
         "shigeru": 1,
         "mari": 4,
@@ -701,7 +732,7 @@
         "party-girl": 2,
         "octopus-dragon": 1,
         "ukon": 2,
-        "robin-mask": 7,
+        "robin-mask": 13,
         "curly-mustache-man": 1,
         "olympic-chairman": 1,
         "brockenman": 1,
@@ -716,12 +747,14 @@
         "kamehame": 5,
         "palace-trainee": 1,
         "jesse-mayvia": 3,
-        "doro-flairs": 2,
+        "doro-flairs": 3,
         "bulldozer": 1,
         "bob-winkle": 1,
-        "sheik-seijin": 1
+        "sheik-seijin": 1,
+        "skull-bose": 1
       },
       "settledPairs": [
+        "doro-flairs",
         "jesse-mayvia",
         "kamehame",
         "king-muscle",
@@ -1223,7 +1256,10 @@
             "trêu chọc, đáp trả khi bị mắng oan": "(không xưng rõ)/(không gọi tên) — なんだ えらそうに ついさっき 自分だって タコとまちがえられたくせに!, vặn lại ngay khi Kinnikuman vừa trách người khác nhầm mình là cá mập trong khi chính mình cũng vừa bị nhầm là bạch tuộc",
             "khuyên can, chán nản đề nghị bỏ cuộc": "ぼく/王子 (です/ます) — 王子…… もう あきらめましょうよ, nhẹ nhàng khuyên hoàng tử từ bỏ việc tìm lại món đồ đã mất",
             "biện minh, đổ lỗi hết kinh phí": "ぼく/(không gọi rõ, です/ます) — 仕方ないでしょ 5ドルしか 残っていなかったんですから……, biện minh khi bị trách vì chỉ mua được kính râm đồ chơi do ngân sách hội superhuman chỉ còn 5 đô",
-            "nghi ngờ câu chuyện bịa lúc cải trang \"Chanel Man\"": "(không xưng rõ, độc thoại nội tâm)/(không gọi tên) — でたらめが……, nghi ngờ thầm khi nghe lời kể của đối phương, không nói trực tiếp với người đó"
+            "nghi ngờ câu chuyện bịa lúc cải trang \"Chanel Man\"": "(không xưng rõ, độc thoại nội tâm)/(không gọi tên) — でたらめが……, nghi ngờ thầm khi nghe lời kể của đối phương, không nói trực tiếp với người đó",
+            "trách móc": "王子! ぼくたち超人同盟に遊びにきたんじゃないんですよ",
+            "lo lắng": "(không xưng rõ)/王子",
+            "trang trọng": "(không xưng rõ)/王子"
           }
         },
         "king-muscle": {
@@ -1270,6 +1306,12 @@
         },
         "doro-flairs": {
           "default": "(không xưng rõ)/(không gọi tên trực tiếp) — đồng cảm, lên tiếng bênh vực/giải thích hộ chủ nhân khi nghe câu chuyện cảm động của doro-flairs"
+        },
+        "robin-mask": {
+          "default": "(không xưng rõ)/王子",
+          "moods": {
+            "hoảng loạn": "王子 ロビン にげてーーっ‼"
+          }
         }
       },
       "pages": [
@@ -1511,10 +1553,36 @@
         "v05-053",
         "v05-056",
         "v05-057",
-        "v05-060"
+        "v05-060",
+        "v05-061",
+        "v05-062",
+        "v05-063",
+        "v05-064",
+        "v05-065",
+        "v05-066",
+        "v05-067",
+        "v05-068",
+        "v05-072",
+        "v05-074",
+        "v05-075",
+        "v05-076",
+        "v05-077",
+        "v05-079",
+        "v05-080",
+        "v05-081",
+        "v05-082",
+        "v05-083",
+        "v05-084",
+        "v05-086",
+        "v05-087",
+        "v05-088",
+        "v05-089",
+        "v05-090",
+        "v05-091",
+        "v05-093"
       ],
       "pairPages": {
-        "kinnikuman": 30,
+        "kinnikuman": 37,
         "mari": 2,
         "neighbor-oldman": 1,
         "nachiguron": 1,
@@ -1525,7 +1593,8 @@
         "king-muscle": 4,
         "vengeful-stranger": 2,
         "sw-26": 1,
-        "doro-flairs": 1
+        "doro-flairs": 1,
+        "robin-mask": 1
       },
       "settledPairs": [
         "king-muscle",
@@ -3781,7 +3850,9 @@
         "v04-029",
         "v04-050",
         "v04-052",
-        "v04-069"
+        "v04-069",
+        "v05-078",
+        "v05-088"
       ],
       "pairPages": {
         "kinnikuman": 4,
@@ -4263,7 +4334,10 @@
         "v02-0078",
         "v03-0068",
         "v04-008",
-        "v04-029"
+        "v04-029",
+        "v05-078",
+        "v05-086",
+        "v05-088"
       ],
       "pairPages": {
         "kinkotsuman": 1,
@@ -4970,7 +5044,8 @@
             "ngoan cố, phủ nhận đã chịu thua": "わたし/(không gọi tên rõ) — わたしはギブアップなどしておらんぞ／そう考えるのはそちらの勝手 とにかくわたしの脊骨はおれてはおらん, cương quyết phủ nhận đã đầu hàng, cãi rằng xương sống mình chưa hề gãy dù có tiếng kêu rắc",
             "hoang mang, thắc mắc âm thanh lạ": "わたし/(không gọi tên) — それじゃああのベキという音はいったい…?, ngờ vực hỏi lại khi biết có thể mình đã bị lừa bởi âm thanh xương kêu",
             "chấp nhận thua cuộc": "(không xưng rõ)/(không gọi tên) — 負けだ‼／わ…わたしの ま…ま…, sững sờ thốt lên chấp nhận thua rồi bỏ lửng câu nói",
-            "ngạc nhiên trước lời đề nghị hào phóng": "(không xưng rõ)/(không gọi tên) — ええ…!?, sững sờ trước đề nghị bất ngờ được mời ở nhờ nhà"
+            "ngạc nhiên trước lời đề nghị hào phóng": "(không xưng rõ)/(không gọi tên) — ええ…!?, sững sờ trước đề nghị bất ngờ được mời ở nhờ nhà",
+            "khiêu khích": "(không xưng rõ)/キン肉マン"
           }
         },
         "hero-olympics-commentator": {
@@ -5113,10 +5188,33 @@
         "v04-079",
         "v04-080",
         "v05-001",
-        "v05-005"
+        "v05-005",
+        "v05-068",
+        "v05-069",
+        "v05-070",
+        "v05-071",
+        "v05-072",
+        "v05-073",
+        "v05-074",
+        "v05-075",
+        "v05-076",
+        "v05-077",
+        "v05-080",
+        "v05-081",
+        "v05-082",
+        "v05-083",
+        "v05-084",
+        "v05-085",
+        "v05-086",
+        "v05-087",
+        "v05-088",
+        "v05-090",
+        "v05-091",
+        "v05-092",
+        "v05-093"
       ],
       "pairPages": {
-        "kinnikuman": 12,
+        "kinnikuman": 20,
         "hero-olympics-commentator": 1,
         "hero-olympics-announcer": 2,
         "terryman": 4,
@@ -5124,7 +5222,9 @@
         "olympic-chairman": 1,
         "training-reporter": 1,
         "gania-mask": 2,
-        "alisa": 2
+        "alisa": 2,
+        "dynamite-piper": 1,
+        "meat": 1
       },
       "settledPairs": [
         "kinnikuman",
@@ -5315,7 +5415,8 @@
         "v04-056",
         "v04-064",
         "v04-070",
-        "v04-071"
+        "v04-071",
+        "v05-087"
       ],
       "pairPages": {
         "robin-mask": 1,
@@ -5400,7 +5501,9 @@
         "v04-064",
         "v04-073",
         "v05-012",
-        "v05-015"
+        "v05-015",
+        "v05-085",
+        "v05-087"
       ],
       "pairPages": {
         "robin-mask": 1,
@@ -6376,7 +6479,8 @@
       },
       "pages": [
         "v04-077",
-        "v04-080"
+        "v04-080",
+        "v05-092"
       ],
       "pairPages": {
         "robin-mask": 2
@@ -6425,7 +6529,8 @@
             "khó chịu, phàn nàn vì đợi mãi không thấy đến (nói về đối phương, không trực tiếp)": "(không xưng rõ)/キン肉マンめ (khinh, mắng yêu) — キン肉マンめ なにをやっとるんだ この船にのってくるはずになっておるのに…／お…おそい, sốt ruột phàn nàn khi đợi ở cảng Los Angeles mà Kinnikuman không xuất hiện đúng chuyến tàu như dự kiến",
             "hoảng loạn, giục vào tòa nhà khi bị tấn công": "(không xưng rõ)/キン肉マン (gọi thẳng tên, ra lệnh gấp) — キン肉マン 理由はあとで話す とにかく ビルの中へ‼, ra lệnh gấp gáp bảo vào trong toà nhà lánh nạn ngay khi bị tấn công, chưa kịp giải thích lý do",
             "ra lệnh, phân công nhiệm vụ xâm nhập": "(không xưng rõ)/きさま (gọi trống, nghiêm giọng ra lệnh) — キン肉マンよきさまはこれより反主流派である超人評議会へいき…, ra lệnh nghiêm túc phân công nhiệm vụ xâm nhập tổ chức đối thủ",
-            "cảnh cáo, nhắc giữ kín thân phận": "(không xưng rõ)/シャネルマン (gọi bằng tên giả) — シャネルマン キミも 不審な行動だけは つつしんだほうがいいぞ, nhắc khéo giữ kín thân phận khi thấy có vệ sĩ vũ trang khả nghi lởn vởn"
+            "cảnh cáo, nhắc giữ kín thân phận": "(không xưng rõ)/シャネルマン (gọi bằng tên giả) — シャネルマン キミも 不審な行動だけは つつしんだほうがいいぞ, nhắc khéo giữ kín thân phận khi thấy có vệ sĩ vũ trang khả nghi lởn vởn",
+            "đắc ý": "(không xưng rõ)/キミたち"
           }
         },
         "skull-bose": {
@@ -6436,6 +6541,9 @@
         },
         "sheik-seijin": {
           "default": "わたし/シーク (gọi thẳng tên, điềm tĩnh, có phần triết lý) — シーク いっておくが この世に正義がある限り 悪がさかえることは ないのではないか?, nói chuyện phải trái một cách bình thản với đối trọng đứng đầu WSF"
+        },
+        "iwao": {
+          "default": "(không xưng rõ)/イワオ (gọi thẳng tên, ra lệnh)"
         }
       },
       "pages": [
@@ -6455,12 +6563,28 @@
         "v05-039",
         "v05-040",
         "v05-047",
-        "v05-060"
+        "v05-060",
+        "v05-061",
+        "v05-062",
+        "v05-063",
+        "v05-071",
+        "v05-072",
+        "v05-073",
+        "v05-078",
+        "v05-080",
+        "v05-086",
+        "v05-088",
+        "v05-089",
+        "v05-090",
+        "v05-091",
+        "v05-093"
       ],
       "pairPages": {
-        "kinnikuman": 4,
+        "kinnikuman": 7,
         "chabo-kerori": 1,
-        "skull-bose": 1
+        "skull-bose": 2,
+        "robin-mask": 1,
+        "iwao": 1
       },
       "settledPairs": [
         "kinnikuman"
@@ -7111,11 +7235,19 @@
         "kinnikuman": {
           "default": "(không xưng rõ)/(không gọi tên trực tiếp, ra quyết định) — よし 超人同盟入団を 許可しよう‼, dứt khoát tuyên bố chấp nhận \"Chanel Man\" (Kinnikuman cải trang) gia nhập WSF, bị người khác phản đối là quá tuỳ tiện",
           "moods": {
-            "biết rõ thân phận thật, gọi thẳng tên": "(không xưng rõ)/スグルくん (gọi thẳng tên thật + くん) — わかったな スグルくん……, ngầm cho Kinnikuman biết mình đã biết rõ thân phận thật, giọng vừa dò xét vừa như đồng loã"
+            "biết rõ thân phận thật, gọi thẳng tên": "(không xưng rõ)/スグルくん (gọi thẳng tên thật + くん) — わかったな スグルくん……, ngầm cho Kinnikuman biết mình đã biết rõ thân phận thật, giọng vừa dò xét vừa như đồng loã",
+            "dò xét": "わかったなスグルくん…",
+            "mắng": "いいかげんにしろシャネルマンおとなげないぞ!!"
           }
         },
         "doro-flairs": {
           "default": "わたし/(không gọi trực tiếp, luôn です/ます lịch sự) — trình bày chiến lược một cách lễ phép dù đang bàn chuyện thâm hiểm, thái độ tự tin, hay cười khẩy フフフフ"
+        },
+        "sheik-seijin": {
+          "default": "わたし/シーク (です/ます)",
+          "moods": {
+            "trấn an": "(không xưng rõ)/シークさま"
+          }
         }
       },
       "pages": [
@@ -7123,17 +7255,31 @@
         "v05-053",
         "v05-058",
         "v05-059",
-        "v05-060"
+        "v05-060",
+        "v05-063",
+        "v05-065",
+        "v05-066",
+        "v05-067",
+        "v05-068",
+        "v05-073",
+        "v05-077",
+        "v05-078",
+        "v05-086",
+        "v05-089",
+        "v05-090",
+        "v05-093"
       ],
       "pairPages": {
-        "kinnikuman": 1,
-        "doro-flairs": 1
+        "kinnikuman": 3,
+        "doro-flairs": 1,
+        "sheik-seijin": 3
       },
-      "settledPairs": [],
-      "settled": false,
-      "missing": [
-        "6 pages"
-      ]
+      "settledPairs": [
+        "kinnikuman",
+        "sheik-seijin"
+      ],
+      "settled": true,
+      "missing": []
     },
     {
       "id": "beauty-rhodes",
@@ -7300,6 +7446,13 @@
           "moods": {
             "bênh vực khi bị tấn công": "シャネルマンは 同盟の 客人だ 手をだすことは ゆるさん‼, đứng ra bảo vệ khi phe WSC định ra tay với \"khách quý\" của WSF"
           }
+        },
+        "skull-bose": {
+          "default": "おまえ/スカル (gọi tên trực tiếp)",
+          "moods": {
+            "thúc giục": "スカルよ いつになったらやつの正体をあばくのだ?",
+            "lo lắng": "(không xưng rõ)/スカルよ"
+          }
         }
       },
       "pages": [
@@ -7310,15 +7463,26 @@
         "v05-055",
         "v05-056",
         "v05-058",
-        "v05-059"
+        "v05-059",
+        "v05-063",
+        "v05-065",
+        "v05-066",
+        "v05-067",
+        "v05-068",
+        "v05-077",
+        "v05-078",
+        "v05-086"
       ],
       "pairPages": {
         "doro-flairs": 1,
         "beauty-rhodes": 1,
         "rhodes-companion": 1,
-        "kinnikuman": 1
+        "kinnikuman": 1,
+        "skull-bose": 3
       },
-      "settledPairs": [],
+      "settledPairs": [
+        "skull-bose"
+      ],
       "settled": true,
       "missing": []
     },
@@ -7504,6 +7668,48 @@
       "settled": false,
       "missing": [
         "ageGroup",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "dynamite-piper",
+      "name": "Dynamite Piper",
+      "nameJa": "ダイナマイトパイパー",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "đô vật đầu hói, mặt góc cạnh/dữ tợn, quần đấu ca-rô, thuộc Superhuman Alliance (超人同盟)",
+      "faces": [
+        {
+          "page": "v05-069",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.55,
+            0.56,
+            0.2,
+            0.12
+          ]
+        }
+      ],
+      "addresses": {
+        "robin-mask": {
+          "default": "(không xưng rõ)/ロビンさんよ",
+          "moods": {
+            "mỉa mai": "まだまだ甘いぜ…ロビンさんよ"
+          }
+        }
+      },
+      "pages": [
+        "v05-069",
+        "v05-070",
+        "v05-071"
+      ],
+      "pairPages": {
+        "robin-mask": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
         "6 pages"
       ]
     }
