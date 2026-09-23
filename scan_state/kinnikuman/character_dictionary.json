@@ -3,230 +3,86 @@
     "approach": [],
     "voice": [],
     "address": [
-      "Kinnikuman's register flips with his posture, not with the listener: swaggering 'ta' while posing as a hero, whining 'tớ/con' the moment he is scared, hungry or scolded. Keep both in Vietnamese — the flip is the running joke.",
-      "Meat keeps です/ます and 王子 for Kinnikuman in every mood, even while complaining or blaming him. Render as a steady polite 'em/ngài (hoàng tử)'. The rare times he drops to おまえ or barks うるさい! are deliberate breaks — let them show.",
-      "Dialect marks the cast: Kansai for Natsuko (うち, 〜んや — she keeps it in every scene), for Franky and for Nachiguron's crying; Kyushu/Hakata for the Zangyaku alien; country speech for Yosaku, the frog monster and old villagers. Give each a distinct Vietnamese regional voice rather than neutral speech, and keep it identical on every reappearance.",
-      "Terryman's ミー/ユー is Westernised Japanese, not English dialogue — carry it as one consistent foreign-sounding self term for the whole series, and do not re-invent it per chapter.",
-      "The monster of the week is rarely a villain: Nachiguron, the shell monster, Nagaashi Gon, Tendon and the frog monster are all lonely, proud or desperate creatures, and their chapters end in pity or reconciliation. Keep their Vietnamese sympathetic — 'tao/mày' while they bluster, softening to 'em/anh' or a plain 'tôi' when they break down. Flattening them into generic villain-speak loses the point of the series.",
-      "Family speech on Kinniku Star is deliberately low and comic: the king says わし/おまえ and スグル, the prince answers パパ. Use plain 'ta/con' and 'ba/con', not royal register.",
-      "Volume 3 turns the series into a tournament, and the Hero Olympics fighters are national stereotypes by design (Britain's armoured knight, China's kung-fu devil, Germany's Nazi, India's curry head, Mexico's masked showman). Keep each one's register distinct and period-appropriate rather than levelling them into one 'wrestler voice'.",
-      "Broadcast scenes have their own register: the announcer and commentator keep です/ます and さん for everyone, however absurd the action. Keep that formality — the contrast with the fighters' rough speech is the joke.",
-      "Westernised pronouns are a marker of foreignness across the whole cast, not a quirk of one character: Terryman (American), Robin Mask and his trainer Gania Mask (English), Kazu Nakano (Nisei) and Duke Kamata (Hawaii promoter) all reach for ミー and ユー. Pick ONE Vietnamese rendering for this and use it for every one of them, so the reader hears 'foreigner' the same way each time.",
-      "Anger does not simply strip politeness away — Robin Mask's coldest threat ('死んでもらいます!') keeps the polite ます form, and Meat stays in です/ます even while blaming the prince. Do not flatten every angry line into 'tao/mày'; the politeness held under fury is often the point.",
-      "Volume 4 leaves one relationship deliberately unexplained: the scarred おじさん who swore to kill Kinnikuman and then seconded him to the title, and whatever ties him to Natsuko. Keep his address to her ('Natsuko', gọi thẳng tên) and to everyone else exactly as it is — do not smooth it into a settled uncle/niece register until the story says so.",
-      "Titles, not names, carry rank in this cast, and the title is what should be translated: 王子 (Hoàng tử) for Kinnikuman among everyone who knows who he is — aliens, monsters, palace staff and Meat alike; 先生 (tiên sinh) for Kinkotsuman; 委員長 for the Olympic chairman; 長官 for the Defense Force chief; 会長 (hội trưởng/chủ tịch) for Doro Flairs and Iyadesu Harisun. Characters who use his real name スグル — Natsuko when she is proud of him, his father, and Skull Bose when he wants to see him flinch — are doing something pointed; keep 'Suguru' there.",
-      "Volume 5's three American bodies are told apart by voice, not by badge, and the four leaders must never blur: Sheik Seijin (WSF) growls わし/おまえ with 〜じゃ; his champion Skull Bose keeps です/ます and a dry フフフフ even while planning a murder; Beauty Rhodes (WSC champion) is affected and feminine-coded — ホホホホホ, わよ/のよ, speaking of himself in the third person; Iyadesu Harisun (WSC chairman) is flat corporate です/ます. Give each a Vietnamese register that holds for the whole arc; the factions are legible to the reader only through these voices.",
-      "When Kinnikuman is undercover as 'Chanel Man' he speaks in a different voice — オレ and street slang instead of his usual わたし. Keep the two voices distinct in Vietnamese, and let the disguise crack audibly at the moments he forgets (blurting 'パパ!' at his father's portrait), because those slips are the plot."
+      "Một khi biết Kinnikuman là hoàng tử Sao Kim Nhục, người thân cận (Meat, Mari, King Muscle) gọi cậu là 王子 thay vì gọi tên.",
+      "Cha (King Muscle) gọi con trai bằng tên riêng kèm giọng suồng sã (わし/おまえ, スグル).",
+      "Cấp dưới báo cáo cấp trên bằng chức danh + です/ます lễ phép (長官, 委員長, 会長…).",
+      "Kinnikuman thường giữ đuôi です/ます lịch sự ngay cả khi đang khoác lác/ngổ ngáo.",
+      "Bạn mới quen hoặc muốn tỏ ra thân thiện hay đặt biệt danh bằng cách cắt gọn tên + ちゃん.",
+      "Nhiều siêu nhân/nhân vật nước ngoài thỉnh thoảng chêm xưng hô kiểu Tây hoá ミー (tôi)/ユー (you, mày/cậu) thay cho đại từ tiếng Nhật chuẩn.",
+      "Một tuyên bố tàn nhẫn (đe doạ giết, mắng nhiếc) vẫn có thể giữ nguyên thể ます lịch sự thay vì chuyển hẳn sang lời thô tục.",
+      "Khi Kinnikuman cải trang thành một danh tính khác, lời thoại của cậu chuyển hẳn sang giọng suồng sã, đường phố.",
+      "Biệt danh 'ボーイ' (Boy/'nhóc') được nhiều nhân vật dùng để gọi thân mật hoặc khinh miệt đàn em/đối tác nhỏ tuổi hơn.",
+      "Bạn diễn tag mới ghép đôi vẫn gọi nhau suồng sã bằng tên thật ngay từ đầu."
     ],
     "soundEffects": [],
     "glossary": [
+      [
+        "ロビン・マスク",
+        "Robin Mask"
+      ],
       [
         "キン肉マン",
         "Kinnikuman"
       ],
       [
-        "スグル",
-        "Suguru (tên thật của Kinnikuman)"
-      ],
-      [
         "ミート",
-        "Mít (Meat)"
-      ],
-      [
-        "キン肉星",
-        "Sao Kinniku"
-      ],
-      [
-        "キン肉大王",
-        "Vua Kinniku (King Muscle)"
-      ],
-      [
-        "キング・トーン",
-        "King Tone"
-      ],
-      [
-        "キン肉タウン",
-        "Kinniku Town"
-      ],
-      [
-        "キン肉族",
-        "tộc Kinniku"
-      ],
-      [
-        "王子",
-        "Hoàng tử"
+        "Meat"
       ],
       [
         "テリーマン",
         "Terryman"
       ],
       [
-        "おちこぼれ怪獣",
-        "quái vật rớt hạng"
-      ],
-      [
-        "フランキー",
-        "Franky"
-      ],
-      [
-        "ザンギャク星人",
-        "người Zangyaku"
+        "キン肉大王",
+        "Đại Vương"
       ],
       [
         "二階堂マリ",
         "Nikaidou Mari"
       ],
       [
-        "長官",
-        "Chỉ huy trưởng"
+        "スグル",
+        "Suguru"
       ],
       [
-        "防衛軍",
-        "Lực lượng Phòng vệ"
+        "キン肉星",
+        "Sao Kim Nhục"
       ],
       [
-        "翔野ナツコ",
-        "Shouno Natsuko"
+        "必殺技",
+        "tuyệt kỹ"
       ],
       [
-        "ナッちゃん",
-        "Nát (biệt danh Kinnikuman gọi Natsuko)"
+        "牛丼",
+        "cơm thịt bò"
       ],
       [
-        "キンちゃん",
-        "Kin (biệt danh thân mật gọi Kinnikuman)"
-      ],
-      [
-        "週刊HERO",
-        "Tuần san HERO"
-      ],
-      [
-        "編集長",
-        "Tổng biên tập"
+        "王子",
+        "Hoàng tử"
       ],
       [
         "キン骨マン",
         "Kinkotsuman"
       ],
       [
-        "しゃれこうべ星",
-        "sao Sọ Người"
-      ],
-      [
-        "先生",
-        "tiên sinh (cách gọi Kinkotsuman)"
-      ],
-      [
-        "イワオ",
-        "Iwao"
-      ],
-      [
-        "超人オリンピック",
-        "Olympic Siêu nhân"
+        "翔野ナツコ",
+        "Shouno Natsuko"
       ],
       [
         "委員長",
-        "Chủ tịch ban tổ chức"
-      ],
-      [
-        "ロビン・マスク",
-        "Robin Mask"
-      ],
-      [
-        "ラーメンマン",
-        "Ramenman"
-      ],
-      [
-        "東洋の悪魔",
-        "Ác quỷ phương Đông"
-      ],
-      [
-        "ブロッケンマン",
-        "Brockenman"
-      ],
-      [
-        "カレクック",
-        "Karekkuku"
-      ],
-      [
-        "中国拳法",
-        "quyền pháp Trung Hoa"
-      ],
-      [
-        "キャメルクラッチ",
-        "Camel Clutch"
-      ],
-      [
-        "バックブリーカー",
-        "Back Breaker"
-      ],
-      [
-        "火事場のバカ力",
-        "sức mạnh liều của kẻ cùng đường"
-      ],
-      [
-        "カウント3",
-        "luật Count-3"
-      ],
-      [
-        "国外追放",
-        "trục xuất khỏi đất nước"
-      ],
-      [
-        "ガニア・マスク",
-        "Gania Mask"
-      ],
-      [
-        "アリサ",
-        "Alisa"
-      ],
-      [
-        "世界超人協会",
-        "Hiệp hội Siêu nhân Thế giới"
-      ],
-      [
-        "ドーロ・フレアース",
-        "Doro Flairs"
-      ],
-      [
-        "モンスターガン",
-        "Monster Gun (súng quái vật)"
+        "Chủ tịch Ban tổ chức"
       ],
       [
         "カメハメ",
-        "Kamehame (sư phụ Hawaii của Kinnikuman)"
-      ],
-      [
-        "48の殺人技",
-        "48 chiêu sát thủ (bộ tuyệt kỹ Kamehame truyền lại)"
+        "Kamehame"
       ],
       [
         "ジェシー・メイビア",
         "Jesse Mayvia"
       ],
       [
-        "ビッグマウンテン",
-        "Big Mountain (biệt danh lối thủ bất động của Jesse Mayvia)"
-      ],
-      [
         "デューク・カマタ",
         "Duke Kamata"
-      ],
-      [
-        "風林火山",
-        "Phong Lâm Hỏa Sơn (chiêu số 3, lấy từ quân kỳ Takeda Shingen)"
-      ],
-      [
-        "二冠王",
-        "Nhị Quán Vương (nhà vô địch hai đai)"
-      ],
-      [
-        "超人同盟",
-        "Liên minh Siêu nhân (WSF) — phe Sheik Seijin"
-      ],
-      [
-        "超人評議会",
-        "Hội đồng Siêu nhân (WSC) — phe Iyadesu Harisun"
       ],
       [
         "スカル・ボーズ",
@@ -241,24 +97,44 @@
         "Beauty Rhodes"
       ],
       [
-        "イヤデス・ハリスン",
-        "Iyadesu Harisun"
+        "デビル・マジシャン",
+        "Devil Magician"
       ],
       [
-        "シャネルマン",
-        "Chanel Man (vỏ bọc cải trang của Kinnikuman)"
+        "ジャンヌ・スティムボード",
+        "Jeanne Stimboard"
       ],
       [
-        "ランバージャック・ショー",
-        "Lumberjack Show (show tử chiến của WSF)"
+        "ブラック・シャドー",
+        "Black Shadow"
       ],
       [
-        "栄光の歩道",
-        "Con đường Vinh quang (Hollywood Walk of Fame nhại)"
+        "ロバート",
+        "Robert"
       ],
       [
-        "タワーブリッジ",
-        "Tower Bridge (đòn kết liễu của Robin Mask)"
+        "ザ・マシンガンズ",
+        "The Machine Guns"
+      ],
+      [
+        "ラーメンマン",
+        "Ramenman"
+      ],
+      [
+        "ブロッケンマン",
+        "Brockenman"
+      ],
+      [
+        "カレクック",
+        "Karekkuku"
+      ],
+      [
+        "スカイマン",
+        "Skyman"
+      ],
+      [
+        "カナディアンマン",
+        "Canadian Man"
       ]
     ],
     "characters": [
@@ -267,258 +143,105 @@
         "name": "Kinnikuman",
         "nameJa": "キン肉マン",
         "aliases": [
-          "Suguru",
           "スグル",
-          "王子",
-          "hoàng tử",
-          "ニンニク男"
+          "シャネルマン"
         ],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "The hero of the series: a clumsy, self-important superhero who turns out to be the exiled prince of Kinniku Star. Volumes 3–4 are the Hero Olympics (超人オリンピック), which he enters as Japan's representative and — against every expectation, his own included — **wins**, beating Robin Mask in the final. Volume 4 ends with him on a champion's world tour, starting in Hawaii. Volume 5 is his American tour: he loses to the old master Kamehame in seven seconds, is thrown out of Jesse Mayvia's gym, and is rebuilt by Kamehame into 'a body like steel' before taking the Hawaii belt in a no-rope death match — then hands the belt straight back to his teacher and swims to California because he gave the prize money away too. In America he works undercover for Doro Flairs as 'Chanel Man', wrecking rival champions to set the WSF and WSC at each other's throats, and nearly gives himself away by blurting 'パパ!' at a photograph of his own father. The volume ends at the Grand Canyon: offered a guaranteed title defence by pushing a broken Robin Mask into the gorge, he refuses — and then blows the ring apart to save him.",
-        "personality": "Boastful and posturing in public, cowardly and whiny the moment things go wrong; childish with his father, jealous of any hero more famous than him, and an incorrigible skirt-chaser. Genuinely soft-hearted underneath: he takes in the monsters he beats, mourns the ones that die, and goes to help even when the law forbids it. His wins come from 火事場のバカ力 — blind survival instinct — not skill, and he often cannot remember afterwards what he did.",
-        "speech": "Plain, rough Japanese (わたし, おまえ, バカヤロウ, コンニャロー) that keeps slipping into mock-formal です/ます when he strikes a heroic pose — the mismatch is the joke ('への つっぱりはいらんですよ!'). Laughs ヌフフフ / ヌハハハ when pleased, shouts ヌオオ〜〜 when angry, and yells シュワッチ (Ultraman parody) when he attacks. Keeps boasting 'actually I'm good at THIS one' after every defeat. In Vietnamese: swaggering 'ta' in front of a crowd, whining 'tớ/con' when scared or begging, polite 'tôi' only when courting Mari. Breaks the fourth wall to complain straight to 読者のみなさん (quý độc giả) when things go badly — keep that as direct address to the reader. In volume 5 he also carries a second voice: while disguised as 'Chanel Man' he drops to オレ and street-rough slang (ケッ…, わかりゃしねぇ, 冗談じゃねえ), a deliberate break from his usual わたし. Keep the disguise audible in Vietnamese — a coarser 'tao' with clipped slang — and let it slip back whenever he forgets himself.",
+        "role": "Đô vật nghiệp dư tốt bụng ở Nhật, được người ngoài hành tinh triệu tập bảo vệ Trái Đất, rồi vỡ lẽ mình chính là Suguru — hoàng tử ẩn danh của Sao Kim Nhục.",
+        "personality": "Ham ăn, khoác lác và tự phụ nhưng đơn giản, dễ bị đồ ăn hay thần tượng làm xao lãng; ẩn dưới vẻ hậu đậu là lòng tốt thật — sẵn sàng làm con tin để cứu trẻ em, ấm áp với Meat, cảm thông với kẻ yếu; cũng hay ghen tuông ra mặt khi bị Terryman giành công lao hoặc giành mất người đẹp.",
+        "speech": "Nền わたし tự tin, khoác lác, hay giữ đuôi です/ます lịch sự ngay giữa câu ngổ ngáo phô trương — chính chỗ lịch sự lạc quẻ đó mới gây cười. Cười khoái chí ヌフフフ/ヌハハハ, gọi cha là パパ khi vui/được dụ đồ ăn nhưng đổi thành 父さん lúc nghiêm túc. Khi thật sự quyết liệt giọng lại điềm tĩnh, dứt khoát chứ không gằn dữ. Tiếng Việt: giữ 'ta/tôi' tự tin pha khoác lác làm nền, chêm 'đấy ạ' lịch sự ngay giữa câu ngổ ngáo để giữ cái hài, và khi thật lòng nghiêm túc thì chuyển hẳn sang giọng điềm tĩnh, không cần gằn dữ như lúc đùa.",
         "selfTerms": [
-          "ta (わたし, posing as a hero, to strangers and monsters)",
-          "tôi (わたくし, です/ます, being formal to impress — to Mari, to officials)",
-          "con (to his father, パパ — childish, wheedling)",
-          "tớ (whining, crying, begging Meat)"
+          "ta/tôi (わたし, mặc định, tự tin pha khoác lác)",
+          "tôi (わたくし, cực kỳ trịnh trọng khi cố gây ấn tượng với người đẹp)"
         ],
-        "appearances": 407,
+        "appearances": 476,
         "relations": [
           {
             "to": "meat",
-            "relation": "his herald, servant, secretary and only real companion; they live together and squabble like family",
-            "address": "ta/cậu, gọi tên 'Mít' (ミートくん) mặc định; tao/mày khi quát nạt hoặc bị chạm tự ái (バカヤロウ); tớ/Mít khi mếu máo kể lể, cầu an ủi; tôi/cậu (わたし/あなた) khi cãi lại, biện minh"
-          },
-          {
-            "to": "king-muscle",
-            "relation": "his father, the King of Kinniku Star",
-            "address": "con/ba (パパ) — giọng trẻ con, nhõng nhẽo, ăn vạ, đặc biệt ngoan khi được dụ bằng cơm bò"
-          },
-          {
-            "to": "mari",
-            "relation": "the kindergarten teacher he falls for at first sight",
-            "address": "tôi/cô Mari (わたくし/マリさん, です/ます) — trịnh trọng, cố tỏ ra lịch thiệp; chuyển sang 'Mari' thân mật (マリちゃん) khi mừng rỡ, xúc động"
-          },
-          {
-            "to": "terryman",
-            "relation": "the paid American hero who replaces him as Japan's official hero — rival, then wary acquaintance",
-            "address": "tao/mày (ユー) — bực bội, nhại lại lối 'ミー/ユー' Tây hoá của Terryman"
-          },
-          {
-            "to": "natsuko",
-            "relation": "the HERO magazine reporter who covers him, mocks him and becomes a fixture at his side",
-            "address": "ta/cô (わたし/あなた) khi mới gặp, còn cảnh giác; thân rồi gọi biệt danh 'Nát' (ナッちゃん) — tự tin nhờ vả, đùa cợt; nổi giận ghen tuông thì 'mày, con nhỏ lăng nhăng' (おまえ, 尻軽女)"
-          },
-          {
-            "to": "kinkotsuman",
-            "relation": "the skeleton alien who keeps coming back to destroy him — his first recurring enemy",
-            "address": "bọn ta/(không gọi tên) (ぼくたち) khi tuyên bố chính nghĩa; 'ta/ngươi' (貴様) khi giễu cợt lúc hắn mất vũ khí; giọng nể phục 'gã đó' (やつ) khi thấy hắn thua mà vẫn gan lì"
-          },
-          {
-            "to": "ukon",
-            "relation": "the boastful pig-faced monster on Roots Island who turns out to be an immortal robot",
-            "address": "ta/mày (おまえ) — bực bội phản pháo khi bị chê giữa trận: 'やな性格だのうおまえ'"
+            "relation": "tuỳ tùng trung thành từ Sao Kim Nhục",
+            "address": "mặc định thân mật, gọi 'Meat' kèm くん (わたし/ミートくん), coi như đàn em hay sai vặt; cãi lại, biện minh: わたし/(không gọi tên); khóc lóc, tìm an ủi: (không xưng rõ)/ミート; dỗ dành, xoa dịu: (không xưng rõ)/ミート; xấu hổ, chối bay chối biến: (không xưng rõ)/(không gọi tên, quát); mừng rỡ bất ngờ: (không xưng rõ)/ミートか; tán tỉnh, đòi giới thiệu: (không xưng rõ)/(gọi tên trống, hỏi dồn); lạnh lùng, gạt phắt: (không xưng rõ)/(im lặng, cộc); trêu chọc, bắt gặp đang mơ mộng: (không xưng rõ)/(không gọi tên); tức giận, từ chối đề nghị: バカヤロウ/(không gọi tên); tự phụ, khoe khoang: (không xưng rõ)/ミート; sợ hãi, phản kháng: (không xưng rõ)/(không gọi tên); trêu chọc, bắt gặp mơ mộng: (không xưng rõ)/(không gọi tên); kiêu hãnh, phản bác: (không xưng rõ)/(không gọi tên); biết ơn, cảm kích: (không xưng rõ)/スグルさん"
           },
           {
             "to": "robin-mask",
-            "relation": "the armoured British champion who first uses him as a sparring partner, then becomes a respected rival",
-            "address": "ta/anh — bực bội khi bị coi thường, chuyển sang lo lắng và nể trọng khi thấy anh thi đấu đàng hoàng"
+            "relation": "đối thủ/bạn tập",
+            "address": "sốc trước khí thế đối thủ: (không xưng rõ)/(không gọi tên); quyết tâm nhận lời thách đấu: (không xưng rõ)/(không gọi tên); ngoan cường từ chối đầu hàng: (không xưng rõ)/(không gọi tên); xúc động gọi tên: (không xưng rõ)/ロビン・マスク; lo lắng, tha thiết khi tìm thấy Robin mất trí nhớ: わたし/キミ; lo lắng, xúc động gọi tên: (không xưng rõ)/ロビン・マスク; nhờ vả, phàn nàn trọng tài: (không xưng rõ)/ロビン; bối rối, lỡ tay giật mặt nạ: (không xưng rõ)/(không gọi tên); quyết tâm, khen ngợi: (không xưng rõ)/(không gọi tên); cương quyết: (không xưng rõ)/(không gọi tên); giận dữ, tuyên bố không tha: (không xưng rõ)/(không gọi tên); mỉa mai, chê ngu ngốc: (không xưng rõ)/アンポンタンめ; nghiêm trọng, tuyên chiến: (không xưng rõ)/キン肉マン; lo lắng, cảnh báo: わたし/キミ; tự tin, chỉ thẳng điểm yếu: わたし/キミ; quyết liệt, tuyên bố không tha: (không xưng rõ)/(không gọi tên)"
           },
           {
-            "to": "ramenman",
-            "relation": "China's representative, the 'Oriental Devil', who fights him on an ice ring",
-            "address": "ta/mày — đối đầu, cảnh giác trước một đối thủ tàn nhẫn"
+            "to": "terryman",
+            "relation": "đô vật đồng nghiệp",
+            "address": "gằn giọng gọi 'mày' (ユー) khi phẫn nộ bị bỏ rơi; ghen tị, mỉa mai sau lưng: (không xưng rõ)/あのヤロウ; quyết tâm ra tay giúp bạn diễn giữa trận tag: わたし/テリーマンくん; ghen tị, giành đánh trước: わたし/(không gọi tên rõ); lo lắng thật sự khi thấy đồng đội bị chơi xấu: (không xưng rõ)/おまえ, テリー; hả hê, chê bai khi đối thủ thua: (không xưng rõ)/テリー; phàn nàn bị cướp công: わたし/テリーマン; trầm ngâm, tự nhận yếu thế: わたし/テリーマン; nhờ vả, muốn học hỏi: わたし/テリーマン; lo lắng, nghi ngờ: (không xưng rõ)/(không gọi tên); quát mắng: きさま; quyết tâm giúp: テリーマンくん/わたし"
           },
           {
-            "to": "olympic-chairman",
-            "relation": "the committee head who first bars Japan, then picks him",
-            "address": "ta/ông — tức giận chất vấn khi bị loại, lễ phép hơn khi được chọn"
+            "to": "king-muscle",
+            "relation": "cha ruột, vua Sao Kim Nhục",
+            "address": "gọi cha bằng 'パパ' kiểu trẻ con khi vui; nghiêm túc hơn thì gọi 父さん; sốc, nghiêm túc: (không xưng rõ)/大王; sợ hãi, phản kháng: (không xưng rõ)/(không gọi tên); tuyên bố liều lĩnh: (không xưng rõ)/(không gọi tên); ngoan ngoãn đáp lời: (không xưng rõ)/父上; cầu cứu khi tập luyện: ぼく/パパ; phàn nàn hài hước: わし/(không gọi rõ); động viên: わし/スグル; quở trách: (không xưng rõ)/おまえ; cương quyết: わし/(không gọi tên); hoảng loạn: わし/スグル"
           },
           {
-            "to": "vengeful-stranger",
-            "relation": "the scarred man who swore to kill him and became his ringside second",
-            "address": "ta/ông (chưa rõ tên) — lúc đầu cảnh giác, sau tin tưởng nghe theo chiến thuật ông chỉ"
+            "to": "mari",
+            "relation": "cô giáo mẫu giáo dạy Meat, người cậu thầm mến",
+            "address": "trịnh trọng quá mức lúc mới gặp: わたくし/(không gọi rõ) です/ます; trấn an quả quyết: わたし/(không gọi rõ) です/ます; vui mừng, xúc động: (không xưng rõ)/マリちゃん; gian xảo, lợi dụng: (không xưng rõ)/マリちゃん"
           },
           {
-            "to": "gania-mask",
-            "relation": "Robin Mask's trainer, who breaks ranks to warn him his pupil means to kill him",
-            "address": "ta/ông — nghe lời cảnh báo giữa lúc hỗn loạn"
+            "to": "natsuko",
+            "relation": "nữ phóng viên tạp chí HERO",
+            "address": "mặc định suồng sã: (không xưng rõ)/ナッちゃん; nghiêm túc dò hỏi lúc mới gặp: わたし/あなた; ghen tuông, mắng nhiếc: (không xưng rõ)/おまえ, 尻軽女; trang trọng hơn khi cố xoa dịu: (không xưng rõ)/ナツ子さん; đùa tự trào: わたし/ナッちゃん; chỉ đạo, đùa vui: (không xưng rõ)/キンちゃん; ghen tị: (không xưng rõ)/(không gọi tên rõ); sốc, phản kháng: (không xưng rõ)/(không gọi tên)"
           },
           {
             "to": "kamehame",
-            "relation": "the old Hawaiian master who rebuilds him and hands down the 48 Killer Techniques",
-            "address": "con/thầy — mở đầu cảnh giác, gọi trống 'thằng kia' (きさま), rồi chuyển sang lịch sự 'ông' (あなた, です/ます) khi nể phục, và gọi thẳng tên 'Kamehame' lúc hoảng hốt cầu cứu giữa trận"
+            "relation": "cựu vô địch sa cơ hạ đo ván cậu rồi nhận làm thầy",
+            "address": "hoảng loạn, cầu cứu thầy: (không xưng rõ)/カメハメ; thắc mắc lịch sự: (không xưng rõ)/あなた; quyết tâm xin kế thừa võ nghệ: (không xưng rõ)/(không gọi tên); tri ân, trao trả đai vô địch: (không xưng rõ)/カメハメ, きみ; cảnh giác, thủ thế: (không xưng rõ)/きさま; phản bác, phủ nhận: わたし/おまえ; thắc mắc, lịch sự dò hỏi: (không xưng rõ)/あなた; quyết tâm, nhận lời kế thừa: (không xưng rõ)/(không gọi tên); tri ân, trao trả đai: (không xưng rõ)/カメハメ, きみ"
           },
           {
             "to": "jesse-mayvia",
-            "relation": "the Hawaii champion he beats for the double title",
-            "address": "tôi/cậu Meibia (メイビアくん) khi nhún nhường trước đám đông; 'mày' (きさま) khinh miệt lúc tung đòn quyết định; 'anh' (キミ) đắc thắng khi lật tẩy màn kịch"
+            "relation": "nhà vô địch Hawaii cậu hạ gục để đoạt song đai",
+            "address": "nhượng bộ: わたし/メイビアくん; khinh miệt, thách thức: (không xưng rõ)/きさま; đắc thắng, tiết lộ đã giả vờ tuyệt vọng: (không xưng rõ)/キミ"
           },
           {
-            "to": "doro-flairs",
-            "relation": "the WSA chairman who employs him and sends him undercover",
-            "address": "con/ngài chủ tịch (会長) — lịch sự, có phần e dè trước bề trên; vẫn giữ 会長 cả khi lo lắng trách nhẹ"
+            "to": "kinkotsuman",
+            "relation": "kẻ thù không đội trời chung",
+            "address": "hùng hồn tuyên bố ngăn cản: ぼくたち/(không gọi tên rõ); đắc thắng, mỉa mai: (không xưng rõ)/貴様; cảm thán, nể phục: (không xưng rõ)/やつ; sốc, nhận ra kẻ thù cải trang: (không xưng rõ)/キン骨マン; ra hiệu: (không xưng rõ)/ボーイ; đắc thắng, giễu cợt: (không xưng rõ)/キン骨マン; chế giễu: (không xưng rõ)/キン骨マンちゃん"
           },
           {
-            "to": "skull-bose",
-            "relation": "the enemy champion who shelters him in public and traps him in private",
-            "address": "tôi/Skull (スカル, gọi trống tên, suồng sã) — giọng 'Chanel Man' bụi bặm, không phải giọng thường ngày"
-          },
-          {
-            "to": "sheik-seijin",
-            "relation": "the WSF chairman who suspects his cover from the first day",
-            "address": "tao (オレ, giọng đường phố của vỏ bọc Chanel Man) — thô lỗ, gắt, cố tình tách mình khỏi 'cái tên Kinnikuman dở hơi kia'"
+            "to": "olympic-chairman",
+            "relation": "chủ tịch ban tổ chức",
+            "address": "tức giận chất vấn: わたし/委員長"
           }
         ]
       },
       {
         "id": "meat",
-        "name": "Mít (Meat)",
+        "name": "Meat",
         "nameJa": "ミート",
         "aliases": [
-          "メガネボウズ",
-          "Meat",
-          "Mít"
-        ],
-        "gender": "male",
-        "ageGroup": "child",
-        "role": "Herald from Kinniku Star who reveals Kinnikuman's royal birth and then stays on Earth as his second, manager and conscience; a small boy in glasses and cape who attends Suminoe kindergarten (running gag) and secretly works night shifts to pay their way. Through volume 5 he is at the prince's shoulder for the whole American tour, disguised alongside him as part of the Chanel Man cover, buying toy sunglasses because there are five dollars left in the budget, and — at the Grand Canyon — urging Kinnikuman to throw Robin into the gorge because 'a champion has to be ruthless'. He is overruled.",
-        "personality": "Devoted, sensible and long-suffering — the adult in the household despite being a child. Mutters about the prince's moods, takes the blame, and stands up to him only to defend someone weaker. By volume 2 he also teases the prince outright, setting him up for pratfalls and needling him about his failed romances.",
-        "speech": "Keeps です/ます with Kinnikuman almost always, calling him 王子 / 王子さま; self term ぼく, sliding to わたくし when very formal and to a childish わし when he sulks and wants the same treatment as the prince. Loves the ニクイ / 肉 pun. In Vietnamese: 'em/ngài' or 'em/hoàng tử', polite register kept even while complaining. Rarely drops to a blunt おまえ — when he does (an うるさい! or a worried 'おまえだから心配なんじゃねえか'), it marks a real break in the usual deference; keep the shift visible in Vietnamese.",
-        "selfTerms": [
-          "em (ぼく, với Kinnikuman và người lớn, giữ です/ます)",
-          "con (わたくし, lễ phép với cô giáo Mari)",
-          "tớ (わし, nũng nịu, đòi công bằng — hiếm)"
-        ],
-        "appearances": 265,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "his prince and master, whom he serves, scolds and covers for",
-            "address": "em/ngài, hoàng tử (ぼく/王子, です/ます) mặc định; 'hoàng tử ơi' giọng van nài khi ngăn cản; giọng trách móc 'em/anh' (ぼく/あなた) khi đổ lỗi; hiếm hoi gằn giọng 'Hoàng tử im lặng giùm em!' (王子はだまっててください!) khi bênh vực người khác"
-          },
-          {
-            "to": "mari",
-            "relation": "his kindergarten teacher, who also cooks for him and Kinnikuman",
-            "address": "con/cô (わたくし, です/ます) — lễ phép, hơi ấp úng như học trò với cô giáo; bỏ lễ phép thành 'tớ cũng!' (わしも!) khi nũng nịu đòi được hôn như hoàng tử"
-          },
-          {
-            "to": "terryman",
-            "relation": "the American hero who treats him as a friend",
-            "address": "em/anh Terryman (gọi thẳng tên, hớt hải) khi cảnh báo nguy hiểm; giữ です/ます lịch sự khi giải thích, từ chối lời rủ"
-          },
-          {
-            "to": "natsuko",
-            "relation": "the reporter who treats him as a little brother",
-            "address": "em/chị — ngắn gọn, thân mật, không kính ngữ"
-          },
-          {
-            "to": "king-muscle",
-            "relation": "the king, who drills and scolds him while they train the prince",
-            "address": "em/Đại vương (大王さま, です/ます) — lễ phép nhưng dám càu nhàu lại"
-          },
-          {
-            "to": "robin-mask",
-            "relation": "the fallen champion he walks through the prison corridor with, then screams a warning to",
-            "address": "em/anh Robin — hoảng loạn gọi gộp 'Vương tử, Robin, chạy đi!' khi máy bay lao xuống"
-          }
-        ]
-      },
-      {
-        "id": "robin-mask",
-        "name": "Robin Mask",
-        "nameJa": "ロビン・マスク",
-        "aliases": [
-          "ロビン"
+          "メガネボウズ"
         ],
         "gender": "male",
         "ageGroup": "",
-        "role": "Britain's armoured champion — full plate armour and a closed knight's helmet. He won the previous Hero Olympics and returns as defending champion, first treating Kinnikuman as a disposable sparring partner, then beating a wounded Terryman on a technicality and withdrawing rather than take a hollow win. In the final against Kinnikuman he loses his mask, loses his temper, and finally loses the match to a reversed backbreaker. He takes the silver, declines Kinnikuman's offer of a home in Japan, and leaves on his own tour with his wife Alisa — admitting he is simply tired of being champion. Volume 5 breaks him. Stripped of the title, he has left his wife Alisa, been picked up by Sheik Seijin and used as a piece by the Alliance; he no longer remembers his own life and mistakes his opponent for Kinnikuman mid-match. He smuggles food into Kinnikuman's cell, goads him into the Grand Canyon title match, feints with the sight of Alisa in the crowd, and finally offers himself to be thrown into the gorge so his friend can keep the belt. When Kinnikuman refuses, he calls him a fool and tries to finish him with the Tower Bridge.",
-        "personality": "Haughty and condescending, but fundamentally honourable — he refuses a win he does not think he earned, and concedes cleanly when beaten. Under real humiliation (his mask torn off in front of a crowd) that control snaps and he turns genuinely murderous, which is the arc of the final.",
-        "speech": "His register is the most nuanced in the cast and is easy to get wrong. Baseline: formal わたし with キミ for the listener, reflective and polite. Under strain he drops to blunt rough forms — だぜ while he has a hold locked on, 許さん and おれん when furious, アンポンタンめ when jeering. But he does NOT simply abandon politeness with anger: his coldest line, announcing he will kill Kinnikuman, keeps the polite ます form — 「死んでもらいます!」. Being English, he also reaches for Westernised ユーたち. In Vietnamese: 'ta/cậu' quý tộc trịch thượng làm nền, gằn xuống 'tao/mày' khi đang khoá đòn hoặc điên tiết — nhưng câu doạ giết phải giữ vẻ lịch sự lạnh gáy ('mời cậu chết đi' chứ không phải 'tao giết mày'), vì chính chỗ lịch sự đó mới rợn.",
+        "role": "Tuỳ tùng trung thành từ Sao Kim Nhục, người quản lý và cố vấn chiến thuật cho Kinnikuman.",
+        "personality": "Thông minh, sắc sảo và nghiêm khắc với Kinnikuman, thường xuyên phải dọn dẹp đống hỗn độn do hoàng tử gây ra nhưng vẫn hết lòng trung thành.",
+        "speech": "Giọng điệu kính cẩn, lễ phép với Kinnikuman (dùng です/ます) nhưng không ngại mỉa mai, chê bai khi hoàng tử hành xử ngốc nghếch. Khi nghiêm túc, giọng trở nên phân tích, sắc bén. Tiếng Việt: dùng 'em/Vương tử' hoặc 'tôi/ngài' để thể hiện sự tôn trọng nhưng vẫn giữ được nét sắc sảo, châm biếm.",
         "selfTerms": [
-          "ta (わたし, trịch thượng, mặc định)",
-          "tao (khi khoá đòn hoặc nổi điên)",
-          "Mi (ユー, kiểu Tây hoá, hiếm)"
+          "con/tôi (ぼく, mặc định lễ phép với Kinnikuman)",
+          "con/em (わたくし, cực kỳ lễ phép khi nói với người lạ như cô Mari)",
+          "con (わし, nũng nịu đòi công bằng)"
         ],
-        "appearances": 119,
+        "appearances": 297,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "the reject he recruits as a sparring partner, then comes to respect",
-            "address": "ta/cậu (わたし/キミ) — kiêu ngạo, bề trên; 'tao/mày' đe doạ ép đầu hàng khi khoá đòn"
-          },
-          {
-            "to": "terryman",
-            "relation": "his semifinal opponent, whom he beats on a technicality and then defers to",
-            "address": "ta/(quát trống) 'じゃまだ!!' khi hung hãn; gần như van nài 'おねがいだ…おきてこないでくれ' khi lo cho đối thủ; trang trọng gọi đủ tên 'Terryman' khi tuyên bố nhường suất chung kết"
-          },
-          {
-            "to": "hero-olympics-commentator",
-            "relation": "the ringside commentator he answers curtly and then teases",
-            "address": "ta/(không gọi tên) — đáp cộc lốc, rồi túm chân xốc ngược ông ta lên đùa nghịch"
-          },
-          {
-            "to": "gania-mask",
-            "relation": "his personal trainer and second",
-            "address": "ta/Gania (gọi tên rút gọn) — thừa nhận đã nương tay; quát 'どけガニア!!' xua ông ra khi đang điên"
+            "relation": "chủ nhân",
+            "address": "mặc định 'anh/ngài' (あなた, です/ます); trách móc, càu nhàu: (không xưng rõ)/anh, ngài; thề trung thành: ぼく/あなた; trêu chọc, chế giễu: ぼく/にいさん; mắng thẳng, trách cứ: (không xưng)/(không gọi tên, quát); giục giã, trách móc: ぼく/王子; gọi thẳng tên thật: (không xưng rõ)/スグル; thắc mắc, hơi trịch thượng: (không xưng rõ)/王子; hối hả giục giã: (không xưng rõ)/王子; an ủi về vận rủi: ぼく/王子; hoảng hốt: (không xưng rõ)/王子; cố vấn nghiêm túc: ぼく/王子; khẩn khoản, ngăn cản: ぼく/王子; vui vẻ, báo tin: (không xưng rõ)/王子; biện minh: (không xưng rõ)/王子; hoảng loạn: (không xưng rõ)/王子; trêu chọc, đắc thắng: (không tự xưng)/王子さま; cảnh báo, hoảng hốt: (không tự xưng rõ)/王子; quyết tâm sinh tử: ぼく/あなた; khen ngợi: (không tự xưng rõ)/王子; ngượng ngùng: ぼく/(không gọi rõ); cổ vũ: ぼく/王子"
           },
           {
             "to": "king-muscle",
-            "relation": "his opponent's father, whom he answers politely",
-            "address": "tôi/(không gọi tên) (わたし, です/ます) — lễ phép, điềm tĩnh; thú nhận thật lòng rằng mình đã mệt với ngôi vô địch"
+            "relation": "vua Sao Kim Nhục",
+            "address": "cằn nhằn thẳng thừng: (không xưng rõ)/(không gọi tên); điềm tĩnh giải thích: (không xưng rõ)/(không gọi tên); giễu nhẹ, chê khéo: (không xưng rõ)/(không gọi tên); hoảng hốt gọi to: (không xưng rõ)/大王"
           },
           {
-            "to": "olympic-chairman",
-            "relation": "the committee head he petitions",
-            "address": "tôi/Chủ tịch (委員長, です/ます) — trịnh trọng đề đạt luật Count-3 vì thấy chênh lệch thực lực quá lớn"
-          },
-          {
-            "to": "meat",
-            "relation": "the prince's herald, who he snaps at across the ring",
-            "address": "ta/thằng ngốc (バカモノ, わい) — cộc cằn, khinh miệt"
-          }
-        ]
-      },
-      {
-        "id": "king-muscle",
-        "name": "Vua Kinniku (King Muscle)",
-        "nameJa": "キン肉大王",
-        "aliases": [
-          "大王さま",
-          "パパ"
-        ],
-        "gender": "male",
-        "ageGroup": "middle_age",
-        "role": "King of Kinniku Star and Kinnikuman's father; lost his throne to King Tone. In volume 3 he comes to Earth as his son's cornerman — pleading with the Olympic committee to let Japan compete, then drilling, panicking over and cheering for him from ringside.",
-        "personality": "Blustering, self-pitying and shameless — wheedles, bribes with gyudon, then shouts 親不孝者め when refused. Softens when speaking of Meat's sacrifices for his son.",
-        "speech": "Old-man plain speech, self term わし, calls his son by his real name スグル or おまえ. In Vietnamese: 'ta/con', rough and familiar, with a whining edge when he wants something.",
-        "selfTerms": [
-          "ta (わし, với mọi người)"
-        ],
-        "appearances": 84,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "his son, the prince he abandoned on Earth and now needs",
-            "address": "ta/con, gọi thẳng tên 'Suguru' (わし/おまえ, スグル) mặc định; van nài, dỗ ngọt bằng cơm bò; quát 'thằng con bất hiếu' (親不孝者め) khi bị từ chối; trầm giọng nghiêm túc khi kể chuyện Meat hi sinh"
-          },
-          {
-            "to": "meat",
-            "relation": "his son's herald, whom he drills alongside him",
-            "address": "ta/Mít (ミートくん) — quát tháo trong lúc huấn luyện, lo lắng khi cần tin tức"
-          },
-          {
-            "to": "olympic-chairman",
-            "relation": "the committee head who humiliates him",
-            "address": "ta/ông — nài nỉ rồi phẫn nộ khi bị gạt phắt và bị chê là 'nỗi nhục của Nhật Bản'"
-          },
-          {
-            "to": "mayumi",
-            "relation": "the official who taunts him about his son",
-            "address": "ta/cậu Mayumi — quát nạt, tát thẳng rồi viện điều lệ số 264"
+            "to": "mari",
+            "relation": "cô giáo mẫu giáo",
+            "address": "lễ phép, hơi ấp úng: わたくし/(không gọi rõ) です/ます; nũng nịu đòi công bằng: わし/(không gọi rõ)"
           }
         ]
       },
@@ -527,90 +250,152 @@
         "name": "Terryman",
         "nameJa": "テリーマン",
         "aliases": [
-          "ザ・テリーマン",
-          "The Terryman"
+          "ザ・テリーマン"
         ],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "American wrestler-hero from Texas who charges money for hero work. Across volumes 2–3 he turns from rival into Kinnikuman's closest ally: he confesses his love to Natsuko, takes Kinkotsuman's rifle bullet in the leg to save Kinnikuman, and then fights the Olympic semifinal against Robin Mask on that ruined leg.",
-        "personality": "Cool, professional and mercenary on the surface — he says plainly he does not work for free — but volumes 2 and 3 give him the series' first real heart: he loves Natsuko, he takes a bullet for a rival, and he fights hurt rather than withdraw. He also fights dirty when cornered (a hidden knuckle-duster against Robin Mask), and is ashamed of it afterwards.",
-        "speech": "Mixes Westernised pronouns ミー (me) and ユー (you) into Japanese — his signature, used sparingly and mostly when he is being superior or teasing. Otherwise polite です/ます with strangers and a rough おれ when he means business; drops English tags ('ベリーナイス') when pleased. In Vietnamese: keep the foreign flavour with a consistent rendering of ミー/ユー across the whole series — pick one and never vary it.",
+        "role": "Đô vật đồng nghiệp người Mỹ, đồng minh thân thiết của Kinnikuman.",
+        "personality": "Thực tế, điềm tĩnh và có tinh thần thượng võ cao. Anh thường đóng vai trò là người phân tích chiến thuật, giữ cái đầu lạnh trong khi Kinnikuman hay bốc đồng.",
+        "speech": "Sử dụng lối xưng hô ミー/ユー (tôi/cậu) kiểu Tây hoá đặc trưng. Giọng điệu thẳng thắn, không vòng vo. Tiếng Việt: dùng 'tôi/cậu' với phong thái tự tin, phóng khoáng của một đô vật Mỹ.",
         "selfTerms": [
-          "ミー = tôi (kiểu Tây hoá, giữ nét ngoại quốc khi dịch)"
+          "tôi kiểu Tây hoá (ミー, khi kiêu ngạo/coi thường)",
+          "tao (オレ, suồng sã thân mật khi đã là đồng đội tag)"
         ],
-        "appearances": 74,
+        "appearances": 121,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "the local hero he displaces, then respects",
-            "address": "tôi/cậu (です/ます) khi mới gặp, như với người lạ; kiêu ngạo 'ミー/キミたち, そんなヤツ' khi coi thường; nghiêm túc 'tôi/cậu, Kinnikuman' (おまえ) khi cảnh báo anh về nguy cơ bị quân đội truy bắt"
-          },
-          {
-            "to": "natsuko",
-            "relation": "the reporter he charms, then falls genuinely in love with",
-            "address": "tôi/cô (わたし/おじょうさん, です/ます) khi tán tỉnh khéo; gọi thẳng tên tha thiết 'Natsuko' khi van xin và thổ lộ — 'ナツコを愛している‼'"
-          },
-          {
-            "to": "meat",
-            "relation": "Kinnikuman's boy herald, whom he treats as a pal",
-            "address": "tôi/Mít (ミートくん) — thân thiện, rủ đi chơi như bạn bè"
-          },
-          {
-            "to": "roots-princess",
-            "relation": "the island princess who hires him for money",
-            "address": "tôi/(không gọi tên) (おれ) khi nhận việc, ngầm hiểu sẽ được trả hậu; 'Mi/các người' (ミー/ユーたち) khi giễu cợt cách trả công bằng tiền đá cổ lỗ"
+            "relation": "đô vật đồng nghiệp",
+            "address": "mặc định lịch sự: (không xưng rõ/không gọi tên, です/ます); kiêu ngạo, coi thường: ミー/キミたち, そんなヤツ; hối lỗi, nghiêm túc cảnh báo: (không xưng)/キン肉マン, おまえ; hào hiệp, bất ngờ ra tay cứu giúp: おれ/(không gọi tên rõ); cảm ơn, nhẹ nhõm: (không tự xưng rõ)/キン肉マン; nghiêm túc phân tích: おれ/(không gọi tên); ngạc nhiên, chê bai nhẹ: (không tự xưng)/(không gọi tên); từ chối thẳng: おれ/(không gọi tên); khen ngợi, ăn mừng: (không tự xưng rõ)/キン肉マン; lo lắng: (không tự xưng rõ)/(không gọi tên)"
           },
           {
             "to": "robin-mask",
-            "relation": "the armoured champion he fights in the Olympic semifinal, who then hands him the final place",
-            "address": "tôi/anh — căng thẳng đối đầu; hoảng hốt van nài 'đừng đứng dậy nữa' khi sợ thua; nhận suất chung kết trong ngượng ngùng"
+            "relation": "đối thủ",
+            "address": "hoảng loạn quát lớn: (không xưng)/(không gọi tên, quát); quyết không đầu hàng: (không xưng)/(không gọi tên); hối lỗi, xin thứ lỗi: (không xưng)/ロビン; trầm giọng cương quyết: (không xưng rõ)/(không gọi tên rõ)"
+          },
+          {
+            "to": "natsuko",
+            "relation": "nữ phóng viên",
+            "address": "mặc định lịch thiệp: わたし/おじょうさん; thân mật hơn: わたし/あなた, テリーマン; khẩn khoản van xin: わたし/ナツコ; đau đớn, giải thích: (không xưng rõ)/(không gọi tên)"
           },
           {
             "to": "kinkotsuman",
-            "relation": "the villain whose sniper bullet he took in the leg",
-            "address": "tôi/hắn (キン骨マン, gọi thẳng tên) — kể lại vụ bắn lén bằng giọng nghiêm trọng, đau đớn"
+            "relation": "kẻ phục kích",
+            "address": "đau đớn kể lại: (không xưng)/キン骨マン; biết ơn: (không xưng rõ)/ボーイ"
+          },
+          {
+            "to": "skull-bose",
+            "relation": "đối thủ",
+            "address": "giận dữ: (không xưng rõ)/コノヤロウ"
+          },
+          {
+            "to": "meat",
+            "relation": "tuỳ tùng",
+            "address": "thân thiện: (không xưng rõ)/ミートくん; hỏi han: (không xưng rõ)/ミートくん"
+          },
+          {
+            "to": "robert",
+            "relation": "fan tri kỷ",
+            "address": "オレ/ボーイ"
+          },
+          {
+            "to": "vengeful-stranger",
+            "relation": "người lạ mặt",
+            "address": "thân mật: わたし/おじさん"
           }
         ]
       },
       {
-        "id": "natsuko",
-        "name": "Natsuko",
-        "nameJa": "翔野ナツコ",
-        "aliases": [
-          "Shouno Natsuko",
-          "ナッちゃん"
-        ],
-        "gender": "female",
-        "ageGroup": "young_adult",
-        "role": "Reporter and photographer for 週刊HERO magazine, which runs a reader-voted hero ranking that puts Kinnikuman last. She meets him chasing the Kappatoron story and then stays — covering his fights, photographing Terryman, and being turned into a giantess by Kinkotsuman's Monster Gun. After Mari, the second woman in Kinnikuman's orbit and the more constant presence.",
-        "personality": "Brash, fearless and teasing — she mocks Kinnikuman's failures to his face, then swings to open admiration once she watches him fight. Jealous and sharp-tongued with Mari, professionally pushy with her editor.",
-        "speech": "Kansai dialect throughout: self term うち, endings 〜んや/〜へん, あんた for the listener. Switches to a formal わたくし + です/ます only when introducing herself as a reporter, and swears freely (バッキャロー) when angry. In Vietnamese: give her one consistent regional voice (suồng sã 'tui/anh'), never neutral polite speech — the dialect is half the character.",
+        "id": "robin-mask",
+        "name": "Robin Mask",
+        "nameJa": "ロビン・マスク",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Võ sĩ giáp sắt của nước Anh, nhà vô địch kỳ trước và là đối thủ lớn nhất của nhân vật chính.",
+        "personality": "Kiêu ngạo, trịch thượng nhưng trọng danh dự — từ chối cả chiến thắng mình thấy không xứng đáng. Bị làm nhục thật sự thì mất kiểm soát và trở nên tàn độc.",
+        "speech": "Nền là わたし/キミ trang trọng, điềm đạm. Căng lên thì rơi xuống lối nói cộc — だぜ khi đang khoá đòn, 許さん khi điên tiết. Nhưng KHÔNG phải cứ giận là bỏ lịch sự: câu lạnh nhất của anh ta, tuyên bố sẽ giết đối thủ, vẫn giữ thể ます —「死んでもらいます!」. Tiếng Việt: 'ta/cậu' quý tộc trịch thượng làm nền, gằn xuống 'tao/mày' khi đang khoá đòn — nhưng câu doạ giết phải giữ vẻ lịch sự lạnh gáy ('mời cậu chết đi' chứ không phải 'tao giết mày'), vì chính chỗ lịch sự đó mới rợn.",
         "selfTerms": [
-          "tui (うち, giọng Kansai, thường ngày)",
-          "tôi (わたくし, です/ます, khi tự giới thiệu với tư cách phóng viên)",
-          "tụi mình (うちら, khi nói gộp cả nhóm)"
+          "ta (わたし, mặc định, kiêu ngạo trang trọng)"
         ],
-        "appearances": 40,
+        "appearances": 121,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "the hero she covers, mocks, then champions",
-            "address": "tui/anh (うち/あんた, giọng Kansai) mặc định; gọi thẳng tên thật 'Suguru' (スグル) khi tự hào khoe với đám đông; biệt danh thân mật 'Kin' (キンちゃん) khi nhắc tới anh với người khác; quát 'đồ khốn' (バッキャロー) khi anh đập phá đồ của cô"
+            "relation": "đối thủ/bạn tập",
+            "address": "mặc định bề trên: わたし/キミ; đe doạ ép đầu hàng: (không xưng)/(không gọi tên); giận dữ thật sự: (không xưng)/(không gọi tên); nghiêm trọng tuyên chiến: (không xưng)/キン肉マン; tàn nhẫn tuyên bố: (không xưng)/(không gọi tên); khinh khỉnh, gạt phắt: (không xưng)/(không gọi tên); ngoan cố không chịu nhận thua: わたし/(không gọi tên rõ); hào phóng mời ở nhờ: わたし/(không gọi tên); khiêu khích, đắc thắng: (không xưng)/キン肉マン; lật tẩy đắc chí: (không xưng)/(không gọi tên, だはは); dò lòng đạo đức: (không xưng)/きさま; tâm sự: わたし/キミ; tự trào hài hước: わたし/(không gọi rõ); lo lắng, cảnh báo: わたし/キミ; đe doạ ép đầu hàng: (không xưng)/(không gọi tên); lo lắng, cảnh báo: わたし/キミ; tự tin, chỉ thẳng điểm yếu: わたし/キミ; quyết liệt, tuyên bố không tha: (không xưng rõ)/(không gọi tên); mỉa mai, chê ngu ngốc: (không xưng rõ)/アンポンタンめ; nghiêm trọng, tuyên chiến: (không xưng rõ)/キン肉マン"
           },
           {
             "to": "terryman",
-            "relation": "the American hero she photographs and openly admires",
-            "address": "em/anh Terryman (わたし/テリーマンさん) — ngưỡng mộ, hơi say mê; bỏ さん gọi trống 'anh' (あなた) khi chủ động rủ chụp ảnh chung"
+            "relation": "đối thủ bán kết",
+            "address": "gắt lên hung hãn: (không xưng)/(không gọi tên, quát); khẩn cầu: (không xưng)/(không gọi tên); trân trọng nhường suất: (không xưng)/テリーマン; hối lỗi, xin thứ lỗi: (không xưng)/ロビン; lo lắng, khẩn cầu: (không xưng)/(không gọi tên); tự vấn: (không xưng rõ)/(không gọi tên rõ); lo lắng, khẩn cầu: (không xưng)/(không gọi tên); trân trọng nhường suất: (không xưng)/テリーマン"
           },
           {
-            "to": "mari",
-            "relation": "her rival for Kinnikuman's attention",
-            "address": "tui/cô ta (gọi trống, mỉa mai) — ghen tị, châm chọc vẻ trong sáng giả tạo"
+            "to": "gania-mask",
+            "relation": "huấn luyện viên",
+            "address": "thừa nhận ngắn gọn: わたし/(không gọi tên rõ); giận dữ, xua đuổi: (không xưng)/ガニア; hoảng hốt gọi tên: (không xưng)/ロビン; kinh hãi đoán đòn cấm: (không xưng)/おまえ, ロビン; thất thần: (không xưng)"
           },
           {
-            "to": "meat",
-            "relation": "Kinnikuman's boy herald, whom she treats as a little brother",
-            "address": "tui/Mít (ミートくん) — suồng sã, thân mật"
+            "to": "king-muscle",
+            "relation": "phụ huynh",
+            "address": "lễ phép: わたし/(không gọi tên rõ); cam chịu: わたし/(không gọi tên rõ)"
+          },
+          {
+            "to": "olympic-chairman",
+            "relation": "chủ tịch ban tổ chức",
+            "address": "trịnh trọng đề đạt: わたし/委員長"
+          },
+          {
+            "to": "hero-olympics-commentator",
+            "relation": "bình luận viên",
+            "address": "nhận xét cộc lốc: (không xưng)/(không gọi tên); trêu chọc: (không xưng)/(không gọi tên); bực bội, càu nhàu: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "hero-olympics-announcer",
+            "relation": "MC",
+            "address": "thản nhiên: (không xưng rõ)/(không gọi tên); xác nhận ngắn gọn: (không xưng rõ)/(không gọi tên)"
+          }
+        ]
+      },
+      {
+        "id": "king-muscle",
+        "name": "Đại Vương",
+        "nameJa": "キン肉大王",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Cha ruột của Kinnikuman, Đại Vương của Sao Kim Nhục.",
+        "personality": "Một ông vua kỳ quặc, ham ăn và hay đùa cợt, nhưng khi cần thiết lại rất nghiêm túc về nghĩa vụ hoàng tộc. Ông thường xuyên thử thách con trai bằng những cách oái oăm.",
+        "speech": "Xưng わし, gọi con là スグル hoặc con. Giọng điệu pha trộn giữa sự nghiêm nghị của bậc cha chú và sự lầy lội của một ông già ham vui. Tiếng Việt: 'ta/con' với tông giọng biến đổi linh hoạt giữa nghiêm túc và đùa cợt.",
+        "selfTerms": [
+          "ta (わし, mặc định, giọng vua cha)"
+        ],
+        "appearances": 100,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "con trai, hoàng tử Sao Kim Nhục mà ông triệu về nối nghiệp",
+            "address": "mặc định 'ta/con, Suguru' (わし/おまえ, スグル) thân mật kiểu cha con; van nài dỗ ngọt: わし/スグル; giận dữ trách móc: わし/親不孝者め; nghiêm túc kể chuyện hi sinh của Meat: わし/スグル; than lạnh, đùa cợt khi giả vờ cùng con 'ẩn cư trên núi' nhử báo chí: わし/スグルよ; đe doạ hài hước, doạ đày đảo hoang nếu thua chung kết: わし/おまえ; hào hứng khen ngợi khi con tuyên bố liều lĩnh thà chết còn hơn bị lưu đày: わし/(không gọi tên); hoảng hốt dùng đèn khò gas cứu con bị đóng băng giữa trận: わし/スグル; hoảng loạn đòi ném khăn xin thua thay con khi thấy con bị dồn ép quá đà: わし/スグル; tự hào, khen ngợi hết lời khi con đăng quang vô địch: (không xưng)/スグルー"
+          },
+          {
+            "to": "robin-mask",
+            "relation": "nhà vô địch kỳ trước mà ông quan tâm như bậc cha chú, áy náy xin lỗi khi con trai mình lỡ hẹn giờ thi đấu",
+            "address": "quan tâm hỏi han như bậc cha chú: (không xưng)/ロビンくん; buồn bã tưởng con lỡ hẹn: わし/(không gọi tên); áy náy xin lỗi: (không xưng)/ロビン"
+          },
+          {
+            "to": "olympic-chairman",
+            "relation": "chủ tịch ban tổ chức mà ông liên tục van nài xin cho con trai được thi đấu, dù bị coi thường ra mặt",
+            "address": "van nài như trẻ con, khẩn khoản: わし/委員長; hoảng sợ, chống chế khi bị doạ: わし/(không gọi rõ); táo bạo, ra điều kiện khắc nghiệt hơn để thương lượng: わし/(không gọi tên rõ)"
+          },
+          {
+            "to": "vengeful-stranger",
+            "relation": "người lạ mặt can ông đừng phá hỏng khoảnh khắc vinh quang của con trai giữa trận chung kết sinh tử",
+            "address": "quyết tâm, khẳng định lại nghĩa vụ hoàng tộc để đáp lại lời can ngăn: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "mayumi",
+            "relation": "đô vật ông tát bay vì buông lời xúc phạm con trai mình, sau đó cảnh cáo đừng can thiệp vào trận đấu của con",
+            "address": "giận dữ, trừng phạt vì bị xúc phạm: (không xưng)/無礼者!; điềm tĩnh trở lại, viện dẫn điều luật: わし/真弓くん; cảnh báo, ngăn không cho ra tay can thiệp trận đấu: (không xưng)/真弓くん"
           }
         ]
       },
@@ -622,34 +407,155 @@
           "先生"
         ],
         "gender": "male",
-        "ageGroup": "adult",
-        "role": "Skeleton-themed alien from 「しゃれこうべ星」 and the series' recurring villain. Volumes 3–4 reveal he is also the bone-faced mastermind sabotaging the Hero Olympics: an invisibility ray, a voice-command mic, a fake referee, a rifle shot from the stands that hit Terryman instead, and two attempts to kidnap Kinnikuman before the weigh-in. His henchmen call him 先生. He is chased off by the space police but always escapes.",
-        "personality": "Grandiose and gloating while winning, snivelling and tearful the instant he loses, and never done vowing revenge. His underlings and even crowds call him 先生 — he is a celebrity as much as a villain.",
-        "speech": "Archaic villain register (じゃ, さらばじゃ, 貴様), signature rasping cackle ムヒョヒョ, and a childish sobbing わ~ん when beaten. In Vietnamese: lối nói ác nhân cổ trang 'ta/lũ ngươi', rồi mếu máo như trẻ con khi thua — chính chỗ tương phản đó là trò đùa.",
+        "ageGroup": "middle_age",
+        "role": "Kẻ thù không đội trời chung của Kinnikuman, chuyên bày trò phá hoại.",
+        "personality": "Hèn nhát, gian xảo và luôn cay cú vì những thất bại trước Kinnikuman. Hắn là hiện thân của sự phá hoại hài hước.",
+        "speech": "Giọng điệu lươn lẹo, hay dùng các đuôi câu kỳ quặc như 〜わい, 〜くんすぅ. Tiếng Việt: sử dụng ngôn ngữ lắt léo, mỉa mai, hay chêm các từ ngữ mang tính chất chế giễu.",
         "selfTerms": [
-          "ta (giọng ác nhân, じゃ/貴様)"
+          "(không xưng rõ, thường bỏ đại từ khi ra oai)"
         ],
-        "appearances": 38,
+        "appearances": 57,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "his arch-enemy",
-            "address": "ta/lũ ngươi (おまえたち, gộp cả Mít) khi ngạo mạn; gọi thẳng tên 'Kinnikuman' khi đắc thắng lộ bẫy; thua vẫn gằn 'ここのうらみはわすれんからな!'"
+            "relation": "kẻ thù",
+            "address": "ngạo mạn: (không xưng)/おまえたち; cay cú: (không xưng)/(không gọi tên); sốc: (không xưng rõ)/キ…キン骨マン‼; đắc ý: (không xưng)/くんすぅ; bất ngờ chân thành: (không xưng)/(không gọi tên); đắc thắng, tiết lộ mưu bẫy: (không xưng rõ)/キン肉マン; bắt cóc, đắc ý: (không xưng rõ)/くんすぅ"
           },
           {
             "to": "iwao",
-            "relation": "his round-bodied lackey",
-            "address": "ta/Iwao (gọi thẳng tên) — sai khiến, khen thưởng cộc lốc ('でかしたぞイワオ!')"
+            "relation": "tay sai",
+            "address": "hài lòng: (không xưng)/イワオ; hoảng hốt: (không xưng)/イワオ"
           },
           {
             "to": "terryman",
-            "relation": "the hero who took his sniper bullet",
-            "address": "ta/mày — bắn lén từ khán đài, không đối mặt"
+            "relation": "nạn nhân",
+            "address": "chối bay chối biến: (không xưng)/(không gọi tên); chống đối: (không xưng rõ)/(không gọi tên, quát)"
           },
           {
-            "to": "stone-schemer",
-            "relation": "his rock-faced lieutenant",
-            "address": "ta/mày — gắt gỏng, sai khiến; nhận báo cáo trinh sát"
+            "to": "skull-bose",
+            "relation": "kẻ ép buộc",
+            "address": "phẫn nộ: (không xưng rõ)/コノヤロウ; giễu cợt: (không xưng rõ)/キン骨マン"
+          }
+        ]
+      },
+      {
+        "id": "skull-bose",
+        "name": "Skull Bose",
+        "nameJa": "スカル・ボーズ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Nhà vô địch của Liên minh Siêu nhân (WSF), kẻ thù nguy hiểm của phe WSA.",
+        "personality": "Tàn nhẫn, lạnh lùng và cực kỳ kỷ luật, luôn hành động theo kế hoạch của tổ chức.",
+        "speech": "Giọng điệu lịch sự một cách giả tạo (luôn dùng です/ます) ngay cả khi bàn chuyện tàn ác. Tiếng Việt: dùng 'tôi/ngài' hoặc 'tôi/mày' với sự lạnh lùng, máy móc.",
+        "selfTerms": [
+          "tôi (わたし, lễ phép khi nói với Sheik Seijin)",
+          "(không xưng rõ, suồng sã khi đe nẹt/dò xét Kinnikuman)"
+        ],
+        "appearances": 49,
+        "relations": [
+          {
+            "to": "sheik-seijin",
+            "relation": "hội trưởng",
+            "address": "trình bày mưu kế: わたし/(không gọi tên) です/ます; trấn an: わたし/シークさま; biện hộ: わたし/シーク です/ます"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "kẻ nắm bí mật",
+            "address": "suồng sã: (không xưng)/シャネルマン; dò xét: (không xưng)/スグルくん; hỏi thẳng: (không xưng)/スカル; ra quyết định: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "doro-flairs",
+            "relation": "đồng minh ngầm",
+            "address": "trình bày mưu kế: わたし/(không gọi tên) です/ます"
+          },
+          {
+            "to": "devil-magician",
+            "relation": "bạn diễn tag",
+            "address": "trịnh trọng: わたし/きさま; ra lệnh: (không xưng rõ)/おまえ"
+          },
+          {
+            "to": "terryman",
+            "relation": "đối thủ",
+            "address": "khinh miệt: (không xưng rõ)/チビ"
+          },
+          {
+            "to": "kinkotsuman",
+            "relation": "kẻ bị ép",
+            "address": "ra lệnh: (không xưng rõ)/キン骨マン, ボウズ; giễu cợt: (không xưng rõ)/キン骨マン"
+          },
+          {
+            "to": "robert",
+            "relation": "con tin",
+            "address": "hung dữ: (không xưng rõ)/ガキ"
+          }
+        ]
+      },
+      {
+        "id": "doro-flairs",
+        "name": "Doro Flairs",
+        "nameJa": "ドーロ・フレアース",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Chủ tịch Hiệp hội Siêu nhân Thế giới (WSA), người đứng sau các kế hoạch chính trị siêu nhân.",
+        "personality": "Tham vọng, mưu mô và luôn tính toán lợi ích, sẵn sàng lợi dụng Kinnikuman để củng cố quyền lực.",
+        "speech": "Giọng điệu tự tin, khoe khoang khi nói về thành tựu, nhưng trở nên sắc lạnh và ra lệnh khi bàn mưu. Tiếng Việt: dùng 'ta/ngươi' hoặc 'tôi/các anh' với thái độ bề trên, toan tính.",
+        "selfTerms": [
+          "ta (わし, khi bàn mưu với đồng bọn thân tín)"
+        ],
+        "appearances": 48,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "nhà vô địch",
+            "address": "ngăn cản: (không xưng)/キン肉マン; giải thích: (không xưng)/キン肉マン; ra lệnh: (không xưng)/きさま; hỏi han: (không xưng)/(không gọi tên rõ); đắc ý: (không xưng)/キミたち"
+          },
+          {
+            "to": "skull-bose",
+            "relation": "nhà vô địch WSF",
+            "address": "chất vấn: わし/スカル; nghi ngờ: わし/スカル; khen ngợi: (không xưng)/スカル"
+          },
+          {
+            "to": "terryman",
+            "relation": "đô vật",
+            "address": "buộc tội: (không xưng rõ)/おまえ"
+          }
+        ]
+      },
+      {
+        "id": "natsuko",
+        "name": "Natsuko",
+        "nameJa": "翔野ナツコ",
+        "aliases": [
+          "ナツコ",
+          "Shouno Natsuko"
+        ],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Nữ phóng viên tạp chí Weekly HERO, người dần nảy sinh tình cảm với Kinnikuman sau khi chứng kiến bản lĩnh thật sự của anh.",
+        "personality": "Mạnh mẽ, thẳng thắn, có phần đanh đá và hay ghen tuông. Cô nói giọng Kansai đặc trưng, không ngại va chạm và luôn chủ động trong các mối quan hệ.",
+        "speech": "Sử dụng phương ngữ Kansai (うち, đuôi câu 〜んや). Giọng điệu suồng sã, khi giận dữ thì rất đanh thép, khi ngưỡng mộ thì say mê cuồng nhiệt. Tiếng Việt: dùng 'tui/ông' hoặc 'em/anh' với tông giọng miền Nam suồng sã, thẳng thắn.",
+        "selfTerms": [
+          "うち (Kansai, suồng sã, mặc định)",
+          "わたくし (trịnh trọng khi tự giới thiệu công việc)"
+        ],
+        "appearances": 47,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "đối tượng viết bài",
+            "address": "mặc định: わたくし/あんた, キン肉マン; trêu chọc: (không xưng)/あんた; tức giận: (không xưng)/バッキャロー; tự hào: (không xưng)/スグル; trêu đùa: うち/あんた; phẫn nộ, ra tay bênh vực: (không xưng)/(không gọi tên); tức giận, đòi bồi thường: (không xưng rõ)/バッキャロー; tự hào, khoe khoang: (không xưng rõ)/スグル; trêu chọc, đùa tinh nghịch: うち/あんた; sợ hãi, cảnh báo: うちら/(không gọi tên); gọi biệt danh thân mật: (không xưng rõ)/キンちゃん; chỉ đạo, đùa vui: (không xưng rõ)/キンちゃん; phẫn nộ, ra tay bênh vực: (không xưng rõ)/(không gọi tên)"
+          },
+          {
+            "to": "terryman",
+            "relation": "đô vật",
+            "address": "mặc định: わたし/テリーマンさん; thân mật: わたし/あなた, テリーマン; hoảng loạn: (không xưng)/テリー"
+          },
+          {
+            "to": "mari",
+            "relation": "tình địch",
+            "address": "mỉa mai: (không xưng)/(gọi trống, mỉa mai); lo lắng: (không xưng)/マリさん"
           }
         ]
       },
@@ -662,210 +568,100 @@
         ],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "China's representative, billed as the 東洋の悪魔 (Oriental Devil). He kills Brockenman in the ring, fights Kinnikuman on an ice ring, and is disqualified from the third-place match for fouling Terryman with a chained weapon. Afterwards he reveals he once lost a death-match to Kinnikuman, and demands — half furious, half pleading — that Kinnikuman take the final seriously instead of trusting to luck, or his own defeat will have meant nothing.",
-        "personality": "Cold and genuinely cruel in the ring, and a showman about it — but volume 4 gives him pride and hurt underneath: he needs the man who beat him to be worth having lost to.",
-        "speech": "Triumphant cackle だはははは; mocking nicknames for opponents (曲芸師 'acrobat' for Kinnikuman dodging along the ropes). In Vietnamese: 'ta/mày' lạnh lùng, tàn nhẫn — giữ tiếng cười đắc thắng và lối gọi giễu.",
+        "role": "Đô vật người Trung Quốc, một chiến binh dũng mãnh và tôn trọng đối thủ.",
+        "personality": "Trầm tĩnh, lạnh lùng trong trận đấu nhưng lại có cái nhìn sâu sắc về võ đạo. Anh tôn trọng những đối thủ thực sự mạnh.",
+        "speech": "Giọng điệu dứt khoát, ít lời, mang âm hưởng của một võ sư. Tiếng Việt: dùng 'tôi/anh' với phong thái điềm đạm, uy nghiêm.",
         "selfTerms": [
-          "ta (lạnh lùng, tàn nhẫn)"
+          "ta/tôi (わたし, khi thật lòng nói chuyện nghiêm túc)"
         ],
-        "appearances": 33,
+        "appearances": 38,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "his Block B opponent on the ice ring",
-            "address": "ta/'tay làm xiếc' (曲芸師) — giễu cợt khi đối thủ nhảy nhót né đòn"
+            "relation": "đối thủ",
+            "address": "giễu cợt: (không xưng)/曲芸師; tha thiết: わたし/おまえ; khích lệ: (không xưng)/キン肉マン"
+          },
+          {
+            "to": "hero-olympics-commentator",
+            "relation": "bình luận viên",
+            "address": "lịch sự: (không xưng)/(không gọi tên trực tiếp); giải thích: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "terryman",
+            "relation": "đối thủ",
+            "address": "khiêu khích: (không xưng)/おまえ"
+          },
+          {
+            "to": "kinkotsuman",
+            "relation": "kẻ phá hoại",
+            "address": "dứt khoát: (không xưng)/おまえたち"
           }
         ]
       },
       {
-        "id": "doro-flairs",
-        "name": "Doro Flairs",
-        "nameJa": "ドーロ・フレアース",
-        "aliases": [
-          "会長",
-          "フレアース"
-        ],
+        "id": "beauty-rhodes",
+        "name": "Beauty Rhodes",
+        "nameJa": "ビューティー・ローデス",
+        "aliases": [],
         "gender": "male",
         "ageGroup": "middle_age",
-        "role": "Chairman (会長) of the World Superhuman Association (世界超人協会 / WSA), the body that invited Kinnikuman to America. Volume 5's American arc is his war: driven out of Los Angeles and then St. Louis by the rival WSF and WSC, he rebuilds at the hidden 'Supermen World' park in a Missouri canyon and sets Kinnikuman to work undercover as 'Chanel Man', beating up rival champions to make the two other bodies blame each other. The plan works, and by the volume's end he is openly scheming with the enemy champion Skull Bose and watching the Grand Canyon ring explode with satisfaction.",
-        "personality": "A showman and a schemer in equal parts — he builds a superhuman museum and a Disneyland knock-off out of genuine sentiment for dead wrestlers, then spends the same breath plotting. Boastful about his park, maudlin about the past, and entirely willing to spend Kinnikuman as a game piece. Treat his warmth as real and his loyalty as conditional; the volume ends without telling you which side he is on.",
-        "speech": "Old man's register: わし for himself, ordinary plain forms, 〜じゃ / 〜のう endings. Ranges from tour-guide enthusiasm to sour muttering (キン肉マンめ なにをやっとるんだ). Gives orders flatly in the rough きさま when he is being the boss, and calls Kinnikuman by name with a dismissive め when complaining about him behind his back. In Vietnamese: a self-important 'ta' or 'lão' with an old man's ease, turning curt and cold when he issues orders.",
+        "role": "Nhà vô địch của Hội đồng Siêu nhân (WSC), kẻ kiêu ngạo tự xưng là 'người đẹp'.",
+        "personality": "Điệu đà, tự phụ và cực kỳ coi trọng vẻ ngoài, hay mỉa mai đối thủ bằng giọng õng ẹo.",
+        "speech": "Giọng điệu điệu đà, hay cười 'ホホホホホ' và tự xưng tên ở ngôi thứ ba. Tiếng Việt: dùng 'ta/anh' hoặc 'ta/mày' với sự châm biếm, điệu đà.",
         "selfTerms": [
-          "ta / lão (わし, mặc định)",
-          "chúng ta (わしら, khi nói thay cả WSA)"
+          "(thường tự xưng tên mình ở ngôi thứ ba, ビューティー・ローデス)"
         ],
-        "appearances": 31,
+        "appearances": 36,
         "relations": [
           {
+            "to": "sheik-seijin",
+            "relation": "hội trưởng",
+            "address": "ngăn lại: (không xưng)/シーク"
+          },
+          {
+            "to": "doro-flairs",
+            "relation": "chủ tịch WSA",
+            "address": "tuyên bố: (không xưng rõ)/(không gọi trực tiếp)"
+          },
+          {
             "to": "kinnikuman",
-            "relation": "the champion he invited to America and then used as an undercover weapon against the rival bodies",
-            "address": "ta/ngươi (わし/きさま) khi ra lệnh, nghiêm giọng bề trên; 'cái thằng Kinnikuman này' (キン肉マンめ) khi càu nhàu sau lưng; 'các ngươi' (キミたち) khi hài lòng khen ngầm cả hai thầy trò"
+            "relation": "nhà vô địch WSA",
+            "address": "đắc thắng: (không xưng: (không xưng rõ)/(không gọi thẳng)"
           },
           {
-            "to": "skull-bose",
-            "relation": "the enemy body's champion he ends up scheming with",
-            "address": "ta/Skull (スカル, gọi trống tên, không kính ngữ) — xẳng giọng chất vấn, rồi khen 'スカルよくやったぞ' khi vừa ý"
+            "to": "jeanne-stimboard",
+            "relation": "bạn diễn tag",
+            "address": "được đồng đội thúc giục: (không xưng rõ)/ローデス"
           },
           {
-            "to": "robin-mask",
-            "relation": "the fallen champion he tries to buy",
-            "address": "ta/ông (gọi đủ 'ロビン・マスク') — lịch sự có tính mua chuộc"
-          },
-          {
-            "to": "iwao",
-            "relation": "the henchman he sends to crash the plane into the ring",
-            "address": "ta/Iwao (gọi trống tên, ra lệnh cộc lốc)"
+            "to": "terryman",
+            "relation": "đối thủ",
+            "address": "hài lòng: おれ/(không gọi tên)"
           }
         ]
       },
       {
         "id": "hero-olympics-announcer",
-        "name": "Bình luận viên dẫn",
-        "nameJa": "",
+        "name": "Silvester Suzuki",
+        "nameJa": "シルベスター・スズキ",
         "aliases": [],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "Young afro-haired ringside announcer calling the play-by-play of the Hero Olympics broadcast, paired with an older commentator.",
-        "personality": "Professional, unflappable, keeps the broadcast moving through absurdity.",
-        "speech": "Broadcast です/ます throughout, names everyone with さん. In Vietnamese: 'tôi/anh, ông' lịch sự kiểu truyền hình — giữ giọng tường thuật trang trọng bất kể chuyện trên sàn có vô lý đến đâu.",
-        "selfTerms": [
-          "tôi (です/ます)"
-        ],
-        "appearances": 22,
+        "role": "MC dẫn chương trình tường thuật trực tiếp giải Hero Olympics, luôn đi cùng bình luận viên lớn tuổi Tazahama bên mép sàn đấu.",
+        "personality": "Hoạt ngôn, xã giao, giữ nhịp trận đấu bằng giọng phấn khích chuyên nghiệp — nhưng lộ vẻ hoài nghi/chán nản khi thấy màn trình diễn kỳ cục của Kinnikuman, và dễ bị Robin Mask chơi khăm khi mời lên phỏng vấn.",
+        "speech": "Nền です/ます lịch sự nghề nghiệp khi mời khách/dẫn chuyện, đuôi câu tường thuật kiểu MC; khi mất kiên nhẫn hoặc bị trêu thì buông lời cộc gọn. Tiếng Việt: giữ giọng MC chuyên nghiệp 'thưa quý vị' làm nền, rớt xuống giọng cộc 'biết rồi biết rồi' khi bực hoặc bị trêu.",
+        "selfTerms": [],
+        "appearances": 31,
         "relations": [
-          {
-            "to": "robin-mask",
-            "relation": "the champion he interviews at ringside",
-            "address": "tôi/anh Robin (ロビンさん, です/ます) — lịch sự, trang trọng trước ống kính"
-          },
           {
             "to": "hero-olympics-commentator",
-            "relation": "his broadcast partner",
-            "address": "tôi/ông Tazahama (タザハマさん, です/ます) — lịch sự mời bình luận"
-          }
-        ]
-      },
-      {
-        "id": "mari",
-        "name": "Mari",
-        "nameJa": "二階堂マリ",
-        "aliases": [
-          "Nikaidou Mari",
-          "マリさん"
-        ],
-        "gender": "female",
-        "ageGroup": "young_adult",
-        "role": "Nursery teacher (保母) at Suminoe kindergarten, Meat's teacher, and Kinnikuman's love interest from the 'かわいいキッスの巻' chapter on; quietly cooks breakfast for the pair.",
-        "personality": "Warm, unflappable, faintly amused by Kinnikuman; kind to Meat like a teacher to a small pupil. Has a sharp side too — she rounds on Kinnikuman when he abuses a rescue for a grope, and trades barbs with Natsuko.",
-        "speech": "です/ます, self term あたし / わたし, calls people by name + くん/さん. In Vietnamese: 'em/anh' with Kinnikuman, 'cô/Mít' with Meat.",
-        "selfTerms": [
-          "em (あたし, với Kinnikuman)",
-          "cô (わたし, với Mít và trẻ mẫu giáo)"
-        ],
-        "appearances": 22,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "the odd neighbour-hero who courts her",
-            "address": "em/anh (あたし/あなた, です/ます) — tò mò rồi ngạc nhiên thích thú khi biết anh nổi tiếng"
-          },
-          {
-            "to": "meat",
-            "relation": "her pupil at the kindergarten",
-            "address": "cô/Mít (わたし/ミートくん) — thân mật kiểu cô giáo với học trò nhỏ, âu yếm khi cảm ơn"
-          },
-          {
-            "to": "natsuko",
-            "relation": "her rival for Kinnikuman's attention",
-            "address": "em/cô (わたし/あなた, です/ます nhưng gằn giọng) — khó chịu khi bị dò hỏi; châm chọc ngược 'わたしで69人めだ!' khi bị xúc phạm"
-          }
-        ]
-      },
-      {
-        "id": "vengeful-stranger",
-        "name": "Ông chú (chưa rõ tên)",
-        "nameJa": "",
-        "aliases": [
-          "おじさん"
-        ],
-        "gender": "male",
-        "ageGroup": "middle_age",
-        "role": "A gruff, scarred man in a plaid shirt who appears at the end of volume 3 telling Natsuko 「おれはキン肉マンを殺す……!」 and manhandling her until Terryman intervenes — then, across volume 4, quietly becomes Kinnikuman's ringside second: he feeds him the tactics that beat Robin Mask, protests Robin's sneak attack from the stands, thaws Robin with a defrost gun, restrains a panicking Meat, and consoles Robin after the silver medal. Everyone calls him おじさん. **His name and what he is to Natsuko are still unexplained at the end of volume 4** — the biggest open thread in the series so far.",
-        "personality": "Starts as a threat and turns into the group's gruff uncle: blunt, practical, protective of everyone including his former target, and the only adult who talks sense at ringside.",
-        "speech": "Rough おれ and bare imperatives when angry (殺してやるーっ!!, ヘイ とにかく きくんだ‼), but he keeps です/ます with King Muscle even while calling him おじさん. In Vietnamese: 'tao/mày' lúc hung hãn, chuyển sang 'tôi/ông' cộc lốc mà lễ phép với bậc trên, và 'chú/cháu' với Mít và Terryman.",
-        "selfTerms": [
-          "tao (おれ, lúc hung hãn)",
-          "tôi (khi nói với King Muscle, giữ です/ます)",
-          "chú (với Mít, Terryman)"
-        ],
-        "appearances": 21,
-        "relations": [
-          {
-            "to": "natsuko",
-            "relation": "the woman he threatened over Kinnikuman — the connection is never explained",
-            "address": "tao/Natsuko (gọi thẳng tên) — gầm lên đầy hận thù, ghì chặt không buông"
-          },
-          {
-            "to": "kinnikuman",
-            "relation": "the man he swore to kill, then seconded to the championship",
-            "address": "tao/Kinnikuman (gọi thẳng tên) — gấp gáp, ra lệnh ở sát dây đài, ép nghe chiến thuật"
+            "relation": "bình luận viên",
+            "address": "mặc định: (không xưng)/タザハマさん; chán nản: (không xưng)/(không gọi tên)"
           },
           {
             "to": "robin-mask",
-            "relation": "his man's opponent, whom he defends, rescues and then consoles",
-            "address": "tôi/Robin Mask (gọi đủ tên) khi phẫn nộ tố cáo đánh úp; 'Robin' rút gọn, dịu hẳn khi cứu và an ủi"
-          },
-          {
-            "to": "king-muscle",
-            "relation": "the king he guides and argues with at the stadium",
-            "address": "tôi/ông (おじさん thân mật nhưng giữ ですか lịch sự) — vừa can ngăn vừa lo thật lòng cho con trai ông"
-          },
-          {
-            "to": "meat",
-            "relation": "the boy he calms down",
-            "address": "chú/Mít (ミートくん) — ghì giữ, trấn an bằng giọng thân thiết"
-          },
-          {
-            "to": "terryman",
-            "relation": "a hero he already seems to know",
-            "address": "chú/cậu Terryman (テリーマンくん) — thân mật như quen từ trước"
-          }
-        ]
-      },
-      {
-        "id": "jesse-mayvia",
-        "name": "Jesse Mayvia",
-        "nameJa": "ジェシー・メイビア",
-        "aliases": [
-          "メイビア",
-          "ビッグマウンテン",
-          "BIG MOUNTAIN"
-        ],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Hawaii champion and owner of the Jesse Palace gym, defending his belt for the 999th time when Kinnikuman challenges him. He years ago stole the championship from Kamehame and kept him on as a valet, which is the grudge the whole Hawaii arc turns on. In the double-title 'no-rope death match' he is nicknamed BIG MOUNTAIN for a defence nothing can move, until Kinnikuman's feigned despair draws him out and the 48 Killer Techniques finish him.",
-        "personality": "Contemptuous and image-conscious — he throws Kinnikuman out of his gym for losing, sneers at his 'pig body', and rigs the rules (removing the ropes) rather than fight straight. Arrogant enough to be careless at the exact moment it costs him the match.",
-        "speech": "わたし, plain and clipped, with a champion's condescension; rough dismissals (バカもの!, 負け犬はキライだ) and a sneering フフフ. Uses くん and 王子 for Kinnikuman when he is being falsely gracious. In Vietnamese: a cold, superior 'ta', dropping to open contempt 'tao/mày' when he taunts.",
-        "selfTerms": [
-          "ta (わたし, mặc định, giọng bề trên)",
-          "chúng ta (わしたち/わたしたち khi đại diện phe mình)"
-        ],
-        "appearances": 20,
-        "relations": [
-          {
-            "to": "kinnikuman",
-            "relation": "the visiting champion he despises, then loses both belts to",
-            "address": "ta/(không gọi tên) khinh miệt, 'đồ ngu' (バカもの!) khi gắt; ta/cậu Meibia… ngược lại, gọi 'vương tử' (王子) hoặc thêm くん khi làm ra vẻ lịch thiệp trước đám đông"
-          },
-          {
-            "to": "duke-kamata",
-            "relation": "his manager and fixer",
-            "address": "ta/Kamata (gọi trống tên, plain) — tin cậy, bàn mưu ngang hàng"
-          },
-          {
-            "to": "kamehame",
-            "relation": "the man he took the belt from and kept as his valet",
-            "address": "ta/(gọi trống, khinh) — coi như người hầu, không bao giờ gọi bằng tên tôn trọng"
+            "relation": "cựu vô địch",
+            "address": "lịch sự: (không xưng)/ロビンさん"
           }
         ]
       },
@@ -876,234 +672,60 @@
         "aliases": [],
         "gender": "male",
         "ageGroup": "middle_age",
-        "role": "Older bald, bespectacled commentator beside the announcer, whipping up excitement with a hand-drum.",
-        "personality": "Excitable and easily deflated; keeps his manners even when Robin Mask picks him up by the ankles mid-broadcast.",
-        "speech": "です/ます, gushing ガンバレガンバレ, polite even when sulking ('そ…それだけですか…ありがとうございました'). In Vietnamese: 'tôi/anh' lịch sự, hào hứng quá đà rồi hụt hẫng.",
-        "selfTerms": [
-          "tôi (わたし, です/ます)"
-        ],
-        "appearances": 20,
+        "role": "Bình luận viên lớn tuổi ngồi cạnh MC Silvester Suzuki tường thuật Hero Olympics, hay bị mời góp ý chuyên môn rồi bị các đấu sĩ trêu chọc.",
+        "personality": "Nghiêm túc, thích phân tích chiến thuật chi tiết, đôi khi sa đà giải thích dài dòng khiến MC trẻ mất kiên nhẫn; dễ hoảng khi bị lôi vào tình huống bất ngờ.",
+        "speech": "Nền です/ます điềm đạm, phân tích kỹ thuật; khi bị trêu/hoảng thì bật ra tiếng kêu cộc, mất vẻ điềm đạm thường ngày. Tiếng Việt: giữ giọng 'thưa quý vị' phân tích chuyên môn làm nền, bật lên giọng hoảng hốt trẻ con khi bị trêu bất ngờ.",
+        "selfTerms": [],
+        "appearances": 29,
         "relations": [
+          {
+            "to": "hero-olympics-announcer",
+            "relation": "MC",
+            "address": "mặc định: (không xưng)/(không gọi tên rõ)"
+          },
           {
             "to": "robin-mask",
-            "relation": "the champion he tries to interview",
-            "address": "tôi/anh Robin (ロビンさん, です/ます) — lịch sự; giãy nảy 'わー ゆするな' khi bị túm chân đùa nghịch"
+            "relation": "cựu vô địch",
+            "address": "lịch sự: わたし/ロビンさん; hụt hẫng: (không xưng)/(không gọi tên); giãy nảy: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "ramenman",
+            "relation": "khách mời",
+            "address": "lịch sự: (không xưng)/ラーメンマンさん; hoảng hốt: (không xưng: (không xưng)/解説のラーメンマンさん"
           }
         ]
       },
       {
-        "id": "kamehame",
-        "name": "Kamehame",
-        "nameJa": "カメハメ",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "elder",
-        "role": "The old Hawaiian master who becomes Kinnikuman's teacher — the volume's emotional spine. Introduced as Jesse Mayvia's shabby valet, he beats the world champion in seven seconds, then reveals he is the man Mayvia robbed of the Hawaii belt and has been waiting years to take it back. He trains Kinnikuman into 'a body like steel' and hands down the 48 Killer Techniques (48の殺人技). When Kinnikuman wins and gives him the belt, he says his part is done and walks away.",
-        "personality": "Rough-looking, shaggy and bearded, but calm, courteous and deliberate — the contrast is the point. Carries an old defeat without self-pity, teaches by plain instruction rather than shouting, and lets his student inherit the dream he can no longer finish himself.",
-        "speech": "わたし for himself and キミ or the plain name キン肉マン for his student; long sentences, trailing 「…」, an old man's 〜のう. Switches into textbook です/ます when explaining technique, and teases in the same polite register (だからバカ王子っていわれるんですよ). In Vietnamese: a steady, unhurried 'ta' or 'thầy' with 'con/cậu' for Kinnikuman — warmth without sentimentality.",
-        "selfTerms": [
-          "ta / thầy (わたし, trầm, điềm đạm)"
+        "id": "mari",
+        "name": "Mari",
+        "nameJa": "二階堂マリ",
+        "aliases": [
+          "マリさん"
         ],
-        "appearances": 18,
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Cô giáo mẫu giáo dạy Meat, người Kinnikuman thầm mến.",
+        "personality": "Dịu dàng, trong sáng nhưng cũng rất quyết liệt khi bảo vệ chính kiến hoặc khi bị tình địch khiêu khích.",
+        "speech": "Nền です/ます lịch sự, giọng nhẹ nhàng nhưng khi tức giận thì trở nên sắc bén, gằn giọng. Tiếng Việt: dùng 'tôi/ông' hoặc 'em/anh' với vẻ lịch sự lạnh lùng khi cần thiết.",
+        "selfTerms": [
+          "em/tôi (あたし, mặc định, dịu dàng hơn わたし)"
+        ],
+        "appearances": 28,
         "relations": [
           {
             "to": "kinnikuman",
-            "relation": "his student and the heir to his unfinished dream",
-            "address": "thầy/con (わたし/キミ, キン肉マン) mặc định, trầm tĩnh; chuyển sang giọng giảng bài lịch sự (です/ます) khi dạy đòn, vẫn giọng đó khi trêu 'vương tử dở hơi'; nghiêm giọng ra lệnh 'よくきけ' lúc mách nước giữa trận"
+            "relation": "chàng trai",
+            "address": "mặc định: あたし/あなた; hoảng hốt: (không xưng rõ)/王子"
           },
           {
-            "to": "jesse-mayvia",
-            "relation": "the man who took his belt and made him a valet",
-            "address": "ta/hắn (やつ) — nói về chứ hiếm khi nói với; giọng nén, không gào"
-          }
-        ]
-      },
-      {
-        "id": "skull-bose",
-        "name": "Skull Bose",
-        "nameJa": "スカル・ボーズ",
-        "aliases": [
-          "スカル",
-          "スカル・ボウズ"
-        ],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Champion of the Superhuman Alliance (超人同盟 / WSF) — bald, tattooed head to foot with the word SUKARU, and the most dangerous mind in the American arc. He takes the West from the WSA, sends his tattooed thugs to seize its headquarters, headlines the WSF's lethal Lumberjack Show, and personally sets the trap that exposes 'Chanel Man', going undercover in a deerstalker and round glasses to do it. By the volume's end the rigged plane crash has made him the new world champion.",
-        "personality": "Polite, patient and entirely ruthless — he vouches for Kinnikuman in public while building the trap that will unmask him. Takes decisions over his own chairman's head. He is the one who calls Kinnikuman by his real name スグル to watch his face.",
-        "speech": "The key to him: he keeps です/ます in every scene, including while plotting murder, and finishes on a dry フフフフ. Rough slang (ヤロウ, 〜ぜ) only when he drops the mask. Calls his chairman シーク flatly or シークさま when he wants something. In Vietnamese: a smooth, unfailingly polite 'tôi' — do NOT coarsen him when he turns cruel; the politeness held over the cruelty is the character.",
-        "selfTerms": [
-          "tôi (わたし, です/ます, giữ nguyên kể cả khi bàn chuyện độc ác)"
-        ],
-        "appearances": 17,
-        "relations": [
-          {
-            "to": "sheik-seijin",
-            "relation": "his chairman, whom he manages as much as he serves",
-            "address": "tôi/Sheik (わたし/シーク, です/ます) — lịch sự nhưng cứng rắn khi biện hộ; nâng lên 'ngài Sheik' (シークさま) khi trấn an hoặc cần được cho qua"
+            "to": "meat",
+            "relation": "học trò",
+            "address": "mặc định: わたし/ミートくん"
           },
           {
-            "to": "kinnikuman",
-            "relation": "the infiltrator he protects in public and traps in private",
-            "address": "tôi/Chanel Man (シャネルマン) trước mặt mọi người, quát 'いいかげんにしろ' khi cần diễn; gọi thẳng tên thật 'cậu Suguru' (スグルくん) khi dò phản ứng — đó là lúc nguy hiểm nhất"
-          },
-          {
-            "to": "doro-flairs",
-            "relation": "the rival chairman he ends up scheming with",
-            "address": "tôi/(không gọi tên, です/ます) — trình bày mưu kế như báo cáo công việc"
-          }
-        ]
-      },
-      {
-        "id": "sheik-seijin",
-        "name": "Sheik Seijin",
-        "nameJa": "シーク星人",
-        "aliases": [
-          "シーク"
-        ],
-        "gender": "male",
-        "ageGroup": "middle_age",
-        "role": "Chairman of the Superhuman Alliance (超人同盟 / WSF), the body the public calls the Superhuman Mafia — it runs the Lumberjack Show, where superhumans kill each other for a betting crowd. He allies with the WSC to destroy the WSA, then falls out with it over who gets to deal with 'Chanel Man', and it is he who picks up the broken Robin Mask and turns him into a piece on the board.",
-        "personality": "Blunt, territorial and openly contemptuous — he throws the wounded Beauty Rhodes at his allies' feet as a 'gift'. Given to grand philosophical talk about good and evil while running a death show. Impatient with his own champion's slow scheming.",
-        "speech": "わし / わしら, rough plain forms, 〜じゃ, and freely insulting (おまえ, きさまら, 肥満体 for Beauty Rhodes). Calls people by bare name plus よ — フレアースよ, スカルよ. In Vietnamese: a coarse, overbearing 'ta/lão' with 'mày/tụi bay' for anyone he does not fear — the opposite pole from Skull Bose's politeness, and the two should never sound alike.",
-        "selfTerms": [
-          "ta / lão (わし)",
-          "tụi tao (わしら, khi nói thay WSF)"
-        ],
-        "appearances": 16,
-        "relations": [
-          {
-            "to": "skull-bose",
-            "relation": "his champion, who increasingly acts without him",
-            "address": "ta/Skull à (スカルよ, gọi trống kèm よ, bề trên) — thúc giục, chất vấn"
-          },
-          {
-            "to": "doro-flairs",
-            "relation": "the rival chairman he hunts out of two cities",
-            "address": "ta/lão Flairs (フレアースよ, おまえ) — xấc xược, gọi trống tên"
-          },
-          {
-            "to": "beauty-rhodes",
-            "relation": "the allied champion he mocks and then maims",
-            "address": "ta/mày (おまえ) — mỉa mai, gọi 'thân hình béo phì' (肥満体)"
-          },
-          {
-            "to": "kinnikuman",
-            "relation": "the infiltrator he suspects from the first day",
-            "address": "tụi tao/tụi bay (わしら/きさまら) khi tố cáo; 'mày' (おまえ) giễu cợt khi vạch vỏ bọc"
-          }
-        ]
-      },
-      {
-        "id": "olympic-chairman",
-        "name": "Chủ tịch Ban tổ chức",
-        "nameJa": "委員長",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "elder",
-        "role": "Portly, bearded head of the Hero Olympics committee, who rules Japan out of the tournament once Ultraman declines, sneers at King Muscle's pleas — then personally delivers the news when Kinnikuman is picked after all.",
-        "personality": "Pompous and cruel when he has the upper hand, all smiles once the decision goes the other way.",
-        "speech": "Self term わし with a contemptuous おまえ/キサマ downward, booming わっはっはっは. In Vietnamese: 'ta/ngươi' trịch thượng khi gạt phắt, đổi sang 'ta/cậu' hồ hởi khi báo tin vui.",
-        "selfTerms": [
-          "ta (わし)"
-        ],
-        "appearances": 15,
-        "relations": [
-          {
-            "to": "king-muscle",
-            "relation": "the foreign king he humiliates",
-            "address": "ta/ngươi (おまえ, キサマ) — coi thường, cười khẩy 'それこそ日本の恥ですわ!'"
-          },
-          {
-            "to": "kinnikuman",
-            "relation": "the fighter he eventually selects",
-            "address": "ta/cậu (わし/キミ) — hồ hởi chúc mừng khi báo tin được chọn"
-          }
-        ]
-      },
-      {
-        "id": "beauty-rhodes",
-        "name": "Beauty Rhodes",
-        "nameJa": "ビューティー・ローデス",
-        "aliases": [
-          "ローデス"
-        ],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "Champion of the Superhuman Council (超人評議会 / WSC) and 'the Emperor of New York' — blonde, curled, in a fur cloak and a studded eagle belt, defending his title at Madison Square Garden with an elbow drop off the top rope. Kinnikuman, disguised as Chanel Man, floors him in the crowd; later Sheik Seijin beats him bloody and dumps him in front of his own chairman, which turns the manufactured WSC–WSF quarrel into a real one.",
-        "personality": "Vain and theatrical, playing the star at every moment; genuinely a top-class wrestler under the posing, which is why his humiliation lands so hard.",
-        "speech": "Affected, feminine-coded register despite being male — ホホホホホ laughter, わよ / のよ endings, speaking of himself in the third person. Deliberately the opposite of Sheik Seijin's だ/じゃ growl. In Vietnamese: an arch, preening voice — 'ta' with drawn-out flourishes; keep the mannerism, and keep it consistent, because the contrast between the two camps' voices is how the reader tells the factions apart.",
-        "selfTerms": [
-          "ta (điệu đà, hay tự gọi tên mình ở ngôi thứ ba)"
-        ],
-        "appearances": 12,
-        "relations": [
-          {
-            "to": "sheik-seijin",
-            "relation": "nominal ally, then the man who maims him",
-            "address": "ta/anh Sheik (シーク, gọi trống tên) — xẵng nhưng vẫn õng ẹo, tranh phần trước"
-          },
-          {
-            "to": "doro-flairs",
-            "relation": "the rival chairman he cuts off mid-sentence",
-            "address": "ta/ông (không gọi tên) — ngạo mạn, cười ホホホホホ"
-          }
-        ]
-      },
-      {
-        "id": "gania-mask",
-        "name": "Gania Mask",
-        "nameJa": "ガニア・マスク",
-        "aliases": [
-          "ガニア"
-        ],
-        "gender": "male",
-        "ageGroup": "middle_age",
-        "role": "Robin Mask's personal trainer and second — bald, deeply lined, built like a bull in a plain tracksuit. Rides a bicycle beside his pupil on training runs, fields the press for him, and in the final breaks through the crowd to warn Kinnikuman that Robin means to kill him.",
-        "personality": "Gruff, loyal and increasingly frightened of what his own pupil is becoming; the one person who tries to stop the final going too far.",
-        "speech": "Blunt plain speech with his pupil, shouting バカモノ〜ッ at anyone flippant; despite being an older Englishman he uses the Westernised ユー for Kinnikuman. In Vietnamese: 'tôi/cậu' cộc cằn mà tận tuỵ, giữ cách gọi kiểu Tây hoá đúng như Terryman và Robin Mask.",
-        "selfTerms": [
-          "tôi (cộc cằn)"
-        ],
-        "appearances": 12,
-        "relations": [
-          {
-            "to": "robin-mask",
-            "relation": "his pupil",
-            "address": "tôi/Robin (gọi tên rút gọn) — lo lắng gọi tên; kinh hãi khi đoán ra học trò sắp tung đòn cấm"
-          },
-          {
-            "to": "kinnikuman",
-            "relation": "his pupil's opponent, whom he runs to warn",
-            "address": "tôi/cậu (ユー, kiểu Tây hoá) — hớt hải: 'ロビンはユーを殺すつもりだ!!'"
-          },
-          {
-            "to": "hero-olympics-commentator",
-            "relation": "the commentator he rounds on",
-            "address": "tôi/đồ ngốc (バカモノ) — quát mắng và giẫm lên ông ta vì buông lời khen thản nhiên trước một đòn chết người"
-          }
-        ]
-      },
-      {
-        "id": "duke-kamata",
-        "name": "Duke Kamata",
-        "nameJa": "デューク・カマタ",
-        "aliases": [
-          "カマタ"
-        ],
-        "gender": "male",
-        "ageGroup": "middle_age",
-        "role": "Jesse Mayvia's manager and promoter in Hawaii — bald, moustached, in a white suit, at his champion's shoulder through the whole Hawaii arc, arguing rules and working the crowd.",
-        "personality": "A fixer: smooth in public, sour in private, quick to quibble over regulations when it suits his man.",
-        "speech": "Plain, businesslike, なにかね when prompted; reaches for Westernised ミー/ユー like the other foreign cast. In Vietnamese: a brisk 'tôi', deferential to Jesse and dismissive of everyone else.",
-        "selfTerms": [
-          "tôi (plain, giọng quản lý)"
-        ],
-        "appearances": 11,
-        "relations": [
-          {
-            "to": "jesse-mayvia",
-            "relation": "his champion and employer",
-            "address": "tôi/anh (không gọi tên) — chờ lệnh, hỏi lại ngắn 'なにかね'"
+            "to": "natsuko",
+            "relation": "tình địch",
+            "address": "khó chịu: わたし/あなた; mỉa mai: わたし/(ẩn, không gọi tên)"
           }
         ]
       },
@@ -1114,18 +736,345 @@
         "aliases": [],
         "gender": "male",
         "ageGroup": "adult",
-        "role": "Round-bodied, goggle-eyed lackey to Kinkotsuman; fetches Kinnikuman's victims as 'material' for the Monster Gun, works the device, and cheers the resulting kaiju on from the sidelines.",
-        "personality": "Eager, fawning, delighted by his own usefulness.",
-        "speech": "Deferential 先生 with です/ます upward, excitable shouting at the monsters he handles. In Vietnamese: 'em/tiên sinh' xun xoe với cấp trên.",
+        "role": "Tay sai trung thành của Kinkotsuman, vận hành 'Monster Gun' — vũ khí biến những nạn nhân mang oán hận với Kinnikuman thành quái vật báo thù.",
+        "personality": "Lễ phép, tận tụy với chủ, hồ hởi cổ vũ hết mình khi phe mình thắng thế; có nét đáng yêu ngờ nghệch — mừng rỡ như trẻ con khi tình cờ gặp lại bạn cũ ngay giữa lúc đang làm nhiệm vụ canh gác.",
+        "speech": "Gọi chủ nhân Kinkotsuman bằng 先生 lễ phép, giọng plain; khi hô hào cổ vũ cho quái vật do mình tạo ra thì gọi thẳng tên, giọng thẳng thắn hồ hởi; với bạn bè cùng phe thì thân mật, thêm ちゃん. Tiếng Việt: giữ 'con/thưa sếp' lễ phép khi báo cáo với Kinkotsuman, chuyển sang hô hào xuề xoà khi cổ vũ đồng bọn, và gọi bạn bè bằng biệt danh thân mật kiểu 'cậu/tớ'.",
         "selfTerms": [
-          "em (với Kinkotsuman)"
+          "(không xưng rõ, lễ phép khi báo cáo với 先生)"
         ],
-        "appearances": 11,
+        "appearances": 22,
         "relations": [
           {
             "to": "kinkotsuman",
-            "relation": "his master",
-            "address": "em/tiên sinh (先生) — lễ phép báo cáo, xin ý kiến ('いかがでしょうか先生!')"
+            "relation": "chủ nhân",
+            "address": "mặc định: (không xưng)/先生; suồng sã: オイラ"
+          },
+          {
+            "to": "black-shadow",
+            "relation": "bạn diễn tag",
+            "address": "khinh khích: (không xưng rõ)/ブラック"
+          },
+          {
+            "to": "skull-bose",
+            "relation": "đối thủ",
+            "address": "khẩn cầu: (không xưng rõ)/(quát); mỉa mai: (không xưng rõ)/ハゲタカ野郎"
+          }
+        ]
+      },
+      {
+        "id": "vengeful-stranger",
+        "name": "Người lạ mặt thù hận",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Người đàn ông bí ẩn với vết sẹo/băng ở mắt, thường xuyên theo dõi Kinnikuman.",
+        "personality": "Lạnh lùng, khó đoán, nhưng dần bộc lộ sự quan tâm đến Kinnikuman và đứng về phía phe anh hùng.",
+        "speech": "Giọng điệu cộc lốc, ra lệnh, ít biểu cảm. Tiếng Việt: dùng 'tôi/cậu' hoặc 'ta/mày' tuỳ vào mức độ thân thiết hoặc căng thẳng.",
+        "selfTerms": [
+          "tao (おれ, khi nói về/với Kinnikuman, hằn học)"
+        ],
+        "appearances": 21,
+        "relations": [
+          {
+            "to": "natsuko",
+            "relation": "người lạ",
+            "address": "hận thù: おれ/ナツコ; hung hãn: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "robin-mask",
+            "relation": "đối tượng quan tâm",
+            "address": "phẫn nộ: (không xưng)/ロビン・マスク; quan tâm: (không xưng)/ロビン; an ủi: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "kẻ thù",
+            "address": "gấp gáp: (không xưng)/キン肉マン"
+          },
+          {
+            "to": "meat",
+            "relation": "cậu bé",
+            "address": "trấn an: (không xưng)/ミートくん"
+          },
+          {
+            "to": "king-muscle",
+            "relation": "cha của Kinnikuman",
+            "address": "lịch sự: (không xưng)/(không gọi tên); can ngăn: (không xưng)/おじさん"
+          },
+          {
+            "to": "terryman",
+            "relation": "đô vật",
+            "address": "thân mật: (không xưng)/テリーマンくん"
+          }
+        ]
+      },
+      {
+        "id": "jesse-mayvia",
+        "name": "Jesse Mayvia",
+        "nameJa": "ジェシー・メイビア",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Nhà vô địch Hawaii, đối thủ của Kinnikuman trong trận tranh song đai.",
+        "personality": "Kiêu ngạo, xảo quyệt, coi thường những siêu nhân yếu kém và luôn tìm cách giành lợi thế bằng luật lệ.",
+        "speech": "Giọng điệu trịch thượng, hay dùng từ ngữ khinh miệt đối thủ. Tiếng Việt: dùng 'ta/mày' với thái độ bề trên, ngạo mạn.",
+        "selfTerms": [
+          "tôi (わたし, đường hoàng, quân tử)"
+        ],
+        "appearances": 20,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "đối thủ",
+            "address": "đường hoàng: わたし/あなた; khinh miệt: (không xưng rõ)/(không gọi tên); khinh miệt: (không xưng rõ)/(không gọi tên); giễu cợt: (không xưng rõ)/(không gọi tên)"
+          },
+          {
+            "to": "kamehame",
+            "relation": "tuỳ tùng",
+            "address": "sai bảo: わたし/カメハメ"
+          }
+        ]
+      },
+      {
+        "id": "sheik-seijin",
+        "name": "Sheik Seijin",
+        "nameJa": "シーク星人",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Hội trưởng Liên minh Siêu nhân (WSF), kẻ đối đầu với WSC và WSA.",
+        "personality": "Ngạo mạn, nóng nảy và luôn muốn khẳng định quyền lực tuyệt đối.",
+        "speech": "Giọng điệu thô lỗ, cộc cằn, hay ra lệnh cho cấp dưới. Tiếng Việt: dùng 'ta/mày' với thái độ hống hách, coi thường người khác.",
+        "selfTerms": [
+          "ta (わし, mặc định, cộc lốc bề trên)"
+        ],
+        "appearances": 19,
+        "relations": [
+          {
+            "to": "skull-bose",
+            "relation": "nhà vô địch",
+            "address": "thúc giục: おまえ/スカル, スカルよ; lo lắng: (không xưng)/スカルよ"
+          },
+          {
+            "to": "doro-flairs",
+            "relation": "chủ tịch",
+            "address": "xấc xược: (không xưng)/フレアース, おまえ"
+          },
+          {
+            "to": "beauty-rhodes",
+            "relation": "nhà vô địch",
+            "address": "mỉa mai: (không xưng)/おまえ"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "đối thủ",
+            "address": "giễu cợt: (không xưng)/おまえ, きさま; bênh vực: (không xưng)/(không gọi tên)"
+          }
+        ]
+      },
+      {
+        "id": "devil-magician",
+        "name": "Devil Magician",
+        "nameJa": "デビル・マジシャン",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Quái nhân bí ẩn mặc đen, sừng nhỏ trên đầu, mặt bịt kín — được Skull Bose đích thân phong làm bạn diễn tag, hợp thành 'cặp đôi hung ác vũ trụ' đấu tại giải Tag đôi Siêu nhân.",
+        "personality": "Trung thành tuyệt đối, khiêm nhường kiểu võ sĩ cổ trang trước Skull Bose, nhưng tàn nhẫn không kém đàn anh khi ra tay với đối thủ.",
+        "speech": "Với Skull Bose giữ khiêm nhường cổ trang kiểu võ sĩ trung thành hoặc vay mượn kính ngữ tiếng Anh khi nhận lệnh giết đối thủ; chưa ghi nhận lời thoại trực tiếp nào của hắn với đối thủ. Tiếng Việt: giữ 'con/ngài' cổ trang khiêm nhường khi nhận lệnh, chen nguyên văn 'yes sir' vay mượn tiếng Anh cho đúng chất lính đánh thuê ngoài hành tinh.",
+        "selfTerms": [
+          "(chưa ghi nhận đại từ tự xưng rõ ràng)"
+        ],
+        "appearances": 19,
+        "relations": [
+          {
+            "to": "skull-bose",
+            "relation": "thủ lĩnh",
+            "address": "nhận lệnh: (không xưng rõ)/(không gọi tên, chỉ đáp lễ); phục tùng: (không xưng rõ)/(kính ngữ vay mượn)"
+          }
+        ]
+      },
+      {
+        "id": "kamehame",
+        "name": "Kamehame",
+        "nameJa": "カメハメ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Cựu vô địch Hawaii, người thầy dạy Kinnikuman 48 chiêu sát thủ.",
+        "personality": "Trầm tĩnh, uyên bác và nghiêm khắc trong huấn luyện, giấu vẻ ngoài bờm xờm là một bậc thầy kỹ thuật siêu hạng.",
+        "speech": "Giọng già dặn, từ tốn, thường kết thúc bằng 〜のう hoặc các đuôi câu trang trọng. Khi dạy dỗ thì nghiêm túc, dứt khoát. Tiếng Việt: dùng 'ta/cậu' hoặc 'thầy/con' với sự điềm đạm, thâm trầm của người từng trải.",
+        "selfTerms": [],
+        "appearances": 18,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "đối thủ/học trò",
+            "address": "lịch sự: (không xưng)/キン肉マン; giới thiệu: (không xưng)/(không gọi tên); khen ngợi: (không xưng)/キミ; quyết tâm: わたし/キミ, キン肉マン; tâm sự: わたし/(không gọi tên); nghiêm khắc: (không xưng)/キミ; giải thích: (không xưng)/(không gọi tên); nghiêm giọng: わたし/キン肉マン; cảm khái: わたし/(không gọi tên)"
+          }
+        ]
+      },
+      {
+        "id": "rhodes-companion",
+        "name": "Bạn đồng hành của Rhodes",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Người đồng hành xinh đẹp luôn sát cánh bên Beauty Rhodes.",
+        "personality": "Lạnh lùng, sắc sảo và luôn bảo vệ lợi ích của Beauty Rhodes.",
+        "speech": "Giọng điệu ngắn gọn, trực diện và đầy đe doạ. Tiếng Việt: dùng 'tôi/anh' hoặc 'ta/mày' với thái độ khinh khỉnh.",
+        "selfTerms": [],
+        "appearances": 16,
+        "relations": [
+          {
+            "to": "beauty-rhodes",
+            "relation": "nhà vô địch",
+            "address": "thản nhiên: (không xưng rõ)/ローデス; hoảng hốt: (không xưng rõ)/ローデス"
+          },
+          {
+            "to": "sheik-seijin",
+            "relation": "hội trưởng",
+            "address": "lạnh lùng: (không xưng)/シーク; tức giận: (không xưng)/(không gọi trực tiếp); cảnh cáo: (không xưng)/シーク; hô hào: (không xưng)/(không gọi tên)"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "đối thủ",
+            "address": "áy náy: (không xưng rõ)/シャネルマン"
+          }
+        ]
+      },
+      {
+        "id": "jeanne-stimboard",
+        "name": "Jeanne Stimboard",
+        "nameJa": "ジャンヌ・スティムボード",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Bạn diễn tag của Beauty Rhodes trong đội 'The Emperors' — đô vật tóc xù kiểu Afro, thân hình lực sĩ quyền anh.",
+        "personality": "Kiêu ngạo, hống hách, hay khiêu khích cả đối thủ lẫn chính đồng đội bằng giọng suồng sã kiểu đàn ông Mỹ; phối hợp ăn ý với Rhodes trên sàn đấu dù ngoài miệng luôn tỏ ra bất cần.",
+        "speech": "Xưng オレ suồng sã kiểu Mỹ, gọi trống đối thủ hoặc gộp chung bằng おまえたち khi khiêu khích cả đội địch cùng lúc; giọng hống hách, giục giã đồng đội ra đòn nhanh. Tiếng Việt: giữ 'tao/tụi bây' suồng sã bặm trợn làm nền cho lời khiêu khích trước và trong trận đấu.",
+        "selfTerms": [
+          "tao (オレ, suồng sã kiểu Mỹ)"
+        ],
+        "appearances": 16,
+        "relations": [
+          {
+            "to": "beauty-rhodes",
+            "relation": "bạn diễn tag",
+            "address": "thúc giục: (không xưng rõ)/ローデス"
+          },
+          {
+            "to": "terryman",
+            "relation": "đối thủ",
+            "address": "khiêu khích: オレ/(không gọi tên)"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "đối thủ",
+            "address": "hống hách: (không xưng rõ)/おまえたち"
+          }
+        ]
+      },
+      {
+        "id": "olympic-chairman",
+        "name": "Chủ tịch Ban tổ chức",
+        "nameJa": "委員長",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "elder",
+        "role": "Chủ tịch ban tổ chức Hero Olympics — người quyết định loại Nhật Bản khỏi giải rồi sau đó lại đích thân chọn Kinnikuman làm đại diện thay thế.",
+        "personality": "Trịch thượng, thích phô trương quyền lực trước King Muscle, xem thường những lời cầu xin; nhưng cũng có mặt hồ hởi, thích đích thân báo tin vui — và dễ trở thành trò cười vì thói thích thể hiện.",
+        "speech": "Xưng わし của người lớn tuổi có quyền lực, gọi King Muscle trống không hoặc bằng おまえ/キサマ khinh miệt; khi hồ hởi báo tin thì đổi giọng thân thiện hơn, gọi Kinnikuman bằng キミ. Tiếng Việt: giữ 'ta/ngươi' trịch thượng làm nền khi gạt bỏ lời cầu xin, đổi sang 'ta/cậu' thân thiện hơn khi đích thân chúc mừng.",
+        "selfTerms": [
+          "ta (わし, mặc định, trịch thượng)"
+        ],
+        "appearances": 15,
+        "relations": [
+          {
+            "to": "king-muscle",
+            "relation": "vua",
+            "address": "trịch thượng: わし/おまえ, キサマ; trầm ngâm: わし/(không gọi tên)"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "đại diện",
+            "address": "hồ hởi: わし/キミ"
+          }
+        ]
+      },
+      {
+        "id": "duke-kamata",
+        "name": "Duke Kamata",
+        "nameJa": "デューク・カマタ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Promoter điều hành giải vô địch Hawaii.",
+        "personality": "Thực dụng, mưu mô và luôn đặt lợi nhuận lên trên hết.",
+        "speech": "Giọng điệu bề trên, khinh khỉnh, hay ra lệnh. Tiếng Việt: dùng 'tôi/cậu' với thái độ kẻ cả.",
+        "selfTerms": [],
+        "appearances": 14,
+        "relations": [
+          {
+            "to": "kinnikuman",
+            "relation": "đấu sĩ",
+            "address": "thẳng thừng: (không xưng)/キミ; biện minh: (không xưng)/ユー; nhượng bộ: (không xưng)/(không gọi tên); trấn an: わし/(không gọi tên rõ)"
+          }
+        ]
+      },
+      {
+        "id": "gania-mask",
+        "name": "Gania Mask",
+        "nameJa": "ガニア・マスク",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Huấn luyện viên của Robin Mask.",
+        "personality": "Tận tuỵ, lo lắng cho học trò nhưng cũng rất nghiêm khắc.",
+        "speech": "Giọng điệu gấp gáp, hay lo âu, dùng 〜のう khi than thở. Tiếng Việt: 'tôi/anh' với phong thái của một người thầy.",
+        "selfTerms": [
+          "tôi (わたし, lễ phép khi làm phát ngôn viên trước báo giới)",
+          "ta (わし, khi lẩm bẩm than thở một mình)"
+        ],
+        "appearances": 12,
+        "relations": [
+          {
+            "to": "robin-mask",
+            "relation": "học trò",
+            "address": "lễ phép: わたし/(không gọi tên rõ) です/ます; hoảng hốt: (không xưng)/ロビン; kinh hãi: (không xưng)/おまえ, ロビン; thất thần: (không xưng)"
+          },
+          {
+            "to": "kinnikuman",
+            "relation": "đối thủ",
+            "address": "lo lắng: (không xưng)/ユー"
+          },
+          {
+            "to": "hero-olympics-commentator",
+            "relation": "bình luận viên",
+            "address": "mắng thẳng: (không xưng)/バカモノ"
+          }
+        ]
+      },
+      {
+        "id": "black-shadow",
+        "name": "Black Shadow",
+        "nameJa": "ブラック・シャドー",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Quái nhân đá/pha lê khổng lồ, bạn diễn tag của Iwao trong đội 'Anh em Dekoboko' — bị Skull Bose & Devil Magician tra tấn tàn bạo rồi đột tử ngay sau giải đấu.",
+        "personality": "Ít lời, chiến đấu bằng sức mạnh thô bạo, nhưng có ý thức bảo vệ đồng đội nhỏ con hơn — đứng ra nhận đòn thay Iwao dù lời lẽ khinh miệt bề ngoài, và gắt gỏng phản kháng khi bị bắt lỗi luật.",
+        "speech": "Nói cộc, khinh miệt kiểu bặm trợn ngay cả khi đang bảo vệ đồng đội; phản kháng gắt gỏng khi bị trọng tài bắt lỗi. Tiếng Việt: giữ giọng cộc, bặm trợn 'đồ nhãi ranh, lui ra' khi bảo vệ đồng đội — sự khinh miệt ở đây là vỏ bọc của tình đồng đội, không phải ác ý thật.",
+        "selfTerms": [
+          "(chưa ghi nhận đại từ tự xưng rõ ràng)"
+        ],
+        "appearances": 12,
+        "relations": [
+          {
+            "to": "iwao",
+            "relation": "bạn diễn tag",
+            "address": "khinh miệt: (không xưng rõ)/ザコ"
           }
         ]
       },
@@ -1138,64 +1087,21 @@
         ],
         "gender": "male",
         "ageGroup": "adult",
-        "role": "Bearded caped official-cum-competitor at the Hero Olympics — works the microphone before the seeding draw, gets scolded from the judges' box for growing giant, and is drafted to help lift the living-monster barbell. Addressed by everyone as 真弓くん.",
-        "personality": "Willing, put-upon, a little ridiculous.",
-        "speech": "Ordinary plain speech; addressed with くん by superiors. In Vietnamese: 'tôi/anh', và để người khác gọi anh ta là 'cậu Mayumi'.",
-        "selfTerms": [
-          "tôi"
-        ],
+        "role": "Đô vật/viên chức có mặt xuyên suốt Hero Olympics — dẫn chương trình trước vòng oẳn tù tì, bị phạt vì tự ý biến khổng lồ giữa sân.",
+        "personality": "Nhiệt tình, xông xáo nhưng hơi vô duyên/hậu đậu — hay bị cuốn vào rắc rối không phải lỗi của mình, khiến người khác vừa bực vừa phải ra tay giúp.",
+        "speech": "Không có câu thoại riêng nào được ghi nhận rõ trong tập này — chủ yếu là đối tượng bị người khác gọi tên/mắng/hỏi thăm. Tiếng Việt: khi dịch câu người khác gọi tên cậu, giữ '真弓くん' thành 'cậu Mayumi' thân mật xen kính trọng nhẹ.",
+        "selfTerms": [],
         "appearances": 11,
-        "relations": []
-      },
-      {
-        "id": "roots-princess",
-        "name": "Công chúa Kunta",
-        "nameJa": "クンタ王女",
-        "aliases": [
-          "クンタ",
-          "Kunta"
-        ],
-        "gender": "female",
-        "ageGroup": "young_adult",
-        "role": "Princess of the southern Roots Island (ルーツ島), who flies in on her pet bird Miss Karasu to beg Kinnikuman to drive three monsters off her island; she knows his royal identity and calls him 王子.",
-        "personality": "Earnest and dignified, but desperate enough to promise any sum; her island pays in useless giant stone money.",
-        "speech": "です/ます, self term わたし, addresses Kinnikuman by his title 王子. In Vietnamese: 'em/hoàng tử', lễ phép, tha thiết.",
-        "selfTerms": [
-          "em (わたし, です/ます)"
-        ],
-        "appearances": 10,
         "relations": [
           {
-            "to": "kinnikuman",
-            "relation": "the prince she comes to beg for help",
-            "address": "em/hoàng tử (わたし/王子, です/ます) — tha thiết cầu xin, biết rõ thân phận thật của anh"
+            "to": "king-muscle",
+            "relation": "vua",
+            "address": "mỉa mai: (không xưng)/おたくのバカ息子"
           },
           {
-            "to": "terryman",
-            "relation": "the hero she hires for money",
-            "address": "em/anh (わたし) — khẩn khoản, hứa trả bao nhiêu cũng được"
-          }
-        ]
-      },
-      {
-        "id": "ukon",
-        "name": "Ukon",
-        "nameJa": "ウコン",
-        "aliases": [],
-        "gender": "male",
-        "ageGroup": "",
-        "role": "The last and strongest of the three monsters ravaging Roots Island; pig-faced, endlessly boastful, and revealed mid-fight to be an immortal robot — beaten only when the islanders summon the legendary Manmora.",
-        "personality": "Loud, jeering and insufferably pleased with himself; genuinely touchy about being called a pig.",
-        "speech": "Booming laughter わはははは / うわはははは, blunt self term おれ, contemptuous のう endings. Snaps 'だれがブタじゃ!' when mocked for his face. In Vietnamese: giọng đại ca ngạo mạn 'tao/mày', cười lớn, cợt nhả.",
-        "selfTerms": [
-          "tao (おれ)"
-        ],
-        "appearances": 10,
-        "relations": [
-          {
             "to": "kinnikuman",
-            "relation": "the hero sent to drive him off the island",
-            "address": "tao/mày (おまえ) — khinh miệt, chê bai giữa trận ('なさけないのうおまえ'); cười lớn ngạo nghễ khi đòn Kinniku Flash bật ngược"
+            "relation": "đô vật",
+            "address": "thân mật: (không xưng)/スグル"
           }
         ]
       },
@@ -1203,147 +1109,297 @@
         "id": "iyadesu-harisun",
         "name": "Iyadesu Harisun",
         "nameJa": "イヤデス・ハリスン",
-        "aliases": [
-          "会長"
-        ],
+        "aliases": [],
         "gender": "male",
         "ageGroup": "middle_age",
-        "role": "Chairman of the Superhuman Council (超人評議会 / WSC), which holds the East and South. He fronts the press after his champions are beaten one by one, blames the WSF, and devises the 踏絵 test — making 'Chanel Man' trample a portrait of King Muscle to prove he is not Kinnikuman, the trap that nearly exposes him.",
-        "personality": "Corporate and composed in public, quick to shift blame, and cruel in a procedural way — his 'test' turns into a beating while he admires the accuracy of the blows.",
-        "speech": "です/ます throughout, わたしたち when speaking for the body, あんた when questioning someone beneath him. In Vietnamese: a measured, official 'chúng tôi / tôi' with the flat courtesy of a spokesman.",
+        "role": "Hội trưởng Hội đồng Siêu nhân (WSC), kẻ đứng đầu phe kiểm soát miền Đông.",
+        "personality": "Cẩn trọng, mưu mô và luôn tìm cách bảo vệ lợi ích của tổ chức.",
+        "speech": "Giọng điệu nghiêm túc, cứng rắn và đầy uy quyền. Tiếng Việt: dùng 'tôi/anh' hoặc 'ta/ngươi' với vẻ lạnh lùng, sắc bén.",
         "selfTerms": [
-          "chúng tôi (わたしたち, đại diện WSC)",
-          "tôi (わたし)"
+          "chúng tôi (わたしたち, khi đại diện WSC phát biểu)"
         ],
-        "appearances": 9,
+        "appearances": 11,
         "relations": [
           {
-            "to": "beauty-rhodes",
-            "relation": "his champion",
-            "address": "tôi/Rhodes (gọi trống tên) — bàng hoàng gọi tên khi thấy anh ta bị đánh gục"
-          },
-          {
             "to": "kinnikuman",
-            "relation": "the suspect he tests with his father's portrait",
-            "address": "tôi/anh (あんた) — dò hỏi lịch sự vừa phải, bên dưới là nghi ngờ"
+            "relation": "đối thủ",
+            "address": "dò hỏi: (không xưng rõ)/あんた, おまえ; quyết định: (không xưng rõ)/キミ"
           },
           {
-            "to": "sheik-seijin",
-            "relation": "ally against the WSA, then rival over jurisdiction",
-            "address": "tôi/(không gọi tên, です/ます) — giữ lễ ngay cả khi tranh quyền"
+            "to": "beauty-rhodes",
+            "relation": "nhà vô địch",
+            "address": "sốc: (không xưng)/ローデス"
+          }
+        ]
+      },
+      {
+        "id": "robert",
+        "name": "Robert",
+        "nameJa": "ロバート",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "child",
+        "role": "Cậu bé từng ngồi xe lăn vì tai nạn mất chân trái, trở thành fan trung thành của Machine Guns — được truyền cảm hứng từ trận đấu một chân của Terryman mà tự nguyện tập đi lại bằng chân giả.",
+        "personality": "Rụt rè, ít nói ban đầu nhưng can đảm âm thầm — lặng lẽ tuyên bố ủng hộ Machine Guns giữa cả đám đông đang cổ vũ đối thủ, rồi dạn dĩ hẳn ra và reo hò nhiệt tình khi được chính Terryman động viên trực tiếp.",
+        "speech": "Chưa ghi nhận lời thoại trực tiếp nào của Robert trong các trang đã đọc — cậu chủ yếu xuất hiện qua hành động, biểu cảm và phản ứng im lặng giữa đám đông. Tiếng Việt: không áp dụng do chưa có thoại để đối chiếu; khi cần, giữ giọng trẻ con rụt rè, ít lời.",
+        "selfTerms": [],
+        "appearances": 11,
+        "relations": [
+          {
+            "to": "terryman",
+            "relation": "thần tượng",
+            "address": "(chưa có thoại)"
           }
         ]
       },
       {
         "id": "stone-schemer",
-        "name": "Kẻ mặt đá",
+        "name": "Stone Schemer",
         "nameJa": "",
         "aliases": [],
         "gender": "male",
-        "ageGroup": "",
-        "role": "Angular, rock-faceted lieutenant to Kinkotsuman in the Hero Olympics sabotage plot — scouts, reports back, and personally runs the 「ニイタカヤマノボレ」 operation, using a Monster Gun at a zoo to enlarge animals and loose them on a reception full of superhumans.",
-        "personality": "Sly and needling with his own side, ominously courteous to his targets.",
-        "speech": "Three registers by audience: teasing plain speech with his allies, deferential です/ます and 先生 to Kinkotsuman, and a chilling politeness to Kinnikuman, whom he greets by his real name — 「おまちしておりましたスグルさん」. In Vietnamese: giữ đúng ba bậc đó; chỗ lễ phép lạnh gáy với Kinnikuman là điểm nhấn.",
-        "selfTerms": [
-          "tao (với đồng bọn)",
-          "em (với Kinkotsuman)",
-          "tôi (giả lễ phép với Kinnikuman)"
-        ],
+        "ageGroup": "middle_age",
+        "role": "Phản diện, bộ ba âm mưu.",
+        "personality": "Xảo quyệt, tàn nhẫn.",
+        "speech": "Lạnh lùng, phục tùng.",
+        "selfTerms": [],
         "appearances": 9,
         "relations": [
           {
             "to": "kinkotsuman",
-            "relation": "his leader",
-            "address": "em/tiên sinh (先生, です/ます) khi báo cáo; suồng sã trêu lại khi thấy hắn cũng nhảy múa ăn mừng"
+            "relation": "đồng bọn",
+            "address": "giễu lại: (không xưng rõ)/(không gọi tên); báo cáo: (không xưng rõ)/先生"
           },
           {
             "to": "kinnikuman",
-            "relation": "the target he greets by his real name",
-            "address": "tôi/cậu Suguru (スグルさん) — lễ phép lạnh gáy, cho thấy hắn biết rõ thân phận thật"
+            "relation": "đối thủ",
+            "address": "lạnh lùng: (không xưng rõ)/スグルさん"
           }
         ]
       },
       {
-        "id": "rhodes-companion",
-        "name": "Người tháp tùng của Rhodes (chưa rõ tên)",
-        "nameJa": "",
-        "aliases": [],
-        "gender": "female",
-        "ageGroup": "adult",
-        "role": "The unnamed woman who accompanies Beauty Rhodes everywhere — the 'beautiful companion' Doro Flairs says every touring champion keeps. She speaks for him when he cannot: calming him in the crowd, screaming for help when Chanel Man floors him, facing down Sheik Seijin over his body, and finally declaring war on the WSF herself.",
-        "personality": "Cool and unimpressed at first, and the most clear-headed voice in the WSC camp once things turn violent — it is she, not the chairman, who names the WSF as the enemy.",
-        "speech": "Plain, curt, unafraid: calls Beauty Rhodes by bare name ローデス, and Sheik Seijin シーク to his face. In Vietnamese: a flat, level voice with no honorifics — she outranks nobody and defers to nobody. She has no name yet; keep her unnamed rather than inventing one.",
+        "id": "yosaku",
+        "name": "Yosaku",
+        "nameJa": "与作",
+        "aliases": [
+          "ヨサクじい"
+        ],
+        "gender": "male",
+        "ageGroup": "elder",
+        "role": "Một ông lão nông dân tự xưng là huấn luyện viên boxing huyền thoại, thực chất là một ông lão thích đùa vui. Ông đã nhận Kinnikuman làm học trò.",
+        "personality": "Cộc cằn, dân dã, nhiệt tình đến mức kỳ quặc với các phương pháp tập luyện không giống ai.",
+        "speech": "Giọng địa phương, cộc lốc, hay quát nạt nhưng mang tính chất hài hước. Tiếng Việt: 'tao/mày' dân dã, cộc cằn, thêm các từ đệm kiểu ông già quê.",
         "selfTerms": [
-          "tôi (plain, không kính ngữ)"
+          "ta (わし, mặc định)"
         ],
         "appearances": 8,
         "relations": [
           {
-            "to": "beauty-rhodes",
-            "relation": "the champion she accompanies and speaks for",
-            "address": "tôi/Rhodes (gọi trống tên) — thản nhiên khi trấn an, hét gọi khi hoảng"
-          },
-          {
-            "to": "sheik-seijin",
-            "relation": "the enemy chairman she confronts over Rhodes' body",
-            "address": "tôi/Sheik (gọi trống tên) — lạnh, dò xét, rồi tuyên chiến"
+            "to": "kinnikuman",
+            "relation": "huấn luyện viên tự phong",
+            "address": "ta/mày (mặc định); tao/mày (khi quát mắng)"
           }
         ]
       },
       {
-        "id": "tabuchi",
-        "name": "Tabuchi",
-        "nameJa": "タブーチ",
+        "id": "sky-man",
+        "name": "Skyman",
+        "nameJa": "スカイマン",
         "aliases": [],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "Roots Island's self-styled 'last warrior' — the others died fighting the island's monsters. Plays childish pranks on Kinnikuman (darts, sabotage) and blames them on the local children.",
-        "personality": "Short-tempered and proud, secretly childish; breaks down frustrated ('くやしい') when caught out, but ends the arc speaking seriously about what makes a hero worth a legend.",
-        "speech": "Rough plain speech, self term オレ, calls Kinnikuman 王子. In Vietnamese: 'tao/mày' bốp chát khi phá đám, chuyển sang 'tôi/hoàng tử' khi nghiêm túc.",
-        "selfTerms": [
-          "tao (オレ)",
-          "tôi (khi nói chuyện nghiêm túc)"
-        ],
-        "appearances": 8,
+        "role": "Đại diện Mexico, khối A.",
+        "personality": "Tự tin, dùng chiêu trò.",
+        "speech": "Ngạo mạn.",
+        "selfTerms": [],
+        "appearances": 7,
         "relations": [
           {
-            "to": "kinnikuman",
-            "relation": "the outsider hero he resents, pranks, then respects",
-            "address": "tôi/hoàng tử (オレ/王子) — trầm ngâm, động viên anh phải trở thành anh hùng xứng tầm truyền thuyết"
+            "to": "terryman",
+            "relation": "đối thủ",
+            "address": "(chưa có thoại)"
           }
         ]
       },
       {
-        "id": "hawaii-announcer",
-        "name": "Xướng ngôn viên Hawaii",
-        "nameJa": "",
+        "id": "queen",
+        "name": "Hoàng hậu",
+        "nameJa": "王妃",
         "aliases": [],
-        "gender": "male",
-        "ageGroup": "adult",
-        "role": "The ringside announcer for the Hawaii matches, calling the Special Match and the double-title bout alongside the commentator Tazahama.",
-        "personality": "Professional and faintly weary — he has seen Kinnikuman's ridiculous ring entrances too many times to be impressed.",
-        "speech": "です/ます broadcast register with さん for his colleague, and a tired trailing ですねぇ when he editorialises. In Vietnamese: the polite, practised voice of a live commentator; keep the formality even when what he is describing is absurd.",
+        "gender": "female",
+        "ageGroup": "middle_age",
+        "role": "Hoàng hậu Sao Kim Nhục, mẹ của Kinnikuman.",
+        "personality": "Hiền hậu, lo lắng cho con trai.",
+        "speech": "Lễ phép, dịu dàng. Tiếng Việt: 'tôi/ông' lễ phép.",
         "selfTerms": [
-          "tôi (です/ます, giọng nhà đài)"
+          "tôi (わたし, mặc định)"
         ],
         "appearances": 7,
         "relations": [
           {
-            "to": "hero-olympics-commentator",
-            "relation": "the commentator beside him at the desk",
-            "address": "tôi/anh Tazahama (タザハマさん, です/ます) — than thở thân mật trong lúc chờ trận"
+            "to": "king-muscle",
+            "relation": "vợ",
+            "address": "tôi/ông (mặc định)"
+          }
+        ]
+      },
+      {
+        "id": "panda-man",
+        "name": "Panda Man",
+        "nameJa": "パンダマン",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Đô vật có hình dáng gấu trúc, xuất hiện tại trường quay.",
+        "personality": "Chưa rõ.",
+        "speech": "Chưa có thoại.",
+        "selfTerms": [],
+        "appearances": 6,
+        "relations": []
+      },
+      {
+        "id": "brockenman",
+        "name": "Brockenman",
+        "nameJa": "ブロッケンマン",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Đô vật tàn bạo, đối thủ của Ramenman.",
+        "personality": "Tàn nhẫn, hung hãn.",
+        "speech": "Cộc lốc, hung dữ.",
+        "selfTerms": [],
+        "appearances": 6,
+        "relations": []
+      },
+      {
+        "id": "palace-maiden",
+        "name": "Cung nữ",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Cung nữ tại Sao Kim Nhục.",
+        "personality": "Trung thành, tận tuỵ.",
+        "speech": "Lễ phép, giục giã.",
+        "selfTerms": [],
+        "appearances": 5,
+        "relations": []
+      },
+      {
+        "id": "medium-rare",
+        "name": "Medium Rare",
+        "nameJa": "ミディアム・レアー",
+        "aliases": [
+          "レアー"
+        ],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Chị gái của Meat, hôn phu của Salami.",
+        "personality": "Dịu dàng, lo lắng cho người thân.",
+        "speech": "Lễ phép, nhẹ nhàng.",
+        "selfTerms": [],
+        "appearances": 4,
+        "relations": [
+          {
+            "to": "meat",
+            "relation": "em trai",
+            "address": "chị/em (mặc định)"
+          }
+        ]
+      },
+      {
+        "id": "akaiwa",
+        "name": "Akaiwa",
+        "nameJa": "赤岩",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Đội trưởng đội cảnh sát.",
+        "personality": "Nghiêm túc, trách nhiệm.",
+        "speech": "Đanh thép, ra lệnh.",
+        "selfTerms": [],
+        "appearances": 3,
+        "relations": []
+      },
+      {
+        "id": "nakano-kazuo",
+        "name": "Nakano Kazuo",
+        "nameJa": "中野和雄",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Người đàn ông 40 tuổi, hay kể chuyện về Chúa tể biển cả.",
+        "personality": "Thích kể chuyện, hơi phóng đại.",
+        "speech": "Giọng ông già quê. Tiếng Việt: 'ta/tao' già dặn.",
+        "selfTerms": [
+          "ta (わし, mặc định)"
+        ],
+        "appearances": 3,
+        "relations": []
+      },
+      {
+        "id": "alisa",
+        "name": "Alisa",
+        "nameJa": "アリサ",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Vợ của Robin Mask.",
+        "personality": "Lo lắng, yêu chồng.",
+        "speech": "Dịu dàng.",
+        "selfTerms": [],
+        "appearances": 3,
+        "relations": [
+          {
+            "to": "robin-mask",
+            "relation": "chồng",
+            "address": "em/anh (mặc định)"
+          }
+        ]
+      },
+      {
+        "id": "chabo-kerori",
+        "name": "Chabo Kerori",
+        "nameJa": "チャボ・ケロリ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Đô vật.",
+        "personality": "Chưa rõ.",
+        "speech": "Chưa có thoại.",
+        "selfTerms": [],
+        "appearances": 3,
+        "relations": []
+      },
+      {
+        "id": "salami",
+        "name": "Salami",
+        "nameJa": "サラミ",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Hôn phu của Medium Rare.",
+        "personality": "Chưa rõ.",
+        "speech": "Chưa có thoại.",
+        "selfTerms": [],
+        "appearances": 2,
+        "relations": [
+          {
+            "to": "medium-rare",
+            "relation": "hôn phu",
+            "address": "anh/em (mặc định)"
           }
         ]
       }
     ]
   },
-  "rawPages": 469,
+  "rawPages": 563,
   "translatedPages": 0,
-  "pairedPages": 469,
+  "pairedPages": 563,
   "pairCount": 0,
   "isVerifiedByHuman": false,
   "source": "claude",
   "withRaw": true,
   "name": "kinnikuman-raw",
-  "createdAt": 1789921777
+  "createdAt": 1790153144
 }

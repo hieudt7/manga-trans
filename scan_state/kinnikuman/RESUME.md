@@ -1,6 +1,6 @@
 # Kinnikuman — trạng thái đọc /style-read (raw-only)
 
-Cập nhật: 2026-09-20. **Đọc xong 469/469 trang, tập 1–5 đều đã publish.**
+Cập nhật: 2026-09-20 (skill đã tối ưu token — xem mục 5). Đọc tới **436/469 trang**. Tập 1–4 đã publish, tập 5 đang dở ở **61/94**.
 
 | Tập | Trang | Trạng thái |
 |---|---|---|
@@ -8,35 +8,13 @@ Cập nhật: 2026-09-20. **Đọc xong 469/469 trang, tập 1–5 đều đã p
 | 第02巻 | 93/93 | published |
 | 第03巻 | 94/94 | published |
 | 第04巻 | 94/94 | published |
-| 第05巻 | 94/94 | published |
+| 第05巻 | 61/94 | đang đọc — trang kế: `v05-061` |
 
-Cast: 116 nhân vật, 23 settled. Profile: 30 nhân vật (trần), 14 quy tắc xưng hô, 60 glossary.
+Đo thật trên v05-061..064 (xem mục 5): input **577.040 → 66.206 token/trang**,
+số lần gọi API **5,8 → 1,25 mỗi trang**. Nhưng output (suy luận) tăng 8.144 → 14.292,
+nên quy ra tiền API chỉ giảm nhẹ — output giờ mới là khoản đắt nhất.
 
-Tập 5 đưa vào profile 10 nhân vật mới của mạch Hawaii + Mỹ — `kamehame`, `jesse-mayvia`,
-`duke-kamata`, `hawaii-announcer`, `doro-flairs`, `skull-bose`, `sheik-seijin`,
-`beauty-rhodes`, `iyadesu-harisun`, `rhodes-companion` — và đẩy 10 nhân vật một-tập ra khỏi
-trần 30 (`nachiguron`, `nana`, `defense-chief`, `yosaku`, `buzzugara`, `karekkuku`, `queen`,
-`king-tone`, `western-girl`, `kazu-nakano`). Họ vẫn còn đủ trong `cast.json`, chỉ là không
-nằm trong profile gửi kèm mỗi lần dịch.
-
-## Chi phí đo được (8 lượt đọc tập 5, mỗi lượt 4 trang)
-
-| | trước (tập 1, 17 lượt × 6 trang) | nay |
-|---|---|---|
-| input/trang | 577.040 | **~55.000** |
-| lần gọi API/trang | 5,8 | **1,3** |
-| output/trang | 8.144 | ~8.300 |
-
-Cả 33 trang còn lại của tập 5 tốn khoảng 1,5M input — trước đây một tập tốn ~59M.
-
-## Đọc tập tiếp theo (tập 6 trở đi)
-
-```
-<venv>/bin/python .claude/skills/style-read/prepare.py "<đường dẫn Kinnikuman>" --from 1 --to 6 --raw-only
-```
-
-Giữ `--from 1` để cast và profile nối tiếp, không bắt đầu lại. `prepare.py` sẽ báo
-"469 already have notes" rồi chỉ đọc phần mới.
+Cast: 115 nhân vật, 22 settled. Profile: 30 nhân vật (mức trần), 14 quy tắc xưng hô, 60 mục glossary.
 
 ## Chạy tiếp trên máy khác
 
@@ -79,10 +57,10 @@ Giữ `--from 1` để cast và profile nối tiếp, không bắt đầu lại.
    <venv>/bin/python .claude/skills/style-read/prepare.py "/đường/dẫn/tới/Kinnikuman" --from 1 --to 5 --raw-only
    ```
 
-   Phải báo **"469 already have notes"**. Nếu báo 0 → state chưa nằm đúng chỗ, **dừng lại**,
+   Phải báo **"436 already have notes"**. Nếu báo 0 → state chưa nằm đúng chỗ, **dừng lại**,
    đừng đọc lại từ đầu.
 
-5. **Cách chạy một lượt đọc** (skill đã đổi từ 2026-09-20):
+5. **Đọc tiếp từ `v05-061`.** Skill đã đổi từ 2026-09-20, chạy theo cách mới:
 
    - mỗi lượt **4 trang** (trước là 6), tuần tự từng lượt — không song song.
      Chi phí một lượt = số lần gọi tool × context mỗi lần, mà ảnh và note của
@@ -109,17 +87,12 @@ Giữ `--from 1` để cast và profile nối tiếp, không bắt đầu lại.
    render lại reading copy ở 1568px. Chỉ tốn CPU, không tốn token, và không đụng
    vào note đã có.
 
-   Hết một tập thì viết `profile.json` từ `digest.py --volume N` và `digest.py --cast`
-   (đừng đọc từng note hay đọc thẳng `cast.json` — cast đã hơn 7.500 dòng, vượt xa
+   Hết tập 5 thì viết `profile.json` từ `digest.py --volume 5` và `digest.py --cast`
+   (đừng đọc từng note hay đọc thẳng `cast.json` — cast đã 7.500 dòng, vượt xa
    một lần đọc), rồi chạy `finish.py`.
 
-   `finish.py` bắt buộc mọi nhân vật phải có `name` và mọi `relations.to` phải trỏ tới
-   một nhân vật **còn trong profile** — khi đẩy ai đó ra khỏi trần 30 thì phải gỡ luôn
-   các quan hệ trỏ tới họ.
-
    **Không bao giờ xoá `style_scan/claude_raw/` để "chạy lại cho sạch"** — mất hết
-   469 trang đã đọc. `cast_applied.json` cũng đừng xoá: nó ghi những trang đã gộp
-   khối `### Cast` vào cast, xoá đi là gộp lại lần hai.
+   436 trang đã đọc. `updates/applied/` cũng đừng xoá: đó là nhật ký từng lượt.
 
 ## Lưu ý khi giao việc cho reader
 
@@ -163,7 +136,7 @@ trường đã có.
 - Vài câu chưa gán được người nói ở tập 5: *"みそこなったよキン肉マン…"*, *"うせろ/負け犬"*, "カスタ" là ai,
   người tóc xoăn áo sọc ở Jesse Palace, người hộ tống đeo kính râm ở LA, đô vật da đá bắt tay
   Kinnikuman ở v05-040.
-- **"Mít"** cho ミート vẫn chỉ là đề xuất, chưa từng xuất hiện trong truyện.
+- Tên "Meat" cho ミート đã sửa lại đúng theo phiên âm katakana (2026-09-22, trước đó bị viết nhầm thành "Mít" — một tên tự chế không liên quan đến ミート).
 
 ## Đã giải quyết trong đợt này
 

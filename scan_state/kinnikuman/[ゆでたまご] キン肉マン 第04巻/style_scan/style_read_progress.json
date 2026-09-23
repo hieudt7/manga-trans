@@ -13,12 +13,13 @@
       "[ゆでたまご] キン肉マン 第02巻",
       "[ゆでたまご] キン肉マン 第03巻",
       "[ゆでたまご] キン肉マン 第04巻",
-      "[ゆでたまご] キン肉マン 第05巻"
+      "[ゆでたまご] キン肉マン 第05巻",
+      "[ゆでたまご] キン肉マン 第06巻"
     ],
-    "pagesRead": 469,
-    "pagesTotal": 469,
+    "pagesRead": 563,
+    "pagesTotal": 563,
     "workDir": "/Users/hans/Documents/AI Manga/Kiniku man/Kinnikuman/style_scan/claude_raw"
   },
-  "resume": "/style-read '/Users/hans/Documents/AI Manga/Kiniku man/Kinnikuman' --from 1 --to 5 --raw-only",
-  "updatedAt": 1789921785
+  "resume": "/style-read '/Users/hans/Documents/AI Manga/Kiniku man/Kinnikuman' --from 1 --to 6 --raw-only",
+  "updatedAt": 1790153151
 }
