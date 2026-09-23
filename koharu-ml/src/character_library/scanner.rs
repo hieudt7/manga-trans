@@ -24,15 +24,20 @@ use super::{
 
 // ─── Tuning constants ──────────────────────────────────────────────────────────
 
-/// Rule: a discovered character must speak in MORE than this many dialogue
+/// Rule: a discovered character must speak in AT LEAST this many dialogue
 /// blocks (across the whole folder) to survive `finalize_scan`'s filter.
-const MIN_OCCURRENCES_WITH_DIALOGUE: u32 = 10;
+const MIN_OCCURRENCES_WITH_DIALOGUE: u32 = 5;
 /// Minimum shared-panel count for two kept characters to get a relationship edge.
 const MIN_CO_OCCURRENCE_FOR_EDGE: u32 = 3;
-/// Maximum face crops retained per character; further matches only update the
-/// identity centroid, they don't add another file (see `MAX_FACES_PER_CHARACTER`
-/// and `FACE_DEDUP_SIMILARITY`).
-const MAX_FACES_PER_CHARACTER: usize = 40;
+/// Maximum face crops retained per character, and exposed as `ScannedCharacter.faces`
+/// (the avatar candidates the Face Manager shows) — further matches past this
+/// still count toward `occurrences_with_dialogue` and update the identity
+/// centroid, they just stop adding another file (see `FACE_DEDUP_SIMILARITY`).
+/// Kept equal to `MIN_OCCURRENCES_WITH_DIALOGUE` on purpose: a character who
+/// has just cleared the bar to be kept at all should end up with a full set of
+/// avatar candidates, one from very nearly every dialogue occurrence that
+/// earned them, not a handful skimmed off a much larger pool.
+const MAX_FACES_PER_CHARACTER: usize = MIN_OCCURRENCES_WITH_DIALOGUE as usize;
 /// A new face crop is skipped as a near-duplicate when its cosine similarity to
 /// an already-stored crop's embedding is at or above this value.
 const FACE_DEDUP_SIMILARITY: f32 = 0.97;
@@ -43,8 +48,9 @@ const MAX_SNIPPETS_FOR_LLM: usize = 8;
 
 // ─── Checkpoint / discovery-state types ────────────────────────────────────────
 
-/// A character discovered mid-scan, before the `occurrences_with_dialogue > 10`
-/// filter and relationship-labeling pass in `finalize_scan`.
+/// A character discovered mid-scan, before the
+/// `occurrences_with_dialogue >= MIN_OCCURRENCES_WITH_DIALOGUE` filter and
+/// relationship-labeling pass in `finalize_scan`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProvisionalCharacter {
@@ -432,14 +438,15 @@ fn save_face_crop(
 
 // ─── Finalize: rule-based filter + co-occurrence tree ──────────────────────────
 
-/// Apply the `occurrences_with_dialogue > 10` rule and build the co-occurrence
-/// relationship tree — plain code logic only, no LLM call. Edges start with
-/// `label`/`description` unset; the curator opts into LLM labeling afterward via
-/// `generate_relationship_labels` (the "Generate by LLM" button).
+/// Apply the `occurrences_with_dialogue >= MIN_OCCURRENCES_WITH_DIALOGUE` rule
+/// and build the co-occurrence relationship tree — plain code logic only, no
+/// LLM call. Edges start with `label`/`description` unset; the curator opts
+/// into LLM labeling afterward via `generate_relationship_labels` (the
+/// "Generate by LLM" button).
 pub fn finalize_scan(characters: Vec<ProvisionalCharacter>) -> ScanResult {
     let kept: Vec<ProvisionalCharacter> = characters
         .into_iter()
-        .filter(|c| c.occurrences_with_dialogue > MIN_OCCURRENCES_WITH_DIALOGUE)
+        .filter(|c| c.occurrences_with_dialogue >= MIN_OCCURRENCES_WITH_DIALOGUE)
         .collect();
 
     let names: HashMap<String, String> = kept

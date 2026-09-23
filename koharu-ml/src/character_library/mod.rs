@@ -901,6 +901,124 @@ fn load_session_opt(path: PathBuf) -> Option<Session> {
     }
 }
 
+// ─── Standalone page scan (face-detect CLI, /style-read's CV hint) ────────────
+//
+// The rest of this module builds and matches a curated character library —
+// everything here assumes a `CharacterLibrary` already loaded with CCIP,
+// panels, WD Tagger, the works. A `/style-read` reading batch needs none of
+// that: just "where are the faces on this one page, and which balloon is
+// each nearest to" — a hint an LLM reads instead of estimating a box blind.
+// This is that, on its own, needing only the face detector and the bubble
+// detector, so it stays fast even when a page is opened one at a time from a
+// Python script rather than in the batch panel/CCIP/WD-Tagger pass above.
+
+/// One detected face or balloon box, as a fraction of the whole page image —
+/// the same `[x, y, width, height]` convention `/style-read`'s own notes use,
+/// so this output can be copied straight into a `faces` entry without any
+/// unit conversion.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DetectedBox {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+    pub confidence: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DetectedBalloon {
+    #[serde(flatten)]
+    pub bbox: DetectedBox,
+    /// Index into `faces`, or `None` when nothing was detected nearby.
+    pub nearest_face: Option<usize>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PageFaceScan {
+    pub faces: Vec<DetectedBox>,
+    pub balloons: Vec<DetectedBalloon>,
+}
+
+/// Run face detection + balloon detection on one page and pair each balloon
+/// with its nearest face by simple centre distance — no OCR, no CCIP, no
+/// panel model: this does not need to know what the balloon says or which
+/// character a face belongs to, only geometry. Boxes come back as fractions
+/// of the image, matching `/style-read`'s own convention, so a caller can use
+/// them directly instead of estimating one by eye.
+///
+/// Errors when either model is missing from the cache — the caller should
+/// treat that as "no hint available", not fail the read outright, since this
+/// is meant to make the existing eye-estimate path better, not replace it
+/// when the models are not installed.
+pub async fn scan_page_faces(image_path: &std::path::Path) -> Result<PageFaceScan> {
+    let face_session = load_session_opt(face_det_model_path()).ok_or_else(|| {
+        anyhow::anyhow!(
+            "face detector not found at {} — run tools/export_ccip.py --face-only",
+            face_det_model_path().display()
+        )
+    })?;
+    let face_det = Mutex::new(face_session);
+    let bubble_det = crate::comic_bubble_detector::ComicBubbleDetector::load().await?;
+
+    let bytes = std::fs::read(image_path)?;
+    let format = image::guess_format(&bytes)?;
+    let image = image::load_from_memory_with_format(&bytes, format)?;
+    let (w, h) = (image.width() as f32, image.height() as f32);
+
+    let faces = detect_faces(&face_det, &image)?;
+    let balloons = bubble_det.detect(&image)?;
+
+    let face_centres: Vec<(f32, f32)> = faces
+        .iter()
+        .map(|f| (f.x + f.width / 2.0, f.y + f.height / 2.0))
+        .collect();
+
+    let detected_balloons = balloons
+        .iter()
+        .map(|b| {
+            let (bcx, bcy) = (b.x + b.width / 2.0, b.y + b.height / 2.0);
+            let nearest_face = face_centres
+                .iter()
+                .enumerate()
+                .min_by(|(_, a), (_, c)| {
+                    let da = (a.0 - bcx).powi(2) + (a.1 - bcy).powi(2);
+                    let dc = (c.0 - bcx).powi(2) + (c.1 - bcy).powi(2);
+                    da.total_cmp(&dc)
+                })
+                .map(|(i, _)| i);
+            DetectedBalloon {
+                bbox: DetectedBox {
+                    x: b.x / w,
+                    y: b.y / h,
+                    width: b.width / w,
+                    height: b.height / h,
+                    confidence: b.score,
+                },
+                nearest_face,
+            }
+        })
+        .collect();
+
+    let detected_faces = faces
+        .iter()
+        .map(|f| DetectedBox {
+            x: f.x / w,
+            y: f.y / h,
+            width: f.width / w,
+            height: f.height / h,
+            confidence: f.score,
+        })
+        .collect();
+
+    Ok(PageFaceScan {
+        faces: detected_faces,
+        balloons: detected_balloons,
+    })
+}
+
 // ─── CCIP embedding ───────────────────────────────────────────────────────────
 
 /// Embed a batch of face crops in a single ONNX inference call.

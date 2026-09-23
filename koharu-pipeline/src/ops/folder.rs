@@ -396,8 +396,66 @@ async fn process_single_file(
             PipelineStep::DetectBalloon => res.ml.detect_balloons(doc).await?,
             PipelineStep::LlmGenerate => {
                 if res.llm.ready().await && !doc.text_blocks.is_empty() {
-                    crate::ops::translate_page(&res.llm, doc, req.language.as_deref(), None)
-                        .await?;
+                    // Mirrors `pipeline.rs`'s single-document LlmGenerate step —
+                    // folder mode used to skip character/speaker context
+                    // entirely and always translate with `None`.
+                    tracing::info!(
+                        doc_idx,
+                        process_with_character = req.process_with_character,
+                        text_block_count = doc.text_blocks.len(),
+                        "folder pipeline: LlmGenerate step"
+                    );
+                    let ctx = if req.process_with_character {
+                        // API providers already carry the full cast in their
+                        // cached story context (see llm_load); local models
+                        // need the details.
+                        let concise = res.llm.is_api().await;
+                        let page_ctx = res
+                            .ml
+                            .scan_for_character_context_with(&doc.image, concise);
+                        tracing::info!(
+                            has_page_ctx = page_ctx.is_some(),
+                            page_ctx = ?page_ctx,
+                            "folder pipeline: scan_for_character_context result"
+                        );
+                        // Who speaks to whom: a vision call that actually reads
+                        // the page, tried first. Falls back to the CV/CCIP
+                        // geometry guess only when the vision call has nothing
+                        // to say — see `ops::speaker_attribution`'s module docs
+                        // for why (blind on a masked/helmeted character).
+                        let speaker_ctx =
+                            super::attribute_speakers(&doc.image, &doc.text_blocks).await;
+                        let pronoun_ctx = if speaker_ctx.is_some() {
+                            None
+                        } else {
+                            res.ml.scan_pronoun_context(
+                                doc,
+                                req.llm_custom_system_prompt.as_deref(),
+                            )
+                        };
+                        tracing::info!(
+                            has_speaker_ctx = speaker_ctx.is_some(),
+                            has_pronoun_ctx = pronoun_ctx.is_some(),
+                            "folder pipeline: speaker attribution result"
+                        );
+                        let dialogue_ctx = speaker_ctx.or(pronoun_ctx);
+                        match (page_ctx.as_deref(), dialogue_ctx.as_deref()) {
+                            (Some(p), Some(c)) => Some(format!("{p}\n\n{c}")),
+                            (Some(p), None) => Some(p.to_string()),
+                            (None, Some(c)) => Some(c.to_string()),
+                            (None, None) => None,
+                        }
+                    } else {
+                        None
+                    };
+                    tracing::info!(has_ctx = ctx.is_some(), "folder pipeline: sending to LLM with context");
+                    crate::ops::translate_page(
+                        &res.llm,
+                        doc,
+                        req.language.as_deref(),
+                        ctx.as_deref(),
+                    )
+                    .await?;
                 }
             }
             PipelineStep::Inpaint => {

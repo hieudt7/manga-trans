@@ -217,10 +217,20 @@ pub async fn llm_generate(state: AppResources, payload: LlmGeneratePayload) -> a
     let target_language = payload.language.as_deref();
 
     // Scan the page for known characters and inject context into the translation prompt.
-    let page_context = state.ml.scan_for_character_context(&updated.image);
+    let cast_context = state.ml.scan_for_character_context(&updated.image);
+    // Who speaks to whom, and how — a vision call reading the actual page (see
+    // `ops::speaker_attribution`); best-effort, `None` on any failure.
+    let speaker_context = super::attribute_speakers(&updated.image, &updated.text_blocks).await;
+    let page_context = match (cast_context.as_deref(), speaker_context.as_deref()) {
+        (Some(a), Some(b)) => Some(format!("{a}\n\n{b}")),
+        (Some(a), None) => Some(a.to_string()),
+        (None, Some(b)) => Some(b.to_string()),
+        (None, None) => None,
+    };
     if let Some(ctx) = &page_context {
         tracing::debug!(
             context_len = ctx.len(),
+            has_speaker_context = speaker_context.is_some(),
             "character context injected into translate"
         );
     }

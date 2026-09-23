@@ -221,16 +221,35 @@ async fn run_pipeline_inner(
                                 page_ctx = ?page_ctx,
                                 "scan_for_character_context result"
                             );
-                            let pronoun_ctx = res.ml.scan_pronoun_context(
-                                &snapshot,
-                                req.llm_custom_system_prompt.as_deref(),
-                            );
+                            // Who speaks to whom: a vision call that actually reads
+                            // the page, tried first. The CV/CCIP geometry fallback
+                            // below needs a bare face to embed and so is blind on a
+                            // masked or helmeted character — see
+                            // `ops::speaker_attribution`'s module docs for a
+                            // measured comparison. Only falls back to geometry when
+                            // the vision call has nothing to say (no active
+                            // character profile, no Gemini key anywhere, or a
+                            // failed/unparsable reply).
+                            let speaker_ctx = crate::ops::attribute_speakers(
+                                &snapshot.image,
+                                &snapshot.text_blocks,
+                            )
+                            .await;
+                            let pronoun_ctx = if speaker_ctx.is_some() {
+                                None
+                            } else {
+                                res.ml.scan_pronoun_context(
+                                    &snapshot,
+                                    req.llm_custom_system_prompt.as_deref(),
+                                )
+                            };
                             tracing::info!(
+                                has_speaker_ctx = speaker_ctx.is_some(),
                                 has_pronoun_ctx = pronoun_ctx.is_some(),
-                                pronoun_ctx = ?pronoun_ctx,
-                                "scan_pronoun_context result"
+                                "speaker attribution result"
                             );
-                            match (page_ctx.as_deref(), pronoun_ctx.as_deref()) {
+                            let dialogue_ctx = speaker_ctx.or(pronoun_ctx);
+                            match (page_ctx.as_deref(), dialogue_ctx.as_deref()) {
                                 (Some(p), Some(c)) => Some(format!("{p}\n\n{c}")),
                                 (Some(p), None) => Some(p.to_string()),
                                 (None, Some(c)) => Some(c.to_string()),
