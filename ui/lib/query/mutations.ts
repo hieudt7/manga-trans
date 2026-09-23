@@ -854,7 +854,7 @@ export const useDocumentMutations = () => {
     }
   }, [])
 
-  const startFolderPipeline = useCallback(async () => {
+  const startFolderPipeline = useCallback(async (processWithCharacter?: boolean) => {
     const { selectedModel, selectedLanguage } = useLlmUiStore.getState()
     const { renderEffect, renderStroke, totalPages } =
       useEditorUiStore.getState()
@@ -895,6 +895,7 @@ export const useDocumentMutations = () => {
         shaderEffect: renderEffect,
         shaderStroke: renderStroke,
         fontFamily,
+        processWithCharacter,
       })
     } catch (error) {
       console.error('Failed to start folder pipeline:', error)

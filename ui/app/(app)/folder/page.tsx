@@ -12,10 +12,16 @@ import { api, FolderFileInfo, FolderSessionInfo } from '@/lib/api'
 import { useDocumentMutations } from '@/lib/query/mutations'
 import { useOperationStore } from '@/lib/stores/operationStore'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 
 export default function FolderPage() {
   const [session, setSession] = useState<FolderSessionInfo | null>(null)
   const [loading, setLoading] = useState(false)
+  // Off by default meant folder-mode translations never got the character
+  // roster / speaker-attribution context the single-document pipeline
+  // already had — on by default here so a folder run gets it without the
+  // user having to know this switch exists.
+  const [useCharacterContext, setUseCharacterContext] = useState(true)
 
   const { openFolderSession, startFolderPipeline } = useDocumentMutations()
   const operation = useOperationStore((s) => s.operation)
@@ -37,8 +43,8 @@ export default function FolderPage() {
   }, [openFolderSession])
 
   const handleProcessAll = useCallback(async () => {
-    await startFolderPipeline()
-  }, [startFolderPipeline])
+    await startFolderPipeline(useCharacterContext)
+  }, [startFolderPipeline, useCharacterContext])
 
   // Refresh session after pipeline completes to show updated hasResult flags.
   useEffect(() => {
@@ -75,6 +81,17 @@ export default function FolderPage() {
               {session.files.length} images
             </span>
             <div className='flex-1' />
+            <label className='flex items-center gap-2 text-xs'>
+              <Switch
+                size='sm'
+                checked={useCharacterContext}
+                onCheckedChange={setUseCharacterContext}
+                disabled={isRunning}
+              />
+              <span className='text-muted-foreground'>
+                Use character context
+              </span>
+            </label>
             <Button
               size='sm'
               onClick={handleProcessAll}

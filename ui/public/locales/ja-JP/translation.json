@@ -340,6 +340,7 @@
     },
     "hubView": {
       "noRelations": "明確な関係はまだ検出されていません",
+      "traitsLabel": "性格",
       "coOccurrence_one": "{{count}} 回一緒に登場",
       "coOccurrence_other": "{{count}} 回一緒に登場"
     },
@@ -368,7 +369,9 @@
       "exporting": "エクスポート中..."
     },
     "syncToLibrary": {
-      "button": "キャラクターライブラリに同期"
+      "button": "キャラクターライブラリに同期",
+      "all": "すべてライブラリに同期",
+      "syncingAll": "すべて同期中…"
     }
   },
   "styleScanner": {

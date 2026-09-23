@@ -340,6 +340,7 @@
     },
     "hubView": {
       "noRelations": "尚未偵測到明顯的人物關係",
+      "traitsLabel": "性格",
       "coOccurrence_one": "共同出現 {{count}} 次",
       "coOccurrence_other": "共同出現 {{count}} 次"
     },
@@ -368,7 +369,9 @@
       "exporting": "匯出中..."
     },
     "syncToLibrary": {
-      "button": "同步至角色庫"
+      "button": "同步至角色庫",
+      "all": "全部同步到庫",
+      "syncingAll": "正在全部同步…"
     }
   },
   "styleScanner": {

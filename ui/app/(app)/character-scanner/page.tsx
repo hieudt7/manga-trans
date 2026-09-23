@@ -37,6 +37,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { subscribeJobChanged } from '@/lib/backend'
 import { useDocumentMutations } from '@/lib/query/mutations'
@@ -310,9 +311,7 @@ function RelatedRow({
           </span>
         </p>
         {description && (
-          <p className='text-muted-foreground truncate text-xs'>
-            {description}
-          </p>
+          <p className='text-muted-foreground text-xs'>{description}</p>
         )}
       </div>
     </button>
@@ -385,6 +384,18 @@ function CharacterNode({
         </button>
       </div>
       <AccordionContent>
+        {character.traits.length > 0 && (
+          <div className='space-y-1 px-2 pb-2'>
+            <p className='text-muted-foreground text-[11px] font-medium tracking-wide uppercase'>
+              {t('characterScanner.hubView.traitsLabel')}
+            </p>
+            {character.traits.map((trait, index) => (
+              <p key={index} className='text-foreground text-xs leading-relaxed'>
+                {trait}
+              </p>
+            ))}
+          </div>
+        )}
         {relatedEntries.length === 0 ? (
           <p className='text-muted-foreground px-2 text-xs'>
             {t('characterScanner.hubView.noRelations')}
@@ -426,6 +437,7 @@ export default function CharacterScannerPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [syncingId, setSyncingId] = useState<string | null>(null)
   const [syncedIds, setSyncedIds] = useState<Set<string>>(new Set())
+  const [syncingAll, setSyncingAll] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [generatingRelationships, setGeneratingRelationships] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -551,6 +563,22 @@ export default function CharacterScannerPage() {
     }
   }
 
+  const handleSyncAll = async () => {
+    if (!result) return
+    setSyncingAll(true)
+    setError(null)
+    try {
+      const { syncedIds: synced } = await api.syncCharacterScanToLibrary(
+        result.characters.map((c) => c.id),
+      )
+      setSyncedIds((prev) => new Set([...prev, ...synced]))
+    } catch (err) {
+      setError(String(err))
+    } finally {
+      setSyncingAll(false)
+    }
+  }
+
   const handleGenerateRelationships = async () => {
     setGeneratingRelationships(true)
     setError(null)
@@ -595,9 +623,25 @@ export default function CharacterScannerPage() {
 
         {session && (
           <>
-            <span className='text-muted-foreground max-w-xs truncate text-xs'>
-              {session.root}
-            </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className='text-muted-foreground max-w-xs truncate text-xs'>
+                  {session.root}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side='bottom'>{session.root}</TooltipContent>
+            </Tooltip>
+            <Button
+              size='icon'
+              variant='ghost'
+              className='size-7 shrink-0'
+              onClick={() => void handleOpenFolder()}
+              disabled={loadingFolder}
+              title={t('characterScanner.pickFolder')}
+              aria-label={t('characterScanner.pickFolder')}
+            >
+              <FolderOpenIcon className='size-4' />
+            </Button>
             <div className='flex-1' />
             {isRunning ? (
               <Button size='sm' variant='outline' onClick={handleCancelScan}>
@@ -628,6 +672,19 @@ export default function CharacterScannerPage() {
                 {generatingRelationships
                   ? t('characterScanner.generateRelationships.generating')
                   : t('characterScanner.generateRelationships.button')}
+              </Button>
+            )}
+            {result && result.characters.length > 0 && (
+              <Button
+                size='sm'
+                variant='outline'
+                onClick={() => void handleSyncAll()}
+                disabled={syncingAll || syncingId !== null || isRunning}
+              >
+                <Share2Icon className='mr-1.5 size-4' />
+                {syncingAll
+                  ? t('characterScanner.syncToLibrary.syncingAll')
+                  : t('characterScanner.syncToLibrary.all')}
               </Button>
             )}
             {result && (

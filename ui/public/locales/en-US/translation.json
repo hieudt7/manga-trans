@@ -343,6 +343,7 @@
     },
     "hubView": {
       "noRelations": "No strong relationships detected yet",
+      "traitsLabel": "Personality",
       "coOccurrence_one": "Appeared together {{count}} time",
       "coOccurrence_other": "Appeared together {{count}} times"
     },
@@ -371,7 +372,9 @@
       "exporting": "Exporting..."
     },
     "syncToLibrary": {
-      "button": "Sync to Character Library"
+      "button": "Sync to Character Library",
+      "all": "Sync All to Library",
+      "syncingAll": "Syncing All…"
     }
   },
   "styleScanner": {
