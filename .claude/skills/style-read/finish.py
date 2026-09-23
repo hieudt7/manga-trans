@@ -43,13 +43,25 @@ LIMITS = {
     "address": 14,
     "soundEffects": 8,
     "glossary": 60,
-    "characters": 30,
+    # No cap on the recurring cast — the >10-pages / 2+-volumes rule in
+    # SKILL.md is the whole gate; a long series earns as large a dictionary
+    # as its own cast actually is. "characters" is a real top-level key
+    # (see ALLOWED_KEYS) but deliberately absent here, since it has no limit
+    # for `strings`/the unknown-keys check to enforce.
 }
+# The top-level keys a profile may have — LIMITS alone used to double as this
+# list, which silently made "characters" an "unexpected key" the moment its
+# own cap was removed from LIMITS.
+ALLOWED_KEYS = set(LIMITS) | {"characters"}
 GENDERS = {"", "male", "female"}
 AGE_GROUPS = {"", "child", "teen", "young_adult", "adult", "middle_age", "elder"}
 # Without a translation there is no translator whose habits these describe.
 TRANSLATION_ONLY = ("approach", "voice", "soundEffects")
-FACES_PER_CHARACTER = 3
+FACES_PER_CHARACTER = 4
+# How many candidate pages a face-hunt closing pass gets per character short a
+# face (see face_gaps). Was 4; raised after a real hunt pass came back "none
+# found" for a third of its characters at that count.
+FACE_HUNT_CANDIDATES = 8
 FACE_PADDING = 0.12
 MIN_FACE_SIDE = 40
 
@@ -105,8 +117,6 @@ def check_characters(raw_characters, cast):
     if not isinstance(raw_characters, list):
         problem("'characters' must be a list")
         return []
-    if len(raw_characters) > LIMITS["characters"]:
-        problem(f"'characters' has {len(raw_characters)} entries; keep the recurring cast to {LIMITS['characters']}")
 
     cast_by_id = {c.get("id"): c for c in cast}
     characters, seen = [], set()
@@ -177,9 +187,9 @@ def check_characters(raw_characters, cast):
 def check_profile(profile, cast, with_raw, with_translation):
     if not isinstance(profile, dict):
         sys.exit("profile.json: expected a JSON object")
-    unknown = set(profile) - set(LIMITS)
+    unknown = set(profile) - ALLOWED_KEYS
     if unknown:
-        problem(f"unexpected keys {sorted(unknown)}; allowed: {sorted(LIMITS)}")
+        problem(f"unexpected keys {sorted(unknown)}; allowed: {sorted(ALLOWED_KEYS)}")
 
     glossary = profile.get("glossary", [])
     if not isinstance(glossary, list) or not all(
@@ -213,17 +223,37 @@ def crop_faces(faces_dir, manifest, cast, characters):
     Boxes are fractions of the image the face was seen on, so they apply to the
     full-size original as well as to the reading copy. A box noted on one half
     of the spread carries `half`, and is mapped back onto the whole page here.
+
+    Run through `usable_face` again here, not just at fold-in time: cast.json
+    can hold boxes recorded before that check existed, or by a script that
+    bypassed progress.py entirely. A bad one already on record is worth
+    catching before it is cropped for the app a second time, not just before a
+    future one is added.
     """
     pages = {p["id"]: p for p in manifest["pages"]}
     cast_by_id = {c.get("id"): c for c in cast}
     crops = {}
+    origins = {}  # (character id, saved index) -> the exact cast.json face entry it came from
     for character in characters:
         entries = cast_by_id.get(character["id"], {}).get("faces", []) or []
+        # Files are named by save order (0.png, 1.png, …), not by which cast.json
+        # entry produced them — so if usable_face now rejects one that used to
+        # pass, or a character ends up with fewer good faces than last run, a
+        # stale file from the larger previous run is left sitting under a
+        # number nothing points to any more, and looks like a real face until
+        # someone happens to open it. Clear the folder before writing it again.
+        directory = os.path.join(faces_dir, character["id"])
+        if os.path.isdir(directory):
+            for name in os.listdir(directory):
+                if name.endswith(".png"):
+                    os.remove(os.path.join(directory, name))
         saved = []
         for face in entries[:FACES_PER_CHARACTER]:
             page = pages.get(face.get("page"))
             box = face.get("box")
             if not page or not isinstance(box, list) or len(box) != 4:
+                continue
+            if not progress.usable_face(page, face):
                 continue
             wants_raw = face.get("side") == "raw" or not page.get("transSource")
             source = page["rawSource"] if wants_raw and page.get("rawSource") else page["transSource"]
@@ -246,13 +276,13 @@ def crop_faces(faces_dir, manifest, cast, characters):
             bottom = min(image.height, int((y + h + pad_h) * image.height))
             if right - left < MIN_FACE_SIDE or bottom - top < MIN_FACE_SIDE:
                 continue
-            directory = os.path.join(faces_dir, character["id"])
             os.makedirs(directory, exist_ok=True)
             name = f"{len(saved)}.png"
+            origins[(character["id"], len(saved))] = face
             image.crop((left, top, right, bottom)).save(os.path.join(directory, name))
             saved.append(f"faces/{character['id']}/{name}")
         crops[character["id"]] = saved
-    return crops
+    return crops, origins
 
 
 def character_tree(cast, characters, crops):
@@ -368,15 +398,100 @@ def main():
     print(f"read {len(pages)} pages; {counts}")
     print(f"library:          {os.path.join(library, name + '.json')}")
     for volume in volumes:
-        publish(volume["path"], result, manifest, cast, checked["characters"], with_translation)
+        publish(volume["path"], work, result, manifest, cast, checked["characters"], with_translation)
     progress.mark_published(work, covered)
     progress.record(manifest)
     waiting = [v["name"] for v in manifest.get("volumes") or [] if v["path"] not in covered]
     if waiting:
         print("still being read: " + ", ".join(waiting))
 
+    gaps = face_gaps(manifest, cast, checked["characters"])
+    if gaps:
+        gaps_path = os.path.join(work, "face_gaps.json")
+        write_json(gaps_path, gaps)
+        print(
+            f"\n{len(gaps)} published character(s) still short a usable face — "
+            f"candidates written to {gaps_path}."
+        )
+        print(
+            "Dispatch one subagent (manga-page-reader type) covering all of them: "
+            "give it each character's id/name/looks and its candidate pages, ask it "
+            "to pick the clearest confirmed face from those pages only (say so if "
+            "none qualify — never force one), and write the result as an update "
+            f"file in {os.path.join(work, 'updates')}/, one 'faces' entry per "
+            "character, same shape as a reading batch's Cast block. Then run "
+            "progress.py (it checks each box the same way any other one is "
+            "checked) and finish.py again."
+        )
 
-def publish(folder, result, manifest, cast, characters, with_translation):
+
+def face_gaps(manifest, cast, characters):
+    """Which of the published characters are still short a usable
+    face, and where to look for one — from `pages`, which every note's
+    "Nhân vật:" line already builds up for free. This is the other half of the
+    face fix: `usable_face` (progress.py) stops a bad box from ever being kept,
+    but a rejected box just leaves the slot empty — nothing goes looking for a
+    replacement on its own during the main read, because readers are told
+    only to add one when a clear shot is already in front of them, never to
+    hunt for one. For a character seen on hundreds of pages that is enough; for
+    one seen on a handful it may not be. This closes the gap deliberately,
+    once, for exactly the characters the app will show — not by asking every
+    batch to look harder, but by using pages already known to hold that
+    character and pointing a single, separate face-hunt at just those.
+
+    This script cannot see, so it does not fix anything itself — it prints
+    where to look. The session running /style-read reads this and dispatches
+    one subagent, the same face-judging manga-page-reader already knows,
+    scoped to only the pages listed here. What comes back still passes through
+    usable_face before it is kept, same as any other batch's find.
+    """
+    cast_by_id = {c.get("id"): c for c in cast}
+    pages_by_id = {p["id"]: p for p in manifest["pages"]}
+    gaps = []
+    for character in characters:
+        c = cast_by_id.get(character["id"], {})
+        have = len(c.get("faces") or [])
+        if have >= FACES_PER_CHARACTER:
+            continue
+        # The first appearance is skipped on purpose — it is when a reader is
+        # least sure who this even is, per manga-page-reader's own brief — and
+        # what remains is spread across the rest rather than clustered at the
+        # start, so a hunt is not stuck re-trying the same early pages a
+        # rejected box likely already came from. Measured on a real hunt pass:
+        # given only 4 candidates, a third of characters came back "none
+        # found" even when the character truly has a clear shot somewhere in
+        # `pages` — 4 was just too few rolls of the dice for a character with
+        # a hundred-plus appearances. More candidates costs nothing extra
+        # here (the pages were already known for free); it costs the hunting
+        # subagent a bit more to look through, which is cheap next to leaving
+        # a character with no face at all.
+        seen = c.get("pages") or []
+        rest = seen[1:] or seen
+        step = max(1, len(rest) // FACE_HUNT_CANDIDATES)
+        picked = [pid for pid in rest[::step][:FACE_HUNT_CANDIDATES] if pid in pages_by_id]
+        if not picked:
+            continue
+        gaps.append(
+            {
+                "id": character["id"],
+                "name": character.get("name"),
+                "nameJa": character.get("nameJa"),
+                "looks": c.get("looks", ""),
+                "have": have,
+                "candidates": [
+                    {
+                        "page": pid,
+                        "raw": pages_by_id[pid].get("rawSource"),
+                        "trans": pages_by_id[pid].get("transSource"),
+                    }
+                    for pid in picked
+                ],
+            }
+        )
+    return gaps
+
+
+def publish(folder, work, result, manifest, cast, characters, with_translation):
     """Put the profile and the character tree where the app looks when this
     folder is opened."""
     style_dir = os.path.join(folder, "style_scan")
@@ -400,12 +515,20 @@ def publish(folder, result, manifest, cast, characters, with_translation):
     marker = os.path.join(scan_dir, ".written-by-style-read")
     tree_path = os.path.join(scan_dir, "manga_relationship_v1.json")
     keep_previous(tree_path, marker)
-    crops = crop_faces(os.path.join(scan_dir, "faces"), manifest, cast, characters)
+    crops, origins = crop_faces(os.path.join(scan_dir, "faces"), manifest, cast, characters)
     write_json(tree_path, character_tree(cast, characters, crops))
     with open(marker, "w") as f:
         f.write("character_scan/manga_relationship_v1.json was written by /style-read\n")
     faces = sum(len(v) for v in crops.values())
     print(f"character tree:   {tree_path} ({faces} face crops)")
+
+    # Same data every volume (crops come from the shared cast, not this one
+    # folder) — written to the work folder review_faces.py reads, overwritten
+    # each call so it always matches whatever cast.json just produced.
+    write_json(
+        os.path.join(work, "face_origins.json"),
+        {f"{cid}/{idx}": face for (cid, idx), face in origins.items()},
+    )
 
 
 if __name__ == "__main__":

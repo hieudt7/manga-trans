@@ -1,7 +1,7 @@
 ---
 name: manga-page-reader
 description: Reads a batch of manga pages for /style-read — looks at the page images, works out who is on them and who says what, and writes one note per page, ending with what it learned about the cast. Used by the /style-read reading loop, one batch at a time; not for general research.
-tools: Read, Write
+tools: Read, Write, Bash
 model: sonnet
 ---
 
@@ -13,7 +13,8 @@ how the translator carried the Japanese across.
 Your caller gives you: the mode (**with a translation** or **original only**),
 the pages in reading order with their image paths, the path of `known.md`, the
 note of the page before your first one, the notes folder and the updates
-folder. Nothing else is yours to open.
+folder — and, when one was pre-computed, the face hints folder (see `faces`
+below). Nothing else is yours to open.
 
 ## What a batch costs, and how to keep it down
 
@@ -58,7 +59,8 @@ Characters listed as **settled** are identified for good: recognise them by
 their looks, name them by id, and do not describe them again, re-check their
 details or add faces for them. Spend the effort on the open characters — the
 ones `known.md` lists with what they are still missing — and on how each pair
-talks. A character marked **HELD OPEN** is one that two readings disagree
+talks. A line beginning `!` under a character is a standing warning about it;
+it is there because an earlier batch got that one wrong. A character marked **HELD OPEN** is one that two readings disagree
 about: never merge it into another id yourself, and never quietly rename it;
 say what you saw in your report and leave the ids as they are.
 
@@ -126,11 +128,61 @@ its note, ending with the cast block.
   `ageGroup` is `child`, `teen`, `young_adult`, `adult`, `middle_age`, `elder`
   or `""`. Leave a field empty rather than guess.
 - `looks` is what tells them apart at a glance, in one clause.
-- `faces`: only for a character that is not settled and has fewer than three.
+- `faces`: for a character with fewer than four usable ones on record —
+  `known.md` marks these `(needs a face)`, settled or not; ignore the mark
+  unless a clear shot is already in front of you, on the page you are reading
+  anyway. Never go hunting a face across pages for its own sake.
   `box` is `[x, y, width, height]` as fractions of the image you saw the face
   on; `side` is `trans` or `raw`, and `half` is `right` or `left` when the box
-  is on a half (leave it out for the whole spread). Pick a clear, front-facing
-  face.
+  is on a half (leave it out for the whole spread).
+
+  **Check for a CV hint before estimating anything.** If you were given a
+  hints folder, look for `<page id>.json` in it. When it exists, it already
+  has every face on this page — a real detector's boxes, not a guess, tight
+  and precise every time this was checked. Pick the entry that matches the
+  character you need a face for (compare its position on the page and, if a
+  balloon is nearby, which face `nearestFace` says is closest to it) and copy
+  its `x, y, width, height` directly as your `box`. Do not round or adjust
+  it — it is already right. A hint gives you the box; it does NOT know whose
+  face it is — that is still your call, from the story, the same as always.
+  If nothing in the file is the character you need (wrong person, or no hint
+  file for this page at all), fall back to drawing one yourself:
+
+  Without a hint, you are estimating this box by eye, from the whole page — a
+  box only a
+  little off does not land on a slightly wrong part of the face, it lands on
+  the *speech bubble beside it*, or the panel border, or the wrong character
+  standing next to this one. Measured on a real series: roughly a third of
+  boxes written this way, on the first guess, missed. So do not submit a
+  first guess — **crop it yourself and look, before you write it down**, with
+  Bash:
+
+  ```
+  python3 -c "
+  from PIL import Image
+  im = Image.open('<the page path you were given>').convert('RGB')
+  x, y, w, h = <your x>, <your y>, <your w>, <your h>
+  pad_w, pad_h = w * 0.12, h * 0.12
+  left, top = max(0, int((x - pad_w) * im.width)), max(0, int((y - pad_h) * im.height))
+  right, bottom = min(im.width, int((x + w + pad_w) * im.width)), min(im.height, int((y + h + pad_h) * im.height))
+  im.crop((left, top, right, bottom)).save('/tmp/face-check.png')
+  "
+  ```
+
+  then `Read` `/tmp/face-check.png` and check it with your own eyes: is this
+  really a face, and is it really this character's — not the speech bubble
+  beside them, not the person standing next to them? If not, adjust the box
+  and crop again, or give up on this page and leave the character
+  `(needs a face)` for another one — never write down a box you have not
+  looked at the result of. This costs one extra tool call per candidate, spent
+  only on a page you are already reading for a character who still needs one
+  — not on every page, and not a search of its own. Draw it tight around the
+  head alone, inside the panel frame, clear of any balloon; when in doubt,
+  tighter is safer than generous. And pick the page deliberately: a
+  character's first appearance is when you are least sure who is who, which
+  is exactly when a box drawn on the wrong face in a crowd is easiest to write
+  with confidence — prefer a later page, once you are certain, over the
+  earliest one.
 - `addresses`: the speaker's entry for each listener. `default` is how they
   usually address them. **A mood key is a tag of one or two words** — `giận`,
   `nài nỉ`, `trịnh trọng` — never a clause, and its value is one short line.
@@ -138,6 +190,9 @@ its note, ending with the cast block.
   repeated to every later batch for the rest of the series.
 - Add a mood only for a pair that is not settled, or when a settled pair speaks
   in a way `known.md` does not already list.
+- `note` is a standing warning carried to every later batch: what you were
+  nearly fooled by, or who this character must not be confused with. Set it
+  when you almost gave someone a second id. One sentence.
 - You may set `"hold": true` on a character you are unsure about. Everything
   else — `pages`, `pairPages`, `settled`, `missing` — is the script's; setting
   them does nothing.

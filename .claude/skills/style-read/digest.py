@@ -29,8 +29,10 @@ import sys
 
 import progress
 
-# The profile keeps at most 30 characters and one line of address a relation,
-# so the cast is spelled out for the ones it can reach and named for the rest.
+# The profile has no cap on the cast, but this digest can't spell all of it
+# out at full length without becoming the thing it exists to avoid — so the
+# most-seen are spelled out in full and the rest are just named, in a shorter
+# line, with their own note kept nearby if one of them earns a place.
 CAST_IN_FULL = 40
 MOODS_SHOWN = 8
 DEFAULT_MAX = 110
@@ -77,6 +79,44 @@ def note_lines(path, keep_transcript):
     return out
 
 
+def headline_counts(work):
+    """How often each character is named in a page's one-line summary.
+
+    Appearances answer "how often will a translator meet them". They do not
+    answer "is this character what the page is ABOUT", and the two come apart
+    exactly where the roster goes wrong: Robert and Mayumi are both on 11
+    pages, but Robert is named in 9 page summaries and Mayumi in 3. One is the
+    subject of his chapter, the other stands in the background of someone
+    else's. Without this number a model has only the page count, so it keeps
+    the walk-on and drops the boy the volume is about — measured, twice, on two
+    different models.
+    """
+    counts = {}
+    headlines = []
+    for name in sorted(os.listdir(os.path.join(work, "notes"))):
+        if not name.endswith(".md"):
+            continue
+        with open(os.path.join(work, "notes", name), encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("## "):
+                    headlines.append(line.lower())
+                    break
+    cast = progress.read_json(os.path.join(work, "cast.json"), {}) or {}
+    for c in cast.get("characters") or []:
+        probes = [c.get("id") or ""] + [c.get(k) or "" for k in ("name", "nameJa")]
+        probes = [p.lower() for p in probes if p and len(p) >= 3]
+        counts[c.get("id")] = sum(1 for h in headlines if any(p in h for p in probes))
+    return counts
+
+
+def volume_spread(pages):
+    """How many distinct volumes a character's pages fall in — a page id is
+    `<volume>-<number>` (`v01-0353`), so the prefix before the last `-` is
+    the volume. A character seen thinly in every volume of a long series is a
+    different case from one seen the same number of times in just one."""
+    return len({p.rsplit("-", 1)[0] for p in pages if "-" in p})
+
+
 def cast_lines(work, with_raw):
     """The cast as the profile needs it: who they are, how often, and how they
     address each person they speak to."""
@@ -85,10 +125,16 @@ def cast_lines(work, with_raw):
         cast.get("characters") or [],
         key=lambda c: (-len(c.get("pages", [])), c.get("id", "")),
     )
+    headlines = headline_counts(work)
     out = [
         f"# cast: {len(characters)} characters, most-seen first",
-        "# `appearances` is the page count; write the profile from the ones a",
-        "# translator meets most. Forms of address are default first, then moods.",
+        "# `appearances` is the page count — how often a translator meets them.",
+        "# `headline` is how many of those pages are ABOUT them (named in the page's",
+        "# one-line summary). `speech` is how many pages they address a named",
+        "# character on. The three measure different things and disagree: a boy the",
+        "# story is about can have 9 headlines and 0 speech, a tag partner 16",
+        "# appearances and 2 headlines. Strong on ANY ONE earns a place; weak on all",
+        "# three does not. Forms of address are default first, then moods.",
         f"# The first {CAST_IN_FULL} are spelled out; the rest are named at the end,",
         "# with the notes behind them if one of them belongs in the profile.",
     ]
@@ -99,6 +145,9 @@ def cast_lines(work, with_raw):
             f"## {c.get('id', '')} — {c.get('name', '')}"
             + (f" ({c['nameJa']})" if with_raw and c.get("nameJa") else "")
             + f"  [appearances {len(c.get('pages', []))}"
+            + f", volumes {volume_spread(c.get('pages', []))}"
+            + f", headline {headlines.get(c.get('id'), 0)}"
+            + f", speech {sum((c.get('pairPages') or {}).values())}"
             + (", settled" if c.get("settled") else "")
             + (", HELD OPEN" if c.get("hold") else "")
             + "]"
@@ -129,10 +178,13 @@ def cast_lines(work, with_raw):
             )
     rest = characters[CAST_IN_FULL:]
     if rest:
-        out += ["", f"# seen less often ({len(rest)}) — id, name, appearances:", ""]
+        out += ["", f"# seen less often ({len(rest)}) — id, name, appearances, volumes:", ""]
         for c in rest:
             out.append(
-                f"- {c.get('id', '')} — {c.get('name', '')} ({len(c.get('pages', []))}p)"
+                f"- {c.get('id', '')} — {c.get('name', '')} "
+                f"({len(c.get('pages', []))}p, {volume_spread(c.get('pages', []))}v, "
+                f"headline {headlines.get(c.get('id'), 0)}, "
+                f"speech {sum((c.get('pairPages') or {}).values())})"
             )
     return out
 
