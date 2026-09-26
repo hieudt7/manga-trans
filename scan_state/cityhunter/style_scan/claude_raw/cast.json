@@ -1,0 +1,2293 @@
+{
+  "characters": [
+    {
+      "id": "ogino",
+      "name": "Ogino Shun'ichi",
+      "aliases": [
+        "阿俊",
+        "Shun"
+      ],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "nam thanh niên tóc ngắn rối màu nâu sẫm, mặc bộ đồ thể thao màu trắng/kem có dây rút mũ, đeo găng tay vàng, đ…",
+      "addresses": {
+        "co-gai-dap-xe": {
+          "default": "xưng \"tôi\", gọi \"cậu/em\" (chưa chắc chắn)"
+        }
+      },
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_010",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.272,
+            0.082,
+            0.146,
+            0.05
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_007",
+        "v01-CityhunterV01_010",
+        "v01-CityhunterV01_011",
+        "v01-CityhunterV01_012",
+        "v01-CityhunterV01_015",
+        "v01-CityhunterV01_017",
+        "v01-CityhunterV01_018",
+        "v01-CityhunterV01_019",
+        "v01-CityhunterV01_135"
+      ],
+      "pairPages": {
+        "co-gai-dap-xe": 3
+      },
+      "settledPairs": [
+        "co-gai-dap-xe"
+      ],
+      "settled": true,
+      "missing": [],
+      "nameJa": "荻野俊一"
+    },
+    {
+      "id": "co-gai-dap-xe",
+      "aliases": [],
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "cô gái tóc dài gợn sóng màu nâu, mặc bộ đồ thể thao xanh dương, đạp xe đạp có giỏ phía trước",
+      "addresses": {
+        "ogino": {
+          "default": "gọi thẳng biệt danh \"阿俊\" (Shun), thân mật"
+        }
+      },
+      "note": "trang 010: ogino thều thào gọi cô là \"…稻…\" (bị cắt ngang) — có thể là họ 稻垣 hoặc họ khác bắt đầu bằng 稻, chưa xác nhận đầy đủ, không tự đặt tên chắc chắn.",
+      "faces": [],
+      "pages": [
+        "v01-CityhunterV01_007",
+        "v01-CityhunterV01_010",
+        "v01-CityhunterV01_011"
+      ],
+      "pairPages": {
+        "ogino": 3
+      },
+      "settledPairs": [
+        "ogino"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "ryo",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen rối bù, đeo kính gọng tròn khi không đeo kính râm, gương mặt hay nhăn nhó/cường điệu hài hước",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_013",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.466,
+            0.324,
+            0.2457,
+            0.1023
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_020",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.2819058,
+            0.08388635,
+            0.18647852,
+            0.07741258
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_037",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.08,
+            0.02,
+            0.25,
+            0.16
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_045",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.318,
+            0.1296,
+            0.2695,
+            0.1068
+          ]
+        }
+      ],
+      "aliases": [
+        "阿獠"
+      ],
+      "pages": [
+        "v01-CityhunterV01_012",
+        "v01-CityhunterV01_013",
+        "v01-CityhunterV01_014",
+        "v01-CityhunterV01_015",
+        "v01-CityhunterV01_016",
+        "v01-CityhunterV01_017",
+        "v01-CityhunterV01_018",
+        "v01-CityhunterV01_019",
+        "v01-CityhunterV01_020",
+        "v01-CityhunterV01_021",
+        "v01-CityhunterV01_022",
+        "v01-CityhunterV01_024",
+        "v01-CityhunterV01_025",
+        "v01-CityhunterV01_026",
+        "v01-CityhunterV01_027",
+        "v01-CityhunterV01_031",
+        "v01-CityhunterV01_032",
+        "v01-CityhunterV01_033",
+        "v01-CityhunterV01_035",
+        "v01-CityhunterV01_036",
+        "v01-CityhunterV01_037",
+        "v01-CityhunterV01_039",
+        "v01-CityhunterV01_043",
+        "v01-CityhunterV01_044",
+        "v01-CityhunterV01_045",
+        "v01-CityhunterV01_046",
+        "v01-CityhunterV01_047",
+        "v01-CityhunterV01_048",
+        "v01-CityhunterV01_049",
+        "v01-CityhunterV01_050",
+        "v01-CityhunterV01_051",
+        "v01-CityhunterV01_052",
+        "v01-CityhunterV01_053",
+        "v01-CityhunterV01_054",
+        "v01-CityhunterV01_055",
+        "v01-CityhunterV01_056",
+        "v01-CityhunterV01_057",
+        "v01-CityhunterV01_058",
+        "v01-CityhunterV01_061",
+        "v01-CityhunterV01_062-063",
+        "v01-CityhunterV01_064",
+        "v01-CityhunterV01_065",
+        "v01-CityhunterV01_067",
+        "v01-CityhunterV01_068",
+        "v01-CityhunterV01_069",
+        "v01-CityhunterV01_070",
+        "v01-CityhunterV01_071",
+        "v01-CityhunterV01_072",
+        "v01-CityhunterV01_073",
+        "v01-CityhunterV01_079",
+        "v01-CityhunterV01_080",
+        "v01-CityhunterV01_081",
+        "v01-CityhunterV01_082",
+        "v01-CityhunterV01_083",
+        "v01-CityhunterV01_085",
+        "v01-CityhunterV01_088",
+        "v01-CityhunterV01_092",
+        "v01-CityhunterV01_094",
+        "v01-CityhunterV01_108",
+        "v01-CityhunterV01_109",
+        "v01-CityhunterV01_110",
+        "v01-CityhunterV01_112",
+        "v01-CityhunterV01_113",
+        "v01-CityhunterV01_114",
+        "v01-CityhunterV01_115",
+        "v01-CityhunterV01_116",
+        "v01-CityhunterV01_117",
+        "v01-CityhunterV01_119",
+        "v01-CityhunterV01_120",
+        "v01-CityhunterV01_121",
+        "v01-CityhunterV01_122",
+        "v01-CityhunterV01_123",
+        "v01-CityhunterV01_124",
+        "v01-CityhunterV01_125",
+        "v01-CityhunterV01_126",
+        "v01-CityhunterV01_127",
+        "v01-CityhunterV01_129",
+        "v01-CityhunterV01_132",
+        "v01-CityhunterV01_133",
+        "v01-CityhunterV01_134",
+        "v01-CityhunterV01_135",
+        "v01-CityhunterV01_136",
+        "v01-CityhunterV01_138",
+        "v01-CityhunterV01_139",
+        "v01-CityhunterV01_140",
+        "v01-CityhunterV01_141",
+        "v01-CityhunterV01_142",
+        "v01-CityhunterV01_143",
+        "v01-CityhunterV01_144",
+        "v01-CityhunterV01_145",
+        "v01-CityhunterV01_146",
+        "v01-CityhunterV01_147",
+        "v01-CityhunterV01_148",
+        "v01-CityhunterV01_149",
+        "v01-CityhunterV01_151",
+        "v01-CityhunterV01_152",
+        "v01-CityhunterV01_153",
+        "v01-CityhunterV01_154",
+        "v01-CityhunterV01_155",
+        "v01-CityhunterV01_156",
+        "v01-CityhunterV01_158",
+        "v01-CityhunterV01_159",
+        "v01-CityhunterV01_160",
+        "v01-CityhunterV01_161",
+        "v01-CityhunterV01_162",
+        "v01-CityhunterV01_163",
+        "v01-CityhunterV01_164",
+        "v01-CityhunterV01_165",
+        "v01-CityhunterV01_166",
+        "v01-CityhunterV01_167",
+        "v01-CityhunterV01_169",
+        "v01-CityhunterV01_170",
+        "v01-CityhunterV01_171",
+        "v01-CityhunterV01_172",
+        "v01-CityhunterV01_173",
+        "v01-CityhunterV01_175",
+        "v01-CityhunterV01_176",
+        "v01-CityhunterV01_177",
+        "v01-CityhunterV01_178",
+        "v01-CityhunterV01_179",
+        "v01-CityhunterV01_180",
+        "v01-CityhunterV01_181",
+        "v01-CityhunterV01_182",
+        "v01-CityhunterV01_183",
+        "v01-CityhunterV01_184",
+        "v01-CityhunterV01_185",
+        "v01-CityhunterV01_186",
+        "v01-CityhunterV01_187",
+        "v01-CityhunterV01_188",
+        "v01-CityhunterV01_189",
+        "v01-CityhunterV01_190",
+        "v01-CityhunterV01_191",
+        "v01-CityhunterV01_192",
+        "v01-CityhunterV01_193",
+        "v01-CityhunterV01_194",
+        "v01-CityhunterV01_195",
+        "v01-CityhunterV01_197",
+        "v01-CityhunterV01_199",
+        "v01-CityhunterV01_200",
+        "v01-CityhunterV01_204",
+        "v01-CityhunterV01_205",
+        "v01-CityhunterV01_206",
+        "v01-CityhunterV01_207",
+        "v01-CityhunterV01_208",
+        "v01-CityhunterV01_209",
+        "v01-CityhunterV01_210-211",
+        "v01-CityhunterV01_212",
+        "v01-CityhunterV01_213",
+        "v01-CityhunterV01_214",
+        "v01-CityhunterV01_215",
+        "v01-CityhunterV01_216",
+        "v01-CityhunterV01_217",
+        "v01-CityhunterV01_218",
+        "v01-CityhunterV01_219",
+        "v01-CityhunterV01_224"
+      ],
+      "pairPages": {
+        "makimura": 17,
+        "iwasaki": 7,
+        "ke-bat-coc": 2,
+        "inagaki-kouji": 2,
+        "nguoi-cung-cap-tin": 1,
+        "chi-gai-yuko": 7,
+        "lao-ban": 1,
+        "ten-cuop-dao": 2,
+        "con-tin": 2,
+        "than-chu-qua-dem": 2,
+        "co-gai-ao-trang": 2,
+        "chu-boutique": 2,
+        "trum-angel-dust": 7,
+        "nguoi-dan-duong": 1,
+        "ke-bi-tiem-angel-dust": 2,
+        "nu-nan-nhan-angel-dust": 1,
+        "cuop-to-con": 2,
+        "cuop-can-kinh": 1,
+        "quan-ly-casino": 2
+      },
+      "settledPairs": [
+        "makimura",
+        "trum-angel-dust"
+      ],
+      "settled": true,
+      "missing": [],
+      "name": "Saeba Ryo",
+      "nameJa": "冴羽獠",
+      "note": "Xuất hiện chĩa súng đối đầu ke-bat-coc, nói giọng điềm tĩnh kiểu 'nhờ vả một việc nhỏ, đơn giản thôi' trước khi đe dọa.",
+      "addresses": {
+        "con-tin": {
+          "default": "tôi/em (giọng giải thích, hơi lên lớp)"
+        },
+        "co-gai-ao-trang": {
+          "default": "(không tự xưng)/\"你\" ngầm hiểu, giọng xuề xòa thân mật"
+        },
+        "makimura": {
+          "default": "tôi/Makimura (我/槙村)",
+          "moods": {
+            "thờ ơ": "tôi/槙村, giọng bỡn cợt",
+            "đùa cợt": "tôi/em (我/你)",
+            "an ủi": "không dùng đại từ trực tiếp, gọi gián tiếp qua '你哥哥'/'母親' — 你哥哥的遺物!! 這是母親給你的禮物……",
+            "khen ngợi": "你沒有歇斯底里，值得讚賞!!",
+            "giục giã": "別再浪費時間，快準備吧!!",
+            "mắng": "你, gằn giọng quát thẳng — \"你呀!!別人在百忙中抽空教你射擊基礎，你卻不認真學!!\"",
+            "giải thích": "tôi/em (trấn an, giải thích)",
+            "phản đối": "tôi/cậu — gắt gỏng phản bác khi bị giao việc không rõ thông tin",
+            "giả vờ ngoan": "vâng vâng biết rồi — nhại giọng ngoan ngoãn, mỉa mai"
+          }
+        },
+        "trum-angel-dust": {
+          "moods": {
+            "cảnh cáo": "tôi/ông, giọng lạnh kiên quyết — \"你敢碰我的親人一根汗毛，我定要你抵命!!\"",
+            "đe dọa": "你"
+          },
+          "default": "你"
+        },
+        "nguoi-dan-duong": {
+          "default": "tôi/anh"
+        },
+        "ke-bi-tiem-angel-dust": {
+          "default": "ta/ngươi (suy đoán)"
+        },
+        "nu-nan-nhan-angel-dust": {
+          "default": "(chưa rõ đại từ)",
+          "moods": {
+            "thắc mắc": "chỉ dùng 我 (tự xưng), không có đại từ gọi cô — 為甚麼掩護我?"
+          }
+        },
+        "cuop-to-con": {
+          "default": "我/你",
+          "moods": {
+            "thách thức": "tao/mày kiểu bất cần, giễu cợt",
+            "mỉa mai": "gọi bằng biệt danh khinh thường '門外漢' thay vì đại từ"
+          }
+        }
+      }
+    },
+    {
+      "id": "inagaki-kouji",
+      "name": "稻垣晃二",
+      "aliases": [
+        "稻垣"
+      ],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "võ sĩ quyền anh, tóc đen ngắn, cười nhếch mép",
+      "note": "Chính là kẻ bắn Ogino ở trang 010 (khi đó chưa rõ tên, chỉ thấy cười nhếch mép cận cảnh); danh tính được xác nhận qua lời trăn trối của Ogino (trang 011) và ảnh báo (trang 012).",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_012",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.3918,
+            0.5217,
+            0.3108,
+            0.1228
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_032",
+          "side": "raw",
+          "box": [
+            0.58,
+            0.41,
+            0.17,
+            0.135
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_028",
+          "side": "raw",
+          "box": [
+            0.63,
+            0.495,
+            0.14,
+            0.1
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_026",
+          "side": "raw",
+          "box": [
+            0.73,
+            0.605,
+            0.15,
+            0.115
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_012",
+        "v01-CityhunterV01_018",
+        "v01-CityhunterV01_019",
+        "v01-CityhunterV01_028",
+        "v01-CityhunterV01_029",
+        "v01-CityhunterV01_030",
+        "v01-CityhunterV01_031",
+        "v01-CityhunterV01_032",
+        "v01-CityhunterV01_033",
+        "v01-CityhunterV01_034",
+        "v01-CityhunterV01_035",
+        "v01-CityhunterV01_036"
+      ],
+      "pairPages": {
+        "vo-si-nan-nhan": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "nameJa"
+      ]
+    },
+    {
+      "id": "makimura",
+      "name": "槙村",
+      "note": "Chỉ nghe tên qua điện thoại ở trang 013, chưa có hình ảnh xuất hiện. | Trước đó tạm đặt id 'co-gai-hieu-lam' (bị chu-boutique bắt cóc từ boutique Shinjuku, tr.112-123) — tự xưng '槙村香/Kaori' và nhận là em gái cộng sự cũ của ryo ở tr.126, xác nhận là cùng người với 'makimura' (trước chỉ nghe qua điện thoại tr.013). Đã gộp id thủ công. | Cũng chính là 'co-gai-cong-vien' (tr.201-207, vụ ga-thuoc-no dọa nổ bó que ở công viên) — cô gọi ryo là '阿獠' (tr.204) và được ryo gọi thẳng '香'/Hương (tr.207), trùng khớp makimura đã settled. Đã gộp id thủ công.",
+      "pages": [
+        "v01-CityhunterV01_013",
+        "v01-CityhunterV01_016",
+        "v01-CityhunterV01_027",
+        "v01-CityhunterV01_029",
+        "v01-CityhunterV01_030",
+        "v01-CityhunterV01_032",
+        "v01-CityhunterV01_033",
+        "v01-CityhunterV01_034",
+        "v01-CityhunterV01_064",
+        "v01-CityhunterV01_065",
+        "v01-CityhunterV01_108",
+        "v01-CityhunterV01_109",
+        "v01-CityhunterV01_110",
+        "v01-CityhunterV01_112",
+        "v01-CityhunterV01_113",
+        "v01-CityhunterV01_114",
+        "v01-CityhunterV01_115",
+        "v01-CityhunterV01_116",
+        "v01-CityhunterV01_117",
+        "v01-CityhunterV01_118",
+        "v01-CityhunterV01_119",
+        "v01-CityhunterV01_120",
+        "v01-CityhunterV01_121",
+        "v01-CityhunterV01_122",
+        "v01-CityhunterV01_123",
+        "v01-CityhunterV01_125",
+        "v01-CityhunterV01_126",
+        "v01-CityhunterV01_127",
+        "v01-CityhunterV01_132",
+        "v01-CityhunterV01_133",
+        "v01-CityhunterV01_134",
+        "v01-CityhunterV01_135",
+        "v01-CityhunterV01_136",
+        "v01-CityhunterV01_170",
+        "v01-CityhunterV01_171",
+        "v01-CityhunterV01_172",
+        "v01-CityhunterV01_173",
+        "v01-CityhunterV01_175",
+        "v01-CityhunterV01_176",
+        "v01-CityhunterV01_177",
+        "v01-CityhunterV01_178",
+        "v01-CityhunterV01_179",
+        "v01-CityhunterV01_180",
+        "v01-CityhunterV01_181",
+        "v01-CityhunterV01_182",
+        "v01-CityhunterV01_183",
+        "v01-CityhunterV01_184",
+        "v01-CityhunterV01_185",
+        "v01-CityhunterV01_186",
+        "v01-CityhunterV01_187",
+        "v01-CityhunterV01_190",
+        "v01-CityhunterV01_191",
+        "v01-CityhunterV01_193",
+        "v01-CityhunterV01_194",
+        "v01-CityhunterV01_195",
+        "v01-CityhunterV01_199",
+        "v01-CityhunterV01_200",
+        "v01-CityhunterV01_201",
+        "v01-CityhunterV01_202",
+        "v01-CityhunterV01_203",
+        "v01-CityhunterV01_204",
+        "v01-CityhunterV01_205",
+        "v01-CityhunterV01_206",
+        "v01-CityhunterV01_207",
+        "v01-CityhunterV01_208",
+        "v01-CityhunterV01_209",
+        "v01-CityhunterV01_210-211",
+        "v01-CityhunterV01_213",
+        "v01-CityhunterV01_214",
+        "v01-CityhunterV01_216",
+        "v01-CityhunterV01_218",
+        "v01-CityhunterV01_219"
+      ],
+      "pairPages": {
+        "ryo": 19,
+        "chu-boutique": 1,
+        "cuop-to-con": 1,
+        "khach-goi-dien": 1,
+        "ga-thuoc-no": 2
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": true,
+      "missing": [],
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen xoăn bồng bềnh ngang vai; mô tả cũ ghi từ cuộc gọi điện tr.013 (tóc dài, cardigan cam, sống trong căn hộ) không khớp lần xuất hiện trực tiếp đầu tiên (tr.126, tại nhà kho) — giữ mô tả theo lần thấy trực tiếp này vì đáng tin hơn.",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_027",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.378,
+            0.15,
+            0.292,
+            0.115
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_030",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.252,
+            0.159,
+            0.286,
+            0.12
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_064",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.0725,
+            0.491,
+            0.38,
+            0.108
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_108",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.469,
+            0.399,
+            0.31,
+            0.138
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_115",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.23,
+            0.266,
+            0.276,
+            0.118
+          ]
+        }
+      ],
+      "nameJa": "槙村",
+      "addresses": {
+        "ryo": {
+          "default": "tôi/A Diêu (我/阿獠)",
+          "moods": {
+            "trách móc": "tôi/A Diêu, gay gắt hơn",
+            "châm chọc": "(ẩn)/你 — mỉa mai anh không phân biệt nổi nam nữ",
+            "trêu chọc": "tôi/anh (我/你)",
+            "đắc ý": "tôi/anh (我/你)",
+            "quả quyết": "在這個城市……有我必須做的事!! / 你需要新的拍檔吧!",
+            "phản đối": "tôi/anh (nũng nịu, phản đối)",
+            "giục giã": "tôi/anh (giục giã)",
+            "thắc mắc": "tôi/anh (thắc mắc)",
+            "lo lắng": "chỉ gọi tên 獠 lặp lại, chưa có đại từ xưng hô rõ"
+          }
+        },
+        "chu-boutique": {
+          "default": "tôi/ông",
+          "moods": {
+            "giận dữ": "tao/mày — đồ đùa cợt rẻ tiền"
+          }
+        },
+        "cuop-to-con": {
+          "default": "你 (mày/thằng lợn béo)"
+        },
+        "ga-thuoc-no": {
+          "default": "tôi/ông (我/你)"
+        }
+      },
+      "aliases": [
+        "Kaori",
+        "Hương"
+      ]
+    },
+    {
+      "id": "iwasaki",
+      "name": "岩崎惠",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài hơi xoăn gợn sóng, mặc áo khoác dài màu be phối áo đỏ cam bên trong, dáng đi mạnh mẽ",
+      "note": "Khách hàng mới của City Hunter, bác sĩ 27 tuổi, tên đầy đủ 岩崎惠 (Iwasaki Megumi).",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_014",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.4274,
+            0.5101,
+            0.249,
+            0.1062
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_015",
+          "side": "raw",
+          "box": [
+            0.205,
+            0.445,
+            0.21,
+            0.155
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_017",
+          "side": "raw",
+          "box": [
+            0.19,
+            0.445,
+            0.13,
+            0.095
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_016",
+          "side": "raw",
+          "box": [
+            0.145,
+            0.625,
+            0.125,
+            0.095
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_013",
+        "v01-CityhunterV01_014",
+        "v01-CityhunterV01_015",
+        "v01-CityhunterV01_016",
+        "v01-CityhunterV01_017",
+        "v01-CityhunterV01_018",
+        "v01-CityhunterV01_019",
+        "v01-CityhunterV01_020",
+        "v01-CityhunterV01_021",
+        "v01-CityhunterV01_022",
+        "v01-CityhunterV01_036",
+        "v01-CityhunterV01_037"
+      ],
+      "pairPages": {
+        "ryo": 7
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "nameJa"
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "你/燎 (gọi tên)",
+          "moods": {
+            "quở trách": "你在聽嗎？燎!?"
+          }
+        }
+      }
+    },
+    {
+      "id": "vo-si-nan-nhan",
+      "aliases": [
+        "冠軍"
+      ],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "võ sĩ quyền anh đang giữ đai vô địch, tóc đen ngắn hơi rối, mặc bộ đồ chạy bộ màu đỏ cam quàng khăn đỏ, có mộ…",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_029",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.38,
+            0.4,
+            0.12,
+            0.056
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_032",
+          "side": "raw",
+          "box": [
+            0.27,
+            0.405,
+            0.16,
+            0.145
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_028",
+          "side": "raw",
+          "box": [
+            0.27,
+            0.505,
+            0.15,
+            0.115
+          ]
+        }
+      ],
+      "note": "Nhà vô địch quyền anh bị Inagaki (nghi vấn, xem ke-bat-coc) và đồng bọn mai phục khi chạy bộ ban đêm; là người mà Iwasaki đã cảnh báo Ryo về nguy cơ bị Inagaki gây áp lực.",
+      "pages": [
+        "v01-CityhunterV01_023",
+        "v01-CityhunterV01_024",
+        "v01-CityhunterV01_025",
+        "v01-CityhunterV01_026",
+        "v01-CityhunterV01_028",
+        "v01-CityhunterV01_029",
+        "v01-CityhunterV01_030",
+        "v01-CityhunterV01_032",
+        "v01-CityhunterV01_034",
+        "v01-CityhunterV01_035",
+        "v01-CityhunterV01_036"
+      ],
+      "pairPages": {
+        "ke-bat-coc": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "nameJa"
+      ],
+      "name": "三田"
+    },
+    {
+      "id": "ke-bat-coc",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "kẻ mai phục ban đêm, khi ra tay quấn kín/đội mũ trùm đầu trọc, cười nham hiểm; đi cùng ít nhất một đồng bọn k…",
+      "note": "Nghi ngờ đây chính là inagaki-kouji cải trang để bắt cóc đối thủ tranh đai (cần xác nhận thêm ở các trang sau khi lộ mặt) — chưa gộp id vì chưa chắc chắn.",
+      "pages": [
+        "v01-CityhunterV01_023",
+        "v01-CityhunterV01_024",
+        "v01-CityhunterV01_025",
+        "v01-CityhunterV01_026"
+      ],
+      "pairPages": {
+        "vo-si-nan-nhan": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "huan-luyen-vien",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông để ria mép, tóc ngắn, huấn luyện viên/góc đấu của vo-si-nan-nhan",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_032",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.35,
+            0.433,
+            0.4,
+            0.132
+          ]
+        }
+      ],
+      "addresses": {
+        "vo-si-nan-nhan": {
+          "default": "tôi/cậu (ẩn/你)",
+          "moods": {
+            "ra lệnh": "tao/mày (ẩn/你)"
+          }
+        }
+      },
+      "pages": [
+        "v01-CityhunterV01_032"
+      ],
+      "pairPages": {
+        "vo-si-nan-nhan": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "yuko",
+      "name": "Yuko",
+      "nameJa": "裕子",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen ngắn ngang vai, mặc áo khoác dài màu kem quàng khăn choàng cổ, tay ôm cặp tài liệu/túi giấy",
+      "note": "Tên 裕子 (Yuko) chỉ được xác nhận gián tiếp qua lời một phụ nữ khác nhặt được khăn của cô ở trang 042; bản thân cô chưa tự xưng tên trên trang nào.",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_041",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.4496,
+            0.239,
+            0.2183,
+            0.0841
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_040",
+        "v01-CityhunterV01_041",
+        "v01-CityhunterV01_042"
+      ],
+      "pairPages": {
+        "quy-bmw": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "6 pages"
+      ]
+    },
+    {
+      "id": "quy-bmw",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen chải gọn rẽ ngôi, mặc áo khoác/vest sáng màu, lái xe BMW đen, vẻ ngoài lịch sự che giấu bản chất hung…",
+      "note": "Kẻ chủ mưu của chương 'BMW惡魔之卷' (BMW Ác Ma); trang này mới chỉ thấy qua ánh mắt phản chiếu trong gương chiếu hậu khi rình rập yuko.",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_041",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.3185,
+            0.045,
+            0.1637,
+            0.0678
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_040",
+        "v01-CityhunterV01_041",
+        "v01-CityhunterV01_042",
+        "v01-CityhunterV01_089",
+        "v01-CityhunterV01_090",
+        "v01-CityhunterV01_091"
+      ],
+      "pairPages": {
+        "yuko": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ]
+    },
+    {
+      "id": "nguoi-nhat-khan",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng nhẹ, mặc áo cổ tim màu nhạt",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_042",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.348,
+            0.683,
+            0.278,
+            0.123
+          ]
+        }
+      ],
+      "note": "Người nhặt được khăn quàng cổ đánh rơi và nhận ra là của yuko; quan hệ giữa hai người (bạn bè? người thân?) chưa rõ, có thể là người sẽ nhờ Ryo điều tra.",
+      "hold": true,
+      "pages": [
+        "v01-CityhunterV01_042"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nguoi-cung-cap-tin",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen xoăn gợn sóng ngang vai, hay phản ứng cường điệu/trêu chọc Ryo, giọng thân mật gọi Ryo là 阿獠",
+      "addresses": {
+        "ryo": {
+          "default": "tôi/anh (我/阿獠)",
+          "moods": {
+            "khẩn khoản": "tôi/anh — \"阿獠…你認真地聽我講好不好？\""
+          }
+        }
+      },
+      "note": "Người cung cấp thông tin vụ án cho ryo (tên nạn nhân, thân chủ mới); rất có thể cũng là người cùng ryo tới khu Kabukicho ở các trang sau và lo lắng cho anh — cần xác nhận thêm, danh tính/tên riêng chưa lộ.",
+      "hold": true,
+      "pages": [
+        "v01-CityhunterV01_044",
+        "v01-CityhunterV01_045",
+        "v01-CityhunterV01_067"
+      ],
+      "pairPages": {
+        "ryo": 3,
+        "chi-gai-yuko": 1
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ],
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_067",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.22,
+            0.3,
+            0.3,
+            0.14
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chi-gai-yuko",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng ngang vai, mặc trang phục hở vai kiểu tiếp viên quán bar",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_046",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.4606,
+            0.3606,
+            0.3219,
+            0.1269
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_067",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.18,
+            0.82,
+            0.28,
+            0.14
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_068",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.388,
+            0.798,
+            0.294,
+            0.114
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_049",
+          "side": "raw",
+          "box": [
+            0.11,
+            0.745,
+            0.15,
+            0.13
+          ]
+        }
+      ],
+      "note": "Rất có thể là thân chủ mới — chị gái của nạn nhân yuko — được ryo và nguoi-cung-cap-tin bàn tới ở trang 044-045 và cử đến quán 同伴 ở Kabukicho làm mồi nhử; chưa được xác nhận bằng tên hay lời thoại trực tiếp, cần theo dõi thêm.",
+      "hold": true,
+      "pages": [
+        "v01-CityhunterV01_046",
+        "v01-CityhunterV01_047",
+        "v01-CityhunterV01_048",
+        "v01-CityhunterV01_049",
+        "v01-CityhunterV01_050",
+        "v01-CityhunterV01_059",
+        "v01-CityhunterV01_062-063",
+        "v01-CityhunterV01_065",
+        "v01-CityhunterV01_066",
+        "v01-CityhunterV01_067",
+        "v01-CityhunterV01_068",
+        "v01-CityhunterV01_069",
+        "v01-CityhunterV01_070",
+        "v01-CityhunterV01_071"
+      ],
+      "pairPages": {
+        "ryo": 6,
+        "nguoi-cung-cap-tin": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "nameJa"
+      ],
+      "name": "菜摘"
+    },
+    {
+      "id": "lao-ban",
+      "gender": "male",
+      "ageGroup": "elder",
+      "looks": "đầu hói phần trên, tóc bạc hai bên chải ngược, đeo kính, mặc vest thắt cà vạt, chủ quán bar nơi ryo lui tới",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_049",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.15,
+            0.335,
+            0.27,
+            0.13
+          ]
+        }
+      ],
+      "note": "Chủ quán bar là nguồn tin thân quen của ryo, gọi ryo là '阿獠'; dùng cocktail 'XYZ' làm ám hiệu cầu cứu.",
+      "pages": [
+        "v01-CityhunterV01_049",
+        "v01-CityhunterV01_050"
+      ],
+      "pairPages": {
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "ten-cuop-dao",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông vạm vỡ, tóc đen ngắn dựng, lông mày rậm, cầm dao khống chế con tin, sau đó lộ ra có súng",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_052",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.12,
+            0.67,
+            0.36,
+            0.15
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_051",
+        "v01-CityhunterV01_052",
+        "v01-CityhunterV01_053",
+        "v01-CityhunterV01_054",
+        "v01-CityhunterV01_055",
+        "v01-CityhunterV01_056",
+        "v01-CityhunterV01_057"
+      ],
+      "pairPages": {
+        "con-tin": 2,
+        "ryo": 3
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "con-tin": {
+          "default": "(không tự xưng)/mày (đe dọa)"
+        },
+        "ryo": {
+          "default": "(không tự xưng)/mày (cay cú, sốc)"
+        }
+      }
+    },
+    {
+      "id": "con-tin",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng, mặc áo/cardigan sáng màu, bị tên cướp bắt làm con tin trong cửa hàng",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_058",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.6572,
+            0.0352,
+            0.2668,
+            0.1108
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_051",
+        "v01-CityhunterV01_052",
+        "v01-CityhunterV01_053",
+        "v01-CityhunterV01_054",
+        "v01-CityhunterV01_055",
+        "v01-CityhunterV01_056",
+        "v01-CityhunterV01_057",
+        "v01-CityhunterV01_058"
+      ],
+      "pairPages": {
+        "ryo": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "tôi/anh Saeba (冴羽先生)"
+        }
+      },
+      "note": "Đổi cách gọi ryo từ trang trọng '冴羽先生' sang thân mật '阿獠' ngay sau khi được cứu; giống cách gọi của nguoi-cung-cap-tin (HELD OPEN) — chỉ là điểm tương đồng, chưa gộp id."
+    },
+    {
+      "id": "em-gai-con-tin",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "xuất hiện quỳ ôm và an ủi con-tin ngay sau vụ cướp, chưa thấy rõ mặt để mô tả chi tiết",
+      "hold": true,
+      "note": "Chưa chắc chắn đây chính là 'em gái' mà ryo vừa nhắc tới trong lời ủy thác — chỉ là suy đoán từ ngữ cảnh, không có lời thoại xác nhận danh tính trên trang này.",
+      "pages": [],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "sat-thu-xuyen-tim",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "thân hình cơ bắp vạm vỡ, xuất hiện cởi trần trong khung tranh phản ứng cường điệu/hài hước, sau đó thấy tay c…",
+      "note": "Mặt mới thấy qua khung hài hước cường điệu, chưa chắc đại diện đúng diện mạo bình thường — không dùng làm ảnh nhận diện.",
+      "pages": [
+        "v01-CityhunterV01_071"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "than-chu-qua-dem",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng, mặc áo ngủ lụa màu hồng nhạt viền ren, ngủ trong phòng ngủ kiểu biệt thự có rèm trắng l…",
+      "addresses": {
+        "ryo": {
+          "default": "你/冴羽 (thân mật)",
+          "moods": {
+            "nài nỉ": "你/冴羽先生 (thêm kính ngữ khi cần trấn an)",
+            "tức giận": "xưng \"我\" ngầm, gọi thẳng \"你\" trơn không kính ngữ, giọng gay gắt hơn hẳn so với \"冴羽先生\" tra…"
+          }
+        }
+      },
+      "note": "Có thể là một thân chủ mới thuê City Hunter bảo vệ qua đêm; danh tính, tên riêng chưa được nhắc tới trên trang này.",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_073",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.244,
+            0.431,
+            0.366,
+            0.147
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_079",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.18,
+            0.04,
+            0.26,
+            0.15
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_080",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.3,
+            0.094,
+            0.293,
+            0.123
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_072",
+        "v01-CityhunterV01_073",
+        "v01-CityhunterV01_075",
+        "v01-CityhunterV01_076",
+        "v01-CityhunterV01_077",
+        "v01-CityhunterV01_078",
+        "v01-CityhunterV01_079",
+        "v01-CityhunterV01_080",
+        "v01-CityhunterV01_081"
+      ],
+      "pairPages": {
+        "ryo": 4
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ]
+    },
+    {
+      "id": "ke-dot-nhap",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "tóc đen dài hơi rối phủ trán, cười nham hiểm, đi giày da nam, cầm súng lục, đột nhập phòng ngủ ban đêm",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_076",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.46,
+            0.45,
+            0.16,
+            0.22
+          ]
+        }
+      ],
+      "note": "Kẻ đột nhập ban đêm chĩa súng vào giường nơi than-chu-qua-dem và (có vẻ) ryo đang ngủ; danh tính chưa rõ, có thể liên quan tới vụ án ở các trang trước hoặc là một vụ án hoàn toàn mới.",
+      "pages": [
+        "v01-CityhunterV01_075",
+        "v01-CityhunterV01_076"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "chi-toc-xoan",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen xoăn dày bồng bềnh, mặc đồ ngủ/lingerie ren đen, tính cách bộc trực, hay ghen tuông trêu chọc, là một…",
+      "note": "Mắng than-chu-qua-dem là 'mèo cái' dụ dỗ Ryo nửa đêm — tỏ ra quen thuộc, có phần chiếm hữu với Ryo.",
+      "faces": [],
+      "pages": [
+        "v01-CityhunterV01_077",
+        "v01-CityhunterV01_078"
+      ],
+      "pairPages": {
+        "than-chu-qua-dem": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "co-gai-ao-trang",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng, áo choàng/váy dài màu trắng phối yếm đỏ hồng đậm bên trong, khăn xanh quấn cổ tay, dáng…",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_085",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.7611,
+            0.2399,
+            0.157,
+            0.0709
+          ]
+        }
+      ],
+      "note": "Ác mộng ở tr.086-087 cho thấy nhân vật này gọi tên một bé gái là 裕子 (Yuko), được bé gọi là 'chị' — trùng tên và quan hệ với 'yuko'/'chi-gai-yuko' (HELD OPEN) đã mở từ các trang trước, nhưng ngoại hình không khớp rõ nên chưa gộp id.",
+      "pages": [
+        "v01-CityhunterV01_085",
+        "v01-CityhunterV01_086",
+        "v01-CityhunterV01_087",
+        "v01-CityhunterV01_088",
+        "v01-CityhunterV01_092",
+        "v01-CityhunterV01_093"
+      ],
+      "pairPages": {
+        "co-be-duong-ham": 1,
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "(không tự xưng)/\"冴羽先生\", \"你\" (lịch sự, chưa thân mật)"
+        }
+      }
+    },
+    {
+      "id": "co-be-duong-ham",
+      "gender": "female",
+      "ageGroup": "child",
+      "looks": "bé gái/thiếu nữ tóc đen ngắn, áo khoác nâu ngoài váy/đầm xanh xếp ly, nơ vàng ở cổ, xuất hiện trong cảnh chạy…",
+      "faces": [],
+      "pages": [
+        "v01-CityhunterV01_086",
+        "v01-CityhunterV01_087"
+      ],
+      "pairPages": {
+        "co-gai-ao-trang": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "ke-lua-gai",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen hơi rối, mặc áo khoác dài màu be/hồng nhạt, lái xe con màu đen, hay bắt chuyện tán tỉnh phụ nữ trẻ tr…",
+      "note": "Không phải quy-bmw dù cũng lái xe đen: tóc rối chứ không chải gọn rẽ ngôi, xuất hiện ban ngày trong mạch truyện có vẻ hài hước riêng biệt.",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_094",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.05,
+            0.14,
+            0.28,
+            0.15
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_093",
+        "v01-CityhunterV01_094",
+        "v01-CityhunterV01_095"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "co-gai-danh-bay",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen xoăn bồng bềnh dày, đeo vòng cổ hạt, mặc trang phục gợi cảm hở vai; lúc đầu giả vờ là cô gái lạc đườn…",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_094",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.56,
+            0.2,
+            0.22,
+            0.13
+          ]
+        }
+      ],
+      "note": "Có thể là cùng người với cô gái hỏi đường/gọi ke-lua-gai là 哥哥 ở trang 093 — ngoại hình đổi khác hẳn (tóc thẳng dài áo đỏ → tóc xoăn bồng gợi cảm), chưa chắc chắn 100%, tạm gộp làm một.",
+      "pages": [
+        "v01-CityhunterV01_094",
+        "v01-CityhunterV01_095"
+      ],
+      "pairPages": {
+        "ke-lua-gai": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nan-nhan-ben-cang",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài xoăn gợn sóng, mặc vest/áo khoác và quần liền bộ màu cam đỏ, đeo túi xách nhỏ, đi dạo ban đêm gần…",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_096",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.15,
+            0.285,
+            0.35,
+            0.14
+          ]
+        }
+      ],
+      "note": "Xuất hiện ngay sau cảnh bến cảng cuối trang 095 (người bỏ chạy hét lên); ngoại hình khác co-gai-danh-bay (không có trang phục hở vai/vòng cổ hạt) và khác iwasaki (không phải áo khoác be phối đỏ cam) — nhiều khả năng là nạn nhân của một vụ án hoàn toàn mới.",
+      "pages": [
+        "v01-CityhunterV01_096",
+        "v01-CityhunterV01_097",
+        "v01-CityhunterV01_098",
+        "v01-CityhunterV01_099"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "ke-hiep-dam-sung",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "đàn ông tóc đen hơi rối, mặc áo khoác trắng phối sơ mi cổ dựng màu cam, cầm súng lục khống chế phụ nữ, cười n…",
+      "faces": [],
+      "note": "Dùng súng khống chế nan-nhan-ben-cang tại khu bến cảng; các trang sau cho thấy hắn có nhiều nạn nhân trước đó và bị một cung thủ giấu mặt truy sát để trả thù.",
+      "pages": [
+        "v01-CityhunterV01_096",
+        "v01-CityhunterV01_097",
+        "v01-CityhunterV01_098",
+        "v01-CityhunterV01_099",
+        "v01-CityhunterV01_100",
+        "v01-CityhunterV01_101",
+        "v01-CityhunterV01_102",
+        "v01-CityhunterV01_103",
+        "v01-CityhunterV01_104"
+      ],
+      "pairPages": {
+        "nan-nhan-ben-cang": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces"
+      ]
+    },
+    {
+      "id": "cung-thu-tra-thu",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "nam thanh niên tóc đen xoăn rối, mặc áo khoác dài màu be/hồng nhạt, dùng nỏ có ống ngắm để bắn trả thù kẻ hiế…",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_105",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.195,
+            0.064,
+            0.223,
+            0.091
+          ]
+        }
+      ],
+      "note": "! Ngoại hình (tóc đen rối, áo khoác dài be/hồng nhạt) rất giống ke-lua-gai — nghi ngờ đây chính là ke-lua-gai trong vai cung thủ trả thù, nhưng chưa đủ căn cứ để gộp id, cần xác nhận ở các trang sau.",
+      "pages": [
+        "v01-CityhunterV01_099",
+        "v01-CityhunterV01_100",
+        "v01-CityhunterV01_101",
+        "v01-CityhunterV01_102",
+        "v01-CityhunterV01_103",
+        "v01-CityhunterV01_104",
+        "v01-CityhunterV01_105",
+        "v01-CityhunterV01_106"
+      ],
+      "pairPages": {
+        "ke-hiep-dam-sung": 2,
+        "chi-gai-tra-thu": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "chi-gai-tra-thu": {
+          "default": "gọi qua quan hệ \"em gái cô\" thay vì đại từ trực tiếp (declarative, lạnh lùng)",
+          "moods": {
+            "xúi giục trả thù": "\"Đây là khẩu súng đã giết em gái cô!! Dùng nó để hắn nếm mùi đau khổ mà em cô đã chịu!!\"",
+            "dứt khoát": "tôi/cô"
+          }
+        }
+      }
+    },
+    {
+      "id": "chi-gai-tra-thu",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài xoăn gợn sóng, mặc áo/váy trắng phối khăn quàng cổ đỏ cam, là chị của một nạn nhân bị ke-hiep-dam…",
+      "note": "Xuất hiện lần đầu bị ke-hiep-dam-sung (đang bị thương) chĩa súng, sau đó giành lấy khẩu súng của hắn; cung-thu-tra-thu xác nhận đây là chị của một nạn nhân đã bị hắn giết và xúi giục cô dùng chính khẩu súng đó trả thù. Chưa rõ tên riêng.",
+      "addresses": {
+        "ke-hiep-dam-sung": {
+          "default": "không dùng đại từ trực tiếp, chỉ ra lệnh (declarative, gấp gáp)",
+          "moods": {
+            "giành súng": "\"Đưa đây!! Để tôi...\""
+          }
+        },
+        "cung-thu-tra-thu": {
+          "default": "tôi/anh",
+          "moods": {
+            "ngăn cản": "tôi/anh"
+          }
+        }
+      },
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_105",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.626,
+            0.159,
+            0.201,
+            0.083
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_101",
+        "v01-CityhunterV01_102",
+        "v01-CityhunterV01_103",
+        "v01-CityhunterV01_104",
+        "v01-CityhunterV01_105"
+      ],
+      "pairPages": {
+        "ke-hiep-dam-sung": 1,
+        "cung-thu-tra-thu": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "sat-thu-bong-dem",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen xoăn ngắn bồng bềnh, mặc áo khoác để hở vai lộ nội y, ngồi khoanh chân kiêu kỳ, cười bí ẩn",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_107",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.814,
+            0.259,
+            0.186,
+            0.114
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_107"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "chu-boutique",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông trung niên hói trán, mặt tròn phúng phính, mặc vest, cười cợt nhả",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_117",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.32,
+            0.395,
+            0.24,
+            0.095
+          ]
+        }
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "(ẩn)/anh (plain)",
+          "moods": {
+            "đe dọa": "tao/mày — biết nhiều thế thì đừng hòng tao để mày đi"
+          }
+        },
+        "makimura": {
+          "default": "mày/hàng (coi là món hàng)",
+          "moods": {
+            "coi thường": "tao/mày là hàng hóa của tao"
+          }
+        }
+      },
+      "note": "Chủ tiệm boutique không phải chỉ lẳng lơ đùa cợt — hắn dùng phòng thử đồ làm bẫy sập sàn để bắt cóc khách nữ, tự đắc '得手了...易如反掌' ngay sau khi cô gái rơi vào khoang chứa.",
+      "pages": [
+        "v01-CityhunterV01_116",
+        "v01-CityhunterV01_117",
+        "v01-CityhunterV01_118",
+        "v01-CityhunterV01_119",
+        "v01-CityhunterV01_120",
+        "v01-CityhunterV01_121",
+        "v01-CityhunterV01_122",
+        "v01-CityhunterV01_123",
+        "v01-CityhunterV01_124"
+      ],
+      "pairPages": {
+        "ryo": 3,
+        "makimura": 2
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ]
+    },
+    {
+      "id": "trum-angel-dust",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông lớn tuổi, tóc bạc/xám chải ngược, đeo kính râm, mặc vest thắt cà vạt",
+      "note": "Kẻ đứng sau vụ tiêm thuốc Angel Dust, tự xưng có thể biến người thành 'siêu nhân' để đi ám sát; chỉ thấy tay ở trang 130, lộ mặt rõ ở trang 131.",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_131",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.2561678,
+            0.09665226,
+            0.1545475,
+            0.06445662
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_163",
+          "side": "raw",
+          "box": [
+            0.06,
+            0.03,
+            0.18,
+            0.11
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_139",
+          "side": "raw",
+          "box": [
+            0.125,
+            0.035,
+            0.18,
+            0.145
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_156",
+          "side": "raw",
+          "box": [
+            0.24,
+            0.28,
+            0.15,
+            0.11
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_130",
+        "v01-CityhunterV01_131",
+        "v01-CityhunterV01_138",
+        "v01-CityhunterV01_139",
+        "v01-CityhunterV01_140",
+        "v01-CityhunterV01_141",
+        "v01-CityhunterV01_142",
+        "v01-CityhunterV01_156",
+        "v01-CityhunterV01_157",
+        "v01-CityhunterV01_158",
+        "v01-CityhunterV01_159",
+        "v01-CityhunterV01_160",
+        "v01-CityhunterV01_161",
+        "v01-CityhunterV01_163",
+        "v01-CityhunterV01_164",
+        "v01-CityhunterV01_165",
+        "v01-CityhunterV01_166",
+        "v01-CityhunterV01_167",
+        "v01-CityhunterV01_169"
+      ],
+      "pairPages": {
+        "ke-bi-tiem-angel-dust": 2,
+        "ryo": 9
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "gợi ý ông/cậu",
+          "moods": {
+            "mời mọc": "ông/cậu — \"別急，先喝一杯吧？\"",
+            "đắc chí": "tuyên bố kế hoạch trước Ryo — \"我們的組織要取代他控制關東!!\"",
+            "mỉa mai": "tao/mày — \"簡直像隻過街老鼠一般!!\"",
+            "dụ dỗ": "ta/cậu — \"你不想穿得更好、吃得更好！過更好的美好人生嗎？\"",
+            "đe dọa ngầm": "nhắc tới người thân của ryo để gây áp lực — \"你好像有個妹妹呢，為了那個孩子你也要…\"",
+            "hoảng loạn": "你",
+            "thách thức": "你"
+          }
+        }
+      }
+    },
+    {
+      "id": "ke-bi-tiem-angel-dust",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông tóc đen rối, ngồi trên ghế đẩu, bị còng/trói tay khi đang được tiêm thuốc Angel Dust",
+      "note": "Người bị ép tiêm thuốc Angel Dust để biến thành sát thủ 'siêu nhân' theo lệnh trum-angel-dust; diễn biến tiếp ở trang 131 (bẻ gãy còng tay).",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_131",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.4381952,
+            0.7213434,
+            0.1282216,
+            0.0405974
+          ]
+        },
+        {
+          "page": "v01-CityhunterV01_154",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.4498,
+            0.6879,
+            0.2856,
+            0.1251
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_130",
+        "v01-CityhunterV01_131",
+        "v01-CityhunterV01_144",
+        "v01-CityhunterV01_145",
+        "v01-CityhunterV01_146",
+        "v01-CityhunterV01_147",
+        "v01-CityhunterV01_153",
+        "v01-CityhunterV01_154",
+        "v01-CityhunterV01_155"
+      ],
+      "pairPages": {
+        "trum-angel-dust": 1,
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "(chưa rõ tự xưng)/你 (suồng sã, khiêu khích)",
+          "moods": {
+            "thương hại": "ta/ngươi — 'điều duy nhất ta có thể làm là để ngươi được yên nghỉ'"
+          }
+        }
+      }
+    },
+    {
+      "id": "chu-silky-club",
+      "aliases": [],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "nam thanh niên tóc đen gọn, mặc vest trắng, thái độ lịch sự trịnh trọng, tự xưng là chủ nhân Silky Club",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_138",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.66,
+            0.395,
+            0.17,
+            0.075
+          ]
+        }
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "tôi/anh (我/你)"
+        }
+      },
+      "pages": [
+        "v01-CityhunterV01_138",
+        "v01-CityhunterV01_139"
+      ],
+      "pairPages": {
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nishioka-tadashi",
+      "name": "西岡忠",
+      "nameJa": "西岡忠",
+      "aliases": [
+        "Nishioka Tadashi"
+      ],
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông lớn tuổi, đầu hói, mặc vest — chỉ thấy qua ảnh chân dung",
+      "note": "Trùm một tổ chức bạo lực khống chế vùng Kanto; là mục tiêu ám sát mà trum-angel-dust thuê Ryo thực hiện; mới chỉ xuất hiện qua ảnh, chưa lộ diện trực tiếp.",
+      "pages": [
+        "v01-CityhunterV01_139"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "anh-trai-huong",
+      "aliases": [
+        "槙村",
+        "Anh Makimura"
+      ],
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "người đàn ông tóc đen ngắn hơi rối, mặc áo choàng dài cổ dựng, thắt cà vạt, xuất hiện hấp hối giữa mưa trong…",
+      "note": "! Được Ryo gọi là '槙村' (trùng họ với nhân vật đã settled 'makimura'/Hương) — hấp hối, nhờ Ryo trao nhẫn và chăm sóc 'A Hương' (阿香) ở trang sau; rất có thể là anh trai của Hương. KHÔNG gộp id với 'makimura' — khác giới tính, là nhân vật riêng.",
+      "faces": [],
+      "pages": [
+        "v01-CityhunterV01_148",
+        "v01-CityhunterV01_149"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nguoi-dan-duong",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen, mặc áo khoác dài màu trắng/kem, dẫn ryo tới hiện trường chiếc xe bị phá nát trong mưa",
+      "note": "Chưa chắc chắn ai đang nói ở một số khung cận cảnh mặt giống ryo — cần xác nhận thêm ở trang sau khi thấy rõ mặt người dẫn đường.",
+      "addresses": {
+        "ryo": {
+          "default": "tôi/A Liệu (thân mật, suy đoán)"
+        }
+      },
+      "pages": [
+        "v01-CityhunterV01_152",
+        "v01-CityhunterV01_153"
+      ],
+      "pairPages": {
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nu-nan-nhan-angel-dust",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng, bị thương/khỏa thân trong vòng tay Ryo ngay sau khi trum-angel-dust trúng đạn, mỉm cười…",
+      "faces": [],
+      "note": "Xuất hiện ngay sau khi Ryo bắn hạ trum-angel-dust; được Ryo ôm/che chở dù bị thương. Khi Ryo hỏi 'vì sao che chở tôi?' cô chỉ mỉm cười bí ẩn không đáp — có thể liên quan ngầm tới tổ chức Angel Dust, danh tính thật chưa rõ, cần theo dõi các trang sau.",
+      "pages": [
+        "v01-CityhunterV01_169"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "cuop-to-con",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông vạm vỡ, mặt góc cạnh dữ tợn, tóc đen ngắn hơi rối; một trong hai gã khả nghi Ryo bám theo trên xe buý…",
+      "note": "Cùng cuop-can-kinh là hai gã khả nghi bị Ryo theo dõi từ tr.183 (nghi vụ cướp ngân hàng Shinjuku); hoá ra đúng là cướp ngân hàng thật.",
+      "addresses": {
+        "ryo": {
+          "default": "你 (cộc lốc)",
+          "moods": {
+            "đe dọa": "你 — hung hãn, trịch thượng",
+            "phẫn nộ": "你 (mày/tao)"
+          }
+        }
+      },
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_187",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.17,
+            0.05,
+            0.25,
+            0.16
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_184",
+        "v01-CityhunterV01_185",
+        "v01-CityhunterV01_186",
+        "v01-CityhunterV01_187",
+        "v01-CityhunterV01_188",
+        "v01-CityhunterV01_189",
+        "v01-CityhunterV01_190",
+        "v01-CityhunterV01_191"
+      ],
+      "pairPages": {
+        "ryo": 3,
+        "makimura": 1
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ]
+    },
+    {
+      "id": "cuop-can-kinh",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông đeo kính gọng tròn, tóc đen chải gọn, xách cặp táp, đi cùng cuop-to-con",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_184",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.58,
+            0.17,
+            0.13,
+            0.1
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_184",
+        "v01-CityhunterV01_185",
+        "v01-CityhunterV01_188",
+        "v01-CityhunterV01_189",
+        "v01-CityhunterV01_190",
+        "v01-CityhunterV01_191",
+        "v01-CityhunterV01_192",
+        "v01-CityhunterV01_193"
+      ],
+      "pairPages": {
+        "ryo": 1,
+        "makimura": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "你 (mày/mi)"
+        },
+        "makimura": {
+          "default": "你這八婆 (con mụ/con nhãi này)"
+        }
+      }
+    },
+    {
+      "id": "tai-xe-xe-buyt",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "tài xế xe buýt đội mũ, đeo kính, trung niên, đổ mồ hôi hoảng sợ khi bị chĩa súng vào đầu",
+      "note": "Vai phụ chỉ xuất hiện trong cảnh bị khống chế tr.184-185, có thể không xuất hiện lại.",
+      "pages": [
+        "v01-CityhunterV01_184"
+      ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "khach-goi-dien",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "đàn ông đeo kính gọng tròn to, tóc đen hơi rối, mặc áo khoác vải tweed, vẻ mặt cười gượng/bơ phờ, ngồi một mì…",
+      "pages": [
+        "v01-CityhunterV01_201",
+        "v01-CityhunterV01_202"
+      ],
+      "pairPages": {
+        "makimura": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "ga-thuoc-no",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông tóc đen ngắn hơi rối, mặt gồ ghề dữ tợn, xuất hiện túm lấy co-gai-cong-vien từ phía sau trong công vi…",
+      "note": "Tự nhận nhận ra giọng nói của makimura 'qua điện thoại' — chưa rõ có liên quan gì tới người gọi điện bí ẩn buột miệng gọi '阿香' ở đầu chương hay không, ban đầu tưởng là vụ án riêng biệt không liên quan đến makimura, nhưng bằng chứng tr.204/207 (阿獠, 香) xác nhận cô gái chính là makimura.",
+      "pages": [
+        "v01-CityhunterV01_202",
+        "v01-CityhunterV01_203",
+        "v01-CityhunterV01_204",
+        "v01-CityhunterV01_205",
+        "v01-CityhunterV01_206",
+        "v01-CityhunterV01_207"
+      ],
+      "pairPages": {
+        "makimura": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_205",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.46012246,
+            0.07039692,
+            0.20999269,
+            0.09946824
+          ]
+        }
+      ]
+    },
+    {
+      "id": "can-bo-yunio",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông béo, đầu hói, mặt bóng đổ mồ hôi, ăn mặc như khách chơi bài nhưng thực chất là cán bộ tổ chức Yunio・D…",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_210-211",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.06,
+            0.795,
+            0.2,
+            0.085
+          ]
+        }
+      ],
+      "note": "Makimura xác nhận qua lời giải thích rằng đây là 'cán bộ của 優尼奥・迪奥貝 cải trang thành khách quen' để dàn xếp sòng bạc ngầm gây quỹ cho tổ chức; chưa có tên riêng.",
+      "pages": [
+        "v01-CityhunterV01_210-211",
+        "v01-CityhunterV01_212",
+        "v01-CityhunterV01_214",
+        "v01-CityhunterV01_216",
+        "v01-CityhunterV01_217"
+      ],
+      "pairPages": {
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ],
+      "hold": true
+    },
+    {
+      "id": "quan-ly-casino",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông lớn tuổi, tóc xám/bạc chải ngược, mặt vuông nghiêm nghị, mặc vest thắt nơ đen, quản lý/chia bài tại s…",
+      "note": "Chỉ mới xuất hiện qua hình ảnh (bàn tay đẩy chip, gương mặt quan sát); chưa có lời thoại rõ ràng ở các trang này, xem tiếp trang 212.",
+      "faces": [
+        {
+          "page": "v01-CityhunterV01_213",
+          "side": "raw",
+          "box": [
+            0.7285819,
+            0.26873308,
+            0.17479095,
+            0.1965375
+          ]
+        }
+      ],
+      "pages": [
+        "v01-CityhunterV01_210-211",
+        "v01-CityhunterV01_212",
+        "v01-CityhunterV01_213",
+        "v01-CityhunterV01_214",
+        "v01-CityhunterV01_215",
+        "v01-CityhunterV01_216",
+        "v01-CityhunterV01_217"
+      ],
+      "pairPages": {
+        "can-bo-yunio": 1,
+        "ryo": 3
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ]
+    }
+  ]
+}

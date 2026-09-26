@@ -277,11 +277,20 @@ pub async fn get_active_style_profile() -> anyhow::Result<Option<StyleProfile>> 
 /// The profile rides in the story context, which is fixed for a loaded model so
 /// the provider can cache it; a loaded API model is therefore loaded again at
 /// once, and the next page translated follows the new profile.
+///
+/// `name` is the library entry's name (`StyleScanResult::name`) the profile was
+/// picked from, if any — it switches the active character library to match
+/// (`CharacterLibrary::switch_to`), so a page from this series never surfaces
+/// another series' faces as context. `None` (a custom/unsaved profile, or
+/// deactivating) falls the library back to its pre-split shared file.
 pub async fn set_active_style_profile(
     resources: AppResources,
     profile: Option<StyleProfile>,
+    name: Option<String>,
 ) -> anyhow::Result<()> {
     style::set_active(profile.as_ref())?;
+    style::set_active_name(name.as_deref())?;
+    resources.ml.character_lib.switch_to(name.as_deref())?;
     crate::ops::refresh_story_context(resources).await?;
     Ok(())
 }

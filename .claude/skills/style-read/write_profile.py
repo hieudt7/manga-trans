@@ -206,10 +206,12 @@ One thing a first pass loses, so watch for it:
   variants. Under-writing here is the most common failure.
 
 There is no cap on the cast and no judgement call to make about who is
-"central enough": a character qualifies by the rule alone — more than 10
-pages, OR seen in 2 or more volumes (check the digest's `volumes` column, not
-just `appearances`) — and every character who qualifies goes in, however long
-that makes the dictionary.
+"central enough": a character qualifies by the rule alone — more than 5 lines
+of dialogue credited to them (the digest's `lines` column), OR seen in 2 or
+more volumes (the digest's `volumes` column) — and every character who
+qualifies goes in, however long that makes the dictionary. `appearances`
+(page count) and `speech` (page-capped) are shown for context only; they are
+not what decides who qualifies.
 
 Return a PATCH as JSON, not the whole dictionary:
 
@@ -264,13 +266,25 @@ address are your SUGGESTED Vietnamese with the Japanese they stand for, and
 def volumes_seen(pages):
     """Distinct volumes a character's page ids fall in — mirrors digest.py's
     `volume_spread`, kept separate since this module doesn't import digest
-    for it alone."""
-    return len({p.rsplit("-", 1)[0] for p in pages if "-" in p})
+    for it alone. Splits on the *first* `-`: the volume prefix (`v01`) never
+    contains one, but a merged two-page spread's number half can
+    (`v01-CityhunterV01_210-211`), which a last-`-` split would misread as a
+    second volume."""
+    return len({p.split("-", 1)[0] for p in pages if "-" in p})
 
 
 def qualifying_but_missing(cast, profile):
-    """Characters the cast-selection rule already admits — more than 10
-    pages, or seen in 2+ volumes — that the dictionary doesn't have yet.
+    """Characters the cast-selection rule already admits — more than 5 lines
+    of dialogue credited to them, or seen in 2+ volumes — that the dictionary
+    doesn't have yet.
+
+    Lines, not pages: a page count rewards merely being drawn on the page, so
+    a character who carries a whole scene in just a handful of pages (a
+    dying man's few urgent lines, say) could sit under the old page
+    threshold while a silent background regular sailed over it. `lines`
+    (`speechLines` in cast.json, from `progress.py`'s `speech_lines()`) counts
+    actual dialogue-bullet credits instead, which tracks who a translator
+    actually has to write for.
 
     Computed here rather than left for the model to notice on its own: a cast
     digest can list well over 100 characters, most shown only as a one-line
@@ -291,10 +305,10 @@ def qualifying_but_missing(cast, profile):
         if not ident or ident in published:
             continue
         pages = c.get("pages", [])
-        pc, vc = len(pages), volumes_seen(pages)
-        if pc > 10 or vc >= 2:
-            out.append({"id": ident, "name": c.get("name", ""), "pages": pc, "volumes": vc})
-    out.sort(key=lambda c: (-c["volumes"], -c["pages"]))
+        lc, vc = c.get("speechLines", 0), volumes_seen(pages)
+        if lc > 5 or vc >= 2:
+            out.append({"id": ident, "name": c.get("name", ""), "lines": lc, "volumes": vc})
+    out.sort(key=lambda c: (-c["volumes"], -c["lines"]))
     return out
 
 
@@ -304,7 +318,7 @@ def build_tree_prompt(
     must_add_block = ""
     if must_add:
         lines = "\n".join(
-            f"- {c['id']} — {c['name']} ({c['pages']}p, {c['volumes']}v)" for c in must_add
+            f"- {c['id']} — {c['name']} ({c['lines']} lines, {c['volumes']}v)" for c in must_add
         )
         must_add_block = "\n".join(
             [
@@ -313,9 +327,9 @@ def build_tree_prompt(
                 "MUST ADD THIS PASS — already qualify by the rule above, not yet in the dictionary",
                 "=" * 70,
                 "Every id below already earns a place (checked mechanically against the cast "
-                "digest, not left to you to notice in a long list): each is either on more than "
-                "10 pages, or seen in 2+ volumes, or both. Upsert every one of them — do not "
-                "reassess whether they qualify, only write who they are:",
+                "digest, not left to you to notice in a long list): each has more than 5 lines "
+                "of dialogue credited to them, or is seen in 2+ volumes, or both. Upsert every "
+                "one of them — do not reassess whether they qualify, only write who they are:",
                 lines,
             ]
         )

@@ -43,7 +43,7 @@ LIMITS = {
     "address": 14,
     "soundEffects": 8,
     "glossary": 60,
-    # No cap on the recurring cast — the >10-pages / 2+-volumes rule in
+    # No cap on the recurring cast — the >5-lines / 2+-volumes rule in
     # SKILL.md is the whole gate; a long series earns as large a dictionary
     # as its own cast actually is. "characters" is a real top-level key
     # (see ALLOWED_KEYS) but deliberately absent here, since it has no limit

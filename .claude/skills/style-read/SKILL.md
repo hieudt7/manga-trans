@@ -323,23 +323,34 @@ address each of the others. Keep every field to that job.
 - `personality` and `speech` describe the person and the voice, not events.
 - `relations` is the point of the file. Spend the length there.
 
-**Choosing the cast.** Include every character on **more than 10 pages** —
-`appearances` in the cast digest — **or seen in 2 or more volumes** —
-`volumes` in the same digest, computed from the page ids' volume prefixes.
-Either one alone qualifies; do not weigh them against `headline` or `speech`
-or any other judgement call. The volumes count catches who the page-count rule
-alone would miss: a character thin in any single volume but who keeps coming
-back, series-wide — 2 pages in volume 2, 3 in volume 4, 5 in volume 6 is 10
-pages total (short of "more than 10") across three separate returns, and that
-recurrence is itself the signal a one-off with the same 10 pages in one volume
-does not carry. Both rules stay deliberately blunt: simple enough that two
-different runs pick the same cast from the same notes, which a "central but
-thin" exception never was.
+**Choosing the cast.** Include every character with **more than 5 lines of
+dialogue credited to them** — `lines` in the cast digest, from
+`progress.py`'s `speech_lines()`, one tally per bullet in a note's `Lời
+thoại` section — **or seen in 2 or more volumes** — `volumes` in the same
+digest, computed from the page ids' volume prefixes. Either one alone
+qualifies; do not weigh them against `appearances`, `headline`, `speech`, or
+any other judgement call.
+
+`lines` counts dialogue, not pages, on purpose: a page count rewards merely
+being drawn on the page, so a character who carries a whole scene in a
+handful of urgent lines — a dying man naming his killer, say — could sit
+under a page threshold while a silent background regular sailed over it.
+Counting the actual bullets credited to them as speaker tracks who a
+translator actually has to write for, which is the thing the cast rule is
+trying to catch. `speech` (page-capped, requires a named listener) undercounts
+the same case for the same reason a raw page count does; `lines` does not.
+
+The volumes count catches what the line-count rule alone would miss: a
+character thin in any single volume but who keeps coming back, series-wide —
+a couple of lines in volume 2, a few more in volume 4, a few more in volume
+6 might never clear 5 lines in any one volume, and that recurrence is itself
+the signal a one-off with the same handful of lines in one volume does not
+carry. Both rules stay deliberately blunt: simple enough that two different
+runs pick the same cast from the same notes, which a "central but thin"
+exception never was.
 
 There is no cap — every character either rule reaches goes in, however long
-that makes the cast. On a six-volume, 563-page, 128-character run, the >10
-rule alone landed on 29; the volumes rule adds whoever recurs series-wide on
-fewer pages than that (see `digest.py`'s `volumes` column).
+that makes the cast.
 
 This does still cost real central characters who are simply seen less, and
 never come back — a one-off retired champion who sets a whole arc's plot in
@@ -400,8 +411,8 @@ actually in. Where politeness survives cruelty, say so, and say plainly that
 the translator must **not** coarsen them.
 
 - **characters** (no cap): the recurring cast, per "Choosing the cast" above —
-  everyone on more than 10 pages, or seen in 2 or more volumes, whichever
-  either. Take ids, names, gender and age from the cast digest, merging any
+  everyone with more than 5 lines of dialogue, or seen in 2 or more volumes,
+  whichever either. Take ids, names, gender and age from the cast digest, merging any
   duplicates it still shows. Write `role`, `personality` and `speech` from
   what the notes show. `relations`: for each character they speak to on more
   than one page (the `(Np)` beside each `→` line), what that character is to

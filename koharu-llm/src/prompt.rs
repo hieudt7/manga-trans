@@ -52,9 +52,19 @@ pub struct PromptRenderer {
 /// prompt rate.
 pub const BLOCK_FORMAT_INSTRUCTIONS: &str = "The input is a list of blocks. A line containing only [N] starts block N; the lines after it are that block's text. Reply with exactly the same [N] markers, in the same order and count, each followed by only the translated text. Never merge, split, reorder, add, or drop a block, and never write anything outside a block.";
 
+/// Vietnamese forces a pronoun choice on every line that Japanese and most
+/// other target languages leave implicit, and the correct pair follows the
+/// *relationship*, not the character in isolation — it shifts as two people
+/// grow closer within the same story. A character profile (when one exists)
+/// already states the settled pair for a given relation; this is the fallback
+/// for everyone else, including a pair who only shares one scene. This
+/// project only ever translates into Vietnamese, so it is unconditional
+/// rather than gated on the target language.
+const VIETNAMESE_ADDRESS_GUIDANCE: &str = "\n\nVietnamese address terms (xưng hô): choose the pair from the relationship and emotional closeness shown in the scene, not a fixed default — infer it from context (nicknames used, physical closeness, tone, how long they've known each other), and let it shift as the relationship develops across the story.\n\nUnrelated by blood, by situation — pick the register by apparent age group first, then adjust for closeness:\n- Strangers, formal, first meeting: tôi + anh/chị/cô/chú/ông/bà (match the listener's apparent gender and age)\n- Adult / working-age, relationship unclear, casual acquaintances, or even close friends (not romantic): tôi + anh (male listener) or tôi + cô (female listener). This is the default for grown characters at any closeness short of anh/em-level warmth — do not reach for cậu/tớ here just because they're on friendly terms, and do not jump to anh/em just because they're friendly either (anh/em this early reads as romantic); only move to anh/em once the scene clearly shows deep, established closeness (long history together, physical comfort, crying or caring for one another).\n- Teen or student age group, relationship unclear, casual, or close friends: cậu/tớ, either direction, between two boys, two girls, or a boy and a girl — this is where cậu/tớ belongs; it is the teen/student equivalent of the adult tôi/anh default above, not a general-purpose casual pairing for any age.\n- A woman saying \"tôi\" and calling a man \"cậu\" is FORBIDDEN except when she is clearly his senior or in charge of him (a teacher, a coach, a boss, an older colleague correcting a junior) — it reads as talking down to him. For any other adult pair — peers, training partners, an unclear relationship, even once they're friendly — use tôi + anh instead. WRONG (two adult peers, no established seniority): \"Tôi hiểu tâm trạng của cậu.\" CORRECT: \"Tôi hiểu tâm trạng của anh.\"\n- The same ban applies the other way: a man saying \"tôi\" and calling a woman \"cậu\" is FORBIDDEN except when he is clearly her senior or in charge of her — for any other adult pair use tôi + cô instead. WRONG (two adult peers): \"Cậu mà cứ lề mề thế là tôi bỏ mặc cậu đấy nhé.\" CORRECT: \"Cô mà cứ lề mề thế là tôi bỏ mặc cô đấy nhé.\"\n- Romantic partners: anh/em, matching each one's gender and relative age (swap if the woman is clearly older)\n- Hostile, contemptuous, or belittling: tao/mày\n- A much older person addressing a young stranger or junior: cô/chú/bác/ông/bà (self), cháu/em/con (them)\n- A young person addressing a much older stranger: em/cháu/con (self), cô/chú/bác/ông/bà (them)\n\nBlood family and marriage — use the real kinship term, never a generic pronoun:\n- Parent ↔ child: cha/ba/bố or mẹ/má (the parent, self), con (the child, self, and how the parent addresses the child)\n- Grandparent ↔ grandchild: ông/bà (self), cháu (self, and how the grandparent addresses the grandchild)\n- Older brother ↔ younger sibling, either gender: anh (the older brother, self), em (the younger one, self, and how the older addresses them)\n- Older sister ↔ younger sibling, either gender: chị (the older sister, self), em (the younger one, self, and how the older addresses them)\n- Spouses: anh/em (the most common pair, even once they have children), or mình with each other, or by their child's name (\"bố thằng cu\", \"mẹ nó\")\n- Aunt/uncle ↔ niece/nephew: cô/dì/bác/chú/cậu/mợ (the adult, matching which side of the family and their age relative to the parent), cháu (the younger one, both directions)\n\nWatch for signs of closeness — a nickname or first name instead of a full name or title, physical contact, crying or comforting each other, a confession of feelings, panic while caring for someone hurt — and prefer the warmer pairing when the scene clearly shows it, even when the two characters have no established profile yet.";
+
 pub fn system_prompt(target_language: Language) -> String {
     format!(
-        "You are a professional manga translator. Translate Japanese manga dialogue into natural {} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, and emphasis. Keep the wording concise.\n\nFor sound effects (SFX / onomatopoeia): output ONLY the sound word itself in {}, nothing else — no parentheses, no descriptions, no explanations. WRONG: \"(Tiếng búa đập)\" or \"BỊCH! (Tiếng búa đập)\". CORRECT: \"BỊCH!\". More examples: \"ドン\" → \"BÙNG!\", \"ガン\" → \"BANG!\", \"ザー\" → \"ÀO ÀO\", \"トン\" → \"THÌNH!\", \"キーン\" → \"VÙN!\".\n\nOutput ONLY the translated text — never prefix or suffix with character names, speaker labels, colons, or any metadata. WRONG: \"SAEBA: Xin chào\". CORRECT: \"Xin chào\". {BLOCK_FORMAT_INSTRUCTIONS}",
+        "You are a professional manga translator. Translate Japanese manga dialogue into natural {} that fits inside speech bubbles. Preserve character voice, emotional tone, relationship nuance, and emphasis. Keep the wording concise.{VIETNAMESE_ADDRESS_GUIDANCE}\n\nFor sound effects (SFX / onomatopoeia): output ONLY the sound word itself in {}, nothing else — no parentheses, no descriptions, no explanations. WRONG: \"(Tiếng búa đập)\" or \"BỊCH! (Tiếng búa đập)\". CORRECT: \"BỊCH!\". More examples: \"ドン\" → \"BÙNG!\", \"ガン\" → \"BANG!\", \"ザー\" → \"ÀO ÀO\", \"トン\" → \"THÌNH!\", \"キーン\" → \"VÙN!\".\n\nOutput ONLY the translated text — never prefix or suffix with character names, speaker labels, colons, or any metadata. WRONG: \"SAEBA: Xin chào\". CORRECT: \"Xin chào\". {BLOCK_FORMAT_INSTRUCTIONS}",
         target_language, target_language
     )
 }
@@ -183,6 +193,23 @@ mod tests {
         assert!(prompt.contains("natural Korean"));
         assert!(prompt.contains("[N] starts block N"));
         assert!(prompt.contains("Never merge, split, reorder"));
+    }
+
+    #[test]
+    fn every_system_prompt_carries_vietnamese_address_guidance() {
+        // The project only ever translates into Vietnamese, so this guidance
+        // is unconditional — present regardless of the nominal target language.
+        for language in [Language::Vietnamese, Language::Korean, Language::English] {
+            let prompt = system_prompt(language);
+            assert!(prompt.contains("Vietnamese address terms"));
+            assert!(prompt.contains("cậu/tớ"));
+            assert!(prompt.contains("Older sister"));
+            assert!(prompt.contains("anh/em"));
+            assert!(prompt.contains("tao/mày"));
+            assert!(prompt.contains("Blood family and marriage"));
+            assert!(prompt.contains("mẹ/má"));
+            assert!(prompt.contains("cô/dì/bác/chú/cậu/mợ"));
+        }
     }
 
     #[test]

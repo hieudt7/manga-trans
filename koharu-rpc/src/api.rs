@@ -1317,14 +1317,25 @@ async fn get_active_style_profile() -> ApiResult<Json<Option<StyleProfile>>> {
     Ok(Json(profile))
 }
 
-/// `null` stops translations following any profile. A loaded API model picks
-/// the change up at once.
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SetActiveStyleProfileRequest {
+    profile: Option<StyleProfile>,
+    /// The library entry's name (`StyleScanResult::name`) `profile` came from,
+    /// so the matching character library is switched in alongside it. Omitted
+    /// (or `null`) for a profile with no saved name, or when deactivating.
+    #[serde(default)]
+    name: Option<String>,
+}
+
+/// `profile: null` stops translations following any profile. A loaded API
+/// model picks the change up at once.
 async fn set_active_style_profile(
     State(state): State<ApiState>,
-    Json(profile): Json<Option<StyleProfile>>,
+    Json(body): Json<SetActiveStyleProfileRequest>,
 ) -> ApiResult<StatusCode> {
     let resources = state.resources()?;
-    operations::set_active_style_profile(resources, profile)
+    operations::set_active_style_profile(resources, body.profile, body.name)
         .await
         .map_err(ApiError::from)?;
     Ok(StatusCode::NO_CONTENT)

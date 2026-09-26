@@ -1,4 +1,7 @@
-use std::{path::PathBuf, sync::Mutex};
+use std::{
+    path::{Path, PathBuf},
+    sync::Mutex,
+};
 
 use anyhow::Result;
 use image::{DynamicImage, Rgb, imageops};
@@ -175,11 +178,47 @@ fn describe_character(name: &str, traits: &[String], relations: &[String]) -> St
     desc
 }
 
-fn character_lib_path() -> PathBuf {
+/// Where per-series character libraries live, one file per series, named to
+/// match its style profile in `bilingual::corpus`'s library — switching which
+/// profile is active (`set_active_style_profile`) switches which of these is
+/// loaded too, so a page from one series never surfaces another series' faces
+/// as context (they share nothing but an art style once matched by embedding,
+/// which is exactly the kind of thing CCIP can spuriously match).
+fn character_library_dir() -> PathBuf {
+    if let Some(dir) = std::env::var_os("KOHARU_CHARACTER_LIBRARIES_DIR") {
+        return PathBuf::from(dir);
+    }
+    let in_tree = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .map(|root| root.join("character_libraries"));
+    if let Some(dir) = in_tree.filter(|dir| dir.is_dir()) {
+        return dir;
+    }
     dirs::data_local_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join("koharu")
-        .join("character_lib.json")
+        .join("character_libraries")
+}
+
+/// `name` is a style profile's library name (`StyleScanResult::name`), the
+/// same string `bilingual::corpus::library_file_name` slugs into a
+/// `style_profiles/*.json` file — reused here so the two files pair up under
+/// the same name. `None` (no active profile — a session that never opened
+/// Style Scanner, or explicitly stopped following one) falls back to the
+/// single file this library used before it was split per series, so a plain
+/// folder-mode session that never touches Style Scanner keeps working exactly
+/// as it did.
+fn character_lib_path(name: Option<&str>) -> PathBuf {
+    match name {
+        Some(name) => {
+            let slug = crate::bilingual::corpus::library_file_name(name);
+            character_library_dir().join(format!("{slug}.json"))
+        }
+        None => dirs::data_local_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join("koharu")
+            .join("character_lib.json"),
+    }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -265,7 +304,7 @@ pub struct CharacterLibrary {
     panel_det: Option<Mutex<Session>>,
     wd_tagger: Option<WdTaggerModel>,
     entries: Mutex<Vec<CharacterEntry>>,
-    lib_path: PathBuf,
+    lib_path: Mutex<PathBuf>,
 }
 
 impl CharacterLibrary {
@@ -278,13 +317,17 @@ impl CharacterLibrary {
             panel_det: None,
             wd_tagger: None,
             entries: Mutex::new(Vec::new()),
-            lib_path: character_lib_path(),
+            lib_path: Mutex::new(character_lib_path(None)),
         }
     }
 
     /// Load the library from disk and initialise ONNX sessions if models are available.
+    ///
+    /// Loads with no active series (the legacy shared file) — `switch_to` is
+    /// called separately once the app knows which style profile, if any, was
+    /// last left active (see `refresh_story_context`'s caller at startup).
     pub fn load() -> Result<Self> {
-        let lib_path = character_lib_path();
+        let lib_path = character_lib_path(None);
         let entries: Vec<CharacterEntry> = if lib_path.exists() {
             let json = std::fs::read_to_string(&lib_path)?;
             serde_json::from_str(&json).unwrap_or_default()
@@ -329,8 +372,37 @@ impl CharacterLibrary {
             panel_det: panel_det.map(Mutex::new),
             wd_tagger,
             entries: Mutex::new(entries),
-            lib_path,
+            lib_path: Mutex::new(lib_path),
         })
+    }
+
+    /// Switch which series' entries are active, called whenever the active
+    /// style profile changes (see `ops::style_scan::set_active_style_profile`)
+    /// so CV context, face syncing from Character Scanner, and the story-context
+    /// roster all land in the one series actually being translated. `name` is
+    /// the style profile's library name; `None` (no profile active, or one just
+    /// deactivated) goes back to the legacy shared file.
+    ///
+    /// Entries already on disk under the outgoing path do not need saving here
+    /// — every mutation (`add_character`, `remove_character`) writes through
+    /// immediately, so nothing is ever sitting unsaved in memory between calls.
+    pub fn switch_to(&self, name: Option<&str>) -> Result<()> {
+        let new_path = character_lib_path(name);
+        let mut lib_path = self.lib_path.lock().unwrap();
+        if *lib_path == new_path {
+            return Ok(());
+        }
+        let new_entries: Vec<CharacterEntry> = if new_path.exists() {
+            let json = std::fs::read_to_string(&new_path)?;
+            serde_json::from_str(&json).unwrap_or_default()
+        } else {
+            Vec::new()
+        };
+        let count = new_entries.len();
+        *self.entries.lock().unwrap() = new_entries;
+        *lib_path = new_path;
+        tracing::info!(path = %lib_path.display(), count, "character library switched");
+        Ok(())
     }
 
     pub fn has_ccip(&self) -> bool {
@@ -550,6 +622,58 @@ impl CharacterLibrary {
             ));
         }
         Some(lines.join("\n"))
+    }
+
+    /// Identify the known character speaking in each of a page's dialogue
+    /// regions, given a vision model's own guess at each speaker's face
+    /// location (fractional `[x, y, width, height]`, `None` where it saw no
+    /// face for that region) — one entry in, one entry out, in the same
+    /// order as `hints`.
+    ///
+    /// The hint box itself is not what gets embedded: a model points at a
+    /// face by eye, the same way it names a character by eye, and can be a
+    /// few pixels off in a way that quietly hurts a CCIP match. This module
+    /// already has a dedicated face detector for exactly this job, so the
+    /// hint is only used to pick *which* detected face the model meant —
+    /// snapped to whichever detected box overlaps or sits nearest it — and
+    /// that detector box is what gets cropped and embedded. Only when no
+    /// detected face is anywhere near the hint (the detector missed it, or
+    /// none is loaded) does this fall back to cropping the hint directly —
+    /// worse, but still better than skipping the region entirely.
+    ///
+    /// Detection runs once for the whole page, not once per hint.
+    pub fn identify_speaker_faces(
+        &self,
+        image: &DynamicImage,
+        hints: &[Option<[f32; 4]>],
+    ) -> Vec<Option<FaceMatch>> {
+        let Some(ccip) = &self.ccip else {
+            return vec![None; hints.len()];
+        };
+        let entries = self.entries.lock().unwrap().clone();
+        if entries.is_empty() {
+            return vec![None; hints.len()];
+        }
+
+        let detected = self
+            .face_det
+            .as_ref()
+            .and_then(|fd| detect_faces(fd, image).ok())
+            .unwrap_or_default();
+        let (img_w, img_h) = (image.width() as f32, image.height() as f32);
+
+        hints
+            .iter()
+            .map(|hint| {
+                let bbox = (*hint)?;
+                let crop = match nearest_detected_face(&detected, bbox, img_w, img_h) {
+                    Some(fb) => crop_face_expanded(image, fb),
+                    None => crop_from_fraction(image, bbox)?,
+                };
+                let embedding = embed_face(ccip, &crop).ok()?;
+                Some(find_best_match(&entries, &embedding))
+            })
+            .collect()
     }
 
     /// For each text block (id, x, y, w, h — in pixels), detect which character
@@ -877,11 +1001,12 @@ impl CharacterLibrary {
     // ─── Private ──────────────────────────────────────────────────────────────
 
     fn save_locked(&self, entries: &[CharacterEntry]) -> Result<()> {
-        if let Some(parent) = self.lib_path.parent() {
+        let lib_path = self.lib_path.lock().unwrap();
+        if let Some(parent) = lib_path.parent() {
             std::fs::create_dir_all(parent)?;
         }
         let json = serde_json::to_string_pretty(entries)?;
-        std::fs::write(&self.lib_path, json)?;
+        std::fs::write(&*lib_path, json)?;
         Ok(())
     }
 }
@@ -1812,6 +1937,57 @@ fn iou_face(a: &FaceBox, b: &FaceBox) -> f32 {
     inter / (a.width * a.height + b.width * b.height - inter)
 }
 
+/// Which detected face (if any) a fractional hint box `[x, y, width, height]`
+/// most likely points at: the detected box with the highest IoU against the
+/// hint, when any overlap it all; failing that (the hint sits just outside
+/// every detected box — a common few-pixel miss, not a wrong panel) the
+/// detected box whose centre is nearest the hint's, as long as it's within
+/// 1.5x the hint's own diagonal. Beyond that it's not a match worth trusting
+/// — the caller falls back to the hint box itself.
+fn nearest_detected_face<'a>(
+    detected: &'a [FaceBox],
+    hint: [f32; 4],
+    img_w: f32,
+    img_h: f32,
+) -> Option<&'a FaceBox> {
+    if detected.is_empty() {
+        return None;
+    }
+    let [fx, fy, fw, fh] = hint;
+    let hint_box = FaceBox {
+        x: fx * img_w,
+        y: fy * img_h,
+        width: fw * img_w,
+        height: fh * img_h,
+        score: 0.0,
+    };
+
+    let by_iou = detected
+        .iter()
+        .map(|fb| (fb, iou_face(&hint_box, fb)))
+        .max_by(|a, b| a.1.total_cmp(&b.1));
+    if let Some((fb, iou)) = by_iou
+        && iou > 0.0
+    {
+        return Some(fb);
+    }
+
+    let hint_cx = hint_box.x + hint_box.width / 2.0;
+    let hint_cy = hint_box.y + hint_box.height / 2.0;
+    let max_dist = (hint_box.width.powi(2) + hint_box.height.powi(2)).sqrt() * 1.5;
+    detected
+        .iter()
+        .map(|fb| {
+            let cx = fb.x + fb.width / 2.0;
+            let cy = fb.y + fb.height / 2.0;
+            let dist = ((cx - hint_cx).powi(2) + (cy - hint_cy).powi(2)).sqrt();
+            (fb, dist)
+        })
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+        .filter(|(_, dist)| *dist <= max_dist)
+        .map(|(fb, _)| fb)
+}
+
 fn crop_face(image: &DynamicImage, bbox: &FaceBox) -> DynamicImage {
     let mx = bbox.width * FACE_CROP_MARGIN;
     let my = bbox.height * FACE_CROP_MARGIN;
@@ -2317,6 +2493,31 @@ fn age_bucket_from_scores(
 /// Expands: 0.5× width each side, 1.5× height downward, 0.3× upward.
 /// Kept intentionally tight to avoid capturing neighbouring characters in the
 /// same panel, which would confuse gender/age classification.
+/// Crop a fractional `[x, y, width, height]` box out of `image`, with a
+/// little padding. Unlike `crop_face_expanded`, this box did not come from
+/// this module's own face detector — a vision model drew it by eye — so the
+/// margin is small and symmetric rather than tuned for a tight detector box:
+/// enough to absorb a slightly-off edge without pulling in a neighbouring
+/// face. `None` on a degenerate box (zero/negative size, or one that maps to
+/// nothing after clamping to the image).
+fn crop_from_fraction(image: &DynamicImage, bbox: [f32; 4]) -> Option<DynamicImage> {
+    let (img_w, img_h) = (image.width() as f32, image.height() as f32);
+    let [fx, fy, fw, fh] = bbox;
+    if !(fw > 0.0 && fh > 0.0) {
+        return None;
+    }
+    let margin_x = fw * img_w * 0.15;
+    let margin_y = fh * img_h * 0.15;
+    let x = (fx * img_w - margin_x).max(0.0) as u32;
+    let y = (fy * img_h - margin_y).max(0.0) as u32;
+    let x2 = ((fx + fw) * img_w + margin_x).min(img_w) as u32;
+    let y2 = ((fy + fh) * img_h + margin_y).min(img_h) as u32;
+    if x2 <= x || y2 <= y {
+        return None;
+    }
+    Some(image.crop_imm(x, y, x2 - x, y2 - y))
+}
+
 fn crop_face_expanded(image: &DynamicImage, fb: &FaceBox) -> DynamicImage {
     let img_w = image.width() as f32;
     let img_h = image.height() as f32;

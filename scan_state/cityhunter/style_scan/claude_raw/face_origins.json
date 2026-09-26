@@ -1,0 +1,287 @@
+{
+  "ryo/0": {
+    "page": "v01-CityhunterV01_013",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.466,
+      0.324,
+      0.2457,
+      0.1023
+    ]
+  },
+  "ryo/1": {
+    "page": "v01-CityhunterV01_020",
+    "side": "raw",
+    "half": "right",
+    "box": [
+      0.2819058,
+      0.08388635,
+      0.18647852,
+      0.07741258
+    ]
+  },
+  "ryo/2": {
+    "page": "v01-CityhunterV01_037",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.08,
+      0.02,
+      0.25,
+      0.16
+    ]
+  },
+  "ryo/3": {
+    "page": "v01-CityhunterV01_045",
+    "side": "raw",
+    "half": "right",
+    "box": [
+      0.318,
+      0.1296,
+      0.2695,
+      0.1068
+    ]
+  },
+  "makimura/0": {
+    "page": "v01-CityhunterV01_027",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.378,
+      0.15,
+      0.292,
+      0.115
+    ]
+  },
+  "makimura/1": {
+    "page": "v01-CityhunterV01_030",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.252,
+      0.159,
+      0.286,
+      0.12
+    ]
+  },
+  "makimura/2": {
+    "page": "v01-CityhunterV01_064",
+    "side": "raw",
+    "half": "right",
+    "box": [
+      0.0725,
+      0.491,
+      0.38,
+      0.108
+    ]
+  },
+  "makimura/3": {
+    "page": "v01-CityhunterV01_108",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.469,
+      0.399,
+      0.31,
+      0.138
+    ]
+  },
+  "trum-angel-dust/0": {
+    "page": "v01-CityhunterV01_131",
+    "side": "raw",
+    "half": "right",
+    "box": [
+      0.2561678,
+      0.09665226,
+      0.1545475,
+      0.06445662
+    ]
+  },
+  "trum-angel-dust/1": {
+    "page": "v01-CityhunterV01_163",
+    "side": "raw",
+    "box": [
+      0.06,
+      0.03,
+      0.18,
+      0.11
+    ]
+  },
+  "trum-angel-dust/2": {
+    "page": "v01-CityhunterV01_139",
+    "side": "raw",
+    "box": [
+      0.125,
+      0.035,
+      0.18,
+      0.145
+    ]
+  },
+  "trum-angel-dust/3": {
+    "page": "v01-CityhunterV01_156",
+    "side": "raw",
+    "box": [
+      0.24,
+      0.28,
+      0.15,
+      0.11
+    ]
+  },
+  "chi-gai-yuko/0": {
+    "page": "v01-CityhunterV01_046",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.4606,
+      0.3606,
+      0.3219,
+      0.1269
+    ]
+  },
+  "chi-gai-yuko/1": {
+    "page": "v01-CityhunterV01_067",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.18,
+      0.82,
+      0.28,
+      0.14
+    ]
+  },
+  "chi-gai-yuko/2": {
+    "page": "v01-CityhunterV01_068",
+    "side": "raw",
+    "half": "right",
+    "box": [
+      0.388,
+      0.798,
+      0.294,
+      0.114
+    ]
+  },
+  "chi-gai-yuko/3": {
+    "page": "v01-CityhunterV01_049",
+    "side": "raw",
+    "box": [
+      0.11,
+      0.745,
+      0.15,
+      0.13
+    ]
+  },
+  "inagaki-kouji/0": {
+    "page": "v01-CityhunterV01_012",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.3918,
+      0.5217,
+      0.3108,
+      0.1228
+    ]
+  },
+  "inagaki-kouji/1": {
+    "page": "v01-CityhunterV01_032",
+    "side": "raw",
+    "box": [
+      0.58,
+      0.41,
+      0.17,
+      0.135
+    ]
+  },
+  "inagaki-kouji/2": {
+    "page": "v01-CityhunterV01_028",
+    "side": "raw",
+    "box": [
+      0.63,
+      0.495,
+      0.14,
+      0.1
+    ]
+  },
+  "inagaki-kouji/3": {
+    "page": "v01-CityhunterV01_026",
+    "side": "raw",
+    "box": [
+      0.73,
+      0.605,
+      0.15,
+      0.115
+    ]
+  },
+  "iwasaki/0": {
+    "page": "v01-CityhunterV01_014",
+    "side": "raw",
+    "half": "left",
+    "box": [
+      0.4274,
+      0.5101,
+      0.249,
+      0.1062
+    ]
+  },
+  "iwasaki/1": {
+    "page": "v01-CityhunterV01_015",
+    "side": "raw",
+    "box": [
+      0.205,
+      0.445,
+      0.21,
+      0.155
+    ]
+  },
+  "iwasaki/2": {
+    "page": "v01-CityhunterV01_017",
+    "side": "raw",
+    "box": [
+      0.19,
+      0.445,
+      0.13,
+      0.095
+    ]
+  },
+  "iwasaki/3": {
+    "page": "v01-CityhunterV01_016",
+    "side": "raw",
+    "box": [
+      0.145,
+      0.625,
+      0.125,
+      0.095
+    ]
+  },
+  "vo-si-nan-nhan/0": {
+    "page": "v01-CityhunterV01_029",
+    "side": "raw",
+    "half": "right",
+    "box": [
+      0.38,
+      0.4,
+      0.12,
+      0.056
+    ]
+  },
+  "vo-si-nan-nhan/1": {
+    "page": "v01-CityhunterV01_032",
+    "side": "raw",
+    "box": [
+      0.27,
+      0.405,
+      0.16,
+      0.145
+    ]
+  },
+  "vo-si-nan-nhan/2": {
+    "page": "v01-CityhunterV01_028",
+    "side": "raw",
+    "box": [
+      0.27,
+      0.505,
+      0.15,
+      0.115
+    ]
+  }
+}

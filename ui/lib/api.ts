@@ -1193,13 +1193,22 @@ export const api = {
     )
   },
 
-  /** `null` stops translations following any profile. */
-  async setActiveStyleProfile(profile: StyleProfile | null): Promise<void> {
+  /**
+   * `profile: null` stops translations following any profile. `name` is the
+   * library entry's name (`StyleScanResult.name`) `profile` came from — it
+   * switches the active character library to match, so this series' faces
+   * never surface another series' names as page context. Omit it for a
+   * custom/unsaved profile, or when deactivating.
+   */
+  async setActiveStyleProfile(
+    profile: StyleProfile | null,
+    name?: string | null,
+  ): Promise<void> {
     return withRpcError('set_active_style_profile', async () => {
       await fetchJson<void>('/style-profile/active', {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(profile),
+        body: JSON.stringify({ profile, name: name ?? null }),
       })
     })
   },

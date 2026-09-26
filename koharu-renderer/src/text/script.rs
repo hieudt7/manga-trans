@@ -88,6 +88,9 @@ pub fn font_families_for_text(text: &str) -> Vec<String> {
         #[cfg(target_os = "macos")]
         {
             &[
+                "HL-Comic1unicode",
+                "CCAstroCityInt",
+                "000 WildWords2 TB",
                 "CC Wild Words",
                 "Wild Words",
                 "Anime Ace 2.0 BB",

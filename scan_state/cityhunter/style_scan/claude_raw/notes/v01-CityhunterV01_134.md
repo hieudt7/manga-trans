@@ -1,0 +1,26 @@
+## v01-CityhunterV01_134 — Ryo hồi tưởng cha nhận nuôi Kaori và chiếc nhẫn; rồi quay lại hiện tại, bị việc "câu lạc bộ Hiruki" gọi đi
+Nhân vật: ryo, makimura
+
+### Lời thoại
+- (narration, ryo hồi tưởng): 做警官的爸爸帶回一個嬰兒……是20年前的事了……
+- (narration, tiếp): 對我說－從今天起，這孩子是你的妹妹－ 她就是香……
+- (narration): 這個孩子早已沒有母親、無依無靠的孩子，爸爸收養了她……
+- (narration): 一的遺物－戒指，爸爸常常看着它自言自語…… 等阿香20歲，把這交給她，同時把這事實……
+- ryo (tự nhủ/nói khẽ, đứng dậy rời ghế đá): ……我去見客了。
+- (sfx, Ryo thở dài khi rít thuốc): 吐……
+- (narration): ……天空也似乎哀傷得要哭泣…… 舊患隱隱作痛……
+- ryo (tự nhủ, đứng một mình hút thuốc): 惟有我承擔起這個責任…… ……今晚……我要把戒指和事實一起告訴她……
+- makimura → ryo: 今天……
+- ryo → makimura: 不……那是我的工作。 要到希爾奇俱樂部交涉的，來者不善呀。 但是，也許是——
+
+### Xưng hô
+- ADDRESS ryo → makimura [nghiêm túc, giấu chuyện]: 我/không xưng rõ (plain) ⇒ gợi ý anh/em — "不……那是我的工作。要到希爾奇俱樂部交涉的，來者不善呀。"
+
+### Tên và thuật ngữ
+- NOTE: "舊患隱隱作痛" (vết thương cũ âm ỉ đau) có thể vừa là vết thương thể xác của Ryo vừa ẩn dụ nỗi đau tâm lý khi giấu Kaori sự thật — cần chú ý cách dịch kép này.
+- NOTE: Câu "但是，也許是——" bị bỏ lửng, có thể Ryo đang cân nhắc biến chuyến đi Hiruki俱樂部 thành dịp nói sự thật với Kaori — chưa rõ, cần theo dõi trang sau.
+
+### Cast
+```json
+{"characters": []}
+```

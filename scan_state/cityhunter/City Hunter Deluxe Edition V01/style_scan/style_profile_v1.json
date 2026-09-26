@@ -1,0 +1,222 @@
+{
+  "profile": {
+    "approach": [],
+    "voice": [],
+    "address": [],
+    "soundEffects": [],
+    "glossary": [
+      [
+        "冴羽獠",
+        "Saeba Ryo"
+      ],
+      [
+        "槙村香",
+        "Makimura Kaori"
+      ],
+      [
+        "稻垣晃二",
+        "Inagaki Kouji"
+      ]
+    ],
+    "characters": [
+      {
+        "id": "ryo",
+        "name": "Saeba Ryo",
+        "nameJa": "冴羽獠",
+        "aliases": [
+          "阿獠"
+        ],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Thợ săn thành phố (City Hunter), một tay súng cừ khôi chuyên giải quyết các vụ việc nguy hiểm. Anh thường ẩn mình dưới vỏ bọc một kẻ trăng hoa nhưng thực chất là một chuyên gia đầy bản lĩnh.",
+        "personality": "Bên ngoài tỏ ra cợt nhả, hiếu sắc và hay đùa cợt, nhưng khi vào việc lại cực kỳ nghiêm túc, lạnh lùng và quyết đoán. Anh có nguyên tắc đạo đức riêng và không bao giờ bán rẻ linh hồn cho cái ác.",
+        "speech": "Nền là lối nói suồng sã, cợt nhả (tôi/cô, anh/em) với những câu đùa tục tĩu hoặc tán tỉnh. Khi vào việc, giọng trở nên lạnh lùng, dứt khoát và đầy đe dọa. Tiếng Việt: dùng 'tôi/ông' hoặc 'tao/mày' tùy đối tượng, giữ vẻ bất cần vốn có nhưng phải gằn giọng khi đe dọa.",
+        "selfTerms": [
+          "tôi",
+          "ta"
+        ],
+        "appearances": 155,
+        "relations": [
+          {
+            "to": "makimura",
+            "relation": "cộng sự, người được anh trai cô nhờ chăm sóc",
+            "address": "tôi/em (khi an ủi); tôi/cậu (khi gắt gỏng)"
+          },
+          {
+            "to": "trum-angel-dust",
+            "relation": "đối thủ, khách hàng cũ",
+            "address": "tôi/ông"
+          },
+          {
+            "to": "iwasaki",
+            "relation": "khách hàng",
+            "address": "tôi/cô"
+          },
+          {
+            "to": "chi-gai-yuko",
+            "relation": "khách hàng",
+            "address": "tôi/cô"
+          },
+          {
+            "to": "inagaki-kouji",
+            "relation": "đối thủ",
+            "address": "tôi/Inagaki"
+          }
+        ]
+      },
+      {
+        "id": "makimura",
+        "name": "Makimura Kaori",
+        "nameJa": "槙村香",
+        "aliases": [
+          "Hương"
+        ],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Cộng sự mới của Ryo, em gái của người cộng sự cũ đã khuất. Cô là người duy nhất có thể kiềm chế tính trăng hoa của Ryo.",
+        "personality": "Bộc trực, nóng tính, hay ghen và rất nghiêm túc trong công việc. Cô không ngại dùng vũ lực hoặc mắng nhiếc khi Ryo giở trò đồi bại.",
+        "speech": "Nền là lối nói thẳng thắn, gay gắt, thường xuyên mắng mỏ hoặc quát tháo Ryo. Tiếng Việt: dùng 'tôi/anh' hoặc 'tôi/mày' khi giận dữ, giữ tông giọng đanh thép, không nể nang.",
+        "selfTerms": [
+          "tôi",
+          "em"
+        ],
+        "appearances": 72,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "cộng sự",
+            "address": "tôi/anh; tôi/A Liêu"
+          },
+          {
+            "to": "chi-gai-yuko",
+            "relation": "người quen",
+            "address": "tôi/cô"
+          }
+        ]
+      },
+      {
+        "id": "trum-angel-dust",
+        "name": "Trùm Angel Dust",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Trùm tổ chức tội phạm đứng sau loại thuốc Angel Dust, kẻ muốn thâu tóm thị trường ma túy bằng cách biến con người thành những cỗ máy giết người.",
+        "personality": "Ngạo mạn, tàn độc và coi mạng người như cỏ rác. Hắn thích thao túng người khác bằng tiền bạc hoặc sự đe dọa.",
+        "speech": "Lối nói trịch thượng, ngạo mạn, thường dùng đại từ 'ta/ngươi' hoặc 'tao/mày' để hạ thấp đối thủ. Tiếng Việt: dùng 'ta/cậu' khi dụ dỗ và 'tao/mày' khi lộ bản chất tàn bạo.",
+        "selfTerms": [
+          "ta"
+        ],
+        "appearances": 19,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "đối thủ",
+            "address": "ta/cậu"
+          }
+        ]
+      },
+      {
+        "id": "chi-gai-yuko",
+        "name": "Natsumi",
+        "nameJa": "菜摘",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Thân chủ của Ryo, chị gái của nạn nhân Yuko. Cô thuê Ryo để điều tra cái chết của em gái mình.",
+        "personality": "Kiên cường, đau khổ nhưng quyết tâm tìm ra sự thật. Cô không tin tưởng cảnh sát và đặt hết hy vọng vào City Hunter.",
+        "speech": "Nền là lối nói lịch sự nhưng đầy bức xúc khi nhắc tới kẻ thù và sự tắc trách của cảnh sát. Tiếng Việt: dùng 'tôi/anh' với Ryo, giọng điệu phẫn nộ, nghẹn ngào.",
+        "selfTerms": [
+          "tôi"
+        ],
+        "appearances": 14,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "khách hàng",
+            "address": "tôi/anh"
+          }
+        ]
+      },
+      {
+        "id": "inagaki-kouji",
+        "name": "Inagaki Kouji",
+        "nameJa": "稻垣晃二",
+        "aliases": [
+          "稻垣"
+        ],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Kẻ sát nhân đã bắn chết Ogino, sau đó trở thành võ sĩ quyền anh để che đậy tội ác.",
+        "personality": "Xảo quyệt, tàn nhẫn và luôn tự mãn về sức mạnh của mình. Hắn không ngần ngại dùng thủ đoạn bẩn thỉu để chiến thắng.",
+        "speech": "Lối nói khiêu khích, mỉa mai và đầy sát khí. Tiếng Việt: dùng 'tao/mày', giọng điệu cười cợt trên nỗi đau của người khác.",
+        "selfTerms": [
+          "tao"
+        ],
+        "appearances": 12,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "đối thủ",
+            "address": "tao/mày"
+          }
+        ]
+      },
+      {
+        "id": "iwasaki",
+        "name": "Iwasaki Megumi",
+        "nameJa": "岩崎惠",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Khách hàng của Ryo, một bác sĩ 27 tuổi đang mắc bệnh hiểm nghèo, muốn thuê Ryo báo thù cho người yêu.",
+        "personality": "Trầm tĩnh, kiên định nhưng mang nỗi đau sâu sắc. Cô chấp nhận đánh đổi tất cả để đạt được mục đích cuối cùng.",
+        "speech": "Lối nói lịch sự, trang trọng nhưng đôi khi ngắt quãng vì xúc động. Tiếng Việt: dùng 'tôi/anh', giữ vẻ điềm đạm, lạnh lùng.",
+        "selfTerms": [
+          "tôi"
+        ],
+        "appearances": 12,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "khách hàng",
+            "address": "tôi/anh"
+          }
+        ]
+      },
+      {
+        "id": "vo-si-nan-nhan",
+        "name": "Mita",
+        "nameJa": "三田",
+        "aliases": [
+          "冠軍"
+        ],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Nhà vô địch quyền anh bị kẻ xấu ép bán độ và đe dọa gia đình.",
+        "personality": "Trung thực, trọng danh dự nhưng bị hoàn cảnh dồn vào đường cùng.",
+        "speech": "Lối nói phẫn nộ, bất lực trước sự áp bức. Tiếng Việt: dùng 'tôi/ông', giọng điệu uất ức.",
+        "selfTerms": [
+          "tôi"
+        ],
+        "appearances": 11,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "người được cứu",
+            "address": "tôi/anh"
+          }
+        ]
+      }
+    ]
+  },
+  "rawPages": 220,
+  "translatedPages": 0,
+  "pairedPages": 220,
+  "pairCount": 0,
+  "isVerifiedByHuman": false,
+  "source": "claude",
+  "withRaw": true,
+  "name": "city-hunter-deluxe-edition-raw",
+  "createdAt": 1790233620
+}

@@ -44,6 +44,19 @@ const CLIPPED_REGION_COVERED_SHARE: f32 = 0.5;
 const TEXT_MASK_THRESHOLD: f32 = 0.5;
 /// Growth applied to the text mask before inpainting.
 const TEXT_MASK_DILATE_RADIUS: u8 = 3;
+/// Glyphs are separate blobs; merging at this radius groups a run of text
+/// into one region instead of counting it stroke by stroke.
+const MISSED_TEXT_MERGE_RADIUS: u8 = 12;
+/// Smaller than this is mask noise or art texture, not a missed run of text —
+/// much bigger than `lama`'s equivalent (24px) since this gates a whole extra
+/// model pass, not just an inpainting touch-up.
+const MISSED_TEXT_MIN_PIXELS: u32 = 200;
+/// How far past every `PPDocLayoutV3` block's own box a run of ink must sit
+/// to count as genuinely missed rather than just outside a tight box edge.
+const MISSED_TEXT_GAP_PX: f32 = 24.0;
+/// A region this large is a runaway mask (e.g. a whole dark panel misread as
+/// text-shaped), not a missed line of dialogue.
+const MISSED_TEXT_MAX_AREA_SHARE: f32 = 0.05;
 
 fn clamp_near_black(color: [u8; 3]) -> [u8; 3] {
     let max_channel = *color.iter().max().unwrap_or(&0);
@@ -105,6 +118,13 @@ pub struct Model {
     lama: Lama,
     font_detector: FontDetector,
     bubble_detector: Option<ComicBubbleDetector>,
+    /// Only ever consulted when `detect()` finds text-shaped ink that no
+    /// `PPDocLayoutV3` block reaches (see `uncovered_ink_regions`) —
+    /// `PPDocLayoutV3` stays the trusted source for everything it already
+    /// finds. Its own full detection (YOLOv5+DBNet, quad/rotation-aware) is
+    /// otherwise unused; catching rotated text is exactly the gap
+    /// `PPDocLayoutV3`, a general document-layout model, cannot cover.
+    comic_text_detector: Option<comic_text_detector::ComicTextDetector>,
     pub character_lib: CharacterLibrary,
 }
 
@@ -121,10 +141,29 @@ impl Model {
             }
         };
 
+        let comic_text_detector = match comic_text_detector::ComicTextDetector::load(cpu).await {
+            Ok(d) => {
+                tracing::info!("ComicTextDetector loaded (rescan-on-miss only)");
+                Some(d)
+            }
+            Err(e) => {
+                tracing::warn!(error = %e, "ComicTextDetector not available — rotated text PPDocLayoutV3 misses will not be recovered");
+                None
+            }
+        };
+
         let character_lib = CharacterLibrary::load().unwrap_or_else(|e| {
             tracing::warn!(error = %e, "CharacterLibrary load failed, starting empty");
             CharacterLibrary::empty()
         });
+        // Restore whichever series' library was active last session — `load()`
+        // above always opens the pre-split shared file first, since it does not
+        // know the active profile's name on its own.
+        if let Some(name) = crate::bilingual::style::load_active_name() {
+            if let Err(e) = character_lib.switch_to(Some(&name)) {
+                tracing::warn!(error = %e, name, "failed to restore the active character library");
+            }
+        }
 
         Ok(Self {
             layout_detector: PPDocLayoutV3::load(cpu).await?,
@@ -133,6 +172,7 @@ impl Model {
             lama: Lama::load(cpu).await?,
             font_detector: FontDetector::load(cpu).await?,
             bubble_detector,
+            comic_text_detector,
             character_lib,
         })
     }
@@ -220,6 +260,43 @@ impl Model {
             imageproc::distance_transform::Norm::L1,
             TEXT_MASK_DILATE_RADIUS,
         );
+
+        // PPDocLayoutV3 stays the trusted source for every block it already
+        // finds — this only ever *adds* a block for ink the mask marks as
+        // text but that sits nowhere near any of them, and only pays for a
+        // ComicTextDetector pass on the rare page that actually has such a
+        // gap (see `uncovered_ink_regions`), rather than double-running
+        // detection on every page.
+        if let Some(ctd) = &self.comic_text_detector {
+            let uncovered = uncovered_ink_regions(&mask, &doc.text_blocks);
+            if !uncovered.is_empty() {
+                match ctd.inference(&doc.image) {
+                    Ok(detection) => {
+                        let recovered: Vec<TextBlock> = detection
+                            .text_blocks
+                            .into_iter()
+                            .filter(|block| {
+                                let (cx, cy) =
+                                    (block.x + block.width / 2.0, block.y + block.height / 2.0);
+                                uncovered
+                                    .iter()
+                                    .any(|u| cx >= u[0] && cx <= u[2] && cy >= u[1] && cy <= u[3])
+                            })
+                            .collect();
+                        tracing::info!(
+                            uncovered = uncovered.len(),
+                            added = recovered.len(),
+                            "comic-text-detector rescan for text PPDocLayoutV3 missed"
+                        );
+                        doc.text_blocks.extend(recovered);
+                    }
+                    Err(e) => {
+                        tracing::warn!(error = %e, "comic-text-detector rescan failed");
+                    }
+                }
+            }
+        }
+
         doc.segment = Some(DynamicImage::ImageLuma8(mask).into());
         let segmentation_elapsed = segmentation_started.elapsed();
 
@@ -775,6 +852,72 @@ pub async fn prefetch() -> Result<()> {
     Ok(())
 }
 
+/// Bounding boxes of ink the segmentation mask marks as text but that sits
+/// nowhere near any already-detected block — the gate for whether it's worth
+/// paying for a `ComicTextDetector` rescan pass at all (see its call site in
+/// `detect`). Same core technique as `lama`'s `leftover_mask_regions`
+/// (dilate to merge glyphs into runs, connected-component, size-filter), but
+/// inverted: that one keeps ink *near* a block (finishing an inpainting job
+/// already started); this one keeps ink *far from every* block (a run the
+/// detector missed completely — measured case: text rotated for visual
+/// effect, which `PPDocLayoutV3` structurally cannot represent).
+fn uncovered_ink_regions(mask: &image::GrayImage, blocks: &[TextBlock]) -> Vec<[f32; 4]> {
+    use imageproc::region_labelling::{Connectivity, connected_components};
+
+    let (width, height) = mask.dimensions();
+    if !mask.pixels().any(|pixel| pixel[0] >= 128) {
+        return Vec::new();
+    }
+
+    let merged = imageproc::morphology::dilate(
+        mask,
+        imageproc::distance_transform::Norm::L1,
+        MISSED_TEXT_MERGE_RADIUS,
+    );
+    let labels = connected_components(&merged, Connectivity::Eight, image::Luma([0u8]));
+
+    let mut boxes: std::collections::HashMap<u32, [u32; 4]> = std::collections::HashMap::new();
+    let mut counts: std::collections::HashMap<u32, u32> = std::collections::HashMap::new();
+    for (x, y, label) in labels.enumerate_pixels() {
+        let id = label[0];
+        if id == 0 || mask.get_pixel(x, y)[0] < 128 {
+            continue;
+        }
+        *counts.entry(id).or_insert(0) += 1;
+        let entry = boxes.entry(id).or_insert([x, y, x + 1, y + 1]);
+        entry[0] = entry[0].min(x);
+        entry[1] = entry[1].min(y);
+        entry[2] = entry[2].max(x + 1);
+        entry[3] = entry[3].max(y + 1);
+    }
+
+    let page_area = (width as f32) * (height as f32);
+    let far_from_every_block = |bbox: [u32; 4]| {
+        blocks.iter().all(|b| {
+            let gap = MISSED_TEXT_GAP_PX;
+            let (bx0, by0, bx1, by1) = (b.x, b.y, b.x + b.width, b.y + b.height);
+            let (ux0, uy0, ux1, uy1) =
+                (bbox[0] as f32, bbox[1] as f32, bbox[2] as f32, bbox[3] as f32);
+            // NOT "near" (mirrors `lama::near`, inverted): a real gap on at
+            // least one axis wider than `gap` means this ink and that block
+            // do not touch or continue one another.
+            !(ux0 <= bx1 + gap && bx0 <= ux1 + gap && uy0 <= by1 + gap && by0 <= uy1 + gap)
+        })
+    };
+
+    boxes
+        .into_iter()
+        .filter(|(id, _)| counts.get(id).copied().unwrap_or(0) >= MISSED_TEXT_MIN_PIXELS)
+        .map(|(_, bbox)| bbox)
+        .filter(|&bbox| far_from_every_block(bbox))
+        .filter(|bbox| {
+            let area = ((bbox[2] - bbox[0]) as f32) * ((bbox[3] - bbox[1]) as f32);
+            area <= page_area * MISSED_TEXT_MAX_AREA_SHARE
+        })
+        .map(|bbox| [bbox[0] as f32, bbox[1] as f32, bbox[2] as f32, bbox[3] as f32])
+        .collect()
+}
+
 fn build_text_blocks(regions: &[LayoutRegion]) -> Vec<TextBlock> {
     let mut blocks = regions
         .iter()
@@ -866,6 +1009,15 @@ fn keep_only_text_found(
     /// around it; the words do not.
     const BALLOON_OUTLINE_MARGIN: f32 = 3.0;
 
+    /// How far outside a detected block's own box a mark may sit and still
+    /// count as belonging to it. A dense glyph (a thick CJK character, an
+    /// accent, a stroke with overshoot) can segment as ink a few pixels past
+    /// a box the layout detector drew a little tight — measured on a real
+    /// page, one such sliver never touched its block's exact box and was
+    /// dropped as "art", surviving inpainting as a visible fragment under the
+    /// translated text laid over it.
+    const TEXT_BLOCK_TOUCH_MARGIN_PX: f32 = 4.0;
+
     let (width, height) = mask.dimensions();
     let labels = connected_components(&mask, Connectivity::Eight, image::Luma([0u8]));
 
@@ -888,10 +1040,11 @@ fn keep_only_text_found(
 
     // A box the detector drew round text it found: anything it touches is text.
     for block in blocks {
-        let left = block.x.floor().max(0.0) as u32;
-        let top = block.y.floor().max(0.0) as u32;
-        let right = ((block.x + block.width).ceil() as u32).min(width);
-        let bottom = ((block.y + block.height).ceil() as u32).min(height);
+        let left = (block.x - TEXT_BLOCK_TOUCH_MARGIN_PX).floor().max(0.0) as u32;
+        let top = (block.y - TEXT_BLOCK_TOUCH_MARGIN_PX).floor().max(0.0) as u32;
+        let right = ((block.x + block.width + TEXT_BLOCK_TOUCH_MARGIN_PX).ceil() as u32).min(width);
+        let bottom =
+            ((block.y + block.height + TEXT_BLOCK_TOUCH_MARGIN_PX).ceil() as u32).min(height);
         for y in top..bottom.max(top) {
             for x in left..right.max(left) {
                 if mask.get_pixel(x, y)[0] >= 128 {
@@ -1055,6 +1208,164 @@ const MIR_BBOX_INSET: f32 = 0.08;
 /// result before assigning to the text block, so rendered text stays clear of
 /// the balloon border.
 const MIR_TEXT_PADDING: f32 = 6.0;
+/// Longest run of background (non-mask) pixels, in image px, that the
+/// straight line between two owners' centres may cross and still count as
+/// "one balloon drawn touching another" rather than two the detector's box
+/// merely happened to enclose together. Two balloons actually drawn touching
+/// meet at a seam — the mask stays foreground the whole way across (a
+/// concave dip at the seam at most, well under this). A real gap this long
+/// means solid background — art, gutter, another character — sits between
+/// them; see `owners_are_bridged`.
+const MAX_BACKGROUND_BRIDGE_PX: f32 = 10.0;
+/// Erosion radius (px) applied before the bridge check. A balloon detector
+/// merging two unrelated balloons into one "shared" box doesn't always leave
+/// open background between them on the direct line between centres — an
+/// antialiased edge, a stray mark, or one balloon's tail happening to point
+/// past the other can keep that exact line foreground even with real
+/// background on either side. Eroding first removes anything narrower than
+/// this — a stray mark or a tail (typically a few px wide) disappears, while
+/// a genuine shared seam between two balloons drawn touching (wide enough to
+/// actually hold two balloons' worth of text) survives.
+const BRIDGE_ERODE_RADIUS: u32 = 14;
+/// How much more elongated (long side / short side) a shared split's result
+/// may be than the block's own originally-detected box before it's rejected
+/// as a distorted sliver rather than a real balloon share. Additive, not a
+/// multiplier: a block detected nearly square (aspect ~1, the common case
+/// for a short line of text) still gets real room to become a properly
+/// balloon-shaped box without tripping this, while a split that stretches
+/// a block far past its own shape — measured: aspect 1.67 to 3.45 for a
+/// block the detector merely merged with a distant balloon — gets caught.
+const ASPECT_DISTORTION_MARGIN: f32 = 1.2;
+
+/// Whether the straight line between two owners' centres stays inside
+/// `mask`, eroded by `BRIDGE_ERODE_RADIUS` first, the whole way (allowing a
+/// short break, see `MAX_BACKGROUND_BRIDGE_PX`) — the actual test for
+/// "these two claim one balloon drawn touching another", as opposed to a
+/// balloon detector's box that merely happened to enclose two unrelated
+/// balloons (measured: a narration balloon and a small reaction balloon two
+/// panel-rows apart, boxed as one "shared" detection). Splitting a mask on
+/// the latter produces a sliver nowhere near either balloon's real shape
+/// rather than a clean seam — see its caller.
+fn owners_are_bridged(mask: &image::GrayImage, a: (f32, f32), b: (f32, f32)) -> bool {
+    let (img_w, img_h) = mask.dimensions();
+    let margin = BRIDGE_ERODE_RADIUS as f32 + 4.0;
+    let x0 = (a.0.min(b.0) - margin).max(0.0) as u32;
+    let y0 = (a.1.min(b.1) - margin).max(0.0) as u32;
+    let x1 = (((a.0.max(b.0) + margin) as u32) + 1).min(img_w);
+    let y1 = (((a.1.max(b.1) + margin) as u32) + 1).min(img_h);
+    if x1 <= x0 || y1 <= y0 {
+        return false;
+    }
+    let cropped = image::imageops::crop_imm(mask, x0, y0, x1 - x0, y1 - y0).to_image();
+    let eroded = bubble_det::erode_binary(&cropped, BRIDGE_ERODE_RADIUS);
+    let (w, h) = eroded.dimensions();
+    let (a, b) = ((a.0 - x0 as f32, a.1 - y0 as f32), (b.0 - x0 as f32, b.1 - y0 as f32));
+
+    let dist = ((b.0 - a.0).powi(2) + (b.1 - a.1).powi(2)).sqrt();
+    if dist < 1.0 {
+        return true;
+    }
+    let steps = (dist / 2.0).ceil().max(1.0) as usize;
+    let step_len = dist / steps as f32;
+    let mut background_run = 0.0f32;
+    for i in 0..=steps {
+        let t = i as f32 / steps as f32;
+        let (x, y) = (a.0 + (b.0 - a.0) * t, a.1 + (b.1 - a.1) * t);
+        let in_bounds = x >= 0.0 && y >= 0.0 && (x as u32) < w && (y as u32) < h;
+        let is_background = !in_bounds || eroded.get_pixel(x as u32, y as u32)[0] < 128;
+        if is_background {
+            background_run += step_len;
+            if background_run > MAX_BACKGROUND_BRIDGE_PX {
+                return false;
+            }
+        } else {
+            background_run = 0.0;
+        }
+    }
+    true
+}
+
+/// Where a mask narrows the most between two owners along the straight line
+/// connecting them — the seam of a balloon drawn as one pinched hourglass
+/// shape holding two lines with a pause between them (a common convention),
+/// as opposed to the perpendicular bisector `nearest_owner` uses at the
+/// midpoint between the two centres, which falls inside whichever lobe is
+/// smaller rather than at the pinch and leaves that lobe's share a
+/// distorted sliver. See its use in `refit_text_blocks_to_balloons`.
+///
+/// Only the middle 60% of the line is searched: the ends sit inside each
+/// owner's own text, dense enough that a gap between glyphs there can look
+/// narrower than the real waist.
+///
+/// Returns the fraction along a->b (0..1) of the narrowest crossing, or
+/// `None` when there is nothing to find (the owners are too close together,
+/// or the line leaves the image).
+fn waist_fraction(mask: &image::GrayImage, a: (f32, f32), b: (f32, f32)) -> Option<f32> {
+    let (img_w, img_h) = mask.dimensions();
+    let dist = ((b.0 - a.0).powi(2) + (b.1 - a.1).powi(2)).sqrt();
+    if dist < 8.0 {
+        return None;
+    }
+    let dir = ((b.0 - a.0) / dist, (b.1 - a.1) / dist);
+    let perp = (-dir.1, dir.0);
+    const SEARCH_LO: f32 = 0.2;
+    const SEARCH_HI: f32 = 0.8;
+    const MAX_HALF_SPAN: f32 = 400.0;
+    let steps = ((dist * (SEARCH_HI - SEARCH_LO)) / 2.0).ceil().max(1.0) as usize;
+
+    let width_at = |t: f32| -> Option<f32> {
+        let (px, py) = (a.0 + dir.0 * dist * t, a.1 + dir.1 * dist * t);
+        if px < 0.0 || py < 0.0 || px as u32 >= img_w || py as u32 >= img_h {
+            return None;
+        }
+        if mask.get_pixel(px as u32, py as u32)[0] < 128 {
+            // The axis itself left the shape here — a concave pinch can do
+            // that — which makes this point a maximally narrow candidate.
+            return Some(0.0);
+        }
+        let mut width = 0.0f32;
+        for sign in [-1.0f32, 1.0f32] {
+            let mut s = 1.0f32;
+            loop {
+                let x = px + perp.0 * s * sign;
+                let y = py + perp.1 * s * sign;
+                if x < 0.0 || y < 0.0 || x as u32 >= img_w || y as u32 >= img_h {
+                    break;
+                }
+                if mask.get_pixel(x as u32, y as u32)[0] < 128 {
+                    break;
+                }
+                s += 1.0;
+                if s > MAX_HALF_SPAN {
+                    break;
+                }
+            }
+            width += s - 1.0;
+        }
+        Some(width)
+    };
+
+    let mut best_t = None;
+    let mut best_width = f32::INFINITY;
+    for i in 0..=steps {
+        let t = SEARCH_LO + (SEARCH_HI - SEARCH_LO) * (i as f32 / steps as f32);
+        if let Some(width) = width_at(t)
+            && width < best_width
+        {
+            best_width = width;
+            best_t = Some(t);
+        }
+    }
+    best_t
+}
+
+/// Which side of the waist point a mask pixel falls on, projected onto the
+/// a->b axis: `true` for the `a` side. Paired with `waist_fraction`'s `t`.
+fn owns_by_waist(px: u32, py: u32, a: (f32, f32), b: (f32, f32), dist: f32, t: f32) -> bool {
+    let dir = ((b.0 - a.0) / dist, (b.1 - a.1) / dist);
+    let proj = ((px as f32 - a.0) * dir.0 + (py as f32 - a.1) * dir.1) / dist;
+    proj < t
+}
 
 /// For each balloon, find all text blocks whose center lies inside the balloon bbox,
 /// then refit those text blocks to the MIR of the balloon's mask.
@@ -1103,18 +1414,98 @@ fn refit_text_blocks_to_balloons(
             .collect();
         let shared = owners.len() > 1;
 
+        // A pinched hourglass balloon — one shape drawn for two lines with a
+        // pause between them, a common convention, not two balloons the
+        // detector merged — has its own natural seam: the waist. Cutting
+        // there instead of at the perpendicular bisector `nearest_owner`
+        // uses (the midpoint between the two centres, which falls inside
+        // whichever lobe is smaller, not at the pinch) gives each lobe
+        // something shaped like the balloon the artist actually drew. Only
+        // handled for the common two-owner case.
+        let waist = if let [(id_a, ca), (id_b, cb)] = owners[..] {
+            balloon
+                .mask
+                .as_ref()
+                .and_then(|m| waist_fraction(m, ca, cb))
+                .map(|t| {
+                    let dist = ((cb.0 - ca.0).powi(2) + (cb.1 - ca.1).powi(2)).sqrt();
+                    (id_a, id_b, ca, cb, dist, t)
+                })
+        } else {
+            None
+        };
+
         for &ti in &inside_indices {
             let mir = match &balloon.mask {
                 Some(mask) => {
-                    let r = if shared {
-                        mir_from_mask_owned(
-                            mask,
-                            balloon.x,
-                            balloon.y,
-                            balloon.width,
-                            balloon.height,
-                            |px, py| nearest_owner(px, py, &owners) == ti,
-                        )
+                    // Only trust the split when `ti` is actually bridged to
+                    // at least one other owner through solid mask — otherwise
+                    // the balloon detector's box just happened to span two
+                    // unrelated balloons, and forcing a split between them
+                    // would fit this block into whatever distorted sliver of
+                    // the mask is nearest its centre. See
+                    // `owners_are_bridged`.
+                    let treat_as_shared = shared
+                        && owners.iter().any(|&(oi, oc)| {
+                            oi != ti && owners_are_bridged(mask, orig_centers[ti], oc)
+                        });
+                    let r = if treat_as_shared {
+                        let r = match waist {
+                            Some((id_a, _, ca, cb, dist, t)) => {
+                                let want_a = ti == id_a;
+                                mir_from_mask_owned(
+                                    mask,
+                                    balloon.x,
+                                    balloon.y,
+                                    balloon.width,
+                                    balloon.height,
+                                    |px, py| {
+                                        owns_by_waist(px, py, ca, cb, dist, t) == want_a
+                                    },
+                                )
+                            }
+                            None => mir_from_mask_owned(
+                                mask,
+                                balloon.x,
+                                balloon.y,
+                                balloon.width,
+                                balloon.height,
+                                |px, py| nearest_owner(px, py, &owners) == ti,
+                            ),
+                        };
+                        // A bridged mask can still be a detector error (a
+                        // segmentation model can predict one solid blob over
+                        // two unrelated balloons just as easily as a box
+                        // regressor can draw one box over them — erosion
+                        // only catches the latter). Splitting a genuinely
+                        // shared balloon fits each owner into something
+                        // roughly as proportioned as what was detected for
+                        // it; splitting a wrongly-merged one instead stretches
+                        // a block far past its own shape trying to fill a
+                        // sliver of someone else's balloon. Reject that.
+                        let block = &text_blocks[ti];
+                        let orig_aspect =
+                            block.width.max(block.height) / block.width.min(block.height).max(1.0);
+                        let r_aspect = r[2].max(r[3]) / r[2].min(r[3]).max(1.0);
+                        if r[2] > 2.0 && r[3] > 2.0 && r_aspect > orig_aspect + ASPECT_DISTORTION_MARGIN
+                        {
+                            tracing::debug!(
+                                balloon = bi,
+                                block = ti,
+                                orig_aspect,
+                                r_aspect,
+                                "shared split too distorted from original shape, keeping detection"
+                            );
+                            [0.0, 0.0, 0.0, 0.0]
+                        } else {
+                            r
+                        }
+                    } else if shared {
+                        // Merged balloon, but this block doesn't plausibly
+                        // belong to it — fall through to the "too small to
+                        // trust" branch below, which keeps the block as
+                        // originally detected.
+                        [0.0, 0.0, 0.0, 0.0]
                     } else {
                         mir_from_mask(mask, balloon.x, balloon.y, balloon.width, balloon.height)
                     };
@@ -1578,6 +1969,94 @@ mod tests {
         Ok(())
     }
 
+    /// Diagnostic: does `ComicTextDetector` (YOLOv5+DBNet, quad/rotation-aware
+    /// — its full `inference()` path is currently unused by the live
+    /// pipeline, which only uses `PPDocLayoutV3` for finding text blocks)
+    /// catch text that `PPDocLayoutV3` misses, specifically rotated text?
+    ///
+    /// Run with: `KOHARU_TEST_PAGE=test/page.png cargo test --release
+    /// -p koharu-ml --lib dump_comic_text_detector_regions -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn dump_comic_text_detector_regions() -> anyhow::Result<()> {
+        let Some(page) = std::env::var_os("KOHARU_TEST_PAGE") else {
+            anyhow::bail!("set KOHARU_TEST_PAGE");
+        };
+        let image = image::open(std::path::PathBuf::from(&page))?;
+        let runtime = tokio::runtime::Runtime::new()?;
+
+        let layout_detector = runtime.block_on(super::PPDocLayoutV3::load(true))?;
+        let layout = layout_detector.inference_one_fast(&image, super::PP_DOCLAYOUT_THRESHOLD)?;
+        let pp_blocks = super::build_text_blocks(&layout.regions);
+        println!(
+            "PPDocLayoutV3 (currently used for detection): {} blocks",
+            pp_blocks.len()
+        );
+        for (i, b) in pp_blocks.iter().enumerate() {
+            println!(
+                "  [{i:>2}] x {:>5.0}..{:<5.0} y {:>5.0}..{:<5.0}  {:>3.0}x{:<3.0}",
+                b.x,
+                b.x + b.width,
+                b.y,
+                b.y + b.height,
+                b.width,
+                b.height
+            );
+        }
+
+        let ctd = runtime.block_on(crate::comic_text_detector::ComicTextDetector::load(true))?;
+        let detection = ctd.inference(&image)?;
+        println!(
+            "\nComicTextDetector (YOLOv5+DBNet, NOT currently wired into the pipeline): \
+             {} text_blocks, {} line_polygons",
+            detection.text_blocks.len(),
+            detection.line_polygons.len()
+        );
+        for (i, b) in detection.text_blocks.iter().enumerate() {
+            println!(
+                "  [{i:>2}] x {:>5.0}..{:<5.0} y {:>5.0}..{:<5.0}  {:>3.0}x{:<3.0}  vertical={:?}",
+                b.x,
+                b.x + b.width,
+                b.y,
+                b.y + b.height,
+                b.width,
+                b.height,
+                b.rendered_direction,
+            );
+        }
+        println!("\nline_polygons (quads, may be rotated):");
+        for (i, q) in detection.line_polygons.iter().enumerate() {
+            println!("  [{i:>2}] {q:?}");
+        }
+
+        // Which PPDocLayoutV3 blocks have no ComicTextDetector block whose
+        // centre falls inside them (or vice versa) — the mismatch this test
+        // exists to surface.
+        println!("\nPPDocLayoutV3 blocks with no ComicTextDetector block centred inside them:");
+        for (i, b) in pp_blocks.iter().enumerate() {
+            let (bx0, by0, bx1, by1) = (b.x, b.y, b.x + b.width, b.y + b.height);
+            let covered = detection.text_blocks.iter().any(|c| {
+                let (cx, cy) = (c.x + c.width / 2.0, c.y + c.height / 2.0);
+                cx >= bx0 && cx <= bx1 && cy >= by0 && cy <= by1
+            });
+            if !covered {
+                println!("  [{i:>2}] uncovered: {b:?}");
+            }
+        }
+        println!("\nComicTextDetector blocks with no PPDocLayoutV3 block centred inside them:");
+        for (i, c) in detection.text_blocks.iter().enumerate() {
+            let (cx, cy) = (c.x + c.width / 2.0, c.y + c.height / 2.0);
+            let covered = pp_blocks.iter().any(|b| {
+                cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height
+            });
+            if !covered {
+                println!("  [{i:>2}] extra (PPDocLayoutV3 missed this): {c:?}");
+            }
+        }
+
+        Ok(())
+    }
+
     /// Two circles drawn overlapping — one white region, as merged balloons appear.
     fn merged_balloon_mask(
         width: u32,
@@ -1601,6 +2080,56 @@ mod tests {
             height: 10.0,
             ..Default::default()
         }
+    }
+
+    #[test]
+    fn uncovered_ink_regions_finds_a_run_far_from_every_block() {
+        // A run of glyphs (four blobs on one line, big enough to clear
+        // MISSED_TEXT_MIN_PIXELS) nowhere near the one detected block.
+        let mask = image::GrayImage::from_fn(800, 600, |x, y| {
+            let on = (500..540).contains(&y)
+                && [(600, 630), (635, 665), (670, 700)]
+                    .iter()
+                    .any(|(a, b)| x >= *a && x < *b);
+            image::Luma([if on { 255u8 } else { 0 }])
+        });
+        let blocks = vec![block_at(50.0, 50.0)];
+
+        let found = uncovered_ink_regions(&mask, &blocks);
+        assert_eq!(found.len(), 1, "{found:?}");
+        let [x1, y1, x2, y2] = found[0];
+        assert!(x1 <= 600.0 && x2 >= 700.0 && y1 <= 500.0 && y2 >= 540.0, "{found:?}");
+    }
+
+    #[test]
+    fn uncovered_ink_regions_ignores_a_run_touching_an_existing_block() {
+        // Same run, but right up against a block's own edge — this is text a
+        // block already accounts for continuing slightly past its box, not a
+        // run the detector missed outright.
+        let mask = image::GrayImage::from_fn(800, 600, |x, y| {
+            let on = (500..540).contains(&y) && (600..700).contains(&x);
+            image::Luma([if on { 255u8 } else { 0 }])
+        });
+        let blocks = vec![TextBlock {
+            x: 700.0,
+            y: 500.0,
+            width: 40.0,
+            height: 40.0,
+            ..Default::default()
+        }];
+
+        assert!(
+            uncovered_ink_regions(&mask, &blocks).is_empty(),
+            "a run touching a block's edge is not a miss"
+        );
+    }
+
+    #[test]
+    fn uncovered_ink_regions_ignores_specks_below_the_pixel_floor() {
+        let mask = image::GrayImage::from_fn(800, 600, |x, y| {
+            image::Luma([if x == 400 && y == 300 { 255u8 } else { 0 }])
+        });
+        assert!(uncovered_ink_regions(&mask, &[]).is_empty());
     }
 
     #[test]
@@ -1645,6 +2174,133 @@ mod tests {
             "boxes overlap: {left_right} > {}",
             blocks[1].x
         );
+    }
+
+    /// Two balloons nowhere near each other (a real background gap between
+    /// them, not a seam) that a detector's box regression merely boxed
+    /// together — measured on a real page: a narration balloon and a small
+    /// reaction balloon, boxed as one "shared" detection despite sitting
+    /// two panel-rows apart. Splitting that merged mask must not run; each
+    /// block should keep its own detected box rather than being fitted into
+    /// a distorted sliver nearest its centre.
+    #[test]
+    fn balloons_the_detector_merely_boxed_together_are_not_forced_into_a_split() {
+        let centres = [(60.0f32, 60.0f32), (60.0, 220.0)];
+        let mask = merged_balloon_mask(120, 280, &centres, 30.0);
+        let balloon = bubble_det::BubbleBox {
+            x: 10.0,
+            y: 10.0,
+            width: 100.0,
+            height: 260.0,
+            score: 0.9,
+            mask: Some(mask),
+        };
+
+        let mut blocks = vec![
+            block_at(centres[0].0, centres[0].1),
+            block_at(centres[1].0, centres[1].1),
+        ];
+        refit_text_blocks_to_balloons(&mut blocks, std::slice::from_ref(&balloon));
+
+        for block in &blocks {
+            assert_eq!(block.width, 10.0, "{block:?}");
+            assert_eq!(block.height, 10.0, "{block:?}");
+            assert!(!block.lock_layout_box, "kept as detected, not balloon-derived");
+            assert!(!block.balloon_fitted, "{block:?}");
+        }
+    }
+
+    /// Two circles of different sizes joined by a narrow rectangular neck —
+    /// a pinched hourglass balloon, the shape a real "two lines with a
+    /// pause between them" balloon draws.
+    fn hourglass_mask(
+        width: u32,
+        height: u32,
+        top_centre: (f32, f32),
+        top_radius: f32,
+        bottom_centre: (f32, f32),
+        bottom_radius: f32,
+        neck_half_width: f32,
+        neck_y: (f32, f32),
+    ) -> image::GrayImage {
+        image::GrayImage::from_fn(width, height, |x, y| {
+            let (fx, fy) = (x as f32, y as f32);
+            let in_top = ((fx - top_centre.0).powi(2) + (fy - top_centre.1).powi(2)).sqrt()
+                <= top_radius;
+            let in_bottom = ((fx - bottom_centre.0).powi(2) + (fy - bottom_centre.1).powi(2))
+                .sqrt()
+                <= bottom_radius;
+            let in_neck = fy >= neck_y.0
+                && fy <= neck_y.1
+                && (fx - top_centre.0).abs() <= neck_half_width;
+            image::Luma([if in_top || in_bottom || in_neck { 255u8 } else { 0u8 }])
+        })
+    }
+
+    #[test]
+    fn a_pinched_hourglass_balloon_is_split_at_the_waist_not_the_midpoint() {
+        // Small lobe on top, much larger lobe on bottom, joined by a short
+        // narrow neck well above the midpoint between the two centres —
+        // exactly the case where the old perpendicular-bisector split (at
+        // the midpoint) lands inside the bottom lobe instead of at the neck.
+        let top_centre = (150.0f32, 70.0);
+        let top_radius = 55.0;
+        // Starts/ends where each circle is already at least as wide as the
+        // neck, so the rectangle-meets-circle join has no corner narrower
+        // than the neck itself — a real hand-drawn taper has no such corner
+        // either; a mask that did would not be a realistic hourglass.
+        let neck_y = (110.0, 162.0);
+        let bottom_centre = (150.0f32, 305.0);
+        let bottom_radius = 150.0;
+        // Wide enough to survive `owners_are_bridged`'s erosion (a genuine
+        // pinch, not the thin stray-mark case that check exists to reject).
+        let mask = hourglass_mask(
+            300,
+            460,
+            top_centre,
+            top_radius,
+            bottom_centre,
+            bottom_radius,
+            35.0,
+            neck_y,
+        );
+        let balloon = bubble_det::BubbleBox {
+            x: 0.0,
+            y: 0.0,
+            width: 300.0,
+            height: 460.0,
+            score: 0.9,
+            mask: Some(mask),
+        };
+
+        let mut blocks = vec![block_at(top_centre.0, top_centre.1), block_at(bottom_centre.0, bottom_centre.1)];
+        refit_text_blocks_to_balloons(&mut blocks, std::slice::from_ref(&balloon));
+
+        // The midpoint between centres (187.5) is well inside the bottom
+        // lobe (155..455) — a split there would hand the top owner a slice
+        // of the bottom balloon. The waist split keeps each owner inside
+        // its own lobe.
+        let midpoint = (top_centre.1 + bottom_centre.1) / 2.0;
+        assert!(
+            blocks[0].y + blocks[0].height <= neck_y.1 + 2.0,
+            "top owner's box reached past the neck into the bottom lobe: {:?}",
+            blocks[0]
+        );
+        assert!(
+            blocks[1].y >= neck_y.0 - 2.0,
+            "bottom owner's box reached above the neck: {:?}",
+            blocks[1]
+        );
+        assert!(
+            blocks[0].y + blocks[0].height < midpoint,
+            "top owner's box should end well before the midpoint bisector: {:?}",
+            blocks[0]
+        );
+        // Both still got fitted, not left at their tiny detected size.
+        for block in &blocks {
+            assert!(block.width > 20.0 && block.height > 20.0, "{block:?}");
+            assert!(block.balloon_fitted, "{block:?}");
+        }
     }
 
     #[test]

@@ -240,22 +240,36 @@ impl Renderer {
         // The detected box only covers the source text. A Vietnamese line needs
         // far more room than the Japanese it replaces, so fitting it into that
         // box alone drives the font down to an unreadable size while the
-        // balloon around it sits empty. Find the balloon instead, and fall back
-        // to growing into adjacent clear space when it cannot be traced.
-        // Outside a balloon there is no blank interior to grow into. The artist
-        // set this lettering to the gap it sits in, so the gap is the box: keep
-        // the detected one exactly where it is and hold the translation inside
-        // it, rather than tracing clear space that belongs to the artwork.
-        let balloon_box = if auto_expand_english_layout && in_balloon {
+        // blank interior around it — a round balloon's, or a plain rectangular
+        // caption/narration box's — sits empty. Trace that interior instead,
+        // and fall back to growing into adjacent clear space when it cannot be
+        // traced.
+        //
+        // Not gated on `in_balloon`: that only reflects the ML balloon
+        // detector, which is trained on round/oval speech balloons and misses
+        // a bordered rectangular caption box entirely — exactly the shape a
+        // narration line or a translated vertical-CJK column sits in. Tracing
+        // is pixel-based (`balloon_bounds_from_image`, flood-scanning the
+        // inpainted page from the block's own centre) and already returns
+        // `None` on its own when that centre is not on a bright/blank pixel or
+        // the traced region is too small — i.e. text genuinely sitting on
+        // artwork with no box around it at all — so it does not need the ML
+        // detector's say-so first to stay safe.
+        let balloon_box = if auto_expand_english_layout {
             bubble_map
                 .and_then(|map| balloon_bounds_from_image(text_block, map))
-                .map(|traced| clip_box_to_nearest_owner(traced, centre, sibling_centres))
+                .map(|traced| clip_box_to_nearest_owner(traced, centre, sibling_centres, bubble_map))
         } else {
             None
         };
         let use_balloon = balloon_box.is_some();
+        // Same reasoning as the flood-scan above: `expand_latin_layout_box_*`
+        // has its own fallbacks for a block too small to expand, a map that
+        // does not cover it, or no plausible border found, so it is no less
+        // safe to try without `in_balloon` first ruling out a rectangular
+        // caption box the ML detector did not call a balloon.
         let mut layout_box = balloon_box.unwrap_or_else(|| {
-            if auto_expand_english_layout && in_balloon {
+            if auto_expand_english_layout {
                 bubble_map
                     .map(|map| expand_latin_layout_box_strict(&layout_source_block, map))
                     .unwrap_or(original_layout_box)
@@ -504,6 +518,7 @@ impl Renderer {
                 },
                 centre,
                 sibling_centres,
+                Some(map),
             );
             clear_space_rows(
                 &layout_source_block,
@@ -555,21 +570,55 @@ impl Renderer {
                 && shaped_layout.fits
                 && shaped_layout.font_size > layout.font_size
             {
-                // Settle the text into the middle of the room. Re-set it from
-                // the lower start rather than sliding the finished lines down,
-                // which would carry a wide line into a narrow part of the shape.
+                // Settle the text into the middle of the room. A plain
+                // baseline shift — the same one a rectangle box gets — is
+                // tried first: cheap, and always lands exactly centred
+                // because it does not touch how the lines already wrapped.
+                // It only fails to be safe when the shape is narrower
+                // somewhere in the band the shift would move the text into
+                // (a figure crossing the balloon, or a pinched waist) — checked
+                // directly against the shape's own row widths, not assumed.
+                // Only then is the text re-set from a lower start instead,
+                // which finds a wrapping that fits the narrower room but
+                // costs a second layout pass and can wrap differently.
                 let mut settled = spans.clone();
-                let spare = (shape_box.height - shaped_layout.height).max(0.0);
+                let original_height = shaped_layout.height;
+                let spare = (shape_box.height - original_height).max(0.0);
+                let mut recentred = false;
                 if spare > 2.0 {
-                    let lower = spans.blank_top((spare / 2.0) as usize);
-                    if let Ok(centred) = set(&lower, false, &normalized_translation, None)
-                        && centred.fits
-                    {
-                        shaped_layout = centred;
-                        settled = lower;
+                    let offset = spare / 2.0;
+                    let max_advance =
+                        shaped_layout.lines.iter().fold(0.0f32, |acc, l| acc.max(l.advance));
+                    let direct_shift_fits = spans
+                        .band(offset, original_height)
+                        .is_some_and(|(_, width)| width + 0.5 >= max_advance);
+                    if direct_shift_fits {
+                        for line in &mut shaped_layout.lines {
+                            line.baseline.1 += offset;
+                        }
+                        recentred = true;
+                    } else {
+                        let lower = spans.blank_top(offset as usize);
+                        if let Ok(centred) = set(&lower, false, &normalized_translation, None)
+                            && centred.fits
+                            // A shape that narrows going down (the top lobe of
+                            // a pinched hourglass balloon, tapering toward the
+                            // waist) can still "fit" from the lower start,
+                            // just by wrapping across more, shorter lines —
+                            // which reports as success but bloats the block
+                            // back toward the top of the room instead of
+                            // centring it. Measured: 78px of content re-laid-
+                            // out from lower down came back needing 293px.
+                            // Reject a re-layout that grew rather than simply
+                            // shifted.
+                            && centred.height <= original_height + RESETTLE_GROWTH_TOLERANCE_PX
+                        {
+                            shaped_layout = centred;
+                            settled = lower;
+                            recentred = true;
+                        }
                     }
                 }
-
                 if stack_shout
                     && (shaped_layout.max_word_cuts > 0
                         || shaped_layout.font_size < SHOUT_BASE_FONT_SIZE)
@@ -577,6 +626,18 @@ impl Renderer {
                 {
                     shaped_layout = reset;
                     set_text = Some(text);
+                    // A freshly re-set shout is laid out from scratch and was
+                    // never centred above.
+                    recentred = false;
+                }
+
+                // Last resort for whatever neither centring attempt above
+                // reached (little enough spare to skip both, a shout reset
+                // just above, or the row re-layout also failed to fit) — a
+                // straight baseline shift on top of the surviving layout
+                // rather than leaving it pinned to the top of the room.
+                if !recentred && is_horizontal_latin {
+                    center_layout_vertically(&mut shaped_layout, shape_box.height);
                 }
 
                 tracing::debug!(
@@ -793,6 +854,13 @@ const OUTSIDE_BALLOON_TARGET_FONT_SIZE: f32 = 14.0;
 /// Vietnamese word laid across it either overflows or shrinks to nothing.
 const STACKABLE_ROOM_ASPECT: f32 = 1.8;
 
+/// How much taller a re-layout from a lower start point (see
+/// `render_text_block`'s "settle into the middle" step) may come back
+/// versus the original, still-fitting layout before it is rejected as
+/// having re-wrapped into a narrower part of the shape rather than simply
+/// shifted down — one line's worth of slack, not a hard content match.
+const RESETTLE_GROWTH_TOLERANCE_PX: f32 = 24.0;
+
 /// A shout that will not sit in its balloon is re-set at this size, and the
 /// choice between a line and a column is made there — before anything gets cut.
 const SHOUT_BASE_FONT_SIZE: f32 = 12.0;
@@ -934,6 +1002,39 @@ fn align_layout_horizontally(
             None => {}
         }
     }
+
+    // Each line above just centred on its own row — correct for staying
+    // clear of a drawing that only crosses part of the balloon, but when
+    // nothing is actually in the way and the rows simply vary a little (the
+    // ragged edge of a character's silhouette next to an otherwise plain
+    // box, say), a short first line landing on its own narrower row's
+    // centre instead of the rest of the paragraph's reads as the whole
+    // block leaning sideways. Re-centre every line on one shared axis
+    // instead — set by the widest line, which has the least slack to give
+    // up — falling back to a line's own row centre only where the shared
+    // axis would not fit inside that particular row.
+    if text_align == TextAlign::Center && !writing_mode.is_vertical() {
+        let shared_centre = layout
+            .lines
+            .iter()
+            .filter(|l| l.advance > 0.0 && l.span.is_some())
+            .max_by(|a, b| a.advance.total_cmp(&b.advance))
+            .map(|widest| widest.baseline.0 + widest.advance / 2.0);
+        if let Some(centre) = shared_centre {
+            for line in &mut layout.lines {
+                if line.advance <= 0.0 {
+                    continue;
+                }
+                let Some((row_x, row_w)) = line.span else {
+                    continue;
+                };
+                let target = (centre - line.advance / 2.0)
+                    .clamp(row_x, (row_x + row_w - line.advance).max(row_x));
+                line.baseline.0 = target;
+            }
+        }
+    }
+
     layout.width = target_width;
 }
 
@@ -1057,6 +1158,58 @@ mod tests {
         assert_eq!(layout.lines[0].baseline.0, 30.0);
         assert_eq!(layout.lines[1].baseline.0, 10.0);
         assert_eq!(layout.width, 100.0);
+    }
+
+    #[test]
+    fn center_alignment_shares_one_axis_across_rows_of_different_width() {
+        // Rows next to a character's silhouette vary in width and left edge
+        // — not because anything crosses the balloon, just because the
+        // shape's edge tracks the art. Centring each line on its own row
+        // alone reads as the whole block leaning; every line should land on
+        // one shared axis instead, set by the widest line.
+        let mut layout = LayoutRun {
+            lines: vec![
+                LayoutLine {
+                    advance: 30.0,
+                    baseline: (0.0, 10.0),
+                    span: Some((40.0, 60.0)), // row x=40..100
+                    ..Default::default()
+                },
+                LayoutLine {
+                    advance: 90.0,
+                    baseline: (0.0, 30.0),
+                    span: Some((0.0, 140.0)), // widest row, x=0..140 — sets the axis
+                    ..Default::default()
+                },
+                LayoutLine {
+                    advance: 50.0,
+                    baseline: (0.0, 50.0),
+                    span: Some((20.0, 100.0)), // row x=20..120
+                    ..Default::default()
+                },
+            ],
+            width: 140.0,
+            height: 60.0,
+            font_size: 16.0,
+            fits: true,
+            max_word_cuts: 0,
+        };
+
+        align_layout_horizontally(&mut layout, WritingMode::Horizontal, 140.0, TextAlign::Center);
+
+        // The widest line centres itself at 0 + (140-90)/2 + 90/2 = 70; every
+        // other line should land on that same axis, not its own row's.
+        let centres: Vec<f32> = layout
+            .lines
+            .iter()
+            .map(|l| l.baseline.0 + l.advance / 2.0)
+            .collect();
+        for c in &centres {
+            assert!(
+                (c - 70.0).abs() < 0.01,
+                "expected every line centred on 70.0, got {centres:?}"
+            );
+        }
     }
 
     #[test]

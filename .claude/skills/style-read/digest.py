@@ -111,10 +111,13 @@ def headline_counts(work):
 
 def volume_spread(pages):
     """How many distinct volumes a character's pages fall in — a page id is
-    `<volume>-<number>` (`v01-0353`), so the prefix before the last `-` is
-    the volume. A character seen thinly in every volume of a long series is a
-    different case from one seen the same number of times in just one."""
-    return len({p.rsplit("-", 1)[0] for p in pages if "-" in p})
+    `<volume>-<number>` (`v01-0353`), so the prefix before the *first* `-` is
+    the volume: split on the last `-` instead and a merged two-page spread
+    (`v01-CityhunterV01_210-211`) is misread as its own volume, since its
+    number half carries a hyphen too. A character seen thinly in every volume
+    of a long series is a different case from one seen the same number of
+    times in just one."""
+    return len({p.split("-", 1)[0] for p in pages if "-" in p})
 
 
 def cast_lines(work, with_raw):
@@ -123,18 +126,23 @@ def cast_lines(work, with_raw):
     cast = progress.read_json(os.path.join(work, "cast.json"), {}) or {}
     characters = sorted(
         cast.get("characters") or [],
-        key=lambda c: (-len(c.get("pages", [])), c.get("id", "")),
+        key=lambda c: (-c.get("speechLines", 0), -len(c.get("pages", [])), c.get("id", "")),
     )
     headlines = headline_counts(work)
     out = [
         f"# cast: {len(characters)} characters, most-seen first",
         "# `appearances` is the page count — how often a translator meets them.",
-        "# `headline` is how many of those pages are ABOUT them (named in the page's",
-        "# one-line summary). `speech` is how many pages they address a named",
-        "# character on. The three measure different things and disagree: a boy the",
-        "# story is about can have 9 headlines and 0 speech, a tag partner 16",
-        "# appearances and 2 headlines. Strong on ANY ONE earns a place; weak on all",
-        "# three does not. Forms of address are default first, then moods.",
+        "# `lines` is how many bullets in a note's Lời thoại section are credited",
+        "# to them as speaker — a truer sign of who carries a scene than merely",
+        "# being drawn on the page, and how the cast rule is decided (more than",
+        "# 5 lines, or seen across 2+ volumes). `headline` is how many of those",
+        "# pages are ABOUT them (named in the page's one-line summary). `speech`",
+        "# is how many pages they address a named character on — page-capped, so",
+        "# it undercounts someone who says a lot on few pages; `lines` does not.",
+        "# These measure different things and disagree: a boy the story is about",
+        "# can have 9 headlines and 0 speech, a tag partner 16 appearances and 2",
+        "# headlines. Strong on ANY ONE earns a place; weak on all does not.",
+        "# Forms of address are default first, then moods.",
         f"# The first {CAST_IN_FULL} are spelled out; the rest are named at the end,",
         "# with the notes behind them if one of them belongs in the profile.",
     ]
@@ -145,6 +153,7 @@ def cast_lines(work, with_raw):
             f"## {c.get('id', '')} — {c.get('name', '')}"
             + (f" ({c['nameJa']})" if with_raw and c.get("nameJa") else "")
             + f"  [appearances {len(c.get('pages', []))}"
+            + f", lines {c.get('speechLines', 0)}"
             + f", volumes {volume_spread(c.get('pages', []))}"
             + f", headline {headlines.get(c.get('id'), 0)}"
             + f", speech {sum((c.get('pairPages') or {}).values())}"
@@ -178,11 +187,12 @@ def cast_lines(work, with_raw):
             )
     rest = characters[CAST_IN_FULL:]
     if rest:
-        out += ["", f"# seen less often ({len(rest)}) — id, name, appearances, volumes:", ""]
+        out += ["", f"# seen less often ({len(rest)}) — id, name, appearances, lines, volumes:", ""]
         for c in rest:
             out.append(
                 f"- {c.get('id', '')} — {c.get('name', '')} "
-                f"({len(c.get('pages', []))}p, {volume_spread(c.get('pages', []))}v, "
+                f"({len(c.get('pages', []))}p, {c.get('speechLines', 0)}L, "
+                f"{volume_spread(c.get('pages', []))}v, "
                 f"headline {headlines.get(c.get('id'), 0)}, "
                 f"speech {sum((c.get('pairPages') or {}).values())})"
             )

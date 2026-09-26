@@ -367,6 +367,11 @@ async fn process_single_file(
     total_docs: usize,
     total_steps: usize,
 ) -> anyhow::Result<()> {
+    // Filled in during the Ocr step when `read_page` stands in for local OCR
+    // (see that step's branch below), so LlmGenerate does not pay for a
+    // second vision call to learn what this one already knows.
+    let mut vision_context: Option<String> = None;
+
     for (step_idx, step) in PipelineStep::ALL.iter().enumerate() {
         if cancel.load(Ordering::Relaxed) {
             return Ok(());
@@ -387,10 +392,64 @@ async fn process_single_file(
         tokio::task::yield_now().await;
 
         match step {
-            PipelineStep::Detect => res.ml.detect(doc).await?,
+            PipelineStep::Detect => {
+                res.ml.detect(doc).await?;
+                // Detection builds each `TextBlock` with `..Default::default()`
+                // (`facade.rs`), and `#[derive(Default)]` does not know about
+                // `id`'s serde-only default (`#[serde(default = "...")]` fires
+                // solely on deserialization) — so every block it creates comes
+                // out with the same empty `id`. The single-document pipeline
+                // never notices, because saving a document there always routes
+                // through `Document::prepare_for_store` (`state_tx.rs`), which
+                // calls this; folder mode writes straight into its own local
+                // `doc` and never goes through that save path. Silent while
+                // nothing kept blocks in a map by id — `read_page`'s per-block
+                // OCR does, and every id colliding on "" collapsed its results
+                // onto one entry, which is what actually surfaced this.
+                doc.ensure_text_block_ids();
+            }
             PipelineStep::Ocr => {
                 if !doc.text_blocks.is_empty() {
-                    res.ml.ocr(doc).await?;
+                    // Ask the same vision model that would otherwise be called
+                    // separately for speaker attribution to also transcribe
+                    // the page — one call instead of a local OCR pass
+                    // followed by a second model looking at the same image.
+                    // A partial or empty reading here costs nothing beyond
+                    // the one call already made: local OCR still runs as the
+                    // base layer below, vision's (generally sharper) reading
+                    // only overlays the blocks it actually covered, and its
+                    // speaker/listener context is kept independently of
+                    // whether the transcription was complete — a page it
+                    // read fully but named no confident speaker on, or named
+                    // a speaker on but missed a corner block of, both still
+                    // hand something useful to LlmGenerate.
+                    let vision_read = if req.process_with_character {
+                        super::read_page(&doc.image, &doc.text_blocks, &res.ml.character_lib).await
+                    } else {
+                        None
+                    };
+                    let covers_every_block = vision_read.as_ref().is_some_and(|r| {
+                        doc.text_blocks.iter().all(|b| r.texts.contains_key(&b.id))
+                    });
+                    if !covers_every_block {
+                        res.ml.ocr(doc).await?;
+                    }
+                    if let Some(page_read) = vision_read {
+                        tracing::info!(
+                            doc_idx,
+                            blocks = doc.text_blocks.len(),
+                            read = page_read.texts.len(),
+                            covers_every_block,
+                            has_context = page_read.context.is_some(),
+                            "folder pipeline: vision OCR result"
+                        );
+                        for block in &mut doc.text_blocks {
+                            if let Some(text) = page_read.texts.get(&block.id) {
+                                block.text = (!text.is_empty()).then(|| text.clone());
+                            }
+                        }
+                        vision_context = page_read.context;
+                    }
                 }
             }
             PipelineStep::DetectBalloon => res.ml.detect_balloons(doc).await?,
@@ -418,13 +477,21 @@ async fn process_single_file(
                             page_ctx = ?page_ctx,
                             "folder pipeline: scan_for_character_context result"
                         );
-                        // Who speaks to whom: a vision call that actually reads
-                        // the page, tried first. Falls back to the CV/CCIP
-                        // geometry guess only when the vision call has nothing
-                        // to say — see `ops::speaker_attribution`'s module docs
-                        // for why (blind on a masked/helmeted character).
-                        let speaker_ctx =
-                            super::attribute_speakers(&doc.image, &doc.text_blocks).await;
+                        // Who speaks to whom. `vision_context` is already
+                        // filled in when the Ocr step's `read_page` call
+                        // stood in for local OCR (see that step) — reuse it
+                        // rather than asking a vision model to look at this
+                        // same page a second time. Otherwise (local OCR ran:
+                        // `read_page` was not tried, or it was and fell
+                        // short) fall back to the old separate call, then to
+                        // the CV/CCIP geometry guess — see
+                        // `ops::speaker_attribution`'s module docs for why
+                        // that guess alone is not enough (blind on a
+                        // masked/helmeted character).
+                        let speaker_ctx = match vision_context.take() {
+                            Some(ctx) => Some(ctx),
+                            None => super::attribute_speakers(&doc.image, &doc.text_blocks).await,
+                        };
                         let pronoun_ctx = if speaker_ctx.is_some() {
                             None
                         } else {

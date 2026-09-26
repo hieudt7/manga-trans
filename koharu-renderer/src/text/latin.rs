@@ -282,17 +282,78 @@ pub const LATIN_MAX_FONT_SIZE: f32 = 30.0;
 /// as neighbouring balloons.
 const MIN_SIBLING_SEPARATION_PX: f32 = 24.0;
 
+/// Where a mask narrows the most between two centres along the line
+/// connecting them — the same technique and reasoning as `koharu_ml`'s
+/// balloon refit (`waist_fraction`, in `koharu-ml/src/facade.rs`), which
+/// this duplicates rather than shares because the two crates split the
+/// concern differently: that one refits a text block's stored box against
+/// the ML detector's own mask, this one clips the clear-space search a
+/// block is about to flood-fill against the rendered page's pixels. Returns
+/// the fraction along a->b (0..1) of the narrowest crossing, or `None` when
+/// there is nothing narrower than the endpoints to find.
+fn mask_waist_fraction(mask: &GrayImage, a: (f32, f32), b: (f32, f32)) -> Option<f32> {
+    let (w, h) = (mask.width(), mask.height());
+    let dist = (b.0 - a.0).hypot(b.1 - a.1);
+    if dist < 8.0 {
+        return None;
+    }
+    let dir = ((b.0 - a.0) / dist, (b.1 - a.1) / dist);
+    let perp = (-dir.1, dir.0);
+    const SEARCH_LO: f32 = 0.2;
+    const SEARCH_HI: f32 = 0.8;
+    const MAX_HALF_SPAN: f32 = 400.0;
+    let steps = ((dist * (SEARCH_HI - SEARCH_LO)) / 2.0).ceil().max(1.0) as usize;
+    let clear = |x: f32, y: f32| -> bool {
+        x >= 0.0
+            && y >= 0.0
+            && (x as u32) < w
+            && (y as u32) < h
+            && mask.get_pixel(x as u32, y as u32)[0] >= CLEAR_THRESHOLD
+    };
+    let width_at = |t: f32| -> f32 {
+        let (px, py) = (a.0 + dir.0 * dist * t, a.1 + dir.1 * dist * t);
+        if !clear(px, py) {
+            return 0.0;
+        }
+        let mut width = 0.0f32;
+        for sign in [-1.0f32, 1.0f32] {
+            let mut s = 1.0f32;
+            while s <= MAX_HALF_SPAN && clear(px + perp.0 * s * sign, py + perp.1 * s * sign) {
+                s += 1.0;
+            }
+            width += s - 1.0;
+        }
+        width
+    };
+
+    let mut best_t = None;
+    let mut best_width = f32::INFINITY;
+    for i in 0..=steps {
+        let t = SEARCH_LO + (SEARCH_HI - SEARCH_LO) * (i as f32 / steps as f32);
+        let width = width_at(t);
+        if width < best_width {
+            best_width = width;
+            best_t = Some(t);
+        }
+    }
+    best_t
+}
+
 /// Trim `rect` so none of it is closer to a sibling block than to `own_centre`.
 ///
 /// Balloons drawn touching each other form a single pale region, so tracing
 /// outward from one block runs straight through the join and into the
 /// neighbour's balloon — the text then lays out across both and reads as
-/// misaligned. Cutting at the midpoint between the two centres keeps each
-/// block on its own side of the join.
+/// misaligned. Cutting at the mask's own waist between the two centres —
+/// when `mask` is given and one can be found — keeps each block inside its
+/// own lobe even when the two are very different sizes, where the plain
+/// midpoint between centres lands inside the smaller lobe instead of at the
+/// pinch. Falls back to the midpoint otherwise.
 pub fn clip_box_to_nearest_owner(
     rect: LayoutBox,
     own_centre: (f32, f32),
     sibling_centres: &[(f32, f32)],
+    mask: Option<&GrayImage>,
 ) -> LayoutBox {
     let mut left = rect.x;
     let mut right = rect.x + rect.width;
@@ -308,21 +369,24 @@ pub fn clip_box_to_nearest_owner(
         if dx.hypot(dy) < MIN_SIBLING_SEPARATION_PX {
             continue;
         }
+        let t = mask
+            .and_then(|m| mask_waist_fraction(m, own_centre, (sx, sy)))
+            .unwrap_or(0.5);
         // Split along whichever axis separates the two blocks more; that is the
         // axis the join runs across.
         if dx.abs() >= dy.abs() {
-            let mid = (own_centre.0 + sx) / 2.0;
+            let cut = own_centre.0 + dx * t;
             if dx > 0.0 {
-                right = right.min(mid);
+                right = right.min(cut);
             } else {
-                left = left.max(mid);
+                left = left.max(cut);
             }
         } else {
-            let mid = (own_centre.1 + sy) / 2.0;
+            let cut = own_centre.1 + dy * t;
             if dy > 0.0 {
-                bottom = bottom.min(mid);
+                bottom = bottom.min(cut);
             } else {
-                top = top.max(mid);
+                top = top.max(cut);
             }
         }
     }
@@ -453,6 +517,53 @@ const SOURCE_SHAPE_PAD_PX: i64 = 2;
 /// head, and a row taken from the leftmost mark to the rightmost bridges
 /// straight over the hair. Each row is therefore the run of blank page around
 /// the marks, not the span between them.
+/// How wide an edge row has to be, relative to the widest row in the shape,
+/// before a line of text is allowed to start or end there.
+///
+/// A rounded balloon cap intersects only a sliver on the shape's first or
+/// last rows — far narrower than the shape settles into a few pixels in.
+/// Handing a whole line of text that sliver is technically inside the shape,
+/// but it reads as badly mis-centred: the line sits jammed into one corner
+/// while every other line spans nearly the full balloon. Trimming those
+/// sliver rows off starts the text where the balloon has actually opened up,
+/// which is what a reader expects "centred" to mean.
+const EDGE_ROW_MIN_WIDTH_FRACTION: f32 = 0.5;
+
+/// The longest a sliver run is allowed to be before this leaves it alone.
+/// Long enough for a balloon's rounded cap; short of a real L/U/Z leg, which
+/// has to be at least a line's height to hold any text at all — the test
+/// below runs one 75 rows deep, and that must survive untouched.
+const MAX_EDGE_TRIM_ROWS: usize = 24;
+
+/// How many leading/trailing rows in `rows` are too narrow to seed a line —
+/// see `EDGE_ROW_MIN_WIDTH_FRACTION`. Only a short, contiguous run from each
+/// end counts, capped by `MAX_EDGE_TRIM_ROWS`: a long run is a real leg of
+/// the shape (a balloon's waist, or an L's narrow arm) that the text has to
+/// work around, not a sliver to skip past — trimming a few rows off it would
+/// just leave a shorter, equally lopsided leg behind.
+fn trim_narrow_edge_rows(rows: &[Option<(i64, i64)>]) -> (usize, usize) {
+    let max_width = rows.iter().flatten().map(|(a, b)| b - a).max().unwrap_or(0);
+    if max_width <= 0 {
+        return (0, 0);
+    }
+    let min_usable = (max_width as f32 * EDGE_ROW_MIN_WIDTH_FRACTION) as i64;
+    let usable = |row: &Option<(i64, i64)>| row.is_some_and(|(a, b)| b - a >= min_usable);
+
+    let front_run = rows.iter().take_while(|row| !usable(row)).count();
+    let back_run = rows.iter().rev().take_while(|row| !usable(row)).count();
+    let front = (front_run <= MAX_EDGE_TRIM_ROWS && front_run < rows.len())
+        .then_some(front_run)
+        .unwrap_or(0);
+    let back = (back_run <= MAX_EDGE_TRIM_ROWS && back_run < rows.len())
+        .then_some(back_run)
+        .unwrap_or(0);
+    if front + back >= rows.len() {
+        (0, 0)
+    } else {
+        (front, back)
+    }
+}
+
 pub fn source_text_rows(
     block: &TextBlock,
     mask: &GrayImage,
@@ -507,6 +618,8 @@ pub fn source_text_rows(
     let first = rows.iter().position(Option::is_some)?;
     let last = rows.iter().rposition(Option::is_some)?;
     let rows = &rows[first..=last];
+    let (edge_front, edge_back) = trim_narrow_edge_rows(rows);
+    let rows = &rows[edge_front..rows.len() - edge_back];
 
     let box_left = rows.iter().flatten().map(|(a, _)| *a).min()? as f32;
     let box_right = rows.iter().flatten().map(|(_, b)| *b).max()? as f32;
@@ -525,7 +638,7 @@ pub fn source_text_rows(
     Some((
         LayoutBox {
             x: box_left,
-            y: (top + first as i64) as f32,
+            y: (top + first as i64 + edge_front as i64) as f32,
             width: box_right - box_left,
             height: rows.len() as f32,
         },
@@ -909,10 +1022,12 @@ pub fn clear_space_rows(
     let first = rows.iter().position(Option::is_some)?;
     let last = rows.iter().rposition(Option::is_some)?;
     let rows = &rows[first..=last];
+    let (edge_front, edge_back) = trim_narrow_edge_rows(rows);
+    let rows = &rows[edge_front..rows.len() - edge_back];
 
     let box_left = rows.iter().flatten().map(|(a, _)| *a).min()? as f32;
     let box_right = rows.iter().flatten().map(|(_, b)| *b).max()? as f32;
-    let box_top = (top + first as i64) as f32;
+    let box_top = (top + first as i64 + edge_front as i64) as f32;
     let box_height = rows.len() as f32;
 
     let spans = rows
@@ -2230,7 +2345,7 @@ mod tests {
         let own = (40.0, 40.0);
         let neighbour = [(160.0, 40.0)];
 
-        let clipped = clip_box_to_nearest_owner(traced, own, &neighbour);
+        let clipped = clip_box_to_nearest_owner(traced, own, &neighbour, None);
 
         assert_eq!(clipped.x, 0.0);
         assert_eq!(clipped.width, 100.0, "should stop at the midpoint");
@@ -2240,7 +2355,7 @@ mod tests {
     #[test]
     fn stacked_neighbours_cut_on_the_vertical_axis() {
         let traced = LayoutBox { x: 0.0, y: 0.0, width: 80.0, height: 200.0 };
-        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(40.0, 160.0)]);
+        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(40.0, 160.0)], None);
         assert_eq!(clipped.height, 100.0);
         assert_eq!(clipped.width, 80.0);
     }
@@ -2249,7 +2364,7 @@ mod tests {
     fn near_coincident_blocks_are_not_treated_as_neighbouring_balloons() {
         let traced = LayoutBox { x: 0.0, y: 0.0, width: 200.0, height: 80.0 };
         // Centres 2px apart are one region the detector split, not two balloons.
-        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(42.0, 40.0)]);
+        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(42.0, 40.0)], None);
         assert_eq!(clipped.width, traced.width, "the box must stay whole");
     }
 
@@ -2258,8 +2373,69 @@ mod tests {
         // Far enough apart to count as neighbours, but the traced box barely
         // reaches past our own centre, so the cut would leave a sliver.
         let traced = LayoutBox { x: 38.0, y: 0.0, width: 6.0, height: 80.0 };
-        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(140.0, 40.0)]);
+        let clipped = clip_box_to_nearest_owner(traced, (40.0, 40.0), &[(140.0, 40.0)], None);
         assert_eq!(clipped.width, traced.width);
+    }
+
+    /// Two circles of different sizes joined by a narrow rectangular neck —
+    /// a pinched hourglass balloon, mirroring `koharu_ml::facade`'s test of
+    /// the same shape for the identical reason (see `mask_waist_fraction`).
+    fn page_with_hourglass(
+        size: u32,
+        top_centre: (f32, f32),
+        top_radius: f32,
+        bottom_centre: (f32, f32),
+        bottom_radius: f32,
+        neck_half_width: f32,
+        neck_y: (f32, f32),
+    ) -> GrayImage {
+        GrayImage::from_fn(size, size, |x, y| {
+            let (fx, fy) = (x as f32, y as f32);
+            let in_top = ((fx - top_centre.0).powi(2) + (fy - top_centre.1).powi(2)).sqrt()
+                <= top_radius;
+            let in_bottom = ((fx - bottom_centre.0).powi(2) + (fy - bottom_centre.1).powi(2))
+                .sqrt()
+                <= bottom_radius;
+            let in_neck = fy >= neck_y.0
+                && fy <= neck_y.1
+                && (fx - top_centre.0).abs() <= neck_half_width;
+            Luma([if in_top || in_bottom || in_neck { 255u8 } else { 100u8 }])
+        })
+    }
+
+    #[test]
+    fn a_pinched_hourglass_is_clipped_at_the_waist_not_the_midpoint() {
+        let top_centre = (150.0f32, 70.0);
+        let bottom_centre = (150.0f32, 305.0);
+        // Starts/ends where each circle is already at least as wide as the
+        // neck — see the identical note on the `koharu_ml` version of this
+        // test for why.
+        let neck_y = (110.0, 162.0);
+        let mask =
+            page_with_hourglass(460, top_centre, 55.0, bottom_centre, 150.0, 35.0, neck_y);
+
+        // A generous traced box spanning both lobes, as `clear_space_rows`'s
+        // flood-fill would produce before clipping.
+        let traced = LayoutBox { x: 0.0, y: 0.0, width: 300.0, height: 460.0 };
+        let clipped = clip_box_to_nearest_owner(
+            traced,
+            top_centre,
+            &[bottom_centre],
+            Some(&mask),
+        );
+
+        // The plain midpoint (187.5) sits well inside the bottom lobe
+        // (155..455) — clipping there would hand the top owner a slice of
+        // the bottom balloon. The waist clip keeps it inside the neck.
+        let midpoint = (top_centre.1 + bottom_centre.1) / 2.0;
+        assert!(
+            clipped.y + clipped.height <= neck_y.1 + 2.0,
+            "should stop at the neck, not reach into the bottom lobe: {clipped:?}"
+        );
+        assert!(
+            clipped.y + clipped.height < midpoint,
+            "should end well before the midpoint bisector: {clipped:?}"
+        );
     }
 
     #[test]

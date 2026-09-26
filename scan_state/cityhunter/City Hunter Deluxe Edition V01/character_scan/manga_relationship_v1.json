@@ -1,0 +1,225 @@
+{
+  "characters": [
+    {
+      "id": "ryo",
+      "name": "Saeba Ryo",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/ryo/0.png",
+        "faces/ryo/1.png",
+        "faces/ryo/2.png",
+        "faces/ryo/3.png"
+      ],
+      "traits": [
+        "Thợ săn thành phố (City Hunter), một tay súng cừ khôi chuyên giải quyết các vụ việc nguy hiểm. Anh thường ẩn mình dưới vỏ bọc một kẻ trăng hoa nhưng thực chất là một chuyên gia đầy bản lĩnh.",
+        "Bên ngoài tỏ ra cợt nhả, hiếu sắc và hay đùa cợt, nhưng khi vào việc lại cực kỳ nghiêm túc, lạnh lùng và quyết đoán. Anh có nguyên tắc đạo đức riêng và không bao giờ bán rẻ linh hồn cho cái ác."
+      ]
+    },
+    {
+      "id": "makimura",
+      "name": "Makimura Kaori",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/makimura/0.png",
+        "faces/makimura/1.png",
+        "faces/makimura/2.png",
+        "faces/makimura/3.png"
+      ],
+      "traits": [
+        "Cộng sự mới của Ryo, em gái của người cộng sự cũ đã khuất. Cô là người duy nhất có thể kiềm chế tính trăng hoa của Ryo.",
+        "Bộc trực, nóng tính, hay ghen và rất nghiêm túc trong công việc. Cô không ngại dùng vũ lực hoặc mắng nhiếc khi Ryo giở trò đồi bại."
+      ]
+    },
+    {
+      "id": "trum-angel-dust",
+      "name": "Trùm Angel Dust",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/trum-angel-dust/0.png",
+        "faces/trum-angel-dust/1.png",
+        "faces/trum-angel-dust/2.png",
+        "faces/trum-angel-dust/3.png"
+      ],
+      "traits": [
+        "Trùm tổ chức tội phạm đứng sau loại thuốc Angel Dust, kẻ muốn thâu tóm thị trường ma túy bằng cách biến con người thành những cỗ máy giết người.",
+        "Ngạo mạn, tàn độc và coi mạng người như cỏ rác. Hắn thích thao túng người khác bằng tiền bạc hoặc sự đe dọa."
+      ]
+    },
+    {
+      "id": "chi-gai-yuko",
+      "name": "Natsumi",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/chi-gai-yuko/0.png",
+        "faces/chi-gai-yuko/1.png",
+        "faces/chi-gai-yuko/2.png",
+        "faces/chi-gai-yuko/3.png"
+      ],
+      "traits": [
+        "Thân chủ của Ryo, chị gái của nạn nhân Yuko. Cô thuê Ryo để điều tra cái chết của em gái mình.",
+        "Kiên cường, đau khổ nhưng quyết tâm tìm ra sự thật. Cô không tin tưởng cảnh sát và đặt hết hy vọng vào City Hunter."
+      ]
+    },
+    {
+      "id": "inagaki-kouji",
+      "name": "Inagaki Kouji",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/inagaki-kouji/0.png",
+        "faces/inagaki-kouji/1.png",
+        "faces/inagaki-kouji/2.png",
+        "faces/inagaki-kouji/3.png"
+      ],
+      "traits": [
+        "Kẻ sát nhân đã bắn chết Ogino, sau đó trở thành võ sĩ quyền anh để che đậy tội ác.",
+        "Xảo quyệt, tàn nhẫn và luôn tự mãn về sức mạnh của mình. Hắn không ngần ngại dùng thủ đoạn bẩn thỉu để chiến thắng."
+      ]
+    },
+    {
+      "id": "iwasaki",
+      "name": "Iwasaki Megumi",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/iwasaki/0.png",
+        "faces/iwasaki/1.png",
+        "faces/iwasaki/2.png",
+        "faces/iwasaki/3.png"
+      ],
+      "traits": [
+        "Khách hàng của Ryo, một bác sĩ 27 tuổi đang mắc bệnh hiểm nghèo, muốn thuê Ryo báo thù cho người yêu.",
+        "Trầm tĩnh, kiên định nhưng mang nỗi đau sâu sắc. Cô chấp nhận đánh đổi tất cả để đạt được mục đích cuối cùng."
+      ]
+    },
+    {
+      "id": "vo-si-nan-nhan",
+      "name": "Mita",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/vo-si-nan-nhan/0.png",
+        "faces/vo-si-nan-nhan/1.png",
+        "faces/vo-si-nan-nhan/2.png"
+      ],
+      "traits": [
+        "Nhà vô địch quyền anh bị kẻ xấu ép bán độ và đe dọa gia đình.",
+        "Trung thực, trọng danh dự nhưng bị hoàn cảnh dồn vào đường cùng."
+      ]
+    }
+  ],
+  "relationshipTree": [
+    {
+      "characterId": "ryo",
+      "related": [
+        {
+          "characterId": "makimura",
+          "coOccurrence": 65,
+          "label": "cộng sự, người được anh trai cô nhờ chăm sóc",
+          "description": "tôi/em (khi an ủi); tôi/cậu (khi gắt gỏng)"
+        },
+        {
+          "characterId": "trum-angel-dust",
+          "coOccurrence": 16,
+          "label": "đối thủ, khách hàng cũ",
+          "description": "tôi/ông"
+        },
+        {
+          "characterId": "iwasaki",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/cô"
+        },
+        {
+          "characterId": "chi-gai-yuko",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/cô"
+        },
+        {
+          "characterId": "inagaki-kouji",
+          "coOccurrence": 8,
+          "label": "đối thủ",
+          "description": "tôi/Inagaki"
+        }
+      ]
+    },
+    {
+      "characterId": "makimura",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 65,
+          "label": "cộng sự",
+          "description": "tôi/anh; tôi/A Liêu"
+        },
+        {
+          "characterId": "chi-gai-yuko",
+          "coOccurrence": 1,
+          "label": "người quen",
+          "description": "tôi/cô"
+        }
+      ]
+    },
+    {
+      "characterId": "trum-angel-dust",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 16,
+          "label": "đối thủ",
+          "description": "ta/cậu"
+        }
+      ]
+    },
+    {
+      "characterId": "chi-gai-yuko",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/anh"
+        }
+      ]
+    },
+    {
+      "characterId": "inagaki-kouji",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 8,
+          "label": "đối thủ",
+          "description": "tao/mày"
+        }
+      ]
+    },
+    {
+      "characterId": "iwasaki",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/anh"
+        }
+      ]
+    },
+    {
+      "characterId": "vo-si-nan-nhan",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 6,
+          "label": "người được cứu",
+          "description": "tôi/anh"
+        }
+      ]
+    }
+  ],
+  "isVerifiedByHuman": false
+}

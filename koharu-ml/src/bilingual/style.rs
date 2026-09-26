@@ -503,6 +503,44 @@ pub fn set_active(profile: Option<&StyleProfile>) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Beside `style_profile.json`: which library entry it was activated from
+/// (`StyleScanResult::name`), so the app knows which series' character
+/// library to load on the next launch, not just which prose profile to
+/// follow. A profile applied before this existed, or applied with no name at
+/// all, leaves nothing here — `load_active_name` then returns `None`, and the
+/// character library falls back to its own pre-split shared file.
+fn active_profile_name_path() -> std::path::PathBuf {
+    dirs::data_local_dir()
+        .unwrap_or_else(|| std::path::PathBuf::from("."))
+        .join("koharu")
+        .join("style_profile_name.json")
+}
+
+/// The library name the active profile was activated from, if any.
+pub fn load_active_name() -> Option<String> {
+    let bytes = std::fs::read(active_profile_name_path()).ok()?;
+    serde_json::from_slice(&bytes).ok()
+}
+
+/// Record which library entry `set_active` was just given, or clear it.
+pub fn set_active_name(name: Option<&str>) -> anyhow::Result<()> {
+    let path = active_profile_name_path();
+    match name {
+        Some(name) => {
+            if let Some(dir) = path.parent() {
+                std::fs::create_dir_all(dir)?;
+            }
+            std::fs::write(&path, serde_json::to_vec(name)?)?;
+        }
+        None => match std::fs::remove_file(&path) {
+            Ok(()) => {}
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+            Err(err) => return Err(err.into()),
+        },
+    }
+    Ok(())
+}
+
 /// Pull the profile out of the model's reply.
 ///
 /// Two things are forgiven, because neither says anything about whether the

@@ -292,6 +292,15 @@ impl AnyProvider for GeminiProvider {
         })
     }
 
+    /// Unlike [`Self::complete`], this rotates through the pool on a spent or
+    /// rejected key rather than giving up on the first one it happens to
+    /// land on. It used to be single-shot like `complete`, on the reasoning
+    /// that speaker attribution is enrichment a caller already tolerates
+    /// losing — but `read_page` (`ops::speaker_attribution`) now calls this
+    /// to do a page's OCR as well, where losing it means falling back to a
+    /// weaker local model, not just a missing nicety. A pool of 25 keys with
+    /// one spent is meant to lose one page's worth of quota to that, not
+    /// every remaining page in the run to it.
     fn look<'a>(
         &'a self,
         system_prompt: &'a str,
@@ -301,12 +310,10 @@ impl AnyProvider for GeminiProvider {
         model: &'a str,
     ) -> Pin<Box<dyn Future<Output = anyhow::Result<String>> + Send + 'a>> {
         Box::pin(async move {
-            let Some(api_key) = self.keys.active() else {
-                anyhow::bail!("provider_quota_exceeded:gemini")
+            let mut api_key = match self.keys.active() {
+                Some(key) => key,
+                None => anyhow::bail!("provider_quota_exceeded:gemini"),
             };
-            let url = format!(
-                "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-            );
 
             let body = GenerateRequest {
                 system_instruction: SystemInstruction {
@@ -329,29 +336,58 @@ impl AnyProvider for GeminiProvider {
                 // Reading letters off a page is transcription, not invention.
                 generation_config: GenerationConfig { temperature: 0.0 },
             };
+            let body_bytes = serde_json::to_vec(&body)?;
 
-            let response = http_client()
-                .post(&url)
-                .header("content-type", "application/json")
-                .body(serde_json::to_vec(&body)?)
-                .send()
-                .await?;
+            let mut last_err = anyhow::anyhow!("Gemini: no attempts made");
+            let mut rotations_left = self.keys.len();
+            loop {
+                let url = format!(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                );
+                let response = http_client()
+                    .post(&url)
+                    .header("content-type", "application/json")
+                    .body(body_bytes.clone())
+                    .send()
+                    .await?;
 
-            let resp: serde_json::Value = ensure_provider_success("gemini", response)
-                .await?
-                .json()
-                .await?;
+                let response = match ensure_provider_success("gemini", response).await {
+                    Ok(r) => r,
+                    Err(e) => {
+                        last_err = e;
+                        if (is_quota_error(&last_err) || is_invalid_key(&last_err))
+                            && rotations_left > 0
+                        {
+                            rotations_left -= 1;
+                            if is_invalid_key(&last_err) {
+                                tracing::warn!("gemini rejected a key as invalid, skipping it");
+                            }
+                            let cooldown = if is_rate_limit(&last_err) {
+                                RATE_LIMIT_COOLDOWN
+                            } else {
+                                DAILY_COOLDOWN
+                            };
+                            if let Some(next) = self.keys.rotate(cooldown) {
+                                api_key = next;
+                                continue;
+                            }
+                        }
+                        return Err(last_err);
+                    }
+                };
 
-            let finish_reason = resp["candidates"][0]["finishReason"]
-                .as_str()
-                .unwrap_or("UNKNOWN");
+                let resp: serde_json::Value = response.json().await?;
+                let finish_reason = resp["candidates"][0]["finishReason"]
+                    .as_str()
+                    .unwrap_or("UNKNOWN");
 
-            match resp["candidates"][0]["content"]["parts"][0]["text"].as_str() {
-                Some(t) => Ok(t.to_string()),
-                None => {
-                    tracing::warn!(finish_reason, "Gemini returned no content for an image");
-                    Ok(String::new())
-                }
+                return match resp["candidates"][0]["content"]["parts"][0]["text"].as_str() {
+                    Some(t) => Ok(t.to_string()),
+                    None => {
+                        tracing::warn!(finish_reason, "Gemini returned no content for an image");
+                        Ok(String::new())
+                    }
+                };
             }
         })
     }

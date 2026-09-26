@@ -751,7 +751,7 @@ export default function StyleScannerPage() {
     setError(null)
     try {
       const profile = isInUse(entry.profile) ? null : tidy(entry.profile)
-      await api.setActiveStyleProfile(profile)
+      await api.setActiveStyleProfile(profile, profile ? entry.name : null)
       setActive(profile)
     } catch (err) {
       setError(String(err))
@@ -767,7 +767,7 @@ export default function StyleScannerPage() {
       const saved = await save()
       // Keep the translator in step with the edit when this is the profile in use.
       if (saved && isActive) {
-        await api.setActiveStyleProfile(saved.profile)
+        await api.setActiveStyleProfile(saved.profile, saved.name)
         setActive(saved.profile)
       }
     } catch (err) {
@@ -787,7 +787,7 @@ export default function StyleScannerPage() {
       } else {
         const saved = await save()
         if (saved) {
-          await api.setActiveStyleProfile(saved.profile)
+          await api.setActiveStyleProfile(saved.profile, saved.name)
           setActive(saved.profile)
         }
       }

@@ -22,7 +22,7 @@ pub use folder::{
 };
 pub use llm::*;
 pub use process::*;
-pub use speaker_attribution::attribute_speakers;
+pub use speaker_attribution::{PageRead, attribute_speakers, read_page};
 pub use style_scan::{
     StyleScanOptions, export_style_scan_result, get_active_style_profile, get_style_scan_result,
     list_style_profiles, set_active_style_profile, start_style_scan_job,

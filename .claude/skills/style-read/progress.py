@@ -103,6 +103,9 @@ RECENT_PAGES = 80
 SCRIPT_FIELDS = ("id", "pages", "pairPages", "settled", "settledPairs", "missing")
 
 ADDRESS_LINE = re.compile(r"ADDRESS\s+(.+?)\s*(?:→|->)\s*(.+?)\s*(?:\[|:)")
+SPEECH_SECTION = re.compile(r"^#{2,3}\s*Lời thoại", re.IGNORECASE)
+SECTION_BREAK = re.compile(r"^#{2,3}\s")
+SPEECH_SPEAKER = re.compile(r"^-\s*(.+?)\s*(?:→|->|\[|:)")
 
 
 def progress_path(volume):
@@ -208,6 +211,39 @@ def evidence(pages, characters):
                             on_pages.setdefault(ident, set()).add(page["id"])
                         pair_pages.setdefault((a, b), set()).add(page["id"])
     return on_pages, pair_pages
+
+
+def speech_lines(pages, characters):
+    """How many lines of dialogue each character is credited as speaking,
+    read from every note's `### Lời thoại` section — one tally per bullet,
+    not per page. A page count rewards simply being drawn on the page; this
+    rewards actually talking, so a character who carries a whole scene on
+    three pages counts for more than an extra in the background of ten.
+
+    Narration and sfx bullets (`- (...)`) and lines whose speaker is an
+    unnamed placeholder (`(kẻ bắn súng, chưa rõ tên)`) resolve to no id and
+    are simply not counted — never guessed at."""
+    lookup = names_to_ids(characters)
+    counts = {}
+    for page in pages:
+        if not note_written(page):
+            continue
+        in_section = False
+        with open(page["note"], encoding="utf-8") as f:
+            for line in f:
+                stripped = line.strip()
+                if SECTION_BREAK.match(stripped):
+                    in_section = bool(SPEECH_SECTION.match(stripped))
+                    continue
+                if not in_section or not stripped.startswith("-"):
+                    continue
+                match = SPEECH_SPEAKER.match(stripped)
+                if not match:
+                    continue
+                ident = who(match.group(1), lookup)
+                if ident:
+                    counts[ident] = counts.get(ident, 0) + 1
+    return counts
 
 
 def short(text, limit):
@@ -459,6 +495,7 @@ def settle(manifest):
         return
     characters = cast["characters"]
     on_pages, pair_pages = evidence(manifest["pages"], characters)
+    lines = speech_lines(manifest["pages"], characters)
     order = {p["id"]: i for i, p in enumerate(manifest["pages"])}
     with_raw = manifest.get("withRaw", True)
 
@@ -466,6 +503,7 @@ def settle(manifest):
         ident = c.get("id")
         pages = set(c.get("pages", [])) | on_pages.get(ident, set())
         c["pages"] = sorted(pages, key=lambda p: (order.get(p, len(order)), p))
+        c["speechLines"] = lines.get(ident, 0)
         addresses = c.get("addresses") or {}
         seen = {b: len(ps) for (a, b), ps in pair_pages.items() if a == ident}
         c["pairPages"] = seen
