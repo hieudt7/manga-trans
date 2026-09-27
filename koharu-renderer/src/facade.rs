@@ -301,39 +301,6 @@ impl Renderer {
         // Free text owns a logical region, not the disconnected strokes of the
         // original CJK glyphs. Respect explicitly positioned manual layouts.
         if auto_expand_english_layout && !in_balloon && !use_balloon {
-            if let Some(page) = bubble_map
-                && let Some(selection) = crate::text::free::search(
-                    page, &layout_source_block, &normalized_translation, &font,
-                    &self.symbol_fallbacks, source_glyph.unwrap_or(target_font_size),
-                    target_font_size,
-                )?
-            {
-                let mut free_style = style.clone();
-                let source_size = source_glyph.unwrap_or(target_font_size);
-                if free_style.stroke.is_none() && global_stroke.is_none()
-                    && let Some(pred) = &text_block.font_prediction
-                    && pred.stroke_width_px > 0.0
-                {
-                    free_style.stroke = Some(TextStrokeStyle {
-                        enabled: true,
-                        color: [pred.stroke_color[0],pred.stroke_color[1],pred.stroke_color[2],255],
-                        width_px: Some((selection.layout.font_size * pred.stroke_width_px / source_size).max(0.5)),
-                    });
-                }
-                let free_color = text_block.style.as_ref().map(|s|s.color)
-                    .or_else(||text_block.font_prediction.as_ref().map(|p|[p.text_color[0],p.text_color[1],p.text_color[2],255]))
-                    .unwrap_or(color);
-                let stroke = resolve_stroke_style(text_block,free_style.stroke.as_ref(),global_stroke.as_ref(),selection.layout.font_size);
-                selection.debug(&text_block.id,page,&font,&self.symbol_fallbacks,free_color,stroke,
-                    text_block.font_prediction.as_ref().map_or(0.0,|p|p.stroke_width_px))?;
-                tracing::info!(block_id=%text_block.id,font_size=selection.layout.font_size,
-                    lines=selection.layout.lines.len(),score=selection.selected.score,"FREE_TEXT layout selected");
-                return self.paint_block(PaintBlock {
-                    text_block,set_text:None,layout:&selection.layout,layout_box:selection.bounds,
-                    writing_mode,style:&free_style,color:free_color,effect:block_effect,
-                    global_stroke:global_stroke.as_ref(),font:&font,
-                });
-            }
             let region = bubble_map
                 .map(|page| free_text_region(&layout_source_block, page))
                 .unwrap_or(original_layout_box);
@@ -356,6 +323,17 @@ impl Renderer {
                 .map(|s| s.color)
                 .or(source_color)
                 .unwrap_or(color);
+            // Detected outline thickness is in original-image pixels. Keep
+            // its proportion when the translated text uses a different size.
+            // Explicit block/global stroke settings still take precedence.
+            let source_stroke = text_block.font_prediction.as_ref().and_then(|p| {
+                (p.font_size_px.is_finite() && p.font_size_px > 0.0 && p.stroke_width_px > 0.0)
+                    .then(|| TextStrokeStyle {
+                        enabled: true,
+                        color: [p.stroke_color[0], p.stroke_color[1], p.stroke_color[2], 255],
+                        width_px: Some(p.stroke_width_px * layout.font_size / p.font_size_px),
+                    })
+            });
             return self.paint_block(PaintBlock {
                 text_block,
                 set_text: None,
@@ -365,7 +343,7 @@ impl Renderer {
                 style: &style,
                 color: free_color,
                 effect: block_effect,
-                global_stroke: global_stroke.as_ref(),
+                global_stroke: global_stroke.as_ref().or(source_stroke.as_ref()),
                 font: &font,
             });
         }

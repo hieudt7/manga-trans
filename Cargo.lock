@@ -4075,7 +4075,6 @@ dependencies = [
  "once_cell",
  "rayon",
  "serde",
- "serde_json",
  "skrifa",
  "tiny-skia",
  "tokio",

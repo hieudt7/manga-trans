@@ -633,6 +633,15 @@ pub fn inpaint_document(lama: &Lama, doc: &mut Document) -> Result<()> {
     // (free-standing text, an open region, or a box the detector
     // missed) has no real container to trace, so it goes through the
     // adaptive local-background reader instead.
+    let original = doc.image.to_rgb8();
+    for block in &mut doc.text_blocks {
+        if classify_container(block, &doc.balloons) == ContainerKind::Adaptive {
+            if let Some(mut prediction) = block.font_prediction.take() {
+                crate::source_colors::refine(&original, &mask, block, &mut prediction);
+                block.font_prediction = Some(prediction);
+            }
+        }
+    }
     let classified: Vec<(TextBlock, ContainerKind)> = doc
         .text_blocks
         .iter()
