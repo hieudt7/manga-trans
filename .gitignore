@@ -77,3 +77,9 @@ debug-scan/
 # Python bytecode from the style-read scripts
 __pycache__/
 *.pyc
+
+# FREE_TEXT redraw debug/replay output and its local-only replay test
+debug-columns/
+debug-free-text/
+debug-text-type/
+koharu-ml/tests/free_text.rs

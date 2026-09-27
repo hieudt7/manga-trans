@@ -77,6 +77,7 @@ metal = [
 ]
 
 [dev-dependencies]
+koharu-renderer = { workspace = true }
 
 [[bin]]
 name = "comic-text-detector"

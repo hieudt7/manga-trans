@@ -217,6 +217,68 @@ pub fn layout_box_from_block(block: &TextBlock) -> LayoutBox {
     }
 }
 
+/// A coherent region for free-standing lettering, measured on the restored
+/// background, independently of source glyphs. On dark panels, bright artwork
+/// is an obstacle. Mixed/structured backgrounds retain the logical block box.
+pub fn free_text_region(block: &TextBlock, page: &GrayImage) -> LayoutBox {
+    let fallback = layout_box_from_block(block);
+    let left = block.x.max(0.0).floor() as u32;
+    let top = block.y.max(0.0).floor() as u32;
+    let right = (block.x + block.width)
+        .ceil()
+        .max(0.0)
+        .min(page.width() as f32) as u32;
+    let bottom = (block.y + block.height)
+        .ceil()
+        .max(0.0)
+        .min(page.height() as f32) as u32;
+    if right <= left || bottom <= top {
+        return fallback;
+    }
+    let (w, h) = ((right - left) as usize, (bottom - top) as usize);
+    let mut values: Vec<u8> = (top..bottom)
+        .flat_map(|y| (left..right).map(move |x| page.get_pixel(x, y)[0]))
+        .collect();
+    values.sort_unstable();
+    let median = values[values.len() / 2];
+    if median > 110
+        || values.iter().filter(|v| v.abs_diff(median) <= 40).count() * 4 < values.len() * 3
+    {
+        return fallback;
+    }
+    let mut heights = vec![0usize; w + 1];
+    let mut best = (0usize, 0usize, 0usize, 0usize);
+    for y in 0..h {
+        for x in 0..w {
+            let open = page.get_pixel(left + x as u32, top + y as u32)[0].abs_diff(median) <= 40;
+            heights[x] = if open { heights[x] + 1 } else { 0 };
+        }
+        let mut stack: Vec<(usize, usize)> = Vec::new();
+        for x in 0..=w {
+            let height = heights[x];
+            let mut start = x;
+            while stack.last().is_some_and(|(_, prev)| *prev > height) {
+                let (sx, sh) = stack.pop().unwrap();
+                let width = x - sx;
+                if width * 5 >= w * 3 && width * sh > best.2 * best.3 {
+                    best = (sx, y + 1 - sh, width, sh);
+                }
+                start = sx;
+            }
+            stack.push((start, height));
+        }
+    }
+    if best.2 * best.3 < w * h / 3 {
+        return fallback;
+    }
+    LayoutBox {
+        x: left as f32 + best.0 as f32,
+        y: top as f32 + best.1 as f32,
+        width: best.2 as f32,
+        height: best.3 as f32,
+    }
+}
+
 pub fn is_expanded_layout_box(layout_box: LayoutBox, original: LayoutBox) -> bool {
     layout_box.width > original.width * 1.05 || layout_box.height > original.height * 1.05
 }
@@ -1934,15 +1996,51 @@ fn clamped_bounds(layout_box: LayoutBox, map_w: i32, map_h: i32) -> Option<IntRe
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn free_text_uses_a_coherent_dark_region_avoiding_bright_art() {
+        let page = image::GrayImage::from_fn(300, 400, |x, y| {
+            image::Luma([if x > 190 && y > 210 { 240 } else { 50 }])
+        });
+        let block = koharu_types::TextBlock {
+            x: 30.0,
+            y: 30.0,
+            width: 240.0,
+            height: 340.0,
+            ..Default::default()
+        };
+        let region = super::free_text_region(&block, &page);
+        assert!(region.width >= 150.0 && region.height >= 170.0);
+        assert!(region.x + region.width <= 191.0 || region.y + region.height <= 211.0);
+    }
+
+    #[test]
+    fn free_text_on_speed_lines_keeps_the_logical_box() {
+        let page = image::GrayImage::from_fn(300, 400, |x, y| {
+            image::Luma([if (x + y) % 20 < 8 { 40 } else { 255 }])
+        });
+        let block = koharu_types::TextBlock {
+            x: 30.0,
+            y: 30.0,
+            width: 240.0,
+            height: 340.0,
+            ..Default::default()
+        };
+        let region = super::free_text_region(&block, &page);
+        assert_eq!(
+            (region.x, region.y, region.width, region.height),
+            (30.0, 30.0, 240.0, 340.0)
+        );
+    }
+
     use image::{GrayImage, Luma};
 
     use super::{
         DIALOGUE_FILL_FACTOR, DIALOGUE_MIN_FONT_SIZE, LATIN_OVERFLOW_FACTOR, LayoutBox, TextBlock,
-        balloon_bounds_from_image, clear_space_rows, clip_box_to_nearest_owner, grow_box_within,
-        is_emphatic_lettering, is_stackable_shout, preferred_font_size, shorten_elongation,
-        grow_rows_into_blank, source_glyph_size, source_text_rows,
-        expand_latin_layout_box_relaxed, expand_latin_layout_box_strict, is_expanded_layout_box,
-        latin_width_overflow_factor, layout_box_area,
+        balloon_bounds_from_image, clear_space_rows, clip_box_to_nearest_owner,
+        expand_latin_layout_box_relaxed, expand_latin_layout_box_strict, grow_box_within,
+        grow_rows_into_blank, is_emphatic_lettering, is_expanded_layout_box, is_stackable_shout,
+        latin_width_overflow_factor, layout_box_area, preferred_font_size, shorten_elongation,
+        source_glyph_size, source_text_rows,
     };
 
     /// A 200x200 balloon interior with a dark figure drawn across the right of

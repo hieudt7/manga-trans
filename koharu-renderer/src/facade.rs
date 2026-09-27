@@ -16,13 +16,12 @@ use crate::{
     text::{
         latin::{
             LayoutBox, MIN_FILL_RATIO, balloon_bounds_from_image, clear_space_rows,
-            clip_box_to_nearest_owner, fill_ratio, grow_box_within, is_emphatic_lettering,
-            SHAPE_GROWTH_MAX_STEPS, SHAPE_GROWTH_STEP_PX, grow_rows_into_blank,
-            is_stackable_shout, shorten_elongation, source_glyph_size, source_text_rows,
-            expand_latin_layout_box_relaxed, expand_latin_layout_box_strict,
-            is_expanded_layout_box, latin_layout_underfilled, latin_width_overflow_factor,
-            layout_box_area, layout_box_from_block, pick_better_latin_candidate,
-            preferred_font_size,
+            clip_box_to_nearest_owner, expand_latin_layout_box_relaxed,
+            expand_latin_layout_box_strict, fill_ratio, free_text_region, grow_box_within,
+            is_emphatic_lettering, is_expanded_layout_box, is_stackable_shout,
+            latin_layout_underfilled, latin_width_overflow_factor, layout_box_area,
+            layout_box_from_block, pick_better_latin_candidate, preferred_font_size,
+            shorten_elongation, source_glyph_size,
         },
         script::{
             font_families_for_text, is_latin_only, normalize_translation_for_layout,
@@ -87,10 +86,6 @@ impl Renderer {
             document.image.to_luma8()
         };
 
-        // Where the source text was before it was painted out. Outside a
-        // balloon that footprint is the only room the translation has.
-        let source_mask = document.segment.as_ref().map(|segment| segment.to_luma8());
-
         let page_height = bubble_map.height() as f32;
         // Centres of *every* block on the page, taken before the mutable borrow
         // below. Re-rendering a single block must still know where its
@@ -126,7 +121,6 @@ impl Renderer {
                 stroke.clone(),
                 font_family,
                 Some(&bubble_map),
-                source_mask.as_ref(),
                 page_height,
                 &block_centres,
                 &balloons,
@@ -166,7 +160,6 @@ impl Renderer {
         global_stroke: Option<TextStrokeStyle>,
         font_family: Option<&str>,
         bubble_map: Option<&GrayImage>,
-        source_mask: Option<&GrayImage>,
         page_height: f32,
         sibling_centres: &[(f32, f32)],
         balloons: &[(f32, f32, f32, f32)],
@@ -258,7 +251,21 @@ impl Renderer {
         let balloon_box = if auto_expand_english_layout {
             bubble_map
                 .and_then(|map| balloon_bounds_from_image(text_block, map))
-                .map(|traced| clip_box_to_nearest_owner(traced, centre, sibling_centres, bubble_map))
+                .filter(|bounds| {
+                    if in_balloon {
+                        return true;
+                    }
+                    // A white patch among speed lines is not a caption box.
+                    // A real undetected container must contain the source block.
+                    let overlap_w =
+                        (bounds.x + bounds.width).min(seed_x + seed_width) - bounds.x.max(seed_x);
+                    let overlap_h =
+                        (bounds.y + bounds.height).min(seed_y + seed_height) - bounds.y.max(seed_y);
+                    overlap_w.max(0.0) * overlap_h.max(0.0) >= seed_width * seed_height * 0.85
+                })
+                .map(|traced| {
+                    clip_box_to_nearest_owner(traced, centre, sibling_centres, bubble_map)
+                })
         } else {
             None
         };
@@ -291,31 +298,102 @@ impl Renderer {
         );
         let target_font_size = preferred_font_size(page_height, source_glyph, in_balloon);
 
+        // Free text owns a logical region, not the disconnected strokes of the
+        // original CJK glyphs. Respect explicitly positioned manual layouts.
+        if auto_expand_english_layout && !in_balloon && !use_balloon {
+            if let Some(page) = bubble_map
+                && let Some(selection) = crate::text::free::search(
+                    page, &layout_source_block, &normalized_translation, &font,
+                    &self.symbol_fallbacks, source_glyph.unwrap_or(target_font_size),
+                    target_font_size,
+                )?
+            {
+                let mut free_style = style.clone();
+                let source_size = source_glyph.unwrap_or(target_font_size);
+                if free_style.stroke.is_none() && global_stroke.is_none()
+                    && let Some(pred) = &text_block.font_prediction
+                    && pred.stroke_width_px > 0.0
+                {
+                    free_style.stroke = Some(TextStrokeStyle {
+                        enabled: true,
+                        color: [pred.stroke_color[0],pred.stroke_color[1],pred.stroke_color[2],255],
+                        width_px: Some((selection.layout.font_size * pred.stroke_width_px / source_size).max(0.5)),
+                    });
+                }
+                let free_color = text_block.style.as_ref().map(|s|s.color)
+                    .or_else(||text_block.font_prediction.as_ref().map(|p|[p.text_color[0],p.text_color[1],p.text_color[2],255]))
+                    .unwrap_or(color);
+                let stroke = resolve_stroke_style(text_block,free_style.stroke.as_ref(),global_stroke.as_ref(),selection.layout.font_size);
+                selection.debug(&text_block.id,page,&font,&self.symbol_fallbacks,free_color,stroke,
+                    text_block.font_prediction.as_ref().map_or(0.0,|p|p.stroke_width_px))?;
+                tracing::info!(block_id=%text_block.id,font_size=selection.layout.font_size,
+                    lines=selection.layout.lines.len(),score=selection.selected.score,"FREE_TEXT layout selected");
+                return self.paint_block(PaintBlock {
+                    text_block,set_text:None,layout:&selection.layout,layout_box:selection.bounds,
+                    writing_mode,style:&free_style,color:free_color,effect:block_effect,
+                    global_stroke:global_stroke.as_ref(),font:&font,
+                });
+            }
+            let region = bubble_map
+                .map(|page| free_text_region(&layout_source_block, page))
+                .unwrap_or(original_layout_box);
+            let mut layout = TextLayout::new(&font, None)
+                .with_fallback_fonts(&self.symbol_fallbacks)
+                .with_max_width(region.width)
+                .with_max_height(region.height)
+                .with_preferred_font_size(target_font_size)
+                .with_writing_mode(writing_mode)
+                .run(&normalized_translation)?;
+            center_layout_vertically(&mut layout, region.height);
+            align_layout_horizontally(&mut layout, writing_mode, region.width, text_align);
+            let source_color = text_block
+                .font_prediction
+                .as_ref()
+                .map(|p| [p.text_color[0], p.text_color[1], p.text_color[2], 255]);
+            let free_color = text_block
+                .style
+                .as_ref()
+                .map(|s| s.color)
+                .or(source_color)
+                .unwrap_or(color);
+            return self.paint_block(PaintBlock {
+                text_block,
+                set_text: None,
+                layout: &layout,
+                layout_box: region,
+                writing_mode,
+                style: &style,
+                color: free_color,
+                effect: block_effect,
+                global_stroke: global_stroke.as_ref(),
+                font: &font,
+            });
+        }
+
         // Outside a balloon there is no blank interior to grow into: the artist
         // sized this lettering to the gap it sits in, and anything larger runs
         // over the artwork. Set it at that size rather than searching for one.
         let keep_source_size = english_horizontal_layout && !in_balloon && source_glyph.is_some();
 
         let build_layout = |box_for_layout: LayoutBox, allow_expanded_overflow: bool| {
-            let max_width = if use_balloon
-                || english_layout == EnglishLayoutBehavior::LockedToManualSize
-            {
-                // Traced balloon bounds, and boxes already fitted to a balloon
-                // upstream, are the real limit — use them exactly.
-                box_for_layout.width
-            } else {
-                let expanded_box = is_expanded_layout_box(box_for_layout, original_layout_box);
-                let overflow = if english_horizontal_layout {
-                    latin_width_overflow_factor(expanded_box, allow_expanded_overflow)
-                } else {
-                    1.0
-                };
-                if box_for_layout.width.is_finite() && box_for_layout.width > 0.0 {
-                    box_for_layout.width * overflow
-                } else {
+            let max_width =
+                if use_balloon || english_layout == EnglishLayoutBehavior::LockedToManualSize {
+                    // Traced balloon bounds, and boxes already fitted to a balloon
+                    // upstream, are the real limit — use them exactly.
                     box_for_layout.width
-                }
-            };
+                } else {
+                    let expanded_box = is_expanded_layout_box(box_for_layout, original_layout_box);
+                    let overflow = if english_horizontal_layout {
+                        latin_width_overflow_factor(expanded_box, allow_expanded_overflow)
+                    } else {
+                        1.0
+                    };
+                    if box_for_layout.width.is_finite() && box_for_layout.width > 0.0 {
+                        box_for_layout.width * overflow
+                    } else {
+                        box_for_layout.width
+                    }
+                };
 
             let base = || {
                 TextLayout::new(&font, None)
@@ -411,86 +489,6 @@ impl Renderer {
                         layout_box = candidate_box;
                     }
                 }
-            }
-        }
-
-        // Outside a balloon the shape to fill is the one the source text left
-        // behind — an L where a column stopped short of a figure, a U around
-        // one, a Z down a stepped panel. A rectangle drawn round any of those
-        // reaches over the drawing.
-        if keep_source_size
-            && let Some(mask) = source_mask
-            && let Some(page) = bubble_map
-            && let Some((source_box, rows)) = source_text_rows(&layout_source_block, mask, page)
-        {
-            let into_shape = |rows: &[(f32, f32)], ceiling: f32| {
-                TextLayout::new(&font, None)
-                    .with_fallback_fonts(&self.symbol_fallbacks)
-                    .with_row_spans(RowSpans::new(rows.to_vec()))
-                    .with_preferred_font_size(ceiling)
-                    .with_writing_mode(writing_mode)
-                    .run(&normalized_translation)
-                    .ok()
-                    .filter(|layout| layout.fits)
-            };
-
-            // The artist's own size unless that is too small to read, in which
-            // case there is something to gain by growing.
-            let ceiling = target_font_size.max(OUTSIDE_BALLOON_TARGET_FONT_SIZE);
-
-            // Grow a ring at a time into whatever blank page surrounds the
-            // lettering, stopping as soon as the text reads at the target or
-            // the drawing closes in. Re-measured each ring so it never takes
-            // more room than it needs.
-            // A layout's line positions are absolute inside the shape it was
-            // measured against, so the shape it was measured against is the one
-            // it has to be drawn in. Kept as a pair for that reason: growing
-            // the shape while holding on to an older layout draws every line
-            // shifted by the difference between the two origins.
-            let mut probe_box = source_box;
-            let mut probe_rows = rows;
-            let mut best = into_shape(&probe_rows, ceiling).map(|layout| (layout, probe_box));
-            for _ in 1..=SHAPE_GROWTH_MAX_STEPS {
-                if best
-                    .as_ref()
-                    .is_some_and(|(layout, _)| layout.font_size >= ceiling)
-                {
-                    break;
-                }
-                let Some((grown_box, grown_rows)) =
-                    grow_rows_into_blank(probe_box, &probe_rows, page, SHAPE_GROWTH_STEP_PX)
-                else {
-                    break;
-                };
-                if grown_box.width <= probe_box.width && grown_box.height <= probe_box.height {
-                    // Boxed in by the drawing on every side.
-                    break;
-                }
-                if let Some(grown_fit) = into_shape(&grown_rows, ceiling)
-                    && best
-                        .as_ref()
-                        .is_none_or(|(before, _)| grown_fit.font_size > before.font_size)
-                {
-                    best = Some((grown_fit, grown_box));
-                }
-                probe_box = grown_box;
-                probe_rows = grown_rows;
-            }
-
-            if let Some((mut fitted, source_box)) = best {
-                align_layout_horizontally(&mut fitted, writing_mode, source_box.width, text_align);
-                return self.paint_block(PaintBlock {
-                    text_block,
-                    set_text,
-                    layout: &fitted,
-                    layout_box: source_box,
-                    writing_mode,
-                    style: &style,
-                    color,
-                    effect: block_effect,
-                    global_stroke: global_stroke.as_ref(),
-                    font: &font,
-                });
             }
         }
 
@@ -842,12 +840,6 @@ fn apply_default_font_families(font_families: &mut Vec<String>, text: &str) {
         *font_families = font_families_for_text(text);
     }
 }
-
-/// What text outside a balloon is grown toward. Its own footprint is usually
-/// too small for the translation, and past this there is nothing to gain:
-/// the line is readable and reaching further only walks it away from where the
-/// artist set it.
-const OUTSIDE_BALLOON_TARGET_FONT_SIZE: f32 = 14.0;
 
 /// A room this much taller than it is wide holds a column far better than a
 /// line. The Japanese in one was set down the page to begin with, and a

@@ -4,9 +4,12 @@ use std::{
 };
 
 use anyhow::Result;
-use image::DynamicImage;
+use image::{DynamicImage, Rgb};
+use imageproc::drawing::draw_hollow_rect_mut;
+use imageproc::rect::Rect;
 use koharu_llm::paddleocr_vl::{self as paddleocr_vl_llm, PaddleOcrVl, PaddleOcrVlTask};
 use koharu_llm::safe::llama_backend::LlamaBackend;
+use koharu_llm::sfx_dict::is_sfx;
 use koharu_types::{Document, FontPrediction, SerializableDynamicImage, TextBlock, TextDirection};
 
 use crate::character_library::{self as character_library, CharacterLibrary};
@@ -252,14 +255,6 @@ impl Model {
         // survived inpainting onto the finished page.
         let probability_map = self.text_segmenter.inference(&doc.image)?;
         let mask = probability_map.threshold(TEXT_MASK_THRESHOLD)?;
-        // The mask hugs the strokes, so grow it enough to take the grey
-        // anti-aliased edge with it; left behind, that edge reads as a halo
-        // around every erased glyph.
-        let mask = imageproc::morphology::dilate(
-            &mask,
-            imageproc::distance_transform::Norm::L1,
-            TEXT_MASK_DILATE_RADIUS,
-        );
 
         // PPDocLayoutV3 stays the trusted source for every block it already
         // finds — this only ever *adds* a block for ink the mask marks as
@@ -268,7 +263,12 @@ impl Model {
         // gap (see `uncovered_ink_regions`), rather than double-running
         // detection on every page.
         if let Some(ctd) = &self.comic_text_detector {
-            let uncovered = uncovered_ink_regions(&mask, &doc.text_blocks);
+            let detection_mask = imageproc::morphology::dilate(
+                &mask,
+                imageproc::distance_transform::Norm::L1,
+                TEXT_MASK_DILATE_RADIUS,
+            );
+            let uncovered = uncovered_ink_regions(&detection_mask, &doc.text_blocks);
             if !uncovered.is_empty() {
                 match ctd.inference(&doc.image) {
                     Ok(detection) => {
@@ -379,23 +379,7 @@ impl Model {
     /// Inpaint text regions in the document.
     /// Uses the current `doc.segment` mask as the inpaint source, sets `doc.inpainted`.
     pub async fn inpaint(&self, doc: &mut Document) -> Result<()> {
-        let mask = doc
-            .segment
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Segment image not found"))?;
-        // A balloon holding only marks — 「・・・」 — keeps the ones the artist
-        // drew. Nothing replaces them, so erasing them would leave the pause
-        // silent.
-        let mask = keep_wordless_marks(mask.to_luma8(), &doc.text_blocks);
-        let mask = keep_only_text_found(mask, &doc.text_blocks, &doc.balloons);
-        let result = self.lama.inference_with_blocks(
-            &doc.image,
-            &DynamicImage::ImageLuma8(mask),
-            Some(&doc.text_blocks),
-        )?;
-        doc.inpainted = Some(result.into());
-
-        Ok(())
+        inpaint_document(&self.lama, doc)
     }
 
     /// Low-level inpaint: inpaint a specific image region with a mask.
@@ -619,6 +603,128 @@ impl Model {
         }
         Ok(predictions)
     }
+}
+
+/// Restore a detected document without loading unrelated OCR/LLM models.
+pub fn inpaint_document(lama: &Lama, doc: &mut Document) -> Result<()> {
+    let mask = doc
+        .segment
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("Segment image not found"))?;
+    anyhow::ensure!(mask.width() == doc.image.width() && mask.height() == doc.image.height(),
+        "source segmentation dimensions differ from the original image");
+    // A balloon holding only marks — 「・・・」 — keeps the ones the artist
+    // drew. Nothing replaces them, so erasing them would leave the pause
+    // silent.
+    // Preserve the established balloon mask's dilation/filter order.
+    let legacy_mask = imageproc::morphology::dilate(
+        &mask.to_luma8(),
+        imageproc::distance_transform::Norm::L1,
+        TEXT_MASK_DILATE_RADIUS,
+    );
+    let legacy_mask = keep_wordless_marks(legacy_mask, &doc.text_blocks);
+    let legacy_mask = keep_only_text_found(legacy_mask, &doc.text_blocks, &doc.balloons);
+    let mask = keep_wordless_marks(mask.to_luma8(), &doc.text_blocks);
+    let mask = keep_only_text_found(mask, &doc.text_blocks, &doc.balloons);
+
+    // Split by container, not by colour (see `.claude/Redraw.md`):
+    // BALLOON_TEXT/BOX_TEXT-the-detector-caught and SFX_TEXT keep
+    // today's balloon-contour-tuned path unchanged; everything else
+    // (free-standing text, an open region, or a box the detector
+    // missed) has no real container to trace, so it goes through the
+    // adaptive local-background reader instead.
+    let classified: Vec<(TextBlock, ContainerKind)> = doc
+        .text_blocks
+        .iter()
+        .cloned()
+        .map(|block| {
+            let kind = classify_container(&block, &doc.balloons);
+            (block, kind)
+        })
+        .collect();
+
+    let debug_adaptive = std::env::var("KOHARU_DEBUG_ADAPTIVE").is_ok();
+    if debug_adaptive {
+        for (block, kind) in &classified {
+            tracing::info!(
+                block_id = %block.id,
+                bbox = ?[block.x, block.y, block.width, block.height],
+                kind = kind.label(),
+                text = ?block.text,
+                "inpaint: block classification"
+            );
+        }
+        write_text_type_debug(&doc.image, &classified, &doc.name);
+    }
+
+    let container_blocks: Vec<TextBlock> = classified
+        .iter()
+        .filter(|(_, kind)| *kind != ContainerKind::Adaptive)
+        .map(|(block, _)| block.clone())
+        .collect();
+    let adaptive_blocks: Vec<TextBlock> = classified
+        .into_iter()
+        .filter(|(_, kind)| *kind == ContainerKind::Adaptive)
+        .map(|(block, _)| block)
+        .collect();
+
+    // Each route owns its mask. Context crops must never grant ownership
+    // of a neighbouring free-standing block to the balloon contour path.
+    let adaptive_seed = keep_only_text_found(mask.clone(), &adaptive_blocks, &[]);
+    let (source, removal) =
+        lama::adaptive_text_masks(&doc.image.to_rgb8(), &adaptive_seed, &adaptive_blocks);
+    let mut container_mask = legacy_mask;
+    let adaptive_guard = imageproc::morphology::dilate(
+        &adaptive_seed,
+        imageproc::distance_transform::Norm::L1,
+        TEXT_MASK_DILATE_RADIUS,
+    );
+    for (pixel, guard) in container_mask.pixels_mut().zip(adaptive_guard.pixels()) {
+        if guard[0] != 0 {
+            pixel[0] = 0;
+        }
+    }
+    let after_container = if container_blocks.is_empty() {
+        doc.image.0.clone()
+    } else {
+        let candidate = lama.inference_with_blocks(
+            &doc.image,
+            &DynamicImage::ImageLuma8(container_mask.clone()),
+            Some(&container_blocks),
+        )?;
+        let mut composed = doc.image.to_rgba8();
+        let candidate = candidate.to_rgba8();
+        for ((dest, src), mask) in composed
+            .pixels_mut()
+            .zip(candidate.pixels())
+            .zip(container_mask.pixels())
+        {
+            if mask[0] != 0 {
+                *dest = *src;
+            }
+        }
+        if doc.image.color().has_alpha() {
+            DynamicImage::ImageRgba8(composed)
+        } else {
+            DynamicImage::ImageRgb8(DynamicImage::ImageRgba8(composed).to_rgb8())
+        }
+    };
+    let result = lama.inference_adaptive(
+        &after_container,
+        &DynamicImage::ImageLuma8(removal.clone()),
+        &adaptive_blocks,
+    )?;
+    if let Ok(dir) = std::env::var("KOHARU_DEBUG_FREE_TEXT") {
+        let dir = std::path::Path::new(&dir);
+        std::fs::create_dir_all(dir)?;
+        doc.image.save(dir.join("01_original.png"))?;
+        source.save(dir.join("02_source_text_mask.png"))?;
+        removal.save(dir.join("03_removal_mask.png"))?;
+        result.save(dir.join("04_cleaned_before_typesetting.png"))?;
+    }
+    doc.inpainted = Some(result.into());
+
+    Ok(())
 }
 
 /// What is actually known about a character, without their name.
@@ -914,7 +1020,14 @@ fn uncovered_ink_regions(mask: &image::GrayImage, blocks: &[TextBlock]) -> Vec<[
             let area = ((bbox[2] - bbox[0]) as f32) * ((bbox[3] - bbox[1]) as f32);
             area <= page_area * MISSED_TEXT_MAX_AREA_SHARE
         })
-        .map(|bbox| [bbox[0] as f32, bbox[1] as f32, bbox[2] as f32, bbox[3] as f32])
+        .map(|bbox| {
+            [
+                bbox[0] as f32,
+                bbox[1] as f32,
+                bbox[2] as f32,
+                bbox[3] as f32,
+            ]
+        })
         .collect()
 }
 
@@ -1104,6 +1217,124 @@ fn keep_wordless_marks(mut mask: image::GrayImage, blocks: &[TextBlock]) -> imag
         }
     }
     mask
+}
+
+/// Whether a block sits inside a detected balloon/box container — same
+/// centre-in-bbox rule `koharu-pipeline`'s `translate` step uses to decide
+/// whether a block's translation may be memoised in the SFX dictionary.
+/// Duplicated here rather than shared because `koharu-ml` cannot depend on
+/// `koharu-pipeline` (the dependency runs the other way).
+fn is_inside_balloon(block: &TextBlock, balloons: &[koharu_types::BalloonDetection]) -> bool {
+    let cx = block.x + block.width / 2.0;
+    let cy = block.y + block.height / 2.0;
+    balloons.iter().any(|balloon| {
+        cx >= balloon.x
+            && cx <= balloon.x + balloon.width
+            && cy >= balloon.y
+            && cy <= balloon.y + balloon.height
+    })
+}
+
+/// A sound effect drawn onto the art, outside every balloon — the same
+/// discriminator `koharu-pipeline`'s `is_memoisable_sfx` uses for
+/// translation. Kept out of the new adaptive redraw path so it keeps
+/// whatever redraw behaviour it already had; only its container-vs-not
+/// classification is duplicated here, not the dictionary logic itself.
+fn is_sfx_block(block: &TextBlock, balloons: &[koharu_types::BalloonDetection]) -> bool {
+    !balloons.is_empty()
+        && !is_inside_balloon(block, balloons)
+        && block.text.as_deref().is_some_and(is_sfx)
+}
+
+/// Which container bucket `inpaint()` routed a block through — see
+/// `.claude/Redraw.md`. `Adaptive` covers `BOX_TEXT`/`FREE_TEXT`/
+/// `OPEN_REGION_TEXT` together, since none of those get a container-shaped
+/// contour to trace and all three go through the same local-background
+/// reader; this classifier does not yet distinguish among the three.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ContainerKind {
+    Balloon,
+    Sfx,
+    Adaptive,
+}
+
+impl ContainerKind {
+    fn label(self) -> &'static str {
+        match self {
+            ContainerKind::Balloon => "BALLOON_TEXT/BOX_TEXT (detected container)",
+            ContainerKind::Sfx => "SFX_TEXT",
+            ContainerKind::Adaptive => "BOX_TEXT?/FREE_TEXT/OPEN_REGION_TEXT (no container)",
+        }
+    }
+}
+
+fn classify_container(
+    block: &TextBlock,
+    balloons: &[koharu_types::BalloonDetection],
+) -> ContainerKind {
+    if is_inside_balloon(block, balloons) {
+        ContainerKind::Balloon
+    } else if is_sfx_block(block, balloons) {
+        ContainerKind::Sfx
+    } else {
+        ContainerKind::Adaptive
+    }
+}
+
+/// When `KOHARU_DEBUG_ADAPTIVE` is set, save `debug-text-type/<page>.png`
+/// (green = `BALLOON_TEXT`, yellow = `SFX_TEXT`, red = everything routed
+/// through the new adaptive redraw path) and a companion `.json` listing
+/// each block's id, bbox, container kind and OCR'd source text — for
+/// answering "what type is this block detected as" without re-deriving it
+/// from logs.
+fn write_text_type_debug(
+    image: &DynamicImage,
+    blocks: &[(TextBlock, ContainerKind)],
+    page_name: &str,
+) {
+    let dir = std::path::PathBuf::from("debug-text-type");
+    if let Err(e) = std::fs::create_dir_all(&dir) {
+        tracing::warn!("debug-text-type: cannot create dir {:?}: {e}", dir);
+        return;
+    }
+
+    let mut overview = image.to_rgb8();
+    for (block, kind) in blocks {
+        let color = match kind {
+            ContainerKind::Balloon => Rgb([0, 200, 60]),
+            ContainerKind::Sfx => Rgb([220, 200, 0]),
+            ContainerKind::Adaptive => Rgb([220, 0, 0]),
+        };
+        let (x, y) = (block.x.max(0.0) as i32, block.y.max(0.0) as i32);
+        let (w, h) = (block.width.max(1.0) as u32, block.height.max(1.0) as u32);
+        draw_hollow_rect_mut(&mut overview, Rect::at(x, y).of_size(w, h), color);
+    }
+
+    let png_path = dir.join(format!("{page_name}.png"));
+    if let Err(e) = overview.save(&png_path) {
+        tracing::warn!("debug-text-type: cannot save {:?}: {e}", png_path);
+    }
+
+    let json_blocks: Vec<serde_json::Value> = blocks
+        .iter()
+        .map(|(block, kind)| {
+            serde_json::json!({
+                "id": block.id,
+                "bbox": [block.x, block.y, block.width, block.height],
+                "kind": kind.label(),
+                "text": block.text,
+            })
+        })
+        .collect();
+    let json_path = dir.join(format!("{page_name}.json"));
+    match serde_json::to_string_pretty(&json_blocks) {
+        Ok(json) => {
+            if let Err(e) = std::fs::write(&json_path, json) {
+                tracing::warn!("debug-text-type: cannot write {:?}: {e}", json_path);
+            }
+        }
+        Err(e) => tracing::warn!("debug-text-type: cannot serialize blocks: {e}"),
+    }
 }
 
 fn region_bbox(region: &LayoutRegion) -> [f32; 4] {
@@ -1459,9 +1690,7 @@ fn refit_text_blocks_to_balloons(
                                     balloon.y,
                                     balloon.width,
                                     balloon.height,
-                                    |px, py| {
-                                        owns_by_waist(px, py, ca, cb, dist, t) == want_a
-                                    },
+                                    |px, py| owns_by_waist(px, py, ca, cb, dist, t) == want_a,
                                 )
                             }
                             None => mir_from_mask_owned(
@@ -1821,11 +2050,6 @@ mod tests {
         let segmenter = runtime.block_on(super::MangaTextSegmentation::load(false))?;
         let probability_map = segmenter.inference(&image)?;
         let mask = probability_map.threshold(super::TEXT_MASK_THRESHOLD)?;
-        let mask = imageproc::morphology::dilate(
-            &mask,
-            imageproc::distance_transform::Norm::L1,
-            super::TEXT_MASK_DILATE_RADIUS,
-        );
         let _ = &blocks;
         let covered = mask.pixels().filter(|p| p[0] >= 128).count();
         println!(
@@ -2046,9 +2270,9 @@ mod tests {
         println!("\nComicTextDetector blocks with no PPDocLayoutV3 block centred inside them:");
         for (i, c) in detection.text_blocks.iter().enumerate() {
             let (cx, cy) = (c.x + c.width / 2.0, c.y + c.height / 2.0);
-            let covered = pp_blocks.iter().any(|b| {
-                cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height
-            });
+            let covered = pp_blocks
+                .iter()
+                .any(|b| cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height);
             if !covered {
                 println!("  [{i:>2}] extra (PPDocLayoutV3 missed this): {c:?}");
             }
