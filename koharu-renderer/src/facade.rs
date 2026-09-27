@@ -323,16 +323,12 @@ impl Renderer {
                 .map(|s| s.color)
                 .or(source_color)
                 .unwrap_or(color);
-            // Detected outline thickness is in original-image pixels. Keep
-            // its proportion when the translated text uses a different size.
-            // Explicit block/global stroke settings still take precedence.
-            let source_stroke = text_block.font_prediction.as_ref().and_then(|p| {
-                (p.font_size_px.is_finite() && p.font_size_px > 0.0 && p.stroke_width_px > 0.0)
-                    .then(|| TextStrokeStyle {
-                        enabled: true,
-                        color: [p.stroke_color[0], p.stroke_color[1], p.stroke_color[2], 255],
-                        width_px: Some(p.stroke_width_px * layout.font_size / p.font_size_px),
-                    })
+            // Controlled colour integration: retain the known-good replay's
+            // 3px geometry. Automatic source width is a separate future step.
+            let source_stroke = text_block.font_prediction.as_ref().map(|p| TextStrokeStyle {
+                enabled: true,
+                color: [p.stroke_color[0], p.stroke_color[1], p.stroke_color[2], 255],
+                width_px: Some(3.0),
             });
             return self.paint_block(PaintBlock {
                 text_block,
@@ -712,6 +708,9 @@ impl Renderer {
             global_stroke,
             layout.font_size,
         );
+        tracing::info!(block_id = %text_block.id, x = layout_box.x, y = layout_box.y,
+            fill_rgb = ?color, stroke = ?resolved_stroke.as_ref().map(|s| (s.color, s.width_px)),
+            font_size = layout.font_size, "final rasterizer style");
         let rendered = self.renderer.render(
             layout,
             writing_mode,

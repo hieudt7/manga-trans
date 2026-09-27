@@ -17,71 +17,6 @@ fn median(samples: &[[u8; 3]]) -> [u8; 3] {
     })
 }
 
-/// Measure bounded runs of outline colour starting at a fill/outline edge.
-/// Unbounded runs (e.g. an outline merging into white artwork) supply no
-/// thickness evidence. Take the shortest direction at each edge so diagonal
-/// crossings and gaps between neighbouring glyphs do not inflate the result.
-fn outline_width(
-    image: &RgbImage,
-    mask: &GrayImage,
-    bounds: [u32; 4],
-    fill: [u8; 3],
-    stroke: [u8; 3],
-) -> Option<f32> {
-    let [x0, y0, x1, y1] = bounds;
-    let limit = ((x1 - x0).min(y1 - y0) / 4).clamp(3, 32) as i32;
-    let is_stroke = |x: i32, y: i32| {
-        if x < 0 || y < 0 || x >= image.width() as i32 || y >= image.height() as i32 {
-            return None;
-        }
-        let p = image.get_pixel(x as u32, y as u32).0;
-        Some(distance(p, stroke) < distance(p, fill))
-    };
-    let mut widths = Vec::new();
-    for y in y0..y1 {
-        for x in x0..x1 {
-            if mask.get_pixel(x, y)[0] < 128 || is_stroke(x as i32, y as i32) != Some(false) {
-                continue;
-            }
-            let mut shortest = None;
-            for (dx, dy) in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
-                let mut run = 0;
-                for step in 1..=limit {
-                    let xx = x as i32 + dx * step;
-                    let yy = y as i32 + dy * step;
-                    let colour = is_stroke(xx, yy);
-                    // Segmentation also bounds the outline when the artwork
-                    // happens to have the same colour as the stroke.
-                    let colour =
-                        if colour.is_some() && mask.get_pixel(xx as u32, yy as u32)[0] < 128 {
-                            Some(false)
-                        } else {
-                            colour
-                        };
-                    match colour {
-                        Some(true) => run += 1,
-                        Some(false) => {
-                            if run > 0 {
-                                shortest = Some(shortest.map_or(run, |v: i32| v.min(run)));
-                            }
-                            break;
-                        }
-                        None => break,
-                    }
-                }
-            }
-            if let Some(width) = shortest {
-                widths.push(width);
-            }
-        }
-    }
-    if widths.len() < 32 {
-        return None;
-    }
-    let mid = widths.len() / 2;
-    Some(*widths.select_nth_unstable(mid).1 as f32)
-}
-
 /// Segmentation supplies ownership; its inner pixels supply the palette. The
 /// colour enriched at the mask's boundary is the outline, not the fill. Never
 /// sample the removal mask: dilation deliberately includes background pixels.
@@ -159,18 +94,9 @@ pub(crate) fn refine(
     let stroke = usize::from(enrichment < 0.0);
     prediction.text_color = palette[1 - stroke];
     prediction.stroke_color = palette[stroke];
-    if let Some(width) = outline_width(
-        image,
-        mask,
-        [x0, y0, x1, y1],
-        prediction.text_color,
-        prediction.stroke_color,
-    ) {
-        prediction.stroke_width_px = width;
-    }
     tracing::info!(block_id = %block.id, text_color = ?prediction.text_color,
-        stroke_color = ?prediction.stroke_color, stroke_width_px = prediction.stroke_width_px,
-        "colours and outline sampled from original lettering");
+        stroke_color = ?prediction.stroke_color,
+        "colours sampled from original lettering");
 }
 
 #[cfg(test)]
@@ -214,27 +140,7 @@ mod tests {
             refine(&image, &mask, &block, &mut pred);
             assert_eq!(pred.text_color, fill);
             assert_eq!(pred.stroke_color, stroke);
-            assert_eq!(pred.stroke_width_px, 4.0);
-        }
-    }
-
-    #[test]
-    fn measures_different_outline_widths_on_matching_background() {
-        for width in [1, 3, 6] {
-            let mut image = RgbImage::from_pixel(100, 100, Rgb([250; 3]));
-            let mut mask = GrayImage::new(100, 100);
-            for y in 20 - width..80 + width {
-                for x in 40 - width..60 + width {
-                    mask.put_pixel(x, y, Luma([255]));
-                    if (40..60).contains(&x) && (20..80).contains(&y) {
-                        image.put_pixel(x, y, Rgb([30; 3]));
-                    }
-                }
-            }
-            assert_eq!(
-                outline_width(&image, &mask, [1, 1, 99, 99], [30; 3], [250; 3]),
-                Some(width as f32)
-            );
+            assert_eq!(pred.stroke_width_px, 0.0, "colour refinement must not change width");
         }
     }
 
