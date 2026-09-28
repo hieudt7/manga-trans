@@ -858,13 +858,13 @@
       }
     ]
   },
-  "rawPages": 216,
+  "rawPages": 220,
   "translatedPages": 0,
-  "pairedPages": 216,
+  "pairedPages": 220,
   "pairCount": 0,
-  "isVerifiedByHuman": false,
+  "isVerifiedByHuman": true,
   "source": "claude",
   "withRaw": true,
   "name": "city-hunter-deluxe-edition-raw",
-  "createdAt": 1790560754
+  "createdAt": 1790234880
 }
