@@ -82,7 +82,9 @@
       "name": "Kẻ bị tiêm Angel Dust",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/ke-bi-tiem-angel-dust/0.png"
+      ],
       "traits": [
         "Sát thủ cảm tử bị biến đổi thành siêu chiến binh nhờ thuốc kích thích Angel Dust, mang chân giả giấu súng phóng lựu.",
         "Cuồng loạn, bất chấp tính mạng, ôm hận thù sâu sắc và coi việc tiêu diệt Ryo là lẽ sống duy nhất."
@@ -216,7 +218,9 @@
       "name": "Người cung cấp tin",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/nguoi-cung-cap-tin/0.png"
+      ],
       "traits": [
         "Cộng sự bí mật hỗ trợ kỹ thuật và thông tin tình báo cho Ryo trong các phi vụ điều tra.",
         "Điềm tĩnh, sắc sảo, thông minh và phối hợp rất ăn ý với Ryo."
@@ -240,7 +244,9 @@
       "name": "Gái bẫy mỹ nhân",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/gai-bay-my-nhan/0.png"
+      ],
       "traits": [
         "Cô gái trẻ được cài bẫy lên giường với Ryo để dàn cảnh vu cáo và gây hiểu lầm giữa anh với Makimura.",
         "Lẳng lơ, xảo trá, trơ trẽn và có tài đổi giọng đóng kịch vu khống người khác."
@@ -277,7 +283,9 @@
       "name": "Đàn em lo lắng",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/dan-em-lo-lang/0.png"
+      ],
       "traits": [
         "Đàn em đi cùng kẻ say xỉn vào quán bar Honky Tonk, luôn tìm cách khuyên can sư huynh tránh rắc rối.",
         "Nhút nhát, biết sợ, luôn lo lắng chuốc vạ vào thân."
@@ -325,7 +333,9 @@
       "name": "Người thiếu nợ",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/nguoi-thieu-no/0.png"
+      ],
       "traits": [
         "Người lái xe tải chở tiền bị Ryo gài bẫy máu giả để ép đòi nợ và đoạt xe phục vụ kế hoạch.",
         "Keo kiệt, tham tiền nhưng nhát gan sợ chết, sau đó cay cú vì phát hiện mình bị lừa."
