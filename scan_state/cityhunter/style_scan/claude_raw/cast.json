@@ -2,10 +2,10 @@
   "characters": [
     {
       "id": "ogino",
-      "name": "Ogino Shun'ichi",
+      "name": "荻野",
       "aliases": [
         "阿俊",
-        "Shun"
+        "A Tuấn"
       ],
       "gender": "male",
       "ageGroup": "young_adult",
@@ -39,15 +39,12 @@
         "v01-CityhunterV01_019",
         "v01-CityhunterV01_135"
       ],
-      "pairPages": {
-        "co-gai-dap-xe": 3
-      },
-      "settledPairs": [
-        "co-gai-dap-xe"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": true,
       "missing": [],
-      "nameJa": "荻野俊一"
+      "nameJa": "荻野俊一",
+      "speechLines": 0
     },
     {
       "id": "co-gai-dap-xe",
@@ -57,7 +54,7 @@
       "looks": "cô gái tóc dài gợn sóng màu nâu, mặc bộ đồ thể thao xanh dương, đạp xe đạp có giỏ phía trước",
       "addresses": {
         "ogino": {
-          "default": "gọi thẳng biệt danh \"阿俊\" (Shun), thân mật"
+          "default": "gọi thẳng biệt danh \"阿俊\" (A Tuấn), thân mật"
         }
       },
       "note": "trang 010: ogino thều thào gọi cô là \"…稻…\" (bị cắt ngang) — có thể là họ 稻垣 hoặc họ khác bắt đầu bằng 稻, chưa xác nhận đầy đủ, không tự đặt tên chắc chắn.",
@@ -67,19 +64,16 @@
         "v01-CityhunterV01_010",
         "v01-CityhunterV01_011"
       ],
-      "pairPages": {
-        "ogino": 3
-      },
-      "settledPairs": [
-        "ogino"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "ryo",
@@ -136,6 +130,157 @@
         "阿獠"
       ],
       "pages": [
+        "v02-CityhunterV02_007",
+        "v02-CityhunterV02_008",
+        "v02-CityhunterV02_009",
+        "v02-CityhunterV02_012",
+        "v02-CityhunterV02_013",
+        "v02-CityhunterV02_014",
+        "v02-CityhunterV02_015",
+        "v02-CityhunterV02_016",
+        "v02-CityhunterV02_017",
+        "v02-CityhunterV02_018",
+        "v02-CityhunterV02_019",
+        "v02-CityhunterV02_020",
+        "v02-CityhunterV02_021",
+        "v02-CityhunterV02_022",
+        "v02-CityhunterV02_024",
+        "v02-CityhunterV02_027",
+        "v02-CityhunterV02_032",
+        "v02-CityhunterV02_034",
+        "v02-CityhunterV02_035",
+        "v02-CityhunterV02_036",
+        "v02-CityhunterV02_037",
+        "v02-CityhunterV02_038",
+        "v02-CityhunterV02_039",
+        "v02-CityhunterV02_040",
+        "v02-CityhunterV02_041",
+        "v02-CityhunterV02_042",
+        "v02-CityhunterV02_043",
+        "v02-CityhunterV02_044",
+        "v02-CityhunterV02_045",
+        "v02-CityhunterV02_046",
+        "v02-CityhunterV02_047",
+        "v02-CityhunterV02_048",
+        "v02-CityhunterV02_049",
+        "v02-CityhunterV02_051",
+        "v02-CityhunterV02_052",
+        "v02-CityhunterV02_053",
+        "v02-CityhunterV02_058",
+        "v02-CityhunterV02_068",
+        "v02-CityhunterV02_069",
+        "v02-CityhunterV02_070",
+        "v02-CityhunterV02_071",
+        "v02-CityhunterV02_073",
+        "v02-CityhunterV02_074",
+        "v02-CityhunterV02_075",
+        "v02-CityhunterV02_076",
+        "v02-CityhunterV02_077",
+        "v02-CityhunterV02_078",
+        "v02-CityhunterV02_079",
+        "v02-CityhunterV02_080",
+        "v02-CityhunterV02_081",
+        "v02-CityhunterV02_082",
+        "v02-CityhunterV02_083",
+        "v02-CityhunterV02_084",
+        "v02-CityhunterV02_085",
+        "v02-CityhunterV02_086",
+        "v02-CityhunterV02_087",
+        "v02-CityhunterV02_088",
+        "v02-CityhunterV02_089",
+        "v02-CityhunterV02_090",
+        "v02-CityhunterV02_091",
+        "v02-CityhunterV02_092",
+        "v02-CityhunterV02_093",
+        "v02-CityhunterV02_094",
+        "v02-CityhunterV02_095",
+        "v02-CityhunterV02_098-099",
+        "v02-CityhunterV02_102",
+        "v02-CityhunterV02_103",
+        "v02-CityhunterV02_104",
+        "v02-CityhunterV02_105",
+        "v02-CityhunterV02_106",
+        "v02-CityhunterV02_107",
+        "v02-CityhunterV02_108",
+        "v02-CityhunterV02_109",
+        "v02-CityhunterV02_110",
+        "v02-CityhunterV02_111",
+        "v02-CityhunterV02_112",
+        "v02-CityhunterV02_113",
+        "v02-CityhunterV02_114",
+        "v02-CityhunterV02_115",
+        "v02-CityhunterV02_116",
+        "v02-CityhunterV02_117",
+        "v02-CityhunterV02_118",
+        "v02-CityhunterV02_119",
+        "v02-CityhunterV02_120",
+        "v02-CityhunterV02_121",
+        "v02-CityhunterV02_122",
+        "v02-CityhunterV02_123",
+        "v02-CityhunterV02_124",
+        "v02-CityhunterV02_125",
+        "v02-CityhunterV02_126",
+        "v02-CityhunterV02_127",
+        "v02-CityhunterV02_128",
+        "v02-CityhunterV02_129",
+        "v02-CityhunterV02_130",
+        "v02-CityhunterV02_131",
+        "v02-CityhunterV02_132",
+        "v02-CityhunterV02_133",
+        "v02-CityhunterV02_134",
+        "v02-CityhunterV02_135",
+        "v02-CityhunterV02_136",
+        "v02-CityhunterV02_137",
+        "v02-CityhunterV02_141",
+        "v02-CityhunterV02_142",
+        "v02-CityhunterV02_143",
+        "v02-CityhunterV02_144",
+        "v02-CityhunterV02_145",
+        "v02-CityhunterV02_146",
+        "v02-CityhunterV02_147",
+        "v02-CityhunterV02_148",
+        "v02-CityhunterV02_149",
+        "v02-CityhunterV02_150",
+        "v02-CityhunterV02_151",
+        "v02-CityhunterV02_152",
+        "v02-CityhunterV02_153",
+        "v02-CityhunterV02_154",
+        "v02-CityhunterV02_155",
+        "v02-CityhunterV02_156",
+        "v02-CityhunterV02_157",
+        "v02-CityhunterV02_158",
+        "v02-CityhunterV02_159",
+        "v02-CityhunterV02_161",
+        "v02-CityhunterV02_164",
+        "v02-CityhunterV02_165",
+        "v02-CityhunterV02_166",
+        "v02-CityhunterV02_167",
+        "v02-CityhunterV02_168",
+        "v02-CityhunterV02_169",
+        "v02-CityhunterV02_170",
+        "v02-CityhunterV02_171",
+        "v02-CityhunterV02_172",
+        "v02-CityhunterV02_173",
+        "v02-CityhunterV02_174",
+        "v02-CityhunterV02_175",
+        "v02-CityhunterV02_176",
+        "v02-CityhunterV02_177",
+        "v02-CityhunterV02_178",
+        "v02-CityhunterV02_179",
+        "v02-CityhunterV02_180",
+        "v02-CityhunterV02_181",
+        "v02-CityhunterV02_182",
+        "v02-CityhunterV02_187",
+        "v02-CityhunterV02_199",
+        "v02-CityhunterV02_200",
+        "v02-CityhunterV02_201",
+        "v02-CityhunterV02_202",
+        "v02-CityhunterV02_203",
+        "v02-CityhunterV02_204",
+        "v02-CityhunterV02_205",
+        "v02-CityhunterV02_207",
+        "v02-CityhunterV02_210",
+        "v02-CityhunterV02_217",
         "v01-CityhunterV01_012",
         "v01-CityhunterV01_013",
         "v01-CityhunterV01_014",
@@ -293,29 +438,25 @@
         "v01-CityhunterV01_224"
       ],
       "pairPages": {
-        "makimura": 17,
-        "iwasaki": 7,
-        "ke-bat-coc": 2,
-        "inagaki-kouji": 2,
         "nguoi-cung-cap-tin": 1,
-        "chi-gai-yuko": 7,
-        "lao-ban": 1,
-        "ten-cuop-dao": 2,
-        "con-tin": 2,
-        "than-chu-qua-dem": 2,
-        "co-gai-ao-trang": 2,
-        "chu-boutique": 2,
-        "trum-angel-dust": 7,
-        "nguoi-dan-duong": 1,
-        "ke-bi-tiem-angel-dust": 2,
-        "nu-nan-nhan-angel-dust": 1,
-        "cuop-to-con": 2,
-        "cuop-can-kinh": 1,
-        "quan-ly-casino": 2
+        "quan-ly-general": 1,
+        "bao-ve-toc-hoi": 1,
+        "makimura": 7,
+        "tuong-quan": 3,
+        "nguoi-thieu-no": 1,
+        "ke-bi-tiem-angel-dust": 1,
+        "ryujin-nobuo": 9,
+        "con-gai-ryujin-nobuo": 12,
+        "co-giao-map": 1,
+        "gai-bay-my-nhan": 2,
+        "ke-uy-hiep-makimura": 2,
+        "trum-buruo-isutan": 2
       },
       "settledPairs": [
+        "con-gai-ryujin-nobuo",
         "makimura",
-        "trum-angel-dust"
+        "ryujin-nobuo",
+        "tuong-quan"
       ],
       "settled": true,
       "missing": [],
@@ -340,7 +481,10 @@
             "mắng": "你, gằn giọng quát thẳng — \"你呀!!別人在百忙中抽空教你射擊基礎，你卻不認真學!!\"",
             "giải thích": "tôi/em (trấn an, giải thích)",
             "phản đối": "tôi/cậu — gắt gỏng phản bác khi bị giao việc không rõ thông tin",
-            "giả vờ ngoan": "vâng vâng biết rồi — nhại giọng ngoan ngoãn, mỉa mai"
+            "giả vờ ngoan": "vâng vâng biết rồi — nhại giọng ngoan ngoãn, mỉa mai",
+            "bảo vệ": "我/阿香 — gọi gấp tên cô khi kéo cô tránh nguy hiểm",
+            "đắc ý": "我/阿香 — khoe khoang tài thính rồi trêu chọc, ví dụ 'tiếng em kêu nghe khêu gợi lắm♥'",
+            "cảnh báo": "我/阿香 — dọa nếu mình bị giết thì đối phương cũng chết theo, xen lẫn đùa cợt và nghiêm túc,…"
           }
         },
         "trum-angel-dust": {
@@ -354,7 +498,10 @@
           "default": "tôi/anh"
         },
         "ke-bi-tiem-angel-dust": {
-          "default": "ta/ngươi (suy đoán)"
+          "default": "ta/ngươi (suy đoán)",
+          "moods": {
+            "nghi vấn": "你是004嗎?"
+          }
         },
         "nu-nan-nhan-angel-dust": {
           "default": "(chưa rõ đại từ)",
@@ -368,8 +515,37 @@
             "thách thức": "tao/mày kiểu bất cần, giễu cợt",
             "mỉa mai": "gọi bằng biệt danh khinh thường '門外漢' thay vì đại từ"
           }
+        },
+        "tuong-quan": {
+          "default": "(không xưng)/將軍",
+          "moods": {
+            "mỉa mai": "(không xưng)/將軍 — giễu cợt gọi bằng danh xưng 'Tướng Quân' ngay sau khi hạ gục hắn",
+            "giải thích": "'我看穿你是靠手臂肌肉拉動扳機！現在你肌肉已斷，你的槍只是擺設罷了。' — giải thích đắc thắng ngay sau khi hạ gục hắn hoàn t…"
+          }
+        },
+        "ryujin-nobuo": {
+          "default": "(không xưng)/ông (無/你)",
+          "moods": {
+            "giễu cợt": "(không xưng)/ông (無/你)",
+            "gằn giọng": "tao/mày (我/你)"
+          }
+        },
+        "con-gai-ryujin-nobuo": {
+          "default": "tôi/em (我/你)",
+          "moods": {
+            "ân cần": "(không xưng)/gọi thẳng tên 沙也加 (無/沙也加)"
+          }
+        },
+        "hoc-tro-gia-su": {
+          "default": "(không xưng)/cô (無/你)",
+          "moods": {
+            "trêu chọc": "(không xưng)/em (無/你)",
+            "trấn an": "(không xưng)/em (無/你)",
+            "xấu hổ": "我/你 (khẩu ngữ)"
+          }
         }
-      }
+      },
+      "speechLines": 322
     },
     {
       "id": "inagaki-kouji",
@@ -438,20 +614,97 @@
         "v01-CityhunterV01_035",
         "v01-CityhunterV01_036"
       ],
-      "pairPages": {
-        "vo-si-nan-nhan": 2
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "nameJa"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "makimura",
       "name": "槙村",
       "note": "Chỉ nghe tên qua điện thoại ở trang 013, chưa có hình ảnh xuất hiện. | Trước đó tạm đặt id 'co-gai-hieu-lam' (bị chu-boutique bắt cóc từ boutique Shinjuku, tr.112-123) — tự xưng '槙村香/Kaori' và nhận là em gái cộng sự cũ của ryo ở tr.126, xác nhận là cùng người với 'makimura' (trước chỉ nghe qua điện thoại tr.013). Đã gộp id thủ công. | Cũng chính là 'co-gai-cong-vien' (tr.201-207, vụ ga-thuoc-no dọa nổ bó que ở công viên) — cô gọi ryo là '阿獠' (tr.204) và được ryo gọi thẳng '香'/Hương (tr.207), trùng khớp makimura đã settled. Đã gộp id thủ công.",
       "pages": [
+        "v02-CityhunterV02_020",
+        "v02-CityhunterV02_021",
+        "v02-CityhunterV02_024",
+        "v02-CityhunterV02_035",
+        "v02-CityhunterV02_036",
+        "v02-CityhunterV02_037",
+        "v02-CityhunterV02_038",
+        "v02-CityhunterV02_039",
+        "v02-CityhunterV02_040",
+        "v02-CityhunterV02_041",
+        "v02-CityhunterV02_042",
+        "v02-CityhunterV02_043",
+        "v02-CityhunterV02_044",
+        "v02-CityhunterV02_045",
+        "v02-CityhunterV02_047",
+        "v02-CityhunterV02_048",
+        "v02-CityhunterV02_049",
+        "v02-CityhunterV02_052",
+        "v02-CityhunterV02_053",
+        "v02-CityhunterV02_068",
+        "v02-CityhunterV02_069",
+        "v02-CityhunterV02_070",
+        "v02-CityhunterV02_071",
+        "v02-CityhunterV02_074",
+        "v02-CityhunterV02_075",
+        "v02-CityhunterV02_076",
+        "v02-CityhunterV02_077",
+        "v02-CityhunterV02_078",
+        "v02-CityhunterV02_080",
+        "v02-CityhunterV02_081",
+        "v02-CityhunterV02_082",
+        "v02-CityhunterV02_083",
+        "v02-CityhunterV02_084",
+        "v02-CityhunterV02_085",
+        "v02-CityhunterV02_086",
+        "v02-CityhunterV02_087",
+        "v02-CityhunterV02_088",
+        "v02-CityhunterV02_089",
+        "v02-CityhunterV02_090",
+        "v02-CityhunterV02_094",
+        "v02-CityhunterV02_095",
+        "v02-CityhunterV02_098-099",
+        "v02-CityhunterV02_101",
+        "v02-CityhunterV02_102",
+        "v02-CityhunterV02_103",
+        "v02-CityhunterV02_104",
+        "v02-CityhunterV02_105",
+        "v02-CityhunterV02_106",
+        "v02-CityhunterV02_107",
+        "v02-CityhunterV02_108",
+        "v02-CityhunterV02_109",
+        "v02-CityhunterV02_110",
+        "v02-CityhunterV02_111",
+        "v02-CityhunterV02_112",
+        "v02-CityhunterV02_113",
+        "v02-CityhunterV02_114",
+        "v02-CityhunterV02_115",
+        "v02-CityhunterV02_117",
+        "v02-CityhunterV02_119",
+        "v02-CityhunterV02_120",
+        "v02-CityhunterV02_121",
+        "v02-CityhunterV02_155",
+        "v02-CityhunterV02_156",
+        "v02-CityhunterV02_158",
+        "v02-CityhunterV02_164",
+        "v02-CityhunterV02_165",
+        "v02-CityhunterV02_166",
+        "v02-CityhunterV02_170",
+        "v02-CityhunterV02_172",
+        "v02-CityhunterV02_173",
+        "v02-CityhunterV02_174",
+        "v02-CityhunterV02_176",
+        "v02-CityhunterV02_177",
+        "v02-CityhunterV02_180",
+        "v02-CityhunterV02_181",
+        "v02-CityhunterV02_182",
+        "v02-CityhunterV02_206",
+        "v02-CityhunterV02_207",
         "v01-CityhunterV01_013",
         "v01-CityhunterV01_016",
         "v01-CityhunterV01_027",
@@ -526,14 +779,14 @@
         "v01-CityhunterV01_219"
       ],
       "pairPages": {
-        "ryo": 19,
-        "chu-boutique": 1,
-        "cuop-to-con": 1,
-        "khach-goi-dien": 1,
-        "ga-thuoc-no": 2
+        "ryo": 14,
+        "ryujin-nobuo": 3,
+        "ke-uy-hiep-makimura": 1,
+        "tinh-dich-makimura": 1
       },
       "settledPairs": [
-        "ryo"
+        "ryo",
+        "ryujin-nobuo"
       ],
       "settled": true,
       "missing": [],
@@ -575,17 +828,6 @@
           ]
         },
         {
-          "page": "v01-CityhunterV01_108",
-          "side": "raw",
-          "half": "left",
-          "box": [
-            0.469,
-            0.399,
-            0.31,
-            0.138
-          ]
-        },
-        {
           "page": "v01-CityhunterV01_115",
           "side": "raw",
           "half": "right",
@@ -610,7 +852,11 @@
             "phản đối": "tôi/anh (nũng nịu, phản đối)",
             "giục giã": "tôi/anh (giục giã)",
             "thắc mắc": "tôi/anh (thắc mắc)",
-            "lo lắng": "chỉ gọi tên 獠 lặp lại, chưa có đại từ xưng hô rõ"
+            "lo lắng": "chỉ gọi tên 獠 lặp lại, chưa có đại từ xưng hô rõ",
+            "mắng": "我/阿獠 — 'Đi chết đi, A Diêu!' (gay gắt hơn trách móc/châm chọc thường thấy)",
+            "hoảng sợ": "我/阿獠 — hoảng loạn khi bị Tướng Quân mai phục trong công viên, ví dụ 'Phải làm sao đây!? Đ…",
+            "tin tưởng": "我/你 — khẳng định lòng tin dù đang sợ hãi, ví dụ 'Tôi... tôi tin anh...!!'",
+            "hoảng": "em/anh Ryo (無/獠)"
           }
         },
         "chu-boutique": {
@@ -624,12 +870,21 @@
         },
         "ga-thuoc-no": {
           "default": "tôi/ông (我/你)"
+        },
+        "ryujin-nobuo": {
+          "default": "(không xưng)/(không xưng) (無/無)",
+          "moods": {
+            "trách": "tôi/ông (無/無)",
+            "mắng": "tôi/lão cáo già này (無/這老狐狸)"
+          }
         }
       },
       "aliases": [
         "Kaori",
-        "Hương"
-      ]
+        "Hương",
+        "阿香"
+      ],
+      "speechLines": 142
     },
     {
       "id": "iwasaki",
@@ -695,12 +950,8 @@
         "v01-CityhunterV01_036",
         "v01-CityhunterV01_037"
       ],
-      "pairPages": {
-        "ryo": 7
-      },
-      "settledPairs": [
-        "ryo"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "nameJa"
@@ -712,7 +963,8 @@
             "quở trách": "你在聽嗎？燎!?"
           }
         }
-      }
+      },
+      "speechLines": 0
     },
     {
       "id": "vo-si-nan-nhan",
@@ -769,15 +1021,14 @@
         "v01-CityhunterV01_035",
         "v01-CityhunterV01_036"
       ],
-      "pairPages": {
-        "ke-bat-coc": 2
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "nameJa"
       ],
-      "name": "三田"
+      "name": "三田",
+      "speechLines": 0
     },
     {
       "id": "ke-bat-coc",
@@ -792,9 +1043,7 @@
         "v01-CityhunterV01_025",
         "v01-CityhunterV01_026"
       ],
-      "pairPages": {
-        "vo-si-nan-nhan": 2
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -802,7 +1051,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "huan-luyen-vien",
@@ -833,16 +1083,15 @@
       "pages": [
         "v01-CityhunterV01_032"
       ],
-      "pairPages": {
-        "vo-si-nan-nhan": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "yuko",
@@ -870,14 +1119,13 @@
         "v01-CityhunterV01_041",
         "v01-CityhunterV01_042"
       ],
-      "pairPages": {
-        "quy-bmw": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "quy-bmw",
@@ -906,15 +1154,14 @@
         "v01-CityhunterV01_090",
         "v01-CityhunterV01_091"
       ],
-      "pairPages": {
-        "yuko": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "nguoi-nhat-khan",
@@ -946,7 +1193,8 @@
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "nguoi-cung-cap-tin",
@@ -964,22 +1212,21 @@
       "note": "Người cung cấp thông tin vụ án cho ryo (tên nạn nhân, thân chủ mới); rất có thể cũng là người cùng ryo tới khu Kabukicho ở các trang sau và lo lắng cho anh — cần xác nhận thêm, danh tính/tên riêng chưa lộ.",
       "hold": true,
       "pages": [
+        "v02-CityhunterV02_012",
+        "v02-CityhunterV02_013",
+        "v02-CityhunterV02_032",
         "v01-CityhunterV01_044",
         "v01-CityhunterV01_045",
         "v01-CityhunterV01_067"
       ],
       "pairPages": {
-        "ryo": 3,
-        "chi-gai-yuko": 1
+        "ryo": 2
       },
-      "settledPairs": [
-        "ryo"
-      ],
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
-        "nameJa",
-        "6 pages"
+        "nameJa"
       ],
       "faces": [
         {
@@ -993,7 +1240,8 @@
             0.14
           ]
         }
-      ]
+      ],
+      "speechLines": 7
     },
     {
       "id": "chi-gai-yuko",
@@ -1063,16 +1311,14 @@
         "v01-CityhunterV01_070",
         "v01-CityhunterV01_071"
       ],
-      "pairPages": {
-        "ryo": 6,
-        "nguoi-cung-cap-tin": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "nameJa"
       ],
-      "name": "菜摘"
+      "name": "菜摘",
+      "speechLines": 0
     },
     {
       "id": "lao-ban",
@@ -1097,16 +1343,15 @@
         "v01-CityhunterV01_049",
         "v01-CityhunterV01_050"
       ],
-      "pairPages": {
-        "ryo": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "ten-cuop-dao",
@@ -1135,13 +1380,8 @@
         "v01-CityhunterV01_056",
         "v01-CityhunterV01_057"
       ],
-      "pairPages": {
-        "con-tin": 2,
-        "ryo": 3
-      },
-      "settledPairs": [
-        "ryo"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
@@ -1154,7 +1394,8 @@
         "ryo": {
           "default": "(không tự xưng)/mày (cay cú, sốc)"
         }
-      }
+      },
+      "speechLines": 0
     },
     {
       "id": "con-tin",
@@ -1184,9 +1425,7 @@
         "v01-CityhunterV01_057",
         "v01-CityhunterV01_058"
       ],
-      "pairPages": {
-        "ryo": 2
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -1198,7 +1437,8 @@
           "default": "tôi/anh Saeba (冴羽先生)"
         }
       },
-      "note": "Đổi cách gọi ryo từ trang trọng '冴羽先生' sang thân mật '阿獠' ngay sau khi được cứu; giống cách gọi của nguoi-cung-cap-tin (HELD OPEN) — chỉ là điểm tương đồng, chưa gộp id."
+      "note": "Đổi cách gọi ryo từ trang trọng '冴羽先生' sang thân mật '阿獠' ngay sau khi được cứu; giống cách gọi của nguoi-cung-cap-tin (HELD OPEN) — chỉ là điểm tương đồng, chưa gộp id.",
+      "speechLines": 0
     },
     {
       "id": "em-gai-con-tin",
@@ -1216,7 +1456,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "sat-thu-xuyen-tim",
@@ -1235,7 +1476,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "than-chu-qua-dem",
@@ -1298,17 +1540,14 @@
         "v01-CityhunterV01_080",
         "v01-CityhunterV01_081"
       ],
-      "pairPages": {
-        "ryo": 4
-      },
-      "settledPairs": [
-        "ryo"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "ke-dot-nhap",
@@ -1340,7 +1579,8 @@
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "chi-toc-xoan",
@@ -1353,9 +1593,7 @@
         "v01-CityhunterV01_077",
         "v01-CityhunterV01_078"
       ],
-      "pairPages": {
-        "than-chu-qua-dem": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -1363,7 +1601,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "co-gai-ao-trang",
@@ -1392,10 +1631,7 @@
         "v01-CityhunterV01_092",
         "v01-CityhunterV01_093"
       ],
-      "pairPages": {
-        "co-be-duong-ham": 1,
-        "ryo": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -1406,7 +1642,8 @@
         "ryo": {
           "default": "(không tự xưng)/\"冴羽先生\", \"你\" (lịch sự, chưa thân mật)"
         }
-      }
+      },
+      "speechLines": 0
     },
     {
       "id": "co-be-duong-ham",
@@ -1418,9 +1655,7 @@
         "v01-CityhunterV01_086",
         "v01-CityhunterV01_087"
       ],
-      "pairPages": {
-        "co-gai-ao-trang": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -1428,7 +1663,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "ke-lua-gai",
@@ -1461,7 +1697,8 @@
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "co-gai-danh-bay",
@@ -1486,16 +1723,15 @@
         "v01-CityhunterV01_094",
         "v01-CityhunterV01_095"
       ],
-      "pairPages": {
-        "ke-lua-gai": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "nan-nhan-ben-cang",
@@ -1529,7 +1765,8 @@
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "ke-hiep-dam-sung",
@@ -1549,16 +1786,15 @@
         "v01-CityhunterV01_103",
         "v01-CityhunterV01_104"
       ],
-      "pairPages": {
-        "nan-nhan-ben-cang": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa",
         "faces"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "cung-thu-tra-thu",
@@ -1589,10 +1825,7 @@
         "v01-CityhunterV01_105",
         "v01-CityhunterV01_106"
       ],
-      "pairPages": {
-        "ke-hiep-dam-sung": 2,
-        "chi-gai-tra-thu": 2
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -1607,7 +1840,8 @@
             "dứt khoát": "tôi/cô"
           }
         }
-      }
+      },
+      "speechLines": 0
     },
     {
       "id": "chi-gai-tra-thu",
@@ -1649,17 +1883,15 @@
         "v01-CityhunterV01_104",
         "v01-CityhunterV01_105"
       ],
-      "pairPages": {
-        "ke-hiep-dam-sung": 1,
-        "cung-thu-tra-thu": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "sat-thu-bong-dem",
@@ -1689,7 +1921,8 @@
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "chu-boutique",
@@ -1735,18 +1968,14 @@
         "v01-CityhunterV01_123",
         "v01-CityhunterV01_124"
       ],
-      "pairPages": {
-        "ryo": 3,
-        "makimura": 2
-      },
-      "settledPairs": [
-        "ryo"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "trum-angel-dust",
@@ -1818,13 +2047,8 @@
         "v01-CityhunterV01_167",
         "v01-CityhunterV01_169"
       ],
-      "pairPages": {
-        "ke-bi-tiem-angel-dust": 2,
-        "ryo": 9
-      },
-      "settledPairs": [
-        "ryo"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
@@ -1843,7 +2067,8 @@
             "thách thức": "你"
           }
         }
-      }
+      },
+      "speechLines": 0
     },
     {
       "id": "ke-bi-tiem-angel-dust",
@@ -1876,6 +2101,12 @@
         }
       ],
       "pages": [
+        "v02-CityhunterV02_090",
+        "v02-CityhunterV02_091",
+        "v02-CityhunterV02_092",
+        "v02-CityhunterV02_093",
+        "v02-CityhunterV02_094",
+        "v02-CityhunterV02_095",
         "v01-CityhunterV01_130",
         "v01-CityhunterV01_131",
         "v01-CityhunterV01_144",
@@ -1887,10 +2118,11 @@
         "v01-CityhunterV01_155"
       ],
       "pairPages": {
-        "trum-angel-dust": 1,
-        "ryo": 1
+        "ryo": 3
       },
-      "settledPairs": [],
+      "settledPairs": [
+        "ryo"
+      ],
       "settled": false,
       "missing": [
         "name",
@@ -1900,10 +2132,13 @@
         "ryo": {
           "default": "(chưa rõ tự xưng)/你 (suồng sã, khiêu khích)",
           "moods": {
-            "thương hại": "ta/ngươi — 'điều duy nhất ta có thể làm là để ngươi được yên nghỉ'"
+            "thương hại": "ta/ngươi — 'điều duy nhất ta có thể làm là để ngươi được yên nghỉ'",
+            "gằn giọng": "你……瘋了……",
+            "đắc ý": "你的槍已沒有子彈! 我贏定了!"
           }
         }
-      }
+      },
+      "speechLines": 6
     },
     {
       "id": "chu-silky-club",
@@ -1933,16 +2168,15 @@
         "v01-CityhunterV01_138",
         "v01-CityhunterV01_139"
       ],
-      "pairPages": {
-        "ryo": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "nishioka-tadashi",
@@ -1964,7 +2198,8 @@
       "missing": [
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "anh-trai-huong",
@@ -1989,7 +2224,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "nguoi-dan-duong",
@@ -2006,9 +2242,7 @@
         "v01-CityhunterV01_152",
         "v01-CityhunterV01_153"
       ],
-      "pairPages": {
-        "ryo": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -2016,7 +2250,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "nu-nan-nhan-angel-dust",
@@ -2036,7 +2271,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "cuop-to-con",
@@ -2076,18 +2312,14 @@
         "v01-CityhunterV01_190",
         "v01-CityhunterV01_191"
       ],
-      "pairPages": {
-        "ryo": 3,
-        "makimura": 1
-      },
-      "settledPairs": [
-        "ryo"
-      ],
+      "pairPages": {},
+      "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "cuop-can-kinh",
@@ -2117,10 +2349,7 @@
         "v01-CityhunterV01_192",
         "v01-CityhunterV01_193"
       ],
-      "pairPages": {
-        "ryo": 1,
-        "makimura": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -2134,7 +2363,8 @@
         "makimura": {
           "default": "你這八婆 (con mụ/con nhãi này)"
         }
-      }
+      },
+      "speechLines": 0
     },
     {
       "id": "tai-xe-xe-buyt",
@@ -2153,7 +2383,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "khach-goi-dien",
@@ -2164,9 +2395,7 @@
         "v01-CityhunterV01_201",
         "v01-CityhunterV01_202"
       ],
-      "pairPages": {
-        "makimura": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -2174,7 +2403,8 @@
         "nameJa",
         "faces",
         "6 pages"
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "ga-thuoc-no",
@@ -2190,9 +2420,7 @@
         "v01-CityhunterV01_206",
         "v01-CityhunterV01_207"
       ],
-      "pairPages": {
-        "makimura": 2
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -2211,7 +2439,8 @@
             0.09946824
           ]
         }
-      ]
+      ],
+      "speechLines": 0
     },
     {
       "id": "can-bo-yunio",
@@ -2239,9 +2468,7 @@
         "v01-CityhunterV01_216",
         "v01-CityhunterV01_217"
       ],
-      "pairPages": {
-        "ryo": 1
-      },
+      "pairPages": {},
       "settledPairs": [],
       "settled": false,
       "missing": [
@@ -2249,7 +2476,8 @@
         "nameJa",
         "6 pages"
       ],
-      "hold": true
+      "hold": true,
+      "speechLines": 0
     },
     {
       "id": "quan-ly-casino",
@@ -2278,15 +2506,1239 @@
         "v01-CityhunterV01_216",
         "v01-CityhunterV01_217"
       ],
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "speechLines": 0
+    },
+    {
+      "id": "nu-trum-yunio",
+      "gender": "female",
+      "ageGroup": "adult",
+      "looks": "tóc đen dài gợn sóng qua vai, mặc váy dạ hội sát vai sang trọng, đứng trong biệt thự treo nhiều tranh cổ điển…",
+      "note": "Có vẻ là thủ lĩnh hoặc thành viên cấp cao của tổ chức 優尼奧 (trùng tên tổ chức của can-bo-yunio); gọi kẻ vừa bị Ryo giết là 'con lợn xấu xí' làm nhục tổ chức, gọi Ryo là 'chuột cống'; chưa rõ tên riêng, chưa lộ mặt rõ trên trang này.",
+      "pages": [
+        "v02-CityhunterV02_008",
+        "v02-CityhunterV02_009"
+      ],
+      "speechLines": 6,
       "pairPages": {
-        "can-bo-yunio": 1,
-        "ryo": 3
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "co-gai-lo-lang",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài ngang vai, mắt to, xuất hiện với vẻ lo lắng/giật mình bên cạnh Ryo",
+      "note": "Xuất hiện trên sân thượng cùng Ryo khi anh nhận điện thoại đe dọa; được Ryo trấn an 'chiến đấu mới bắt đầu'; có thể trùng với người bị gọi '阿香' ở nửa phải trang này (trùng biệt danh của makimura trong known.md) nhưng CHƯA đủ căn cứ để gộp — không tự gán id makimura.",
+      "pages": [
+        "v02-CityhunterV02_009"
+      ],
+      "speechLines": 1,
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "tuong-quan",
+      "aliases": [
+        "將軍",
+        "捷尼拉爾親衛隊的將軍"
+      ],
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "tóc đen chải ngược bóng mượt, khoác áo choàng/cape dài màu trắng, cười nham hiểm, tự xưng danh hiệu '將軍' (Tướ…",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_010",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.02,
+            0.365,
+            0.4,
+            0.13
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_084",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.5956,
+            0.0597,
+            0.2036,
+            0.0891
+          ]
+        }
+      ],
+      "note": "Trùm phản diện mới mở đầu chương; tự tay bắn chết một thuộc hạ 'làm bẩn tay' rồi sai hai cận vệ dọn xác — không nhầm với quy-bmw (cũng là trùm lịch sự che giấu bản chất hung ác nhưng khác mạch truyện, không khoác cape).",
+      "pages": [
+        "v02-CityhunterV02_010",
+        "v02-CityhunterV02_011",
+        "v02-CityhunterV02_022",
+        "v02-CityhunterV02_023",
+        "v02-CityhunterV02_024",
+        "v02-CityhunterV02_025",
+        "v02-CityhunterV02_026",
+        "v02-CityhunterV02_027",
+        "v02-CityhunterV02_030",
+        "v02-CityhunterV02_031",
+        "v02-CityhunterV02_032",
+        "v02-CityhunterV02_033",
+        "v02-CityhunterV02_034",
+        "v02-CityhunterV02_035",
+        "v02-CityhunterV02_036",
+        "v02-CityhunterV02_037",
+        "v02-CityhunterV02_043",
+        "v02-CityhunterV02_044",
+        "v02-CityhunterV02_045",
+        "v02-CityhunterV02_046",
+        "v02-CityhunterV02_054",
+        "v02-CityhunterV02_055",
+        "v02-CityhunterV02_056",
+        "v02-CityhunterV02_057",
+        "v02-CityhunterV02_058",
+        "v02-CityhunterV02_059",
+        "v02-CityhunterV02_078",
+        "v02-CityhunterV02_079",
+        "v02-CityhunterV02_083",
+        "v02-CityhunterV02_084",
+        "v02-CityhunterV02_085",
+        "v02-CityhunterV02_086",
+        "v02-CityhunterV02_087",
+        "v02-CityhunterV02_096"
+      ],
+      "speechLines": 71,
+      "pairPages": {
+        "nhan-vien-general": 5,
+        "ryo": 8,
+        "makimura": 2,
+        "truong-lao": 2
+      },
+      "settledPairs": [
+        "nhan-vien-general",
+        "ryo"
+      ],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "addresses": {
+        "ryo": {
+          "moods": {
+            "căm phẫn": "(không xưng)/冴羽獠 (gọi thẳng tên đầy đủ, gầm gừ)",
+            "khiêu khích": "chúng ta vừa quen mà đã phải vĩnh biệt rồi",
+            "tàn nhẫn": "hãy để hoa máu nở đẹp trước mắt ta",
+            "mỉa mai": "Sa Triển đang đợi ngươi dưới địa ngục đấy!!",
+            "oán trách": "(không rõ)/冴羽獠 (gọi thẳng họ tên đầy đủ khi oán trách)"
+          },
+          "default": "(không xưng)/冴羽"
+        },
+        "nhan-vien-general": {
+          "default": "我/你們",
+          "moods": {
+            "giận dữ": "我/傢伙們"
+          }
+        },
+        "makimura": {
+          "default": "ta/A Hương (我/阿香)",
+          "moods": {
+            "ra lệnh": "đừng xuống, đây là mệnh lệnh!",
+            "hăm dọa": "(không xưng)/這女的 — gọi khinh miệt là 'con này', dọa lấy làm vật tế máu trước"
+          }
+        },
+        "truong-lao": {
+          "default": "(không rõ tự xưng)/長老",
+          "moods": {
+            "van xin": "(không rõ)/(không gọi tên rõ)",
+            "kinh hoàng": "(không rõ)/長老 (hét gọi tên khi hoảng loạn)"
+          }
+        }
+      }
+    },
+    {
+      "id": "quan-ly-general",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông mặc vest đen/áo gile, thắt cà vạt, tóc ngắn chải gọn, quản lý/nhân viên cửa hàng trang sức 將軍 (GENERA…",
+      "faces": [],
+      "addresses": {},
+      "pages": [
+        "v02-CityhunterV02_015"
+      ],
+      "speechLines": 2,
+      "pairPages": {
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "bao-ve-toc-hoi",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đầu trọc hoàn toàn, mặt dữ tợn, hay nghiến răng, mặc vest/áo khoác tối màu, dùng dao/gậy đe dọa",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_019",
+          "side": "raw",
+          "box": [
+            0.696,
+            0.75,
+            0.19,
+            0.125
+          ]
+        }
+      ],
+      "addresses": {},
+      "pages": [
+        "v02-CityhunterV02_015",
+        "v02-CityhunterV02_016",
+        "v02-CityhunterV02_017",
+        "v02-CityhunterV02_019"
+      ],
+      "speechLines": 6,
+      "pairPages": {
+        "ryo": 4
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nhan-vien-general",
+      "name": "沙展 (biệt danh, chưa rõ tên thật)",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "hói đầu hoàn toàn, mặt tròn, thân hình đẫy đà, mặc vest tối màu",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_023",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.63,
+            0.77,
+            0.26,
+            0.15
+          ]
+        }
+      ],
+      "note": "Được tuong-quan gọi là 沙展 trên trang 023; đừng nhầm với quan-ly-general (tóc ngắn chải gọn) đã ghi trong known.md.",
+      "pages": [
+        "v02-CityhunterV02_023",
+        "v02-CityhunterV02_024",
+        "v02-CityhunterV02_030",
+        "v02-CityhunterV02_031",
+        "v02-CityhunterV02_032",
+        "v02-CityhunterV02_033",
+        "v02-CityhunterV02_034"
+      ],
+      "speechLines": 9,
+      "pairPages": {
+        "tuong-quan": 3
+      },
+      "settledPairs": [
+        "tuong-quan"
+      ],
+      "settled": false,
+      "missing": [
+        "nameJa"
+      ],
+      "addresses": {
+        "tuong-quan": {
+          "default": "(chưa rõ xưng)/將軍大人"
+        }
+      }
+    },
+    {
+      "id": "nguoi-thieu-no",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông tóc đen ngắn hơi rối, đổ mồ hôi, lái xe tải vận chuyển, biểu cảm hoảng loạn rồi giận dữ",
+      "note": "Có vẻ là con nợ bị Ryo và Makimura rượt ép trả tiền bằng màn kịch dàn cảnh; chưa rõ có liên quan tới tổ chức của tuong-quan hay không.",
+      "pages": [
+        "v02-CityhunterV02_048",
+        "v02-CityhunterV02_049"
+      ],
+      "speechLines": 6,
+      "pairPages": {
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ],
+      "faces": []
+    },
+    {
+      "id": "truong-lao",
+      "aliases": [
+        "長老"
+      ],
+      "gender": "male",
+      "looks": "luôn xuất hiện dưới dạng bóng đen/silhouette toàn thân hoặc cận cảnh bàn tay, vóc dáng vạm vỡ, mặc vest tối m…",
+      "note": "Cấp trên của tuong-quan, được gọi bằng danh xưng 長老 (Trưởng Lão); tự tay tra tấn/đóng dấu tuong-quan vì tội để mất '上繳金'; chưa lộ mặt rõ ở bất kỳ trang nào trong 054-057, chỉ thấy bóng đen hoặc tay.",
+      "addresses": {
+        "tuong-quan": {
+          "default": "我/你",
+          "moods": {
+            "mỉa mai": "我/將軍 (gọi bằng danh hiệu để giễu)",
+            "quát mắng": "我/你 (gắt, ra lệnh)",
+            "ra lệnh": "我/你 (quát, ra lệnh đứng dậy)",
+            "đe dọa": "我/你 (lạnh lùng, đe dọa)"
+          }
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_054",
+        "v02-CityhunterV02_055",
+        "v02-CityhunterV02_056",
+        "v02-CityhunterV02_057",
+        "v02-CityhunterV02_058",
+        "v02-CityhunterV02_059",
+        "v02-CityhunterV02_096"
+      ],
+      "speechLines": 10,
+      "pairPages": {
+        "tuong-quan": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces"
+      ],
+      "ageGroup": "adult",
+      "faces": [],
+      "hold": true
+    },
+    {
+      "id": "nguoi-say-ruou",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen ngắn rối, đeo kính râm tròn, mặc áo khoác họa tiết loang lổ khoác ngoài áo ba lỗ, say xỉn, biểu cảm c…",
+      "addresses": {},
+      "pages": [
+        "v02-CityhunterV02_060",
+        "v02-CityhunterV02_061",
+        "v02-CityhunterV02_062",
+        "v02-CityhunterV02_063"
+      ],
+      "speechLines": 6,
+      "pairPages": {
+        "ga-karaoke": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ],
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_062",
+          "side": "raw",
+          "box": [
+            0.11,
+            0.35,
+            0.19,
+            0.19
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dan-em-lo-lang",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen ngắn hơi xoăn, đeo kính gọng tròn, mặc áo sơ mi/áo khoác thường, hay lo lắng, gọi bạn là 師兄",
+      "addresses": {
+        "nguoi-say-ruou": {
+          "default": "(không rõ)/師兄"
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_060",
+        "v02-CityhunterV02_061",
+        "v02-CityhunterV02_062",
+        "v02-CityhunterV02_063"
+      ],
+      "speechLines": 6,
+      "pairPages": {
+        "nguoi-say-ruou": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ],
+      "faces": []
+    },
+    {
+      "id": "ga-karaoke",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông đeo kính râm, có sẹo/vết rách trên má, tóc đen chải ngược, cầm micro karaoke, thái độ ngang ngược hốn…",
+      "addresses": {
+        "nguoi-say-ruou": {
+          "default": "(không rõ)/你"
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_061"
+      ],
+      "speechLines": 2,
+      "pairPages": {
+        "nguoi-say-ruou": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "trum-vua-ra-tu",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đàn ông hói đầu hoàn toàn, đeo kính râm gọng vuông mỏng, mặc vest đen thắt cà vạt, vừa ra tù",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_063",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.2,
+            0.405,
+            0.24,
+            0.095
+          ]
+        }
+      ],
+      "addresses": {
+        "nguoi-say-ruou": {
+          "default": "我/你"
+        }
+      },
+      "aliases": [
+        "阿辰"
+      ],
+      "pages": [
+        "v02-CityhunterV02_062",
+        "v02-CityhunterV02_063",
+        "v02-CityhunterV02_064"
+      ],
+      "speechLines": 6,
+      "pairPages": {
+        "nguoi-say-ruou": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "nguoi-choang-trang-bi-an",
+      "gender": "male",
+      "looks": "hình bóng nam giới lao xuyên qua cửa kính vỡ, mặc áo khoác/tay áo tối màu, tư thế hành động mạnh mẽ; chưa thấ…",
+      "note": "Xuất hiện lần đầu ở nửa trái trang 063 (lao qua kính vỡ) ngay sau khi một người lạ bị ép hát ở nửa phải cùng trang; chưa chắc là cùng một người.",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_064",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.62,
+            0.02,
+            0.21,
+            0.115
+          ]
+        }
+      ],
+      "pages": [
+        "v02-CityhunterV02_063",
+        "v02-CityhunterV02_064",
+        "v02-CityhunterV02_065",
+        "v02-CityhunterV02_066",
+        "v02-CityhunterV02_067",
+        "v02-CityhunterV02_068"
+      ],
+      "speechLines": 5,
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ],
+      "ageGroup": "young_adult"
+    },
+    {
+      "id": "ryujin-nobuo",
+      "name": "龍神信男",
+      "nameJa": "龍神信男",
+      "aliases": [
+        "hội trưởng Long Thần Hội",
+        "龍神會會長",
+        "狐狸大佬"
+      ],
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông béo, hói đầu hoàn toàn, ria mép rậm, mặc áo khoác đỏ hở ngực để lộ khăn quàng, hội trưởng Long Thần H…",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_105",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.20599289,
+            0.4846857,
+            0.19234538,
+            0.16115165
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_116",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.0,
+            0.0,
+            0.3,
+            0.135
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_124",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.65,
+            0.685,
+            0.28,
+            0.14
+          ]
+        }
+      ],
+      "addresses": {
+        "makimura": {
+          "default": "我/小姐 (我/小姐)"
+        },
+        "ryo": {
+          "default": "(không xưng)/(không xưng)",
+          "moods": {
+            "kể chuyện": "我/你 (我/你)",
+            "khoe khoang": "tao/mày (無/無)",
+            "mỉa mai": "tao/thằng cáo già (無/狐狸)",
+            "khen": "tôi/cậu (無/你)",
+            "tức giận": "(không xưng)/(không xưng) (無/無)",
+            "cười cợt": "(không xưng)/(không xưng)"
+          }
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_105",
+        "v02-CityhunterV02_106",
+        "v02-CityhunterV02_107",
+        "v02-CityhunterV02_108",
+        "v02-CityhunterV02_109",
+        "v02-CityhunterV02_110",
+        "v02-CityhunterV02_111",
+        "v02-CityhunterV02_112",
+        "v02-CityhunterV02_114",
+        "v02-CityhunterV02_115",
+        "v02-CityhunterV02_116",
+        "v02-CityhunterV02_117",
+        "v02-CityhunterV02_119",
+        "v02-CityhunterV02_120",
+        "v02-CityhunterV02_121",
+        "v02-CityhunterV02_122",
+        "v02-CityhunterV02_123",
+        "v02-CityhunterV02_124",
+        "v02-CityhunterV02_125",
+        "v02-CityhunterV02_203",
+        "v02-CityhunterV02_204",
+        "v02-CityhunterV02_205"
+      ],
+      "speechLines": 71,
+      "pairPages": {
+        "makimura": 2,
+        "ryo": 12
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": true,
+      "missing": []
+    },
+    {
+      "id": "dan-em-buruo-isutan",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "looks": "đàn ông to béo, đội mũ lưỡi trai kiểu da, ria mép rậm, mặc áo da đính xích, đàn em phi xa đảng Buruo Isutan",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_134",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.5092,
+            0.0637,
+            0.1826,
+            0.0758
+          ]
+        }
+      ],
+      "note": "Có thể là cùng người xuất hiện dưới dạng bóng đen/silhouette ở tr.133 (chưa lộ mặt) tiến lại gần Sayaka.",
+      "pages": [
+        "v02-CityhunterV02_134",
+        "v02-CityhunterV02_135",
+        "v02-CityhunterV02_136",
+        "v02-CityhunterV02_137",
+        "v02-CityhunterV02_156",
+        "v02-CityhunterV02_162",
+        "v02-CityhunterV02_163",
+        "v02-CityhunterV02_202"
+      ],
+      "speechLines": 10,
+      "pairPages": {
+        "con-gai-ryujin-nobuo": 1,
+        "ryo": 1
       },
       "settledPairs": [],
       "settled": false,
       "missing": [
         "name",
         "nameJa"
+      ]
+    },
+    {
+      "id": "co-giao-map",
+      "aliases": [
+        "萎騷老師"
+      ],
+      "gender": "female",
+      "ageGroup": "middle_age",
+      "looks": "phụ nữ trung niên mập, tóc bới phồng cao, đeo kính gọng tròn, đeo vòng ngọc trai, mặc váy đen, hay la mắng họ…",
+      "faces": [],
+      "note": "Giáo viên chủ nhiệm lớp của hoc-tro-gia-su (Sayaka), được học sinh đặt biệt danh 萎騷老師; chỉ xuất hiện trên trang 152.",
+      "pages": [
+        "v02-CityhunterV02_152"
+      ],
+      "speechLines": 4,
+      "pairPages": {
+        "ryo": 1,
+        "con-gai-ryujin-nobuo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "trum-buruo-isutan",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "đầu trọc, cơ bắp vạm vỡ, ria mép rậm, có dấu/hình xăm nhỏ trên trán, mặc áo da biker tua rua, cưỡi mô tô, thủ…",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_162",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.446,
+            0.508,
+            0.2235,
+            0.0912
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_163",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.3741939,
+            0.054580405,
+            0.2505563,
+            0.08102963
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_193",
+          "side": "raw",
+          "box": [
+            0.62,
+            0.02,
+            0.22,
+            0.14
+          ]
+        }
+      ],
+      "note": "Thủ lĩnh băng mô tô Buruo Isutan, khác với dan-em-buruo-isutan (đàn em cấp dưới) đã có trong known.md; mắng đàn em vì để lỡ vụ bắt cóc con-gai-ryujin-nobuo (Sayaka).",
+      "pages": [
+        "v02-CityhunterV02_162",
+        "v02-CityhunterV02_163",
+        "v02-CityhunterV02_190",
+        "v02-CityhunterV02_192",
+        "v02-CityhunterV02_193",
+        "v02-CityhunterV02_194",
+        "v02-CityhunterV02_199",
+        "v02-CityhunterV02_200",
+        "v02-CityhunterV02_201",
+        "v02-CityhunterV02_202"
+      ],
+      "speechLines": 24,
+      "pairPages": {
+        "dan-em-buruo-isutan": 2,
+        "con-gai-ryujin-nobuo": 1,
+        "ga-bavaro": 1,
+        "tu-nhan-mu-canh-sat": 1,
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": true,
+      "missing": [],
+      "name": "阿虎",
+      "nameJa": "阿虎",
+      "aliases": [
+        "寅吉",
+        "阿寅",
+        "小虎"
+      ]
+    },
+    {
+      "id": "gai-bay-my-nhan",
+      "aliases": [],
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen xoăn dài gợn sóng qua vai, xuất hiện trên giường/ga hình sao của ryo, giọng điệu trêu chọc/mỉa mai",
+      "faces": [],
+      "note": "Xuất hiện trong nhà/giường của ryo, gọi anh là 'chú' rồi trêu chọc; nghi ngờ liên quan một vụ bẫy mỹ nhân (美人計) — chưa rõ tên thật, theo dõi tiếp các trang sau.",
+      "addresses": {
+        "ryo": {
+          "default": "(không rõ)/叔叔, sau đó suồng sã trêu chọc"
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_171",
+        "v02-CityhunterV02_172",
+        "v02-CityhunterV02_173",
+        "v02-CityhunterV02_174"
+      ],
+      "speechLines": 9,
+      "pairPages": {
+        "ryo": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "sayaka-bi-bam-duoi",
+      "name": "Sayaka",
+      "nameJa": "沙也加",
+      "gender": "female",
+      "ageGroup": "teen",
+      "looks": "tóc đuôi ngựa, áo sơ mi/blouse sáng màu, bị một kẻ lạ túm tóc khi cố bắt cóc rồi bỏ chạy",
+      "note": "Được kẻ tấn công gọi thẳng tên 沙也加 (Sayaka) ở trang 176; là con gái của một người cha hói đầu, béo xuất hiện ở trang 175 (lén theo dõi con qua thang treo vệ sinh nhà cao tầng) — CHƯA gộp vào con-gai-ryujin-nobuo hay hoc-tro-gia-su dù trùng tên, vì chưa đủ căn cứ đối chiếu ngoại hình/bối cảnh.",
+      "pages": [
+        "v02-CityhunterV02_122",
+        "v02-CityhunterV02_123",
+        "v02-CityhunterV02_124",
+        "v02-CityhunterV02_125",
+        "v02-CityhunterV02_126",
+        "v02-CityhunterV02_127",
+        "v02-CityhunterV02_129",
+        "v02-CityhunterV02_130",
+        "v02-CityhunterV02_131",
+        "v02-CityhunterV02_132",
+        "v02-CityhunterV02_133",
+        "v02-CityhunterV02_134",
+        "v02-CityhunterV02_135",
+        "v02-CityhunterV02_136",
+        "v02-CityhunterV02_137",
+        "v02-CityhunterV02_139",
+        "v02-CityhunterV02_140",
+        "v02-CityhunterV02_141",
+        "v02-CityhunterV02_142",
+        "v02-CityhunterV02_143",
+        "v02-CityhunterV02_144",
+        "v02-CityhunterV02_145",
+        "v02-CityhunterV02_146",
+        "v02-CityhunterV02_147",
+        "v02-CityhunterV02_148",
+        "v02-CityhunterV02_149",
+        "v02-CityhunterV02_150",
+        "v02-CityhunterV02_151",
+        "v02-CityhunterV02_152",
+        "v02-CityhunterV02_153",
+        "v02-CityhunterV02_154",
+        "v02-CityhunterV02_155",
+        "v02-CityhunterV02_157",
+        "v02-CityhunterV02_158",
+        "v02-CityhunterV02_159",
+        "v02-CityhunterV02_167",
+        "v02-CityhunterV02_168",
+        "v02-CityhunterV02_169",
+        "v02-CityhunterV02_170",
+        "v02-CityhunterV02_176",
+        "v02-CityhunterV02_185",
+        "v02-CityhunterV02_186",
+        "v02-CityhunterV02_187",
+        "v02-CityhunterV02_189",
+        "v02-CityhunterV02_190",
+        "v02-CityhunterV02_192",
+        "v02-CityhunterV02_193",
+        "v02-CityhunterV02_194",
+        "v02-CityhunterV02_195",
+        "v02-CityhunterV02_196",
+        "v02-CityhunterV02_197",
+        "v02-CityhunterV02_198",
+        "v02-CityhunterV02_199",
+        "v02-CityhunterV02_200",
+        "v02-CityhunterV02_201",
+        "v02-CityhunterV02_202",
+        "v02-CityhunterV02_203"
+      ],
+      "speechLines": 1,
+      "pairPages": {},
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "faces"
+      ]
+    },
+    {
+      "id": "ke-uy-hiep-makimura",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài thẳng, mặc áo sơ mi/robe nhạt màu, ngồi gác chân trên bậu cửa sổ nhấp đồ uống, thái độ đắc ý/nham…",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_179",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.2554,
+            0.088,
+            0.1775,
+            0.0746
+          ]
+        }
+      ],
+      "note": "Ra lệnh qua điện thoại tấn công và giam giữ một 'người phụ nữ' — rất có thể là makimura, vì trang 178 gọi thẳng bí danh 'A Hương/阿香' của cô khi đe doạ ryo; mục đích có vẻ là gây áp lực/uy hiếp ryo qua việc hại makimura.",
+      "addresses": {
+        "ryo": {
+          "default": "(không xưng)/你",
+          "moods": {
+            "đe doạ": "(không xưng)/你 — nhắc tới 阿香 (makimura) để uy hiếp",
+            "đắc ý": "(không xưng)/你 — khoe đã sai người phục kích阿香",
+            "mỉa mai": "(không xưng)/你 — giục ryo rời đi sớm"
+          }
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_177",
+        "v02-CityhunterV02_178",
+        "v02-CityhunterV02_179",
+        "v02-CityhunterV02_181",
+        "v02-CityhunterV02_182"
+      ],
+      "speechLines": 12,
+      "pairPages": {
+        "ryo": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "tu-nhan-mu-canh-sat",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "đội mũ lưỡi trai kiểu cảnh sát/quân đội, mặc áo da đen có xích, hai cổ tay bị còng/xích vào nhau, mỉm cười đi…",
+      "note": "Xuất hiện mở đầu chương 18 cùng nu-tu-nhan-xich, có vẻ là nhân vật chính mới của chương — chưa rõ tên hay quan hệ hai người.",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_186",
+          "side": "raw",
+          "box": [
+            0.70786566,
+            0.2939108,
+            0.12676397,
+            0.080545165
+          ]
+        }
+      ],
+      "pages": [
+        "v02-CityhunterV02_185",
+        "v02-CityhunterV02_186",
+        "v02-CityhunterV02_187",
+        "v02-CityhunterV02_188",
+        "v02-CityhunterV02_189",
+        "v02-CityhunterV02_190",
+        "v02-CityhunterV02_191",
+        "v02-CityhunterV02_192",
+        "v02-CityhunterV02_193",
+        "v02-CityhunterV02_194",
+        "v02-CityhunterV02_195",
+        "v02-CityhunterV02_197",
+        "v02-CityhunterV02_198"
+      ],
+      "speechLines": 18,
+      "pairPages": {
+        "con-gai-ryujin-nobuo": 1,
+        "ga-bavaro": 3
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa"
+      ]
+    },
+    {
+      "id": "ga-ria-mep",
+      "gender": "male",
+      "ageGroup": "adult",
+      "looks": "ria mép rậm, đội mũ lưỡi trai có huy hiệu/phù hiệu, đeo nhẫn ở tay, biểu cảm gồng mình/hoảng hốt khi chụp lấy…",
+      "hold": true,
+      "note": "Chỉ mới xuất hiện một lần giữa cảnh kính vỡ hỗn loạn ở chương 18; chưa rõ là đồng minh hay kẻ bắt lại nu-tu-nhan-xich, cũng chưa chắc có phải cùng người với tu-nhan-mu-canh-sat. Không nhầm với trum-buruo-isutan (ria mép rậm nhưng đầu trọc, có hình xăm trán, thủ lĩnh băng mô tô Buruo Isutan) — nhân vật này đội mũ có huy hiệu, bối cảnh khác.",
+      "pages": [
+        "v02-CityhunterV02_186",
+        "v02-CityhunterV02_187",
+        "v02-CityhunterV02_189"
+      ],
+      "speechLines": 1,
+      "pairPages": {
+        "tu-nhan-mu-canh-sat": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "faces",
+        "6 pages"
+      ],
+      "faces": []
+    },
+    {
+      "id": "dan-em-toc-mohawk",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "tóc dựng kiểu mohawk, đeo kính râm, cưỡi mô tô cùng nhóm biker",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_188",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.02,
+            0.73,
+            0.24,
+            0.13
+          ]
+        }
+      ],
+      "pages": [
+        "v02-CityhunterV02_187",
+        "v02-CityhunterV02_188",
+        "v02-CityhunterV02_190",
+        "v02-CityhunterV02_202"
+      ],
+      "speechLines": 5,
+      "pairPages": {
+        "tu-nhan-mu-canh-sat": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ]
+    },
+    {
+      "id": "ga-bavaro",
+      "name": "巴伐羅",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "looks": "đầu trọc chừa chỏm tóc dựng phía trước, ria mép/râu cằm lún phún, đeo kính râm, tai đeo khuyên, đàn em băng B…",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_191",
+          "side": "raw",
+          "half": "left",
+          "box": [
+            0.55,
+            0.38,
+            0.3,
+            0.13
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_192",
+          "side": "raw",
+          "box": [
+            0.75,
+            0.04,
+            0.2,
+            0.14
+          ]
+        }
+      ],
+      "note": "Ngoại hình (đầu trọc + chỏm tóc dựng trước + kính râm) khá giống dan-em-toc-mohawk (tóc mohawk dựng đứng) đã có trong known.md — chưa chắc chắn phân biệt rạch ròi hai người ở các trang 191-192, cần xác nhận thêm ở trang sau.",
+      "pages": [
+        "v02-CityhunterV02_191",
+        "v02-CityhunterV02_192",
+        "v02-CityhunterV02_193",
+        "v02-CityhunterV02_195",
+        "v02-CityhunterV02_196",
+        "v02-CityhunterV02_197",
+        "v02-CityhunterV02_198"
+      ],
+      "speechLines": 23,
+      "pairPages": {
+        "tu-nhan-mu-canh-sat": 1,
+        "con-gai-ryujin-nobuo": 2
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "nameJa"
+      ],
+      "hold": true,
+      "aliases": [
+        "巴伐羅",
+        "牛次 (biệt danh bị ghét)"
+      ]
+    },
+    {
+      "id": "tinh-dich-makimura",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng qua vai, mặc áo choàng/robe sáng màu buộc hờ, thái độ tự tin/trêu chọc",
+      "addresses": {
+        "makimura": {
+          "default": "(không xưng)/你 (無/你)"
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_206",
+        "v02-CityhunterV02_207"
+      ],
+      "speechLines": 8,
+      "pairPages": {
+        "makimura": 1
+      },
+      "settledPairs": [],
+      "settled": false,
+      "missing": [
+        "name",
+        "nameJa",
+        "6 pages"
+      ],
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_207",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.3,
+            0.035,
+            0.28,
+            0.14
+          ]
+        }
+      ]
+    },
+    {
+      "id": "con-gai-ryujin-nobuo",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "looks": "tóc đen dài gợn sóng, có thể thay đổi kiểu tóc/trang phục theo bối cảnh (đồng phục thủy thủ khi đi học, áo ngủ/robe ở nhà, trang phục da đen khi bị bắt cóc)",
+      "faces": [
+        {
+          "page": "v02-CityhunterV02_140",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.3224,
+            0.5947,
+            0.2932,
+            0.113
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_158",
+          "side": "raw",
+          "box": [
+            0.76865214,
+            0.1348631,
+            0.16788344,
+            0.1331751
+          ]
+        },
+        {
+          "page": "v02-CityhunterV02_126",
+          "side": "raw",
+          "half": "right",
+          "box": [
+            0.3,
+            0.685,
+            0.22,
+            0.1
+          ]
+        }
+      ],
+      "addresses": {
+        "ryo": {
+          "default": "(không xưng)/anh (無/你)",
+          "moods": {
+            "nửa mỉa nửa khen": "tôi/anh (我/你)",
+            "trách": "我/你 (khẩu ngữ, gay gắt)",
+            "gặng hỏi": "(không xưng)/cậu",
+            "sốc": "(không xưng)/你 (無/你)"
+          }
+        }
+      },
+      "pages": [
+        "v02-CityhunterV02_122",
+        "v02-CityhunterV02_123",
+        "v02-CityhunterV02_124",
+        "v02-CityhunterV02_125",
+        "v02-CityhunterV02_126",
+        "v02-CityhunterV02_127",
+        "v02-CityhunterV02_129",
+        "v02-CityhunterV02_130",
+        "v02-CityhunterV02_131",
+        "v02-CityhunterV02_132",
+        "v02-CityhunterV02_133",
+        "v02-CityhunterV02_134",
+        "v02-CityhunterV02_135",
+        "v02-CityhunterV02_136",
+        "v02-CityhunterV02_137",
+        "v02-CityhunterV02_139",
+        "v02-CityhunterV02_140",
+        "v02-CityhunterV02_141",
+        "v02-CityhunterV02_142",
+        "v02-CityhunterV02_143",
+        "v02-CityhunterV02_144",
+        "v02-CityhunterV02_145",
+        "v02-CityhunterV02_146",
+        "v02-CityhunterV02_147",
+        "v02-CityhunterV02_148",
+        "v02-CityhunterV02_149",
+        "v02-CityhunterV02_150",
+        "v02-CityhunterV02_151",
+        "v02-CityhunterV02_152",
+        "v02-CityhunterV02_153",
+        "v02-CityhunterV02_154",
+        "v02-CityhunterV02_155",
+        "v02-CityhunterV02_157",
+        "v02-CityhunterV02_158",
+        "v02-CityhunterV02_159",
+        "v02-CityhunterV02_167",
+        "v02-CityhunterV02_168",
+        "v02-CityhunterV02_169",
+        "v02-CityhunterV02_170",
+        "v02-CityhunterV02_185",
+        "v02-CityhunterV02_186",
+        "v02-CityhunterV02_187",
+        "v02-CityhunterV02_189",
+        "v02-CityhunterV02_190",
+        "v02-CityhunterV02_192",
+        "v02-CityhunterV02_193",
+        "v02-CityhunterV02_194",
+        "v02-CityhunterV02_195",
+        "v02-CityhunterV02_196",
+        "v02-CityhunterV02_197",
+        "v02-CityhunterV02_198",
+        "v02-CityhunterV02_199",
+        "v02-CityhunterV02_200",
+        "v02-CityhunterV02_201",
+        "v02-CityhunterV02_202",
+        "v02-CityhunterV02_203"
+      ],
+      "speechLines": 114,
+      "pairPages": {
+        "ryo": 13,
+        "dan-em-buruo-isutan": 1,
+        "tu-nhan-mu-canh-sat": 1,
+        "ga-ria-mep": 1,
+        "ga-bavaro": 3
+      },
+      "settledPairs": [
+        "ryo"
+      ],
+      "settled": true,
+      "missing": [],
+      "note": "Con gái duy nhất của ryujin-nobuo (trùm Long Thần Hội), lần lượt: thân chủ ryo nhận bảo vệ (tr.122+), 'học trò' khi ryo cải trang gia sư (tr.139+), rồi bị băng Buruo Isutan bắt cóc xích lại đòi ép cưới ga-bavaro (tr.185+). Gộp từ 3 id đọc rời rạc theo batch (con-gai-ryujin-nobuo, hoc-tro-gia-su, nu-tu-nhan-xich) sau khi xác nhận cùng một người qua tên 沙也加, cha là ryujin-nobuo/'老狐狸', và mạch truyện liên tục.",
+      "name": "Sayaka",
+      "nameJa": "沙也加",
+      "aliases": [
+        "莎莉"
       ]
     }
   ]

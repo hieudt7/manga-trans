@@ -1,9 +1,65 @@
 # City Hunter — trạng thái đọc /style-read (raw-only)
 
-Cập nhật: 2026-09-24. **Tập 1 (Deluxe Edition V01) đã đọc hết và publish
-(220/220 trang).** Đây là lần đọc đầu tiên của bộ này — chưa có bản dịch tiếng
-Việt, mọi tên riêng/xưng hô trong profile đều là **gợi ý của reader**, không
-phải bản dịch đã xuất bản.
+Cập nhật: 2026-09-28. **Tập 2 (Deluxe Edition V02) đã đọc hết và publish
+(216/216 trang)**, đọc theo series (`--from 2 --to 2`) trên cùng cast với tập
+1 — series root là thư mục có dấu cách ở cuối: `City Hunter Deluxe Edition `
+(work dir `style_scan/claude_raw/` nằm ngay dưới root này, không phải dưới
+từng volume). Vẫn chưa có bản dịch tiếng Việt — mọi tên riêng/xưng hô là gợi ý
+của reader.
+
+## Việc lớn nhất đợt này: gộp thủ công 3 id trùng thành 1 nhân vật (Sayaka)
+
+Ba batch khác nhau (không thấy ngữ cảnh của nhau) đặt **3 id riêng** cho cùng
+một nhân vật — con gái `ryujin-nobuo` (thân chủ mới) — vì cô xuất hiện ở 3 bối
+cảnh trang phục khác hẳn nhau trải dài ~90 trang:
+`con-gai-ryujin-nobuo` (đồng phục học sinh, tr.122–137, mở đầu mạch),
+`hoc-tro-gia-su` (áo ngủ ở nhà khi Ryo cải trang gia sư, tr.139–170),
+`nu-tu-nhan-xich` (bị băng Buruo Isutan bắt cóc xích lại, tr.185–203). Mỗi
+batch đều làm đúng quy trình — chỉ báo nghi vấn trùng tên "沙也加" trong note,
+không tự gộp. Đã xác nhận gộp bằng cách tự crop và nhìn trực tiếp ảnh mặt ở cả
+3 id (không chỉ tin lời note): 2/4 face box của `con-gai-ryujin-nobuo` hoá ra
+là ảnh RYO (kính tròn) bị gán nhầm, 1 box khác là mảnh kính vỡ — chỉ 1/4 box
+là mặt thật; sau khi loại các box sai, mặt còn lại khớp rõ với
+`hoc-tro-gia-su` và `nu-tu-nhan-xich`. Bằng chứng cốt truyện: cha là
+"老狐狸"/`ryujin-nobuo`, tổ chức hôn nhân sắp đặt `青堅會`/`龍神會` nhắc lại ở cả
+3 mạch, và thứ tự chương liền mạch (thân chủ → gia sư → bị bắt cóc).
+
+**Đã gộp thành `con-gai-ryujin-nobuo`** (giữ id này, KHÔNG dùng "sayaka" —
+xem bẫy kỹ thuật bên dưới). Một id thứ 4 trùng tên, `sayaka-bi-bam-duoi`
+(tr.175–176, một cô gái tên Sayaka khác bị cha hói đầu béo theo dõi bằng
+thang treo vệ sinh toà nhà), **KHÔNG gộp** — ngoại hình/bối cảnh cha hoàn toàn
+khác, chỉ là trùng tên phổ biến (giống hệt kiểu bẫy "trùng tên" đã gặp ở tập
+1). Để mở.
+
+**Bẫy kỹ thuật khi chọn id gộp:** thử đặt id gộp là `"sayaka"` trước — vỡ
+ngay, vì `names_to_ids()` trong `progress.py` build lookup từ CẢ id lẫn
+trường `name` của mọi nhân vật, và `sayaka-bi-bam-duoi` cũng có
+`"name": "Sayaka"`. `setdefault()` khiến `sayaka-bi-bam-duoi` (đứng trước
+trong list) chiếm mất khoá `"sayaka"`, nên mọi note ghi "Nhân vật: sayaka"
+bị `who()` map nhầm sang `sayaka-bi-bam-duoi` — `evidence()` trả về 0 trang
+cho nhân vật vừa gộp dù đã đổi tên đúng trong toàn bộ note. Càng nguy hiểm
+hơn vì id ngắn `sayaka` là **substring** của `sayaka-bi-bam-duoi`, nên lệnh
+`sed s/sayaka/.../g` đầu tiên (đổi 3 id cũ → "sayaka") khi bị đổi ngược lại
+cũng vô tình phá luôn `sayaka-bi-bam-duoi` thành
+`con-gai-ryujin-nobuo-bi-bam-duoi` — phải rà lại bằng `grep` cả hai chiều và
+sửa tay. **Rút kinh nghiệm cho lần sau:** không bao giờ chọn id gộp trùng với
+trường `name` (hiển thị) của một nhân vật khác đang mở, kể cả khi id đó nghe
+"sạch" hơn; và khi rename id bằng `sed` trên toàn bộ notes, luôn kiểm tra id
+đó có phải substring của id nào khác không trước khi chạy.
+
+**Hai nghi vấn khác đã tự tay xem ảnh và KHÔNG đủ căn cứ để gộp** (để mở,
+đừng tự gộp nếu không có thêm bằng chứng mới):
+- `tu-nhan-mu-canh-sat` (tù nhân đeo mũ cảnh sát, xích chung với
+  `con-gai-ryujin-nobuo`, tr.185+) — nhiều batch nghi là Ryo cải trang (nhắc
+  "gia sư", gài máy nghe lén, đùa cợt lém lỉnh), Gemini ở bước viết profile
+  cũng tự suy luận vậy trong `role`. Nhưng ảnh mặt duy nhất có được không đeo
+  kính tròn đặc trưng của Ryo — không đủ chắc để gộp vào `ryo`.
+- `nguoi-choang-trang-bi-an` (tr.063–068, kẻ mặc đồ trắng lao qua kính vỡ,
+  giết 26 người của Long Thần Hội, luôn hét tên "Saeba") — mô tả ban đầu
+  ("tóc đen chải ngược, áo choàng trắng") trùng khớp `tuong-quan`, nhưng khi
+  tự crop ảnh mặt ở tr.064 thì hoá ra là một người tóc xoăn cầm mic hát
+  karaoke, hoàn toàn khác `tuong-quan` — rất có thể chỉ là khách qua đường,
+  KHÔNG liên quan. Vẫn để nguyên là id riêng, chưa rõ tên.
 
 **Lưu ý quan trọng về nguồn "raw":** bản scan Deluxe Edition này đã bị rebubble
 lời thoại sang **tiếng Trung phồn thể**, không phải tiếng Nhật gốc. Theo đúng
@@ -15,13 +71,50 @@ hậu cảnh và không bị đụng tới.
 | Tập | Trang | Trạng thái |
 |---|---|---|
 | Deluxe Edition V01 | 220/220 | published |
+| Deluxe Edition V02 | 216/216 | published |
 
-Cast: 46 nhân vật ghi nhận, 3 settled. Profile (đã publish): **7 nhân vật**
-(rule >10 trang — bộ mới đọc 1 tập nên nhánh "≥2 tập" của rule chưa có tác
-dụng): `ryo, makimura, trum-angel-dust, chi-gai-yuko, inagaki-kouji, iwasaki,
-vo-si-nan-nhan`. Face: **27 ảnh**, 6/7 nhân vật đã đủ 4/4, còn
-**`vo-si-nan-nhan` ở mức 3/4** — xem "Câu hỏi còn treo" trước khi chạy thêm
-face-hunt cho nhân vật này.
+Cast tích luỹ (cả 2 tập, 1 cast.json chung): 72 nhân vật ghi nhận, 6 settled
+(`ogino, ryo, makimura, ryujin-nobuo, trum-buruo-isutan, con-gai-ryujin-nobuo`).
+Profile V01 (7 nhân vật, xem đợt cập nhật 2026-09-24 bên dưới) + V02 thêm
+**20 nhân vật mới** → **27 nhân vật** trong profile sau khi publish V02.
+
+Face V02: **21 ảnh** sau 1 vòng face-hunt + soát tay (loại 8 box sai — xem
+"Soát ảnh mặt V02" bên dưới). Vẫn còn **17 nhân vật** V02 thiếu ảnh đủ 4/4,
+phần lớn là nhân vật phụ chỉ có 1 trang candidate đã thử và xác nhận không có
+mặt rõ (xem `face_gaps.json`) — **để mở, đừng chạy lại cùng trang cũ**:
+`ke-bi-tiem-angel-dust, dan-em-buruo-isutan, truong-lao (không bao giờ lộ
+mặt), nhan-vien-general, nguoi-cung-cap-tin, ke-uy-hiep-makimura,
+gai-bay-my-nhan, bao-ve-toc-hoi, nguoi-say-ruou, dan-em-lo-lang,
+trum-vua-ra-tu, tinh-dich-makimura, nu-trum-yunio, nguoi-thieu-no` (đều còn
+0–1/4), cộng `tuong-quan, ryujin-nobuo, con-gai-ryujin-nobuo, trum-buruo-isutan,
+ga-bavaro, tu-nhan-mu-canh-sat` (đã có 1–3/4, thiếu vài ảnh để đủ 4/4).
+
+## Soát ảnh mặt V02 — bẫy: subagent viết nhầm `.md` thay vì `.json`
+
+Đợt face-hunt đầu tiên viết kết quả vào
+`updates/facehunt-v02.md` (đúng format khối ```json` như note, nhưng sai định
+dạng file) — `apply_updates()` trong `progress.py` chỉ quét file `.json`
+trong thư mục `updates/`, **không đọc `.md`**, nên `progress.py` chạy xong báo
+"folded in" nhưng số ảnh không tăng, không có lỗi rõ ràng nào cả. Phải tự phát
+hiện qua việc so `finish.py` in ra cùng một số "vẫn thiếu N nhân vật" hai lần
+liên tiếp. Sửa: trích khối JSON ra, lưu thành `.json` trực tiếp trong
+`updates/`. **Nhớ cho lần sau: dặn subagent face-hunt ghi thẳng file
+`.json`, không phải `.md` có nhúng khối JSON** (khác với note của một batch
+đọc thường, vốn LÀ `.md`).
+
+Sau khi fold đúng, soát bằng mắt toàn bộ 29 ảnh trong `character_scan/faces/`
+(dùng 1 subagent chỉ có quyền Read, không xem note/thoại) phát hiện **8/29
+ảnh sai** — chủ yếu là bong bóng thoại bị crop nhầm thành "mặt", một crop lẫn
+2 khuôn mặt trong 1 khung, và 2 trường hợp gán nhầm sang nhân vật khác hẳn
+(`ryujin-nobuo/3` hoá ra là mặt con gái ông ta; hai box trong
+`tu-nhan-mu-canh-sat` từ vòng face-hunt đầu — trước khi soát — hoá ra là một
+người đàn ông có ria mép hoàn toàn khác, đã bị loại ngay khi tự crop kiểm tra
+trước khi fold, không đợi tới bước soát ảnh). Đã xoá cả 8 bằng
+`review_faces.py --bad id/index,...` (không sửa `cast.json` tay) rồi chạy lại
+`finish.py`. **Kết luận: dù reader tự nói "đã crop-kiểm tra" trong note, vẫn
+phải tự mở ảnh crop cuối cùng mà xem — pattern lặp lại nhiều lần trong đợt
+này là gán nhầm mặt sang đúng loại nhân vật (nam có ria mép, mũ lưỡi trai)
+nhưng SAI người cụ thể.**
 
 ## Bug đã sửa trong đợt này — ảnh hưởng mọi series có trang ghép đôi
 
@@ -155,12 +248,16 @@ giữ nguyên khi đường dẫn khác đi trên máy mới. Sau khi restore:
 1. Sửa đường dẫn tuyệt đối trong `style_scan/claude_raw/profile_state.json`
    (liệt kê tập đã publish bằng đường dẫn tuyệt đối, giống hệt cách làm ở
    Kinnikuman — xem `scan_state/kinnikuman/RESUME.md` nếu cần script mẫu).
-2. Chạy `prepare.py "<đường dẫn>" --raw-only` — phải báo **"220 already have
-   notes"**. Nếu báo 0, state chưa nằm đúng chỗ, dừng lại.
-3. Nếu định đọc tiếp sang **V02** (chưa có chỉ thị làm việc này — người dùng
-   mới chỉ yêu cầu "Chỉ V01 trước"), cần hỏi lại trước khi mở rộng phạm vi
-   đọc: `--from`/`--to` hiện chưa dùng vì lần đọc đầu chỉ trỏ thẳng vào folder
-   V01 (không đọc theo `--from 1 --to N` như Kinnikuman). Sẽ cần xác nhận cấu
-   trúc thư mục series trước khi chạy `prepare.py --from 1 --to 2`.
-4. Cần Pillow (`pip install Pillow` trong venv riêng nếu Python hệ thống bị
+2. Chạy `prepare.py "<đường dẫn tới series root, giữ dấu cách cuối tên>" --from 2 --to 2 --raw-only`
+   — phải báo **"216 already have notes"** cho V02 (và tương tự cho V01 nếu
+   chạy `--from 1 --to 1`). Nếu báo 0, state chưa nằm đúng chỗ, dừng lại.
+   **Đính chính so với ghi chú cũ ở đây:** V01 thực ra ĐÃ được đọc theo series
+   mode (`--from`/`--to`) ngay từ đầu, không phải trỏ thẳng vào folder con như
+   từng ghi nhầm — bằng chứng: work dir `style_scan/claude_raw/` nằm ở series
+   root (`City Hunter Deluxe Edition /`), không phải trong
+   `.../V01/style_scan/`, và mọi page id đều có tiền tố `v01-`. V02 (đọc
+   2026-09-28) tiếp tục đúng convention này với `--from 2 --to 2`, dùng chung
+   1 cast/profile với V01. Đọc tập tiếp theo (V03) cũng theo mẫu này:
+   `--from 3 --to 3`.
+3. Cần Pillow (`pip install Pillow` trong venv riêng nếu Python hệ thống bị
    khoá externally-managed) cho `prepare.py`/`progress.py`/`finish.py`.

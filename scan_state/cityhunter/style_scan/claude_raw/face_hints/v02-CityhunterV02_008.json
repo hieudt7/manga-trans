@@ -1,0 +1,53 @@
+{
+  "faces": [],
+  "balloons": [
+    {
+      "x": 0.70560914,
+      "y": 0.67954314,
+      "width": 0.20042095,
+      "height": 0.15825328,
+      "confidence": 0.96232116,
+      "nearestFace": null
+    },
+    {
+      "x": 0.6673468,
+      "y": 0.2986231,
+      "width": 0.24986055,
+      "height": 0.16683097,
+      "confidence": 0.962139,
+      "nearestFace": null
+    },
+    {
+      "x": 0.09080905,
+      "y": 0.29513103,
+      "width": 0.2699584,
+      "height": 0.16853055,
+      "confidence": 0.9607066,
+      "nearestFace": null
+    },
+    {
+      "x": 0.08860533,
+      "y": 0.67603403,
+      "width": 0.20544834,
+      "height": 0.16796751,
+      "confidence": 0.9599451,
+      "nearestFace": null
+    },
+    {
+      "x": 0.77780366,
+      "y": 0.0376847,
+      "width": 0.10018492,
+      "height": 0.1293397,
+      "confidence": 0.9556596,
+      "nearestFace": null
+    },
+    {
+      "x": 0.092840336,
+      "y": 0.030947374,
+      "width": 0.12598188,
+      "height": 0.15121517,
+      "confidence": 0.94164026,
+      "nearestFace": null
+    }
+  ]
+}

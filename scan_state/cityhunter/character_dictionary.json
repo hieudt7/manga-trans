@@ -2,7 +2,10 @@
   "profile": {
     "approach": [],
     "voice": [],
-    "address": [],
+    "address": [
+      "Xưng hô xã giao giữa người lớn lạ mặt thường dùng tôi/ông, tôi/bà hoặc tôi/cô (tương ứng です/ます hoặc đại từ trung tính).",
+      "Trong giới giang hồ/xã hội đen, khi uy hiếp hoặc đối đầu nhau lập tức hạ xuống tao/mày (nguyên tác 我/你 ở thể cộc lốc hoặc khinh miệt)."
+    ],
     "soundEffects": [],
     "glossary": [
       [
@@ -16,6 +19,50 @@
       [
         "稻垣晃二",
         "Inagaki Kouji"
+      ],
+      [
+        "將軍",
+        "Tướng Quân"
+      ],
+      [
+        "龍神信男",
+        "Ryujin Nobuo"
+      ],
+      [
+        "沙也加",
+        "Sayaka"
+      ],
+      [
+        "長老",
+        "Trưởng Lão"
+      ],
+      [
+        "阿虎",
+        "A Hổ"
+      ],
+      [
+        "巴伐羅",
+        "Bavaro"
+      ],
+      [
+        "龍神會",
+        "Long Thần Hội"
+      ],
+      [
+        "優尼奧",
+        "Yunio"
+      ],
+      [
+        "阿香",
+        "Kaori"
+      ],
+      [
+        "阿獠",
+        "Ryo"
+      ],
+      [
+        "沙展",
+        "Sa Triển"
       ]
     ],
     "characters": [
@@ -28,24 +75,54 @@
         ],
         "gender": "male",
         "ageGroup": "young_adult",
-        "role": "Thợ săn thành phố (City Hunter), một tay súng cừ khôi chuyên giải quyết các vụ việc nguy hiểm. Anh thường ẩn mình dưới vỏ bọc một kẻ trăng hoa nhưng thực chất là một chuyên gia đầy bản lĩnh.",
-        "personality": "Bên ngoài tỏ ra cợt nhả, hiếu sắc và hay đùa cợt, nhưng khi vào việc lại cực kỳ nghiêm túc, lạnh lùng và quyết đoán. Anh có nguyên tắc đạo đức riêng và không bao giờ bán rẻ linh hồn cho cái ác.",
-        "speech": "Nền là lối nói suồng sã, cợt nhả (tôi/cô, anh/em) với những câu đùa tục tĩu hoặc tán tỉnh. Khi vào việc, giọng trở nên lạnh lùng, dứt khoát và đầy đe dọa. Tiếng Việt: dùng 'tôi/ông' hoặc 'tao/mày' tùy đối tượng, giữ vẻ bất cần vốn có nhưng phải gằn giọng khi đe dọa.",
+        "role": "Thợ săn thành phố (City Hunter), một tay súng cừ khôi chuyên giải quyết các phi vụ nguy hiểm dưới vỏ bọc một kẻ trăng hoa hám sắc.",
+        "personality": "Bên ngoài cợt nhả, bỡn cợt và thích trêu chọc phụ nữ, nhưng khi vào việc lại cực kỳ nhạy bén, lạnh lùng, bản lĩnh và hết lòng bảo vệ cộng sự.",
+        "speech": "Nền là lối nói suồng sã, khiêu khích đối thủ bằng những câu đùa cợt sâu cay. Khi đối đầu trực diện, giọng trở nên sắc lạnh và dứt khoát. Tiếng Việt: dùng 'tôi/cô', 'tôi/ông' khi đàm thoại; chuyển thành 'tao/mày' khi áp chế hoặc trừng phạt kẻ địch.",
         "selfTerms": [
-          "tôi",
-          "ta"
+          "tôi (我)",
+          "tao (我)"
         ],
-        "appearances": 155,
+        "appearances": 306,
         "relations": [
           {
             "to": "makimura",
-            "relation": "cộng sự, người được anh trai cô nhờ chăm sóc",
-            "address": "tôi/em (khi an ủi); tôi/cậu (khi gắt gỏng)"
+            "relation": "cộng sự thân thiết, luôn cãi cọ nhưng hết lòng bảo bọc",
+            "address": "tôi/Makimura (我/槙村); tôi/Hương (我/阿香); tôi/cậu; tôi/em"
+          },
+          {
+            "to": "con-gai-ryujin-nobuo",
+            "relation": "khách hàng kiêm học trò bất đắc dĩ",
+            "address": "tôi/em (我/你); em ((không xưng)/沙也加); cô Sayaka (沙也加小姐)"
+          },
+          {
+            "to": "ryujin-nobuo",
+            "relation": "thân chủ xảo quyệt, đối tác làm ăn ma mãnh",
+            "address": "tôi/ông (無/你); tao/mày (我/你); lão cáo già ((không xưng)/老狐狸)"
+          },
+          {
+            "to": "tuong-quan",
+            "relation": "kẻ thù nguy hiểm chỉ huy đội cận vệ",
+            "address": "Tướng Quân ((không xưng)/將軍); tao/Tướng Quân (我/將軍)"
+          },
+          {
+            "to": "ke-bi-tiem-angel-dust",
+            "relation": "sát thủ liều mạng bị biến đổi bởi Angel Dust",
+            "address": "tôi/ngươi ((không xưng)/你)"
+          },
+          {
+            "to": "nguoi-cung-cap-tin",
+            "relation": "người hỗ trợ kỹ thuật và thông tin",
+            "address": "tôi/cô"
           },
           {
             "to": "trum-angel-dust",
             "relation": "đối thủ, khách hàng cũ",
             "address": "tôi/ông"
+          },
+          {
+            "to": "inagaki-kouji",
+            "relation": "đối thủ",
+            "address": "tôi/Inagaki"
           },
           {
             "to": "iwasaki",
@@ -56,11 +133,6 @@
             "to": "chi-gai-yuko",
             "relation": "khách hàng",
             "address": "tôi/cô"
-          },
-          {
-            "to": "inagaki-kouji",
-            "relation": "đối thủ",
-            "address": "tôi/Inagaki"
           }
         ]
       },
@@ -69,28 +141,149 @@
         "name": "Makimura Kaori",
         "nameJa": "槙村香",
         "aliases": [
-          "Hương"
+          "Kaori",
+          "Hương",
+          "阿香"
         ],
         "gender": "female",
         "ageGroup": "young_adult",
-        "role": "Cộng sự mới của Ryo, em gái của người cộng sự cũ đã khuất. Cô là người duy nhất có thể kiềm chế tính trăng hoa của Ryo.",
-        "personality": "Bộc trực, nóng tính, hay ghen và rất nghiêm túc trong công việc. Cô không ngại dùng vũ lực hoặc mắng nhiếc khi Ryo giở trò đồi bại.",
-        "speech": "Nền là lối nói thẳng thắn, gay gắt, thường xuyên mắng mỏ hoặc quát tháo Ryo. Tiếng Việt: dùng 'tôi/anh' hoặc 'tôi/mày' khi giận dữ, giữ tông giọng đanh thép, không nể nang.",
+        "role": "Cộng sự của Ryo và là em gái người cộng sự quá cố, người quán xuyến các hợp đồng và kiềm chế thói trăng hoa của anh.",
+        "personality": "Bộc trực, nóng tính, giàu lòng trắc ẩn và rất kiên cường trước nguy hiểm; luôn đấu khẩu với Ryo nhưng tuyệt đối tin tưởng anh.",
+        "speech": "Giọng nói đanh thép, bộc trực, thường xuyên quát mắng hoặc châm chọc Ryo lúc anh giở trò biến thái; khi lâm nguy giọng trở nên gấp gáp, tha thiết. Tiếng Việt: xưng 'tôi/anh', gắt gỏng thì gắt 'đồ khốn/mày'.",
         "selfTerms": [
-          "tôi",
-          "em"
+          "tôi (我)",
+          "em (我)"
         ],
-        "appearances": 72,
+        "appearances": 150,
         "relations": [
           {
             "to": "ryo",
-            "relation": "cộng sự",
-            "address": "tôi/anh; tôi/A Liêu"
+            "relation": "cộng sự, người luôn cằn nhằn nhưng tuyệt đối tin tưởng",
+            "address": "tôi/A Liêu (我/阿獠); tôi/anh (我/你); đồ khốn/mày (混蛋/你)"
+          },
+          {
+            "to": "ryujin-nobuo",
+            "relation": "thân chủ giảo hoạt",
+            "address": "tôi/ông (無/無); tôi/lão cáo già này (無/這老狐狸)"
+          },
+          {
+            "to": "tuong-quan",
+            "relation": "kẻ bắt cóc đe dọa tính mạng",
+            "address": "tôi/ngươi"
+          },
+          {
+            "to": "tinh-dich-makimura",
+            "relation": "người tự xưng là tình địch cạnh tranh Ryo",
+            "address": "tôi/cô ((không xưng)/你)"
           },
           {
             "to": "chi-gai-yuko",
             "relation": "người quen",
             "address": "tôi/cô"
+          }
+        ]
+      },
+      {
+        "id": "con-gai-ryujin-nobuo",
+        "name": "Sayaka",
+        "nameJa": "沙也加",
+        "aliases": [
+          "莎莉",
+          "Sari",
+          "Sally"
+        ],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Con gái của hội trưởng Long Thần Hội, một nữ sinh ngổ ngáo mang nhiều u uất và khao khát được cha quan tâm.",
+        "personality": "Bướng bỉnh, ngang tàng và thích nổi loạn để gây chú ý, nhưng bản chất ngây thơ, giàu tình cảm và dễ tổn thương.",
+        "speech": "Giọng điệu ngổ ngáo, cộc cằn, hay dùng từ thô lỗ để tỏ ra cứng cỏi; khi yếu lòng hoặc sợ hãi thì giọng run rẩy, chân thật. Tiếng Việt: xưng 'tôi/anh', xẵng giọng gọi 'thằng nhóc này', khi thân hơn thì gọi tên 'Ryo'.",
+        "selfTerms": [
+          "tôi (我)"
+        ],
+        "appearances": 56,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "gia sư kiêm vệ sĩ do cha cô thuê",
+            "address": "tôi/anh (我/你); tôi/thằng nhóc này ((không xưng)/這小子); anh (無/你); Ryo ((không xưng)/獠)"
+          },
+          {
+            "to": "ga-bavaro",
+            "relation": "hôn phu sắp đặt mà cô ghét bỏ",
+            "address": "tôi/Sally ((không xưng)/莎莉); thằng đệ nhị đại lùn tịt ((không xưng)/矮仔第二代仔)"
+          }
+        ]
+      },
+      {
+        "id": "tuong-quan",
+        "name": "Tướng Quân",
+        "nameJa": "將軍",
+        "aliases": [
+          "捷尼拉爾親衛隊的將軍",
+          "General"
+        ],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Chỉ huy đội cận vệ của tổ chức tội phạm Yunio, ngụy trang dưới vỏ bọc chủ tiệm kim hoàn General Joyeria để thanh trừng đối thủ.",
+        "personality": "Kiêu ngạo, tàn ác, ám ảnh bệnh hoạn về sự thuần khiết và cái đẹp, nhưng đớn hèn, khiếp nhược trước cấp trên.",
+        "speech": "Giọng điệu trịch thượng, tự mãn, coi kẻ khác như súc vật hôi hám; nhưng khi đối diện Trưởng Lão thì lập tức hạ giọng van lạy thảm thiết. Tiếng Việt: dùng 'ta/ngươi', 'tao/tụi bây' bề trên; trước cấp trên thì xưng 'con/ngài' đầy sợ sệt.",
+        "selfTerms": [
+          "ta (我)"
+        ],
+        "appearances": 34,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "kẻ thù muốn trừ khử để phục hồi danh dự",
+            "address": "ngươi (冴羽); Saeba Ryo ((không xưng)/冴羽獠); ta/ngươi (我/你)"
+          },
+          {
+            "to": "nhan-vien-general",
+            "relation": "thuộc hạ bị tra khảo và thủ tiêu",
+            "address": "ta/tụi bây (我/你們); ta/mày (我/你, 沙展)"
+          },
+          {
+            "to": "makimura",
+            "relation": "con tin kiêm vật tế máu",
+            "address": "ta/A Hương (我/阿香); con này ((không xưng)/這女的)"
+          },
+          {
+            "to": "truong-lao",
+            "relation": "cấp trên tàn bạo trong tổ chức",
+            "address": "con/ngài (請...); Trưởng Lão (長老)"
+          }
+        ]
+      },
+      {
+        "id": "ryujin-nobuo",
+        "name": "Ryujin Nobuo",
+        "nameJa": "龍神信男",
+        "aliases": [
+          "hội trưởng Long Thần Hội",
+          "龍神會會長",
+          "狐狸大佬",
+          "老狐狸"
+        ],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Hội trưởng Long Thần Hội, một tay trùm xảo quyệt thuê Ryo bảo vệ con gái nhưng ngầm giở nhiều mưu mô để ép anh làm con rể.",
+        "personality": "Thực dụng, ma mãnh, lật lọng trơ trẽn nhưng hết mực thương yêu và lo lắng cho tương lai của con gái.",
+        "speech": "Khẩu khí giang hồ giả lả, đổi giọng xoành xoạch từ đe dọa sang ngọt nhạt nịnh bợ, khi gặp nạn sẵn sàng xuống nước xin tha. Tiếng Việt: dùng 'tôi/cậu' khi đàm phán, gằn 'tao/mày' khi đe dọa, hạ giọng 'tôi/cậu Saeba' khi nài nỉ.",
+        "selfTerms": [
+          "tôi (我)",
+          "tao (我)"
+        ],
+        "appearances": 22,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "khách hàng thuê Ryo bảo vệ con gái, đối tác ma mãnh",
+            "address": "tôi/cậu (我/你); tao/thằng cáo già (無/狐狸); cậu Saeba (冴羽, 冴羽仔)"
+          },
+          {
+            "to": "makimura",
+            "relation": "cộng sự của Ryo",
+            "address": "tôi/cô (我/小姐)"
           }
         ]
       },
@@ -117,6 +310,31 @@
         ]
       },
       {
+        "id": "ke-bi-tiem-angel-dust",
+        "name": "Kẻ bị tiêm Angel Dust",
+        "nameJa": "",
+        "aliases": [
+          "004"
+        ],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Sát thủ cảm tử bị biến đổi thành siêu chiến binh nhờ thuốc kích thích Angel Dust, mang chân giả giấu súng phóng lựu.",
+        "personality": "Cuồng loạn, bất chấp tính mạng, ôm hận thù sâu sắc và coi việc tiêu diệt Ryo là lẽ sống duy nhất.",
+        "speech": "Giọng điệu căm hờn, gằn từng tiếng đầy kích động và thách thức ngạo mạn khi nghĩ mình đã nắm chắc phần thắng. Tiếng Việt: xưng 'tao/mày', 'tao/Saeba' đanh thép và hằn học.",
+        "selfTerms": [
+          "tao (我)",
+          "ta (我)"
+        ],
+        "appearances": 15,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "sát thủ liều chết được tiêm thuốc Angel Dust",
+            "address": "tao/mày (我/你); tao/Saeba (我/冴羽)"
+          }
+        ]
+      },
+      {
         "id": "chi-gai-yuko",
         "name": "Natsumi",
         "nameJa": "菜摘",
@@ -135,6 +353,33 @@
             "to": "ryo",
             "relation": "khách hàng",
             "address": "tôi/anh"
+          }
+        ]
+      },
+      {
+        "id": "tu-nhan-mu-canh-sat",
+        "name": "Tù nhân mũ cảnh sát",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Tù nhân bị trói chung với Sayaka, thực chất là thân phận cải trang tinh quái của Ryo nhằm thâm nhập hang ổ của băng đua xe.",
+        "personality": "Láu cá, tưng tửng, thích trêu chọc và đóng kịch đánh lừa người khác bằng vẻ ngô nghê giả tạo.",
+        "speech": "Giọng xỏ xiên, châm chọc đối phương một cách tỉnh bơ, đan xen lời trấn an nhẹ nhàng với Sayaka. Tiếng Việt: dùng 'tôi/cậu' ngang hàng, nói chuyện nửa đùa nửa thật để che giấu thân phận.",
+        "selfTerms": [
+          "tôi (我)"
+        ],
+        "appearances": 13,
+        "relations": [
+          {
+            "to": "con-gai-ryujin-nobuo",
+            "relation": "bạn đồng hành an ủi cô khi bị bắt giữ",
+            "address": "Sayaka ((không xưng)/沙也加)"
+          },
+          {
+            "to": "ga-bavaro",
+            "relation": "người trêu chọc và lập giao kèo im lặng với Bavaro",
+            "address": "cậu ((không xưng)/你); Đệ Nhị Đại (第二代)"
           }
         ]
       },
@@ -207,16 +452,419 @@
             "address": "tôi/anh"
           }
         ]
+      },
+      {
+        "id": "trum-buruo-isutan",
+        "name": "A Hổ",
+        "nameJa": "阿虎",
+        "aliases": [
+          "寅吉",
+          "阿寅",
+          "小虎",
+          "Torakichi"
+        ],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Thủ lĩnh băng mô tô Buruo Isutan, kẻ si mê Sayaka mù quáng và tổ chức bắt cóc cô về làm vợ.",
+        "personality": "Hung bạo, gia trưởng, thích thị uy với đàn em bằng đòn roi nhưng nông cạn và dễ mất tự chủ khi bị chọc trúng chỗ nhạy cảm.",
+        "speech": "Giọng quát tháo lỗ mãng của đầu gấu đường phố, hay xưng hô giang hồ áp đặt; với Sayaka thì dùng giọng mỉa mai, sở hữu. Tiếng Việt: xưng 'tao/tụi bây' với đàn em, 'tao/mày' với Ryo, gọi Sayaka là 'Sari'.",
+        "selfTerms": [
+          "tao (我)",
+          "tôi (我)"
+        ],
+        "appearances": 10,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "tình địch tranh giành Sayaka",
+            "address": "tao/mày (我/你)"
+          },
+          {
+            "to": "con-gai-ryujin-nobuo",
+            "relation": "mục tiêu theo đuổi kiêm bắt cóc",
+            "address": "tôi/Sari (我/莎莉); tôi/cô (我/你)"
+          },
+          {
+            "to": "dan-em-buruo-isutan",
+            "relation": "đàn em trong băng biker",
+            "address": "tao/tụi bây (我/你們)"
+          },
+          {
+            "to": "ga-bavaro",
+            "relation": "thuộc hạ trong băng",
+            "address": "Bavaro ((không xưng)/巴伐羅)"
+          }
+        ]
+      },
+      {
+        "id": "dan-em-buruo-isutan",
+        "name": "Đàn em Buruo Isutan",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Đàn em trung niên trong băng mô tô Buruo Isutan, nhận lệnh thủ lĩnh đi săn lùng và bắt cóc Sayaka.",
+        "personality": "Hống hách, cậy đông bắt nạt kẻ yếu nhưng nhát cáy và dễ bị hạ gục trước dân chuyên nghiệp.",
+        "speech": "Lời lẽ thô lỗ, cộc cằn, sặc mùi giang hồ vặt khi bắt người và chế giễu kẻ khác. Tiếng Việt: xưng 'chúng tôi/cô', gọi xấc là 'ông chú' khi thách thức người lạ.",
+        "selfTerms": [
+          "chúng tôi (我們)"
+        ],
+        "appearances": 8,
+        "relations": [
+          {
+            "to": "con-gai-ryujin-nobuo",
+            "relation": "mục tiêu bắt cóc theo lệnh",
+            "address": "chúng tôi/cô (我們/你)"
+          },
+          {
+            "to": "trum-buruo-isutan",
+            "relation": "đại ca chỉ huy",
+            "address": "đại ca (老大)"
+          },
+          {
+            "to": "ryo",
+            "relation": "kẻ can thiệp cản đường",
+            "address": "ông ((không xưng)/阿叔)"
+          }
+        ]
+      },
+      {
+        "id": "ga-bavaro",
+        "name": "Bavaro",
+        "nameJa": "巴伐羅",
+        "aliases": [
+          "牛次",
+          "Niuji",
+          "đệ nhị đại"
+        ],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Hôn phu được sắp đặt của Sayaka, người kế thừa đời thứ hai của băng đảng Thanh Kiên Hội.",
+        "personality": "Tự ti về chiều cao, sĩ diện hão và ngốc nghếch nhưng si tình và một mực muốn kết hôn với Sayaka.",
+        "speech": "Giọng điệu cáu kỉnh, hay cằn nhằn về khuyết điểm ngoại hình; khi nổi giận thì gắt gỏng nhưng vẫn lộ vẻ bẽn lẽn trước hôn thê. Tiếng Việt: xưng 'anh/em' hoặc 'tôi/cô', cãi nhau xưng 'tôi/cậu'.",
+        "selfTerms": [
+          "tôi (我)",
+          "anh (我)"
+        ],
+        "appearances": 7,
+        "relations": [
+          {
+            "to": "con-gai-ryujin-nobuo",
+            "relation": "hôn thê được sắp đặt",
+            "address": "anh/Sayaka (我/沙也加); tôi/cô (我/你)"
+          },
+          {
+            "to": "tu-nhan-mu-canh-sat",
+            "relation": "đồng đảng lập giao kèo giữ bí mật",
+            "address": "tôi/cậu (我/你)"
+          },
+          {
+            "to": "trum-buruo-isutan",
+            "relation": "thủ lĩnh băng đảng",
+            "address": "đại ca (老大)"
+          }
+        ]
+      },
+      {
+        "id": "truong-lao",
+        "name": "Trưởng Lão",
+        "nameJa": "長老",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Nhân vật lãnh đạo cấp cao đầy quyền lực của tổ chức tội phạm Yunio, người giáng án phạt lên Tướng Quân.",
+        "personality": "Lạnh lùng, uy nghiêm tột bực, tàn nhẫn và không dung thứ cho bất kỳ sai lầm nào của thuộc hạ.",
+        "speech": "Mệnh lệnh ngắn gọn, dứt khoát, âm hưởng lạnh lẽo chứa đầy sự áp chế và đe dọa chết chóc. Tiếng Việt: xưng 'ta/ngươi' hoặc 'tao/mày' bề trên tuyệt đối, giữ phong thái tàn bạo lạnh gáy.",
+        "selfTerms": [
+          "ta (我)",
+          "tao (我)"
+        ],
+        "appearances": 7,
+        "relations": [
+          {
+            "to": "tuong-quan",
+            "relation": "cấp dưới vô dụng bị trừng phạt đóng dấu",
+            "address": "ta/Tướng Quân (我/將軍); tao/mày (我/你)"
+          }
+        ]
+      },
+      {
+        "id": "nhan-vien-general",
+        "name": "Sa Triển",
+        "nameJa": "沙展",
+        "aliases": [
+          "Cai Sa"
+        ],
+        "gender": "male",
+        "ageGroup": "middle_age",
+        "role": "Thuộc hạ thân tín của Tướng Quân tại tiệm kim hoàn General Joyeria, kẻ vô tình bị gài máy nghe lén.",
+        "personality": "Khúm núm, tận tụy nhưng yếu đuối, sợ chết và hoàn toàn mất tinh thần khi bị tra tấn.",
+        "speech": "Giọng khép nép, cung kính khi bẩm báo; khi bị tra khảo thì biến thành tiếng gào khóc, van xin thống thiết. Tiếng Việt: dùng 'con/Tướng Quân đại nhân', van xin dùng 'tha cho con'.",
+        "selfTerms": [
+          "con (我)",
+          "thuộc hạ (我)"
+        ],
+        "appearances": 7,
+        "relations": [
+          {
+            "to": "tuong-quan",
+            "relation": "chủ nhân tàn độc",
+            "address": "Tướng Quân đại nhân (將軍大人)"
+          }
+        ]
+      },
+      {
+        "id": "nguoi-cung-cap-tin",
+        "name": "Người cung cấp tin",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Cộng sự bí mật hỗ trợ kỹ thuật và thông tin tình báo cho Ryo trong các phi vụ điều tra.",
+        "personality": "Điềm tĩnh, sắc sảo, thông minh và phối hợp rất ăn ý với Ryo.",
+        "speech": "Lối trò chuyện thoải mái, tự nhiên, đôi lúc mỉa mai trêu chọc thói quen hành động liều lĩnh của Ryo. Tiếng Việt: dùng 'tôi/anh', giữ giọng bình thản, chuyên nghiệp.",
+        "selfTerms": [
+          "tôi (我)"
+        ],
+        "appearances": 6,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "cộng sự cung cấp tin tức và thiết bị theo dõi",
+            "address": "tôi/anh (我/阿獠)"
+          }
+        ]
+      },
+      {
+        "id": "ke-uy-hiep-makimura",
+        "name": "Kẻ uy hiếp Makimura",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Kẻ chủ mưu sai thuộc hạ phục kích và bắt cóc Makimura hòng đe dọa, nắm thóp Ryo.",
+        "personality": "Hiểm độc, tự đắc, thích kiểm soát và khoái trá khi dồn người khác vào bước đường cùng.",
+        "speech": "Giọng điệu khiêu khích, hể hả qua điện thoại; khi say khướt thì chuyển sang rủa xả cay độc. Tiếng Việt: xưng 'cô/anh', gọi Makimura là 'nó/người phụ nữ đó'.",
+        "selfTerms": [
+          "tao (我)",
+          "tôi (我)"
+        ],
+        "appearances": 5,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "kẻ dùng Makimura làm con tin đe dọa Ryo",
+            "address": "cô/anh (你); mày/tao (你)"
+          },
+          {
+            "to": "makimura",
+            "relation": "mục tiêu bị cô sai người phục kích",
+            "address": "nó (那女人, 她)"
+          }
+        ]
+      },
+      {
+        "id": "gai-bay-my-nhan",
+        "name": "Gái bẫy mỹ nhân",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Cô gái trẻ được cài bẫy lên giường với Ryo để dàn cảnh vu cáo và gây hiểu lầm giữa anh với Makimura.",
+        "personality": "Lẳng lơ, xảo trá, trơ trẽn và có tài đổi giọng đóng kịch vu khống người khác.",
+        "speech": "Lúc đầu nũng nịu, đong đưa gọi đối phương là chú; ngay khi có người vào lập tức gào khóc tố cáo đanh thép. Tiếng Việt: xưng 'em/chú' lúc dụ dỗ, đổi thành 'em/anh ta' khi lu loa đóng kịch.",
+        "selfTerms": [
+          "em (我)",
+          "tôi (我)"
+        ],
+        "appearances": 4,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "mục tiêu gài bẫy trên giường",
+            "address": "em/chú ((không rõ)/叔叔)"
+          },
+          {
+            "to": "makimura",
+            "relation": "người chứng kiến để cô vu cáo Ryo",
+            "address": "chị/anh ta (我/他)"
+          }
+        ]
+      },
+      {
+        "id": "bao-ve-toc-hoi",
+        "name": "Bảo vệ trọc đầu",
+        "nameJa": "",
+        "aliases": [
+          "Quái vật biển",
+          "海怪"
+        ],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Bảo vệ to con đầu trọc của tiệm kim hoàn General Joyeria, kẻ đụng độ và bị Ryo chơi khăm.",
+        "personality": "Hung dữ, nóng nảy, cậy sức mạnh cơ bắp và dễ phát điên khi bị trêu chọc ngoại hình.",
+        "speech": "Giọng quát tháo cộc cằn, sặc mùi giang hồ dọa giết. Tiếng Việt: xưng 'tao/mày', gầm gừ đe dọa kẻ cản đường.",
+        "selfTerms": [
+          "tao (我)"
+        ],
+        "appearances": 4,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "kẻ quấy rối tiệm kim hoàn General",
+            "address": "tao/mày (我/你, 小子); thằng khốn (混帳)"
+          }
+        ]
+      },
+      {
+        "id": "nguoi-say-ruou",
+        "name": "Người say rượu",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Kẻ say xỉn quậy phá tại quán karaoke Honky Tonk, vô tình phá đám bữa tiệc mừng của trùm giang hồ.",
+        "personality": "Bê tha, càn quấy lúc có men rượu nhưng hèn nhát, sợ sệt khi bị đánh đập.",
+        "speech": "Nói năng nhừa nhựa, lặp đi lặp lại vô nghĩa; khi bị đòn thì lắp bắp khóc lóc. Tiếng Việt: xưng 'tao/mày' lúc càn quấy, 'tôi/ông' khi bị dằn mặt.",
+        "selfTerms": [
+          "tôi (我)"
+        ],
+        "appearances": 4,
+        "relations": [
+          {
+            "to": "dan-em-lo-lang",
+            "relation": "sư đệ đi cùng quán karaoke",
+            "address": "tao/mày"
+          },
+          {
+            "to": "trum-vua-ra-tu",
+            "relation": "kẻ đánh đập vì làm hỏng tiệc mừng",
+            "address": "tôi/ông (你)"
+          }
+        ]
+      },
+      {
+        "id": "dan-em-lo-lang",
+        "name": "Đàn em lo lắng",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Đàn em đi cùng kẻ say xỉn vào quán bar Honky Tonk, luôn tìm cách khuyên can sư huynh tránh rắc rối.",
+        "personality": "Nhút nhát, biết sợ, luôn lo lắng chuốc vạ vào thân.",
+        "speech": "Giọng điệu sốt ruột, năn nỉ và hoang mang trước những trò quậy phá của sư huynh. Tiếng Việt: gọi 'sư huynh', xưng 'em/anh' lo sợ.",
+        "selfTerms": [
+          "em (我)"
+        ],
+        "appearances": 4,
+        "relations": [
+          {
+            "to": "nguoi-say-ruou",
+            "relation": "sư huynh cùng đi quán bar",
+            "address": "em/sư huynh ((không rõ)/師兄)"
+          }
+        ]
+      },
+      {
+        "id": "trum-vua-ra-tu",
+        "name": "Trùm vừa ra tù",
+        "nameJa": "",
+        "aliases": [
+          "阿辰",
+          "A Thần"
+        ],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Đại ca cộm cán của Long Thần Hội vừa mãn hạn tù, tổ chức ăn mừng tại quán Honky Tonk trước khi bị sát thủ tập kích.",
+        "personality": "Hách dịch, hung tợn, tự phụ về vị thế giang hồ và không tha cho kẻ làm mình mất mặt.",
+        "speech": "Lời lẽ trịch thượng, dằn mặt kẻ dưới cơ một cách tàn nhẫn. Tiếng Việt: xưng 'tao/mày', giọng đanh thép ra oai.",
+        "selfTerms": [
+          "tao (我)"
+        ],
+        "appearances": 3,
+        "relations": [
+          {
+            "to": "nguoi-say-ruou",
+            "relation": "kẻ say xỉn phá hỏng tiệc mừng ra tù",
+            "address": "tao/mày (我/你)"
+          }
+        ]
+      },
+      {
+        "id": "tinh-dich-makimura",
+        "name": "Tình địch Makimura",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Cô gái táo bạo tìm đến tận nhà Makimura để công khai tuyên bố là tình địch tranh giành tình cảm của Ryo.",
+        "personality": "Tự tin, bộc trực, không ngại ngần thách thức người khác trong chuyện tình cảm.",
+        "speech": "Giọng điệu dứt khoát, tự tin, mang sắc thái khiêu khích dí dỏm. Tiếng Việt: xưng 'tôi/cậu', giữ tông đĩnh đạc không nhượng bộ.",
+        "selfTerms": [
+          "tôi (我)"
+        ],
+        "appearances": 2,
+        "relations": [
+          {
+            "to": "makimura",
+            "relation": "tình địch tuyên chiến tình cảm đối với Ryo",
+            "address": "tôi/cậu ((không xưng)/你)"
+          }
+        ]
+      },
+      {
+        "id": "nu-trum-yunio",
+        "name": "Nữ trùm Yunio",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "adult",
+        "role": "Nữ lãnh đạo quý tộc trong tổ chức tội phạm Yunio, người trực tiếp chỉ huy các phi vụ đằng sau bức màn quyền quý.",
+        "personality": "Kiêu kỳ, trịch thượng, tàn độc và coi thường người khác như sâu bọ.",
+        "speech": "Lối nói mỉa mai sắc lạnh, bề ngoài dùng kính ngữ lịch thiệp nhưng ngầm chửi rủa cay nghiệt. Tiếng Việt: xưng 'ta/ông Saeba', giữ giọng quý phái nhưng buông lời miệt thị.",
+        "selfTerms": [
+          "ta (我)"
+        ],
+        "appearances": 2,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "đối thủ thuộc tổ chức tội phạm Yunio",
+            "address": "ta/ông Saeba (我/冴羽先生)"
+          }
+        ]
+      },
+      {
+        "id": "nguoi-thieu-no",
+        "name": "Người thiếu nợ",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "male",
+        "ageGroup": "adult",
+        "role": "Người lái xe tải chở tiền bị Ryo gài bẫy máu giả để ép đòi nợ và đoạt xe phục vụ kế hoạch.",
+        "personality": "Keo kiệt, tham tiền nhưng nhát gan sợ chết, sau đó cay cú vì phát hiện mình bị lừa.",
+        "speech": "Lúc đầu run sợ van lạy, sau đó tức tối mắng nhiếc kẻ chơi khăm mình. Tiếng Việt: xưng 'tôi/mày', bức xúc gay gắt.",
+        "selfTerms": [
+          "tôi (我)"
+        ],
+        "appearances": 2,
+        "relations": [
+          {
+            "to": "ryo",
+            "relation": "kẻ bị Ryo dàn cảnh đòi nợ cướp xe",
+            "address": "tôi/mày (我/你)"
+          }
+        ]
       }
     ]
   },
-  "rawPages": 220,
+  "rawPages": 216,
   "translatedPages": 0,
-  "pairedPages": 220,
+  "pairedPages": 216,
   "pairCount": 0,
   "isVerifiedByHuman": false,
   "source": "claude",
   "withRaw": true,
   "name": "city-hunter-deluxe-edition-raw",
-  "createdAt": 1790233620
+  "createdAt": 1790560754
 }

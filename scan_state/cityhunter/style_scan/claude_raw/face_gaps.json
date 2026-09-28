@@ -1,49 +1,645 @@
 [
   {
-    "id": "vo-si-nan-nhan",
-    "name": "Mita",
-    "nameJa": "三田",
-    "looks": "võ sĩ quyền anh đang giữ đai vô địch, tóc đen ngắn hơi rối, mặc bộ đồ chạy bộ màu đỏ cam quàng khăn đỏ, có mộ…",
+    "id": "con-gai-ryujin-nobuo",
+    "name": "Sayaka",
+    "nameJa": "沙也加",
+    "looks": "tóc đen dài gợn sóng, có thể thay đổi kiểu tóc/trang phục theo bối cảnh (đồng phục thủy thủ khi đi học, áo ngủ/robe ở nhà, trang phục da đen khi bị bắt cóc)",
     "have": 3,
     "candidates": [
       {
-        "page": "v01-CityhunterV01_024",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_024.png",
+        "page": "v02-CityhunterV02_123",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_123.png",
         "trans": null
       },
       {
-        "page": "v01-CityhunterV01_025",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_025.png",
+        "page": "v02-CityhunterV02_130",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_130.png",
         "trans": null
       },
       {
-        "page": "v01-CityhunterV01_026",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_026.png",
+        "page": "v02-CityhunterV02_136",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_136.png",
         "trans": null
       },
       {
-        "page": "v01-CityhunterV01_028",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_028.png",
+        "page": "v02-CityhunterV02_143",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_143.png",
         "trans": null
       },
       {
-        "page": "v01-CityhunterV01_029",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_029.png",
+        "page": "v02-CityhunterV02_149",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_149.png",
         "trans": null
       },
       {
-        "page": "v01-CityhunterV01_030",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_030.png",
+        "page": "v02-CityhunterV02_155",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_155.png",
         "trans": null
       },
       {
-        "page": "v01-CityhunterV01_032",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_032.png",
+        "page": "v02-CityhunterV02_169",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_169.png",
         "trans": null
       },
       {
-        "page": "v01-CityhunterV01_034",
-        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V01/City hunter V01_034.png",
+        "page": "v02-CityhunterV02_190",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_190.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "tuong-quan",
+    "name": "Tướng Quân",
+    "nameJa": "將軍",
+    "looks": "tóc đen chải ngược bóng mượt, khoác áo choàng/cape dài màu trắng, cười nham hiểm, tự xưng danh hiệu '將軍' (Tướ…",
+    "have": 2,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_011",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_011.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_025",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_025.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_031",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_031.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_035",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_035.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_044",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_044.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_055",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_055.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_059",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_059.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_084",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_084.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "ryujin-nobuo",
+    "name": "Ryujin Nobuo",
+    "nameJa": "龍神信男",
+    "looks": "đàn ông béo, hói đầu hoàn toàn, ria mép rậm, mặc áo khoác đỏ hở ngực để lộ khăn quàng, hội trưởng Long Thần H…",
+    "have": 3,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_106",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_106.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_108",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_108.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_110",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_110.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_112",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_112.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_115",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_115.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_117",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_117.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_120",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_120.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_122",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_122.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "ke-bi-tiem-angel-dust",
+    "name": "Kẻ bị tiêm Angel Dust",
+    "nameJa": "",
+    "looks": "đàn ông tóc đen rối, ngồi trên ghế đẩu, bị còng/trói tay khi đang được tiêm thuốc Angel Dust",
+    "have": 2,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_091",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_091.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_092",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_092.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_093",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_093.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_094",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_094.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_095",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_095.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "tu-nhan-mu-canh-sat",
+    "name": "Tù nhân mũ cảnh sát",
+    "nameJa": "",
+    "looks": "đội mũ lưỡi trai kiểu cảnh sát/quân đội, mặc áo da đen có xích, hai cổ tay bị còng/xích vào nhau, mỉm cười đi…",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_186",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_186.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_187",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_187.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_188",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_188.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_189",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_189.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_190",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_190.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_191",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_191.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_192",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_192.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_193",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_193.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "trum-buruo-isutan",
+    "name": "A Hổ",
+    "nameJa": "阿虎",
+    "looks": "đầu trọc, cơ bắp vạm vỡ, ria mép rậm, có dấu/hình xăm nhỏ trên trán, mặc áo da biker tua rua, cưỡi mô tô, thủ…",
+    "have": 3,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_163",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_163.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_190",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_190.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_192",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_192.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_193",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_193.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_194",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_194.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_199",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_199.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_200",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_200.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_201",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_201.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "dan-em-buruo-isutan",
+    "name": "Đàn em Buruo Isutan",
+    "nameJa": "",
+    "looks": "đàn ông to béo, đội mũ lưỡi trai kiểu da, ria mép rậm, mặc áo da đính xích, đàn em phi xa đảng Buruo Isutan",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_135",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_135.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_136",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_136.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_137",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_137.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_156",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_156.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_162",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_162.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_163",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_163.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_202",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_202.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "ga-bavaro",
+    "name": "Bavaro",
+    "nameJa": "巴伐羅",
+    "looks": "đầu trọc chừa chỏm tóc dựng phía trước, ria mép/râu cằm lún phún, đeo kính râm, tai đeo khuyên, đàn em băng B…",
+    "have": 2,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_192",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_192.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_193",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_193.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_195",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_195.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_196",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_196.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_197",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_197.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_198",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_198.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "truong-lao",
+    "name": "Trưởng Lão",
+    "nameJa": "長老",
+    "looks": "luôn xuất hiện dưới dạng bóng đen/silhouette toàn thân hoặc cận cảnh bàn tay, vóc dáng vạm vỡ, mặc vest tối m…",
+    "have": 0,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_055",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_055.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_056",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_056.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_057",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_057.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_058",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_058.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_059",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_059.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_096",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_096.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "nhan-vien-general",
+    "name": "Sa Triển",
+    "nameJa": "沙展",
+    "looks": "hói đầu hoàn toàn, mặt tròn, thân hình đẫy đà, mặc vest tối màu",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_024",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_024.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_030",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_030.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_031",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_031.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_032",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_032.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_033",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_033.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_034",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_034.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "nguoi-cung-cap-tin",
+    "name": "Người cung cấp tin",
+    "nameJa": "",
+    "looks": "tóc đen xoăn gợn sóng ngang vai, hay phản ứng cường điệu/trêu chọc Ryo, giọng thân mật gọi Ryo là 阿獠",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_013",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_013.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_032",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_032.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "ke-uy-hiep-makimura",
+    "name": "Kẻ uy hiếp Makimura",
+    "nameJa": "",
+    "looks": "tóc đen dài thẳng, mặc áo sơ mi/robe nhạt màu, ngồi gác chân trên bậu cửa sổ nhấp đồ uống, thái độ đắc ý/nham…",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_178",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_178.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_179",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_179.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_181",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_181.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_182",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_182.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "gai-bay-my-nhan",
+    "name": "Gái bẫy mỹ nhân",
+    "nameJa": "",
+    "looks": "tóc đen xoăn dài gợn sóng qua vai, xuất hiện trên giường/ga hình sao của ryo, giọng điệu trêu chọc/mỉa mai",
+    "have": 0,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_172",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_172.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_173",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_173.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_174",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_174.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "bao-ve-toc-hoi",
+    "name": "Bảo vệ trọc đầu",
+    "nameJa": "",
+    "looks": "đầu trọc hoàn toàn, mặt dữ tợn, hay nghiến răng, mặc vest/áo khoác tối màu, dùng dao/gậy đe dọa",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_016",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_016.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_017",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_017.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_019",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_019.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "nguoi-say-ruou",
+    "name": "Người say rượu",
+    "nameJa": "",
+    "looks": "tóc đen ngắn rối, đeo kính râm tròn, mặc áo khoác họa tiết loang lổ khoác ngoài áo ba lỗ, say xỉn, biểu cảm c…",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_061",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_061.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_062",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_062.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_063",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_063.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "dan-em-lo-lang",
+    "name": "Đàn em lo lắng",
+    "nameJa": "",
+    "looks": "tóc đen ngắn hơi xoăn, đeo kính gọng tròn, mặc áo sơ mi/áo khoác thường, hay lo lắng, gọi bạn là 師兄",
+    "have": 0,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_061",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_061.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_062",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_062.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_063",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_063.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "trum-vua-ra-tu",
+    "name": "Trùm vừa ra tù",
+    "nameJa": "",
+    "looks": "đàn ông hói đầu hoàn toàn, đeo kính râm gọng vuông mỏng, mặc vest đen thắt cà vạt, vừa ra tù",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_063",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_063.png",
+        "trans": null
+      },
+      {
+        "page": "v02-CityhunterV02_064",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_064.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "tinh-dich-makimura",
+    "name": "Tình địch Makimura",
+    "nameJa": "",
+    "looks": "tóc đen dài gợn sóng qua vai, mặc áo choàng/robe sáng màu buộc hờ, thái độ tự tin/trêu chọc",
+    "have": 1,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_207",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_207.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "nu-trum-yunio",
+    "name": "Nữ trùm Yunio",
+    "nameJa": "",
+    "looks": "tóc đen dài gợn sóng qua vai, mặc váy dạ hội sát vai sang trọng, đứng trong biệt thự treo nhiều tranh cổ điển…",
+    "have": 0,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_009",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_009.png",
+        "trans": null
+      }
+    ]
+  },
+  {
+    "id": "nguoi-thieu-no",
+    "name": "Người thiếu nợ",
+    "nameJa": "",
+    "looks": "đàn ông tóc đen ngắn hơi rối, đổ mồ hôi, lái xe tải vận chuyển, biểu cảm hoảng loạn rồi giận dữ",
+    "have": 0,
+    "candidates": [
+      {
+        "page": "v02-CityhunterV02_049",
+        "raw": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /City Hunter Deluxe Edition V02/City hunter V02_049.png",
         "trans": null
       }
     ]

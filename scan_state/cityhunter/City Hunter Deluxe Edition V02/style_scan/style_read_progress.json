@@ -1,0 +1,20 @@
+{
+  "status": "published",
+  "mode": "raw-only",
+  "pagesRead": 216,
+  "pagesTotal": 216,
+  "lastPageRead": "v02-CityhunterV02_218",
+  "nextPage": null,
+  "notRead": [],
+  "run": {
+    "root": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition ",
+    "volumes": [
+      "City Hunter Deluxe Edition V02"
+    ],
+    "pagesRead": 216,
+    "pagesTotal": 216,
+    "workDir": "/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition /style_scan/claude_raw"
+  },
+  "resume": "/style-read '/Users/hans/Documents/AI Manga/City Hunter/City Hunter Deluxe Edition ' --from 2 --to 2 --raw-only",
+  "updatedAt": 1790560756
+}

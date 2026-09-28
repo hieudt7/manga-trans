@@ -24,9 +24,8 @@ Nhân vật: ryo, makimura
 {"characters": [
   {"id": "makimura", "name": "Makimura", "nameJa": "槙村", "gender": "female", "ageGroup": "young_adult",
    "looks": "tóc đen dài gợn sóng, hay có biểu cảm cường điệu (khóc/la hét), lần đầu xuất hiện trực tiếp (trước chỉ nghe qua điện thoại)",
-   "faces": [{"page": "v01-CityhunterV01_108", "side": "raw", "half": "left", "box": [0.469, 0.399, 0.310, 0.138]}],
    "addresses": {"ryo": {"default": "tôi/A Diêu (我/阿獠)", "moods": {"trách móc": "tôi/A Diêu, gay gắt hơn"}}},
-   "note": "Rất giống nguoi-cung-cap-tin (HELD OPEN): cùng tóc xoăn gợn sóng, cùng kiểu phản ứng cường điệu trêu/trách Ryo, cùng gọi Ryo là 阿獠, và ở đây tự nhận có hợp tác 'kinh doanh' với Ryo — nghi ngờ hai id là một người nhưng chưa gộp."},
+   "note": "Rất giống nguoi-cung-cap-tin (HELD OPEN): cùng tóc xoăn gợn sóng, cùng kiểu phản ứng cường điệu trêu/trách Ryo, cùng gọi Ryo là 阿獠, và ở đây tự nhận có hợp tác 'kinh doanh' với Ryo — nghi ngờ hai id là một người nhưng chưa gộp. SỬA 2026-09-24: face box ở panel 2 trang này (0.469,0.399,0.310,0.138) đã bị gỡ khỏi entry này — người dùng xem app phát hiện đó thực ra là mặt RYO đang phản ứng (khóc giả/nhại lại) khi bị Makimura mắng qua điện thoại, không phải mặt Makimura. Kiểu vẽ tóc rối tương tự Ryo dễ gây nhầm khi crop một mình không có ngữ cảnh câu thoại."},
   {"id": "ryo", "name": "", "nameJa": "",
    "addresses": {"makimura": {"default": "tôi/Makimura (我/槙村)", "moods": {"thờ ơ": "tôi/槙村, giọng bỡn cợt"}}}}
 ]}

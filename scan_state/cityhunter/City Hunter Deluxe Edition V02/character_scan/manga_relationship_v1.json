@@ -1,0 +1,809 @@
+{
+  "characters": [
+    {
+      "id": "ryo",
+      "name": "Saeba Ryo",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Thợ săn thành phố (City Hunter), một tay súng cừ khôi chuyên giải quyết các phi vụ nguy hiểm dưới vỏ bọc một kẻ trăng hoa hám sắc.",
+        "Bên ngoài cợt nhả, bỡn cợt và thích trêu chọc phụ nữ, nhưng khi vào việc lại cực kỳ nhạy bén, lạnh lùng, bản lĩnh và hết lòng bảo vệ cộng sự."
+      ]
+    },
+    {
+      "id": "makimura",
+      "name": "Makimura Kaori",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Cộng sự của Ryo và là em gái người cộng sự quá cố, người quán xuyến các hợp đồng và kiềm chế thói trăng hoa của anh.",
+        "Bộc trực, nóng tính, giàu lòng trắc ẩn và rất kiên cường trước nguy hiểm; luôn đấu khẩu với Ryo nhưng tuyệt đối tin tưởng anh."
+      ]
+    },
+    {
+      "id": "con-gai-ryujin-nobuo",
+      "name": "Sayaka",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/con-gai-ryujin-nobuo/0.png",
+        "faces/con-gai-ryujin-nobuo/1.png",
+        "faces/con-gai-ryujin-nobuo/2.png"
+      ],
+      "traits": [
+        "Con gái của hội trưởng Long Thần Hội, một nữ sinh ngổ ngáo mang nhiều u uất và khao khát được cha quan tâm.",
+        "Bướng bỉnh, ngang tàng và thích nổi loạn để gây chú ý, nhưng bản chất ngây thơ, giàu tình cảm và dễ tổn thương."
+      ]
+    },
+    {
+      "id": "tuong-quan",
+      "name": "Tướng Quân",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/tuong-quan/0.png",
+        "faces/tuong-quan/1.png"
+      ],
+      "traits": [
+        "Chỉ huy đội cận vệ của tổ chức tội phạm Yunio, ngụy trang dưới vỏ bọc chủ tiệm kim hoàn General Joyeria để thanh trừng đối thủ.",
+        "Kiêu ngạo, tàn ác, ám ảnh bệnh hoạn về sự thuần khiết và cái đẹp, nhưng đớn hèn, khiếp nhược trước cấp trên."
+      ]
+    },
+    {
+      "id": "ryujin-nobuo",
+      "name": "Ryujin Nobuo",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/ryujin-nobuo/0.png",
+        "faces/ryujin-nobuo/1.png",
+        "faces/ryujin-nobuo/2.png"
+      ],
+      "traits": [
+        "Hội trưởng Long Thần Hội, một tay trùm xảo quyệt thuê Ryo bảo vệ con gái nhưng ngầm giở nhiều mưu mô để ép anh làm con rể.",
+        "Thực dụng, ma mãnh, lật lọng trơ trẽn nhưng hết mực thương yêu và lo lắng cho tương lai của con gái."
+      ]
+    },
+    {
+      "id": "trum-angel-dust",
+      "name": "Trùm Angel Dust",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [],
+      "traits": [
+        "Trùm tổ chức tội phạm đứng sau loại thuốc Angel Dust, kẻ muốn thâu tóm thị trường ma túy bằng cách biến con người thành những cỗ máy giết người.",
+        "Ngạo mạn, tàn độc và coi mạng người như cỏ rác. Hắn thích thao túng người khác bằng tiền bạc hoặc sự đe dọa."
+      ]
+    },
+    {
+      "id": "ke-bi-tiem-angel-dust",
+      "name": "Kẻ bị tiêm Angel Dust",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [],
+      "traits": [
+        "Sát thủ cảm tử bị biến đổi thành siêu chiến binh nhờ thuốc kích thích Angel Dust, mang chân giả giấu súng phóng lựu.",
+        "Cuồng loạn, bất chấp tính mạng, ôm hận thù sâu sắc và coi việc tiêu diệt Ryo là lẽ sống duy nhất."
+      ]
+    },
+    {
+      "id": "chi-gai-yuko",
+      "name": "Natsumi",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Thân chủ của Ryo, chị gái của nạn nhân Yuko. Cô thuê Ryo để điều tra cái chết của em gái mình.",
+        "Kiên cường, đau khổ nhưng quyết tâm tìm ra sự thật. Cô không tin tưởng cảnh sát và đặt hết hy vọng vào City Hunter."
+      ]
+    },
+    {
+      "id": "tu-nhan-mu-canh-sat",
+      "name": "Tù nhân mũ cảnh sát",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/tu-nhan-mu-canh-sat/0.png"
+      ],
+      "traits": [
+        "Tù nhân bị trói chung với Sayaka, thực chất là thân phận cải trang tinh quái của Ryo nhằm thâm nhập hang ổ của băng đua xe.",
+        "Láu cá, tưng tửng, thích trêu chọc và đóng kịch đánh lừa người khác bằng vẻ ngô nghê giả tạo."
+      ]
+    },
+    {
+      "id": "inagaki-kouji",
+      "name": "Inagaki Kouji",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Kẻ sát nhân đã bắn chết Ogino, sau đó trở thành võ sĩ quyền anh để che đậy tội ác.",
+        "Xảo quyệt, tàn nhẫn và luôn tự mãn về sức mạnh của mình. Hắn không ngần ngại dùng thủ đoạn bẩn thỉu để chiến thắng."
+      ]
+    },
+    {
+      "id": "iwasaki",
+      "name": "Iwasaki Megumi",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Khách hàng của Ryo, một bác sĩ 27 tuổi đang mắc bệnh hiểm nghèo, muốn thuê Ryo báo thù cho người yêu.",
+        "Trầm tĩnh, kiên định nhưng mang nỗi đau sâu sắc. Cô chấp nhận đánh đổi tất cả để đạt được mục đích cuối cùng."
+      ]
+    },
+    {
+      "id": "vo-si-nan-nhan",
+      "name": "Mita",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Nhà vô địch quyền anh bị kẻ xấu ép bán độ và đe dọa gia đình.",
+        "Trung thực, trọng danh dự nhưng bị hoàn cảnh dồn vào đường cùng."
+      ]
+    },
+    {
+      "id": "trum-buruo-isutan",
+      "name": "A Hổ",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/trum-buruo-isutan/0.png",
+        "faces/trum-buruo-isutan/1.png",
+        "faces/trum-buruo-isutan/2.png"
+      ],
+      "traits": [
+        "Thủ lĩnh băng mô tô Buruo Isutan, kẻ si mê Sayaka mù quáng và tổ chức bắt cóc cô về làm vợ.",
+        "Hung bạo, gia trưởng, thích thị uy với đàn em bằng đòn roi nhưng nông cạn và dễ mất tự chủ khi bị chọc trúng chỗ nhạy cảm."
+      ]
+    },
+    {
+      "id": "dan-em-buruo-isutan",
+      "name": "Đàn em Buruo Isutan",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/dan-em-buruo-isutan/0.png"
+      ],
+      "traits": [
+        "Đàn em trung niên trong băng mô tô Buruo Isutan, nhận lệnh thủ lĩnh đi săn lùng và bắt cóc Sayaka.",
+        "Hống hách, cậy đông bắt nạt kẻ yếu nhưng nhát cáy và dễ bị hạ gục trước dân chuyên nghiệp."
+      ]
+    },
+    {
+      "id": "ga-bavaro",
+      "name": "Bavaro",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/ga-bavaro/0.png",
+        "faces/ga-bavaro/1.png"
+      ],
+      "traits": [
+        "Hôn phu được sắp đặt của Sayaka, người kế thừa đời thứ hai của băng đảng Thanh Kiên Hội.",
+        "Tự ti về chiều cao, sĩ diện hão và ngốc nghếch nhưng si tình và một mực muốn kết hôn với Sayaka."
+      ]
+    },
+    {
+      "id": "truong-lao",
+      "name": "Trưởng Lão",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [],
+      "traits": [
+        "Nhân vật lãnh đạo cấp cao đầy quyền lực của tổ chức tội phạm Yunio, người giáng án phạt lên Tướng Quân.",
+        "Lạnh lùng, uy nghiêm tột bực, tàn nhẫn và không dung thứ cho bất kỳ sai lầm nào của thuộc hạ."
+      ]
+    },
+    {
+      "id": "nhan-vien-general",
+      "name": "Sa Triển",
+      "gender": "male",
+      "ageGroup": "middle_age",
+      "faces": [
+        "faces/nhan-vien-general/0.png"
+      ],
+      "traits": [
+        "Thuộc hạ thân tín của Tướng Quân tại tiệm kim hoàn General Joyeria, kẻ vô tình bị gài máy nghe lén.",
+        "Khúm núm, tận tụy nhưng yếu đuối, sợ chết và hoàn toàn mất tinh thần khi bị tra tấn."
+      ]
+    },
+    {
+      "id": "nguoi-cung-cap-tin",
+      "name": "Người cung cấp tin",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Cộng sự bí mật hỗ trợ kỹ thuật và thông tin tình báo cho Ryo trong các phi vụ điều tra.",
+        "Điềm tĩnh, sắc sảo, thông minh và phối hợp rất ăn ý với Ryo."
+      ]
+    },
+    {
+      "id": "ke-uy-hiep-makimura",
+      "name": "Kẻ uy hiếp Makimura",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/ke-uy-hiep-makimura/0.png"
+      ],
+      "traits": [
+        "Kẻ chủ mưu sai thuộc hạ phục kích và bắt cóc Makimura hòng đe dọa, nắm thóp Ryo.",
+        "Hiểm độc, tự đắc, thích kiểm soát và khoái trá khi dồn người khác vào bước đường cùng."
+      ]
+    },
+    {
+      "id": "gai-bay-my-nhan",
+      "name": "Gái bẫy mỹ nhân",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Cô gái trẻ được cài bẫy lên giường với Ryo để dàn cảnh vu cáo và gây hiểu lầm giữa anh với Makimura.",
+        "Lẳng lơ, xảo trá, trơ trẽn và có tài đổi giọng đóng kịch vu khống người khác."
+      ]
+    },
+    {
+      "id": "bao-ve-toc-hoi",
+      "name": "Bảo vệ trọc đầu",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/bao-ve-toc-hoi/0.png"
+      ],
+      "traits": [
+        "Bảo vệ to con đầu trọc của tiệm kim hoàn General Joyeria, kẻ đụng độ và bị Ryo chơi khăm.",
+        "Hung dữ, nóng nảy, cậy sức mạnh cơ bắp và dễ phát điên khi bị trêu chọc ngoại hình."
+      ]
+    },
+    {
+      "id": "nguoi-say-ruou",
+      "name": "Người say rượu",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/nguoi-say-ruou/0.png"
+      ],
+      "traits": [
+        "Kẻ say xỉn quậy phá tại quán karaoke Honky Tonk, vô tình phá đám bữa tiệc mừng của trùm giang hồ.",
+        "Bê tha, càn quấy lúc có men rượu nhưng hèn nhát, sợ sệt khi bị đánh đập."
+      ]
+    },
+    {
+      "id": "dan-em-lo-lang",
+      "name": "Đàn em lo lắng",
+      "gender": "male",
+      "ageGroup": "young_adult",
+      "faces": [],
+      "traits": [
+        "Đàn em đi cùng kẻ say xỉn vào quán bar Honky Tonk, luôn tìm cách khuyên can sư huynh tránh rắc rối.",
+        "Nhút nhát, biết sợ, luôn lo lắng chuốc vạ vào thân."
+      ]
+    },
+    {
+      "id": "trum-vua-ra-tu",
+      "name": "Trùm vừa ra tù",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [
+        "faces/trum-vua-ra-tu/0.png"
+      ],
+      "traits": [
+        "Đại ca cộm cán của Long Thần Hội vừa mãn hạn tù, tổ chức ăn mừng tại quán Honky Tonk trước khi bị sát thủ tập kích.",
+        "Hách dịch, hung tợn, tự phụ về vị thế giang hồ và không tha cho kẻ làm mình mất mặt."
+      ]
+    },
+    {
+      "id": "tinh-dich-makimura",
+      "name": "Tình địch Makimura",
+      "gender": "female",
+      "ageGroup": "young_adult",
+      "faces": [
+        "faces/tinh-dich-makimura/0.png"
+      ],
+      "traits": [
+        "Cô gái táo bạo tìm đến tận nhà Makimura để công khai tuyên bố là tình địch tranh giành tình cảm của Ryo.",
+        "Tự tin, bộc trực, không ngại ngần thách thức người khác trong chuyện tình cảm."
+      ]
+    },
+    {
+      "id": "nu-trum-yunio",
+      "name": "Nữ trùm Yunio",
+      "gender": "female",
+      "ageGroup": "adult",
+      "faces": [],
+      "traits": [
+        "Nữ lãnh đạo quý tộc trong tổ chức tội phạm Yunio, người trực tiếp chỉ huy các phi vụ đằng sau bức màn quyền quý.",
+        "Kiêu kỳ, trịch thượng, tàn độc và coi thường người khác như sâu bọ."
+      ]
+    },
+    {
+      "id": "nguoi-thieu-no",
+      "name": "Người thiếu nợ",
+      "gender": "male",
+      "ageGroup": "adult",
+      "faces": [],
+      "traits": [
+        "Người lái xe tải chở tiền bị Ryo gài bẫy máu giả để ép đòi nợ và đoạt xe phục vụ kế hoạch.",
+        "Keo kiệt, tham tiền nhưng nhát gan sợ chết, sau đó cay cú vì phát hiện mình bị lừa."
+      ]
+    }
+  ],
+  "relationshipTree": [
+    {
+      "characterId": "ryo",
+      "related": [
+        {
+          "characterId": "makimura",
+          "coOccurrence": 141,
+          "label": "cộng sự thân thiết, luôn cãi cọ nhưng hết lòng bảo bọc",
+          "description": "tôi/Makimura (我/槙村); tôi/Hương (我/阿香); tôi/cậu; tôi/em"
+        },
+        {
+          "characterId": "con-gai-ryujin-nobuo",
+          "coOccurrence": 43,
+          "label": "khách hàng kiêm học trò bất đắc dĩ",
+          "description": "tôi/em (我/你); em ((không xưng)/沙也加); cô Sayaka (沙也加小姐)"
+        },
+        {
+          "characterId": "ryujin-nobuo",
+          "coOccurrence": 22,
+          "label": "thân chủ xảo quyệt, đối tác làm ăn ma mãnh",
+          "description": "tôi/ông (無/你); tao/mày (我/你); lão cáo già ((không xưng)/老狐狸)"
+        },
+        {
+          "characterId": "tuong-quan",
+          "coOccurrence": 20,
+          "label": "kẻ thù nguy hiểm chỉ huy đội cận vệ",
+          "description": "Tướng Quân ((không xưng)/將軍); tao/Tướng Quân (我/將軍)"
+        },
+        {
+          "characterId": "ke-bi-tiem-angel-dust",
+          "coOccurrence": 13,
+          "label": "sát thủ liều mạng bị biến đổi bởi Angel Dust",
+          "description": "tôi/ngươi ((không xưng)/你)"
+        },
+        {
+          "characterId": "nguoi-cung-cap-tin",
+          "coOccurrence": 6,
+          "label": "người hỗ trợ kỹ thuật và thông tin",
+          "description": "tôi/cô"
+        },
+        {
+          "characterId": "trum-angel-dust",
+          "coOccurrence": 16,
+          "label": "đối thủ, khách hàng cũ",
+          "description": "tôi/ông"
+        },
+        {
+          "characterId": "inagaki-kouji",
+          "coOccurrence": 8,
+          "label": "đối thủ",
+          "description": "tôi/Inagaki"
+        },
+        {
+          "characterId": "iwasaki",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/cô"
+        },
+        {
+          "characterId": "chi-gai-yuko",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/cô"
+        }
+      ]
+    },
+    {
+      "characterId": "makimura",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 141,
+          "label": "cộng sự, người luôn cằn nhằn nhưng tuyệt đối tin tưởng",
+          "description": "tôi/A Liêu (我/阿獠); tôi/anh (我/你); đồ khốn/mày (混蛋/你)"
+        },
+        {
+          "characterId": "ryujin-nobuo",
+          "coOccurrence": 14,
+          "label": "thân chủ giảo hoạt",
+          "description": "tôi/ông (無/無); tôi/lão cáo già này (無/這老狐狸)"
+        },
+        {
+          "characterId": "tuong-quan",
+          "coOccurrence": 13,
+          "label": "kẻ bắt cóc đe dọa tính mạng",
+          "description": "tôi/ngươi"
+        },
+        {
+          "characterId": "tinh-dich-makimura",
+          "coOccurrence": 2,
+          "label": "người tự xưng là tình địch cạnh tranh Ryo",
+          "description": "tôi/cô ((không xưng)/你)"
+        },
+        {
+          "characterId": "chi-gai-yuko",
+          "coOccurrence": 1,
+          "label": "người quen",
+          "description": "tôi/cô"
+        }
+      ]
+    },
+    {
+      "characterId": "con-gai-ryujin-nobuo",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 43,
+          "label": "gia sư kiêm vệ sĩ do cha cô thuê",
+          "description": "tôi/anh (我/你); tôi/thằng nhóc này ((không xưng)/這小子); anh (無/你); Ryo ((không xưng)/獠)"
+        },
+        {
+          "characterId": "ga-bavaro",
+          "coOccurrence": 6,
+          "label": "hôn phu sắp đặt mà cô ghét bỏ",
+          "description": "tôi/Sally ((không xưng)/莎莉); thằng đệ nhị đại lùn tịt ((không xưng)/矮仔第二代仔)"
+        }
+      ]
+    },
+    {
+      "characterId": "tuong-quan",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 20,
+          "label": "kẻ thù muốn trừ khử để phục hồi danh dự",
+          "description": "ngươi (冴羽); Saeba Ryo ((không xưng)/冴羽獠); ta/ngươi (我/你)"
+        },
+        {
+          "characterId": "nhan-vien-general",
+          "coOccurrence": 7,
+          "label": "thuộc hạ bị tra khảo và thủ tiêu",
+          "description": "ta/tụi bây (我/你們); ta/mày (我/你, 沙展)"
+        },
+        {
+          "characterId": "makimura",
+          "coOccurrence": 13,
+          "label": "con tin kiêm vật tế máu",
+          "description": "ta/A Hương (我/阿香); con này ((không xưng)/這女的)"
+        },
+        {
+          "characterId": "truong-lao",
+          "coOccurrence": 7,
+          "label": "cấp trên tàn bạo trong tổ chức",
+          "description": "con/ngài (請...); Trưởng Lão (長老)"
+        }
+      ]
+    },
+    {
+      "characterId": "ryujin-nobuo",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 22,
+          "label": "khách hàng thuê Ryo bảo vệ con gái, đối tác ma mãnh",
+          "description": "tôi/cậu (我/你); tao/thằng cáo già (無/狐狸); cậu Saeba (冴羽, 冴羽仔)"
+        },
+        {
+          "characterId": "makimura",
+          "coOccurrence": 14,
+          "label": "cộng sự của Ryo",
+          "description": "tôi/cô (我/小姐)"
+        }
+      ]
+    },
+    {
+      "characterId": "trum-angel-dust",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 16,
+          "label": "đối thủ",
+          "description": "ta/cậu"
+        }
+      ]
+    },
+    {
+      "characterId": "ke-bi-tiem-angel-dust",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 13,
+          "label": "sát thủ liều chết được tiêm thuốc Angel Dust",
+          "description": "tao/mày (我/你); tao/Saeba (我/冴羽)"
+        }
+      ]
+    },
+    {
+      "characterId": "chi-gai-yuko",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/anh"
+        }
+      ]
+    },
+    {
+      "characterId": "tu-nhan-mu-canh-sat",
+      "related": [
+        {
+          "characterId": "con-gai-ryujin-nobuo",
+          "coOccurrence": 11,
+          "label": "bạn đồng hành an ủi cô khi bị bắt giữ",
+          "description": "Sayaka ((không xưng)/沙也加)"
+        },
+        {
+          "characterId": "ga-bavaro",
+          "coOccurrence": 6,
+          "label": "người trêu chọc và lập giao kèo im lặng với Bavaro",
+          "description": "cậu ((không xưng)/你); Đệ Nhị Đại (第二代)"
+        }
+      ]
+    },
+    {
+      "characterId": "inagaki-kouji",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 8,
+          "label": "đối thủ",
+          "description": "tao/mày"
+        }
+      ]
+    },
+    {
+      "characterId": "iwasaki",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 12,
+          "label": "khách hàng",
+          "description": "tôi/anh"
+        }
+      ]
+    },
+    {
+      "characterId": "vo-si-nan-nhan",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 6,
+          "label": "người được cứu",
+          "description": "tôi/anh"
+        }
+      ]
+    },
+    {
+      "characterId": "trum-buruo-isutan",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 4,
+          "label": "tình địch tranh giành Sayaka",
+          "description": "tao/mày (我/你)"
+        },
+        {
+          "characterId": "con-gai-ryujin-nobuo",
+          "coOccurrence": 8,
+          "label": "mục tiêu theo đuổi kiêm bắt cóc",
+          "description": "tôi/Sari (我/莎莉); tôi/cô (我/你)"
+        },
+        {
+          "characterId": "dan-em-buruo-isutan",
+          "coOccurrence": 3,
+          "label": "đàn em trong băng biker",
+          "description": "tao/tụi bây (我/你們)"
+        },
+        {
+          "characterId": "ga-bavaro",
+          "coOccurrence": 2,
+          "label": "thuộc hạ trong băng",
+          "description": "Bavaro ((không xưng)/巴伐羅)"
+        }
+      ]
+    },
+    {
+      "characterId": "dan-em-buruo-isutan",
+      "related": [
+        {
+          "characterId": "con-gai-ryujin-nobuo",
+          "coOccurrence": 5,
+          "label": "mục tiêu bắt cóc theo lệnh",
+          "description": "chúng tôi/cô (我們/你)"
+        },
+        {
+          "characterId": "trum-buruo-isutan",
+          "coOccurrence": 3,
+          "label": "đại ca chỉ huy",
+          "description": "đại ca (老大)"
+        },
+        {
+          "characterId": "ryo",
+          "coOccurrence": 6,
+          "label": "kẻ can thiệp cản đường",
+          "description": "ông ((không xưng)/阿叔)"
+        }
+      ]
+    },
+    {
+      "characterId": "ga-bavaro",
+      "related": [
+        {
+          "characterId": "con-gai-ryujin-nobuo",
+          "coOccurrence": 6,
+          "label": "hôn thê được sắp đặt",
+          "description": "anh/Sayaka (我/沙也加); tôi/cô (我/你)"
+        },
+        {
+          "characterId": "tu-nhan-mu-canh-sat",
+          "coOccurrence": 6,
+          "label": "đồng đảng lập giao kèo giữ bí mật",
+          "description": "tôi/cậu (我/你)"
+        },
+        {
+          "characterId": "trum-buruo-isutan",
+          "coOccurrence": 2,
+          "label": "thủ lĩnh băng đảng",
+          "description": "đại ca (老大)"
+        }
+      ]
+    },
+    {
+      "characterId": "truong-lao",
+      "related": [
+        {
+          "characterId": "tuong-quan",
+          "coOccurrence": 7,
+          "label": "cấp dưới vô dụng bị trừng phạt đóng dấu",
+          "description": "ta/Tướng Quân (我/將軍); tao/mày (我/你)"
+        }
+      ]
+    },
+    {
+      "characterId": "nhan-vien-general",
+      "related": [
+        {
+          "characterId": "tuong-quan",
+          "coOccurrence": 7,
+          "label": "chủ nhân tàn độc",
+          "description": "Tướng Quân đại nhân (將軍大人)"
+        }
+      ]
+    },
+    {
+      "characterId": "nguoi-cung-cap-tin",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 6,
+          "label": "cộng sự cung cấp tin tức và thiết bị theo dõi",
+          "description": "tôi/anh (我/阿獠)"
+        }
+      ]
+    },
+    {
+      "characterId": "ke-uy-hiep-makimura",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 5,
+          "label": "kẻ dùng Makimura làm con tin đe dọa Ryo",
+          "description": "cô/anh (你); mày/tao (你)"
+        },
+        {
+          "characterId": "makimura",
+          "coOccurrence": 3,
+          "label": "mục tiêu bị cô sai người phục kích",
+          "description": "nó (那女人, 她)"
+        }
+      ]
+    },
+    {
+      "characterId": "gai-bay-my-nhan",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 4,
+          "label": "mục tiêu gài bẫy trên giường",
+          "description": "em/chú ((không rõ)/叔叔)"
+        },
+        {
+          "characterId": "makimura",
+          "coOccurrence": 3,
+          "label": "người chứng kiến để cô vu cáo Ryo",
+          "description": "chị/anh ta (我/他)"
+        }
+      ]
+    },
+    {
+      "characterId": "bao-ve-toc-hoi",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 4,
+          "label": "kẻ quấy rối tiệm kim hoàn General",
+          "description": "tao/mày (我/你, 小子); thằng khốn (混帳)"
+        }
+      ]
+    },
+    {
+      "characterId": "nguoi-say-ruou",
+      "related": [
+        {
+          "characterId": "dan-em-lo-lang",
+          "coOccurrence": 4,
+          "label": "sư đệ đi cùng quán karaoke",
+          "description": "tao/mày"
+        },
+        {
+          "characterId": "trum-vua-ra-tu",
+          "coOccurrence": 2,
+          "label": "kẻ đánh đập vì làm hỏng tiệc mừng",
+          "description": "tôi/ông (你)"
+        }
+      ]
+    },
+    {
+      "characterId": "dan-em-lo-lang",
+      "related": [
+        {
+          "characterId": "nguoi-say-ruou",
+          "coOccurrence": 4,
+          "label": "sư huynh cùng đi quán bar",
+          "description": "em/sư huynh ((không rõ)/師兄)"
+        }
+      ]
+    },
+    {
+      "characterId": "trum-vua-ra-tu",
+      "related": [
+        {
+          "characterId": "nguoi-say-ruou",
+          "coOccurrence": 2,
+          "label": "kẻ say xỉn phá hỏng tiệc mừng ra tù",
+          "description": "tao/mày (我/你)"
+        }
+      ]
+    },
+    {
+      "characterId": "tinh-dich-makimura",
+      "related": [
+        {
+          "characterId": "makimura",
+          "coOccurrence": 2,
+          "label": "tình địch tuyên chiến tình cảm đối với Ryo",
+          "description": "tôi/cậu ((không xưng)/你)"
+        }
+      ]
+    },
+    {
+      "characterId": "nu-trum-yunio",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 2,
+          "label": "đối thủ thuộc tổ chức tội phạm Yunio",
+          "description": "ta/ông Saeba (我/冴羽先生)"
+        }
+      ]
+    },
+    {
+      "characterId": "nguoi-thieu-no",
+      "related": [
+        {
+          "characterId": "ryo",
+          "coOccurrence": 2,
+          "label": "kẻ bị Ryo dàn cảnh đòi nợ cướp xe",
+          "description": "tôi/mày (我/你)"
+        }
+      ]
+    }
+  ],
+  "isVerifiedByHuman": false
+}
