@@ -32,6 +32,47 @@ fn sfx_retry_hint(language: Language) -> String {
 /// Placeholder so the renderer always has something to lay out.
 const SILENCE_MARKER: &str = ".\n.\n.";
 
+/// How many times a single block gets sent back for violating the "tôi...cậu"
+/// ban before we give up and leave it as-is — bounded so a model that keeps
+/// picking the forbidden pair doesn't loop forever on one line.
+const MAX_ADDRESS_RETRIES: usize = 2;
+
+/// True when a translated line uses "tôi" for the speaker and "cậu" for the
+/// listener together — the exact adult-peer pattern `VIETNAMESE_ADDRESS_GUIDANCE`
+/// forbids (see its WRONG examples). The prompt asks the model not to do this,
+/// but nothing in an LLM's decoding guarantees it actually won't — this is the
+/// deterministic backstop, checked after the fact on every block regardless of
+/// whether the characters involved have a profile.
+///
+/// Word-boundary matched so "cậu" inside another word does not fire, and a
+/// genuine teen cậu/tớ pair does not either — teens use "tớ" for themselves,
+/// never "tôi", so requiring both words in the same line keeps this narrow to
+/// the banned adult pairing rather than every line that merely contains "cậu"
+/// (which also appears in family address, "cậu/mợ", unrelated to this rule).
+fn violates_toi_cau_address(text: &str) -> bool {
+    contains_word(text, "tôi") && contains_word(text, "cậu")
+}
+
+fn contains_word(text: &str, word: &str) -> bool {
+    text.to_lowercase()
+        .split(|c: char| !c.is_alphanumeric())
+        .any(|w| w == word)
+}
+
+/// Nudge for a block that just violated the ban above — told what it wrote and
+/// why that pairing does not apply, mirroring `sfx_retry_hint`'s pattern of
+/// naming the exact mistake rather than repeating the general rule.
+fn address_retry_hint(previous: &str) -> String {
+    format!(
+        "IMPORTANT: Your last translation of this block was \"{previous}\", which uses \
+         \"tôi\" for the speaker and \"cậu\" for the listener in the same line. That \
+         pairing is FORBIDDEN here (VIETNAMESE_ADDRESS_GUIDANCE): it is not an established \
+         teen cậu/tớ pair, and not a senior addressing a junior. Rewrite this block using \
+         \"tôi\" + \"anh\" (male listener) or \"tôi\" + \"cô\" (female listener) instead, \
+         keeping the rest of the wording as close to your previous translation as possible."
+    )
+}
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct TranslateStats {
     /// Blocks served from the SFX dictionary — no LLM call.
@@ -225,6 +266,43 @@ pub async fn translate_page(
         }
     }
 
+    // ── 3.5. Catch any "tôi...cậu" the model wrote despite the ban ────────────
+    for retry in 1..=MAX_ADDRESS_RETRIES {
+        let offenders: Vec<usize> = doc
+            .text_blocks
+            .iter()
+            .enumerate()
+            .filter(|(_, b)| b.translation.as_deref().is_some_and(violates_toi_cau_address))
+            .map(|(i, _)| i)
+            .collect();
+        if offenders.is_empty() {
+            break;
+        }
+        tracing::warn!(retry, count = offenders.len(), "retrying tôi/cậu violations");
+        for index in offenders {
+            let previous = doc.text_blocks[index].translation.clone().unwrap_or_default();
+            let hint = address_retry_hint(&previous);
+            let context = match remap_context(page_context, &[index]) {
+                Some(ctx) => format!("{ctx}\n\n{hint}"),
+                None => hint,
+            };
+            doc.text_blocks[index].translation = None;
+            if doc.text_blocks[index].balloon_fitted || is_inside_balloon(&doc.text_blocks[index], &doc.balloons) {
+                llm.translate_with_context(&mut doc.text_blocks[index], target_language, Some(&context)).await?;
+            } else {
+                let mut selection = BlockSelection::from_indices_with_balloons(
+                    &mut doc.text_blocks, &[index], &doc.balloons,
+                );
+                llm.translate_with_context(&mut selection, target_language, Some(&context)).await?;
+            }
+            // A block that comes back empty from a targeted retry is worse than
+            // the flawed-but-present translation it had — restore rather than lose it.
+            if !has_translation(&doc.text_blocks[index]) {
+                doc.text_blocks[index].translation = Some(previous);
+            }
+        }
+    }
+
     // ── 4. Learn the SFX we just paid for, then backfill hopeless blocks ─────
     for block in &doc.text_blocks {
         let (Some(source), Some(translation)) =
@@ -317,6 +395,32 @@ pub async fn translate_block(
             .await?;
     }
 
+    for _ in 1..=MAX_ADDRESS_RETRIES {
+        let Some(previous) = block.translation.clone().filter(|t| violates_toi_cau_address(t))
+        else {
+            break;
+        };
+        tracing::warn!("retrying tôi/cậu violation");
+        let hint = address_retry_hint(&previous);
+        let retry_context = match remap_context(page_context, &[document_index]) {
+            Some(ctx) => format!("{ctx}\n\n{hint}"),
+            None => hint,
+        };
+        block.translation = None;
+        if block.balloon_fitted || is_inside_balloon(block, balloons) {
+            llm.translate_with_context(block, target_language, Some(&retry_context)).await?;
+        } else {
+            let mut selection = BlockSelection::from_indices_with_balloons(
+                std::slice::from_mut(block), &[0], balloons,
+            );
+            llm.translate_with_context(&mut selection, target_language, Some(&retry_context))
+                .await?;
+        }
+        if !has_translation(block) {
+            block.translation = Some(previous);
+        }
+    }
+
     if memoisable {
         if let Some(translation) = block.translation.as_deref() {
             dictionary.learn(&language_key, &source, translation);
@@ -329,6 +433,21 @@ pub async fn translate_block(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn flags_toi_cau_in_the_same_line_but_not_teen_or_family_cau() {
+        assert!(violates_toi_cau_address(
+            "Cậu mà cứ lề mề thế là tôi bỏ mặc cậu đấy nhé."
+        ));
+        assert!(violates_toi_cau_address("Tôi hiểu tâm trạng của cậu."));
+        // Teen pair: "tớ", not "tôi" — must not fire.
+        assert!(!violates_toi_cau_address("Cậu đi đâu đấy? Tớ đợi mãi."));
+        // Family "cậu" (uncle) with no "tôi" alongside — must not fire.
+        assert!(!violates_toi_cau_address("Cậu ơi, cháu chào cậu."));
+        // "cậu" as a substring of another word must not trigger a false match.
+        assert!(!violates_toi_cau_address("Tôi thấy cái cặp sách kia."));
+        assert!(!violates_toi_cau_address("Tôi hiểu tâm trạng của anh."));
+    }
 
     #[test]
     fn remap_context_renumbers_selected_blocks_and_keeps_headers() {
