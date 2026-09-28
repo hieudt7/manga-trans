@@ -37,7 +37,11 @@
       "name": "Sayaka",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/con-gai-ryujin-nobuo/0.png",
+        "faces/con-gai-ryujin-nobuo/1.png",
+        "faces/con-gai-ryujin-nobuo/2.png"
+      ],
       "traits": [
         "Con gái của hội trưởng Long Thần Hội, một nữ sinh ngổ ngáo mang nhiều u uất và khao khát được cha quan tâm.",
         "Bướng bỉnh, ngang tàng và thích nổi loạn để gây chú ý, nhưng bản chất ngây thơ, giàu tình cảm và dễ tổn thương."
@@ -48,7 +52,10 @@
       "name": "Tướng Quân",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/tuong-quan/0.png",
+        "faces/tuong-quan/1.png"
+      ],
       "traits": [
         "Chỉ huy đội cận vệ của tổ chức tội phạm Yunio, ngụy trang dưới vỏ bọc chủ tiệm kim hoàn General Joyeria để thanh trừng đối thủ.",
         "Kiêu ngạo, tàn ác, ám ảnh bệnh hoạn về sự thuần khiết và cái đẹp, nhưng đớn hèn, khiếp nhược trước cấp trên."
@@ -59,7 +66,11 @@
       "name": "Ryujin Nobuo",
       "gender": "male",
       "ageGroup": "middle_age",
-      "faces": [],
+      "faces": [
+        "faces/ryujin-nobuo/0.png",
+        "faces/ryujin-nobuo/1.png",
+        "faces/ryujin-nobuo/2.png"
+      ],
       "traits": [
         "Hội trưởng Long Thần Hội, một tay trùm xảo quyệt thuê Ryo bảo vệ con gái nhưng ngầm giở nhiều mưu mô để ép anh làm con rể.",
         "Thực dụng, ma mãnh, lật lọng trơ trẽn nhưng hết mực thương yêu và lo lắng cho tương lai của con gái."
@@ -86,7 +97,9 @@
       "name": "Kẻ bị tiêm Angel Dust",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/ke-bi-tiem-angel-dust/0.png"
+      ],
       "traits": [
         "Sát thủ cảm tử bị biến đổi thành siêu chiến binh nhờ thuốc kích thích Angel Dust, mang chân giả giấu súng phóng lựu.",
         "Cuồng loạn, bất chấp tính mạng, ôm hận thù sâu sắc và coi việc tiêu diệt Ryo là lẽ sống duy nhất."
@@ -113,7 +126,9 @@
       "name": "Tù nhân mũ cảnh sát",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/tu-nhan-mu-canh-sat/0.png"
+      ],
       "traits": [
         "Tù nhân bị trói chung với Sayaka, thực chất là thân phận cải trang tinh quái của Ryo nhằm thâm nhập hang ổ của băng đua xe.",
         "Láu cá, tưng tửng, thích trêu chọc và đóng kịch đánh lừa người khác bằng vẻ ngô nghê giả tạo."
@@ -171,7 +186,11 @@
       "name": "A Hổ",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/trum-buruo-isutan/0.png",
+        "faces/trum-buruo-isutan/1.png",
+        "faces/trum-buruo-isutan/2.png"
+      ],
       "traits": [
         "Thủ lĩnh băng mô tô Buruo Isutan, kẻ si mê Sayaka mù quáng và tổ chức bắt cóc cô về làm vợ.",
         "Hung bạo, gia trưởng, thích thị uy với đàn em bằng đòn roi nhưng nông cạn và dễ mất tự chủ khi bị chọc trúng chỗ nhạy cảm."
@@ -182,7 +201,9 @@
       "name": "Đàn em Buruo Isutan",
       "gender": "male",
       "ageGroup": "middle_age",
-      "faces": [],
+      "faces": [
+        "faces/dan-em-buruo-isutan/0.png"
+      ],
       "traits": [
         "Đàn em trung niên trong băng mô tô Buruo Isutan, nhận lệnh thủ lĩnh đi săn lùng và bắt cóc Sayaka.",
         "Hống hách, cậy đông bắt nạt kẻ yếu nhưng nhát cáy và dễ bị hạ gục trước dân chuyên nghiệp."
@@ -193,7 +214,10 @@
       "name": "Bavaro",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/ga-bavaro/0.png",
+        "faces/ga-bavaro/1.png"
+      ],
       "traits": [
         "Hôn phu được sắp đặt của Sayaka, người kế thừa đời thứ hai của băng đảng Thanh Kiên Hội.",
         "Tự ti về chiều cao, sĩ diện hão và ngốc nghếch nhưng si tình và một mực muốn kết hôn với Sayaka."
@@ -215,7 +239,9 @@
       "name": "Sa Triển",
       "gender": "male",
       "ageGroup": "middle_age",
-      "faces": [],
+      "faces": [
+        "faces/nhan-vien-general/0.png"
+      ],
       "traits": [
         "Thuộc hạ thân tín của Tướng Quân tại tiệm kim hoàn General Joyeria, kẻ vô tình bị gài máy nghe lén.",
         "Khúm núm, tận tụy nhưng yếu đuối, sợ chết và hoàn toàn mất tinh thần khi bị tra tấn."
@@ -226,7 +252,9 @@
       "name": "Người cung cấp tin",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/nguoi-cung-cap-tin/0.png"
+      ],
       "traits": [
         "Cộng sự bí mật hỗ trợ kỹ thuật và thông tin tình báo cho Ryo trong các phi vụ điều tra.",
         "Điềm tĩnh, sắc sảo, thông minh và phối hợp rất ăn ý với Ryo."
@@ -237,7 +265,9 @@
       "name": "Kẻ uy hiếp Makimura",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/ke-uy-hiep-makimura/0.png"
+      ],
       "traits": [
         "Kẻ chủ mưu sai thuộc hạ phục kích và bắt cóc Makimura hòng đe dọa, nắm thóp Ryo.",
         "Hiểm độc, tự đắc, thích kiểm soát và khoái trá khi dồn người khác vào bước đường cùng."
@@ -248,7 +278,9 @@
       "name": "Gái bẫy mỹ nhân",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/gai-bay-my-nhan/0.png"
+      ],
       "traits": [
         "Cô gái trẻ được cài bẫy lên giường với Ryo để dàn cảnh vu cáo và gây hiểu lầm giữa anh với Makimura.",
         "Lẳng lơ, xảo trá, trơ trẽn và có tài đổi giọng đóng kịch vu khống người khác."
@@ -259,7 +291,9 @@
       "name": "Bảo vệ trọc đầu",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/bao-ve-toc-hoi/0.png"
+      ],
       "traits": [
         "Bảo vệ to con đầu trọc của tiệm kim hoàn General Joyeria, kẻ đụng độ và bị Ryo chơi khăm.",
         "Hung dữ, nóng nảy, cậy sức mạnh cơ bắp và dễ phát điên khi bị trêu chọc ngoại hình."
@@ -270,7 +304,9 @@
       "name": "Người say rượu",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/nguoi-say-ruou/0.png"
+      ],
       "traits": [
         "Kẻ say xỉn quậy phá tại quán karaoke Honky Tonk, vô tình phá đám bữa tiệc mừng của trùm giang hồ.",
         "Bê tha, càn quấy lúc có men rượu nhưng hèn nhát, sợ sệt khi bị đánh đập."
@@ -281,7 +317,9 @@
       "name": "Đàn em lo lắng",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/dan-em-lo-lang/0.png"
+      ],
       "traits": [
         "Đàn em đi cùng kẻ say xỉn vào quán bar Honky Tonk, luôn tìm cách khuyên can sư huynh tránh rắc rối.",
         "Nhút nhát, biết sợ, luôn lo lắng chuốc vạ vào thân."
@@ -292,7 +330,9 @@
       "name": "Trùm vừa ra tù",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/trum-vua-ra-tu/0.png"
+      ],
       "traits": [
         "Đại ca cộm cán của Long Thần Hội vừa mãn hạn tù, tổ chức ăn mừng tại quán Honky Tonk trước khi bị sát thủ tập kích.",
         "Hách dịch, hung tợn, tự phụ về vị thế giang hồ và không tha cho kẻ làm mình mất mặt."
@@ -303,7 +343,9 @@
       "name": "Tình địch Makimura",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/tinh-dich-makimura/0.png"
+      ],
       "traits": [
         "Cô gái táo bạo tìm đến tận nhà Makimura để công khai tuyên bố là tình địch tranh giành tình cảm của Ryo.",
         "Tự tin, bộc trực, không ngại ngần thách thức người khác trong chuyện tình cảm."
@@ -325,7 +367,9 @@
       "name": "Người thiếu nợ",
       "gender": "male",
       "ageGroup": "adult",
-      "faces": [],
+      "faces": [
+        "faces/nguoi-thieu-no/0.png"
+      ],
       "traits": [
         "Người lái xe tải chở tiền bị Ryo gài bẫy máu giả để ép đòi nợ và đoạt xe phục vụ kế hoạch.",
         "Keo kiệt, tham tiền nhưng nhát gan sợ chết, sau đó cay cú vì phát hiện mình bị lừa."

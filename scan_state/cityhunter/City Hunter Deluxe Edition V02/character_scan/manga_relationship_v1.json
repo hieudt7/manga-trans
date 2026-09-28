@@ -5,7 +5,12 @@
       "name": "Saeba Ryo",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/ryo/0.png",
+        "faces/ryo/1.png",
+        "faces/ryo/2.png",
+        "faces/ryo/3.png"
+      ],
       "traits": [
         "Thợ săn thành phố (City Hunter), một tay súng cừ khôi chuyên giải quyết các phi vụ nguy hiểm dưới vỏ bọc một kẻ trăng hoa hám sắc.",
         "Bên ngoài cợt nhả, bỡn cợt và thích trêu chọc phụ nữ, nhưng khi vào việc lại cực kỳ nhạy bén, lạnh lùng, bản lĩnh và hết lòng bảo vệ cộng sự."
@@ -16,7 +21,12 @@
       "name": "Makimura Kaori",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/makimura/0.png",
+        "faces/makimura/1.png",
+        "faces/makimura/2.png",
+        "faces/makimura/3.png"
+      ],
       "traits": [
         "Cộng sự của Ryo và là em gái người cộng sự quá cố, người quán xuyến các hợp đồng và kiềm chế thói trăng hoa của anh.",
         "Bộc trực, nóng tính, giàu lòng trắc ẩn và rất kiên cường trước nguy hiểm; luôn đấu khẩu với Ryo nhưng tuyệt đối tin tưởng anh."
@@ -71,7 +81,12 @@
       "name": "Trùm Angel Dust",
       "gender": "male",
       "ageGroup": "middle_age",
-      "faces": [],
+      "faces": [
+        "faces/trum-angel-dust/0.png",
+        "faces/trum-angel-dust/1.png",
+        "faces/trum-angel-dust/2.png",
+        "faces/trum-angel-dust/3.png"
+      ],
       "traits": [
         "Trùm tổ chức tội phạm đứng sau loại thuốc Angel Dust, kẻ muốn thâu tóm thị trường ma túy bằng cách biến con người thành những cỗ máy giết người.",
         "Ngạo mạn, tàn độc và coi mạng người như cỏ rác. Hắn thích thao túng người khác bằng tiền bạc hoặc sự đe dọa."
@@ -95,7 +110,12 @@
       "name": "Natsumi",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/chi-gai-yuko/0.png",
+        "faces/chi-gai-yuko/1.png",
+        "faces/chi-gai-yuko/2.png",
+        "faces/chi-gai-yuko/3.png"
+      ],
       "traits": [
         "Thân chủ của Ryo, chị gái của nạn nhân Yuko. Cô thuê Ryo để điều tra cái chết của em gái mình.",
         "Kiên cường, đau khổ nhưng quyết tâm tìm ra sự thật. Cô không tin tưởng cảnh sát và đặt hết hy vọng vào City Hunter."
@@ -119,7 +139,12 @@
       "name": "Inagaki Kouji",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/inagaki-kouji/0.png",
+        "faces/inagaki-kouji/1.png",
+        "faces/inagaki-kouji/2.png",
+        "faces/inagaki-kouji/3.png"
+      ],
       "traits": [
         "Kẻ sát nhân đã bắn chết Ogino, sau đó trở thành võ sĩ quyền anh để che đậy tội ác.",
         "Xảo quyệt, tàn nhẫn và luôn tự mãn về sức mạnh của mình. Hắn không ngần ngại dùng thủ đoạn bẩn thỉu để chiến thắng."
@@ -130,7 +155,12 @@
       "name": "Iwasaki Megumi",
       "gender": "female",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/iwasaki/0.png",
+        "faces/iwasaki/1.png",
+        "faces/iwasaki/2.png",
+        "faces/iwasaki/3.png"
+      ],
       "traits": [
         "Khách hàng của Ryo, một bác sĩ 27 tuổi đang mắc bệnh hiểm nghèo, muốn thuê Ryo báo thù cho người yêu.",
         "Trầm tĩnh, kiên định nhưng mang nỗi đau sâu sắc. Cô chấp nhận đánh đổi tất cả để đạt được mục đích cuối cùng."
@@ -141,7 +171,11 @@
       "name": "Mita",
       "gender": "male",
       "ageGroup": "young_adult",
-      "faces": [],
+      "faces": [
+        "faces/vo-si-nan-nhan/0.png",
+        "faces/vo-si-nan-nhan/1.png",
+        "faces/vo-si-nan-nhan/2.png"
+      ],
       "traits": [
         "Nhà vô địch quyền anh bị kẻ xấu ép bán độ và đe dọa gia đình.",
         "Trung thực, trọng danh dự nhưng bị hoàn cảnh dồn vào đường cùng."
