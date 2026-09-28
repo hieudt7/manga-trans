@@ -3,7 +3,7 @@ use std::sync::Arc;
 use serde::Serialize;
 use tokio::sync::{RwLock, broadcast};
 
-use koharu_types::{Document, LlmState, LlmStateStatus, TextBlock};
+use koharu_types::{BalloonDetection, Document, LlmState, LlmStateStatus, TextBlock};
 
 use crate::{
     GenerateOptions, Language, Llm, ModelId, language::tags as language_tags,
@@ -589,8 +589,18 @@ fn parse_block_translations(
     Ok(None)
 }
 
-fn clean_translation(raw: &str) -> String {
-    strip_sfx_description(&strip_speaker_prefix(&strip_wrapping_quotes(raw)))
+fn clean_translation(raw: &str, preserve_prefix: bool) -> String {
+    let text = strip_wrapping_quotes(raw);
+    let text = if preserve_prefix { text } else { strip_speaker_prefix(&text) };
+    strip_sfx_description(&text)
+}
+
+fn is_free_text(block: &TextBlock, balloons: &[BalloonDetection]) -> bool {
+    let cx = block.x + block.width / 2.0;
+    let cy = block.y + block.height / 2.0;
+    !block.balloon_fitted && !balloons.iter().any(|b| {
+        cx >= b.x && cx <= b.x + b.width && cy >= b.y && cy <= b.y + b.height
+    })
 }
 
 /// A subset of a document's text blocks, renumbered `0..n`.
@@ -599,6 +609,7 @@ fn clean_translation(raw: &str) -> String {
 /// keeps retries from re-paying for blocks that already translated fine.
 pub struct BlockSelection<'a> {
     blocks: Vec<&'a mut TextBlock>,
+    preserve_prefix: Vec<bool>,
 }
 
 impl<'a> BlockSelection<'a> {
@@ -606,6 +617,7 @@ impl<'a> BlockSelection<'a> {
     pub fn from_indices(blocks: &'a mut [TextBlock], indices: &[usize]) -> Self {
         let wanted: std::collections::HashSet<usize> = indices.iter().copied().collect();
         Self {
+            preserve_prefix: Vec::new(),
             blocks: blocks
                 .iter_mut()
                 .enumerate()
@@ -613,6 +625,16 @@ impl<'a> BlockSelection<'a> {
                 .map(|(_, block)| block)
                 .collect(),
         }
+    }
+
+    /// Preserve title/label prefixes outside detected balloons.
+    pub fn from_indices_with_balloons(
+        blocks: &'a mut [TextBlock], indices: &[usize], balloons: &[BalloonDetection],
+    ) -> Self {
+        let mut selection = Self::from_indices(blocks, indices);
+        selection.preserve_prefix = selection.blocks.iter()
+            .map(|block| is_free_text(block, balloons)).collect();
+        selection
     }
 
     pub fn len(&self) -> usize {
@@ -637,13 +659,13 @@ impl Translatable for BlockSelection<'_> {
         let Some(translations) = parse_block_translations(&translation, self.blocks.len())? else {
             return Ok(());
         };
-        for (block, trans) in self.blocks.iter_mut().zip(translations) {
+        for (index, (block, trans)) in self.blocks.iter_mut().zip(translations).enumerate() {
             // Leave blanks alone: an unfilled slot must stay eligible for retry
             // rather than being overwritten with an empty translation.
             if trans.trim().is_empty() {
                 continue;
             }
-            block.translation = Some(clean_translation(&trans));
+            block.translation = Some(clean_translation(&trans, self.preserve_prefix.get(index).copied().unwrap_or(false)));
         }
         Ok(())
     }
@@ -661,7 +683,7 @@ impl Translatable for Document {
         };
 
         for (block, trans) in self.text_blocks.iter_mut().zip(translations) {
-            block.translation = Some(clean_translation(&trans));
+            block.translation = Some(clean_translation(&trans, is_free_text(block, &self.balloons)));
         }
         Ok(())
     }
@@ -1010,6 +1032,33 @@ mod tests {
             Some("Second line\nnext")
         );
 
+        Ok(())
+    }
+
+    #[test]
+    fn free_text_preserves_title_prefix_while_balloon_cleanup_stays_unchanged() -> anyhow::Result<()> {
+        let balloons = vec![BalloonDetection {
+            x: 100.0, y: 100.0, width: 100.0, height: 100.0, ..Default::default()
+        }];
+        let blocks = vec![
+            TextBlock { x: 10.0, y: 10.0, width: 20.0, height: 20.0, ..Default::default() },
+            TextBlock { x: 120.0, y: 120.0, width: 20.0, height: 20.0, ..Default::default() },
+        ];
+        let reply = "[0]\nChương 7: Danh sách tử thần\n[1]\nRYO: Xin chào";
+        let mut doc = Document { text_blocks: blocks.clone(), balloons: balloons.clone(), ..Default::default() };
+        doc.set_translation(reply.to_owned())?;
+        assert_eq!(doc.text_blocks[0].translation.as_deref(), Some("Chương 7: Danh sách tử thần"));
+        assert_eq!(doc.text_blocks[1].translation.as_deref(), Some("Xin chào"));
+        let mut batch = blocks;
+        BlockSelection::from_indices_with_balloons(&mut batch, &[0, 1], &balloons)
+            .set_translation(reply.to_owned())?;
+        assert_eq!(batch[0].translation, doc.text_blocks[0].translation);
+        assert_eq!(batch[1].translation, doc.text_blocks[1].translation);
+        BlockSelection::from_indices_with_balloons(&mut batch, &[0], &balloons)
+            .set_translation("Chương 8: Tiêu đề mới".to_owned())?;
+        assert_eq!(batch[0].translation.as_deref(), Some("Chương 8: Tiêu đề mới"));
+        batch[1].set_translation("RYO: Xin chào".to_owned())?;
+        assert_eq!(batch[1].translation.as_deref(), Some("Xin chào"));
         Ok(())
     }
 

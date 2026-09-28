@@ -301,7 +301,7 @@ impl Renderer {
         // Free text owns a logical region, not the disconnected strokes of the
         // original CJK glyphs. Respect explicitly positioned manual layouts.
         if auto_expand_english_layout && !in_balloon && !use_balloon {
-            let region = bubble_map
+            let mut region = bubble_map
                 .map(|page| free_text_region(&layout_source_block, page))
                 .unwrap_or(original_layout_box);
             let mut layout = TextLayout::new(&font, None)
@@ -331,20 +331,22 @@ impl Renderer {
                 width_px: Some(layout.font_size * 0.23),
             });
             // Freeze wrapping with the established face, then replace only
-            // the glyphs within each chosen line with a real bold comic face.
+            // the glyphs within each chosen line with the translation comic face.
             let lettering_font = self.fontbook.lock()
                 .map_err(|_| anyhow::anyhow!("Failed to lock fontbook"))?
                 .query("ChalkboardSE-Bold").ok();
             let lettering_text = if let Some(face) = &lettering_font {
-                crate::lettering::restyle(&mut layout, &translation, face)?
+                crate::lettering::restyle(&mut layout, &normalized_translation, face)?
             } else { normalized_translation.clone() };
             if writing_mode == WritingMode::Horizontal {
                 let stroke = resolve_stroke_style(text_block, style.stroke.as_ref(),
                     global_stroke.as_ref().or(source_stroke.as_ref()), layout.font_size);
                 let opts = RenderOptions { font_size: layout.font_size, color: free_color,
                     effect: block_effect, stroke, ..Default::default() };
-                crate::lettering::apply(&self.renderer, &mut layout, &opts,
+                let horizontal_pad = crate::lettering::apply(&self.renderer, &mut layout, &opts,
                     &lettering_text, &text_block.id, region.width, region.height)?;
+                region.x -= horizontal_pad;
+                region.width += horizontal_pad * 2.0;
             }
             return self.paint_block(PaintBlock {
                 text_block,

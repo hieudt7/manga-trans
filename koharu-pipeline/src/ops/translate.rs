@@ -178,7 +178,7 @@ pub async fn translate_page(
         }
 
         let context = remap_context(page_context, &pending);
-        let mut selection = BlockSelection::from_indices(&mut doc.text_blocks, &pending);
+        let mut selection = BlockSelection::from_indices_with_balloons(&mut doc.text_blocks, &pending, &doc.balloons);
         llm.translate_with_context(&mut selection, target_language, context.as_deref())
             .await?;
 
@@ -215,12 +215,14 @@ pub async fn translate_page(
             });
         }
 
-        llm.translate_with_context(
-            &mut doc.text_blocks[index],
-            target_language,
-            context.as_deref(),
-        )
-        .await?;
+        if doc.text_blocks[index].balloon_fitted || is_inside_balloon(&doc.text_blocks[index], &doc.balloons) {
+            llm.translate_with_context(&mut doc.text_blocks[index], target_language, context.as_deref()).await?;
+        } else {
+            let mut selection = BlockSelection::from_indices_with_balloons(
+                &mut doc.text_blocks, &[index], &doc.balloons,
+            );
+            llm.translate_with_context(&mut selection, target_language, context.as_deref()).await?;
+        }
     }
 
     // ── 4. Learn the SFX we just paid for, then backfill hopeless blocks ─────
@@ -305,8 +307,15 @@ pub async fn translate_block(
         });
     }
 
-    llm.translate_with_context(block, target_language, context.as_deref())
-        .await?;
+    if block.balloon_fitted || is_inside_balloon(block, balloons) {
+        llm.translate_with_context(block, target_language, context.as_deref()).await?;
+    } else {
+        let mut selection = BlockSelection::from_indices_with_balloons(
+            std::slice::from_mut(block), &[0], balloons,
+        );
+        llm.translate_with_context(&mut selection, target_language, context.as_deref())
+            .await?;
+    }
 
     if memoisable {
         if let Some(translation) = block.translation.as_deref() {

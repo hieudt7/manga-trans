@@ -86,9 +86,9 @@ pub(crate) fn apply(
     block_id: &str,
     region_width: f32,
     region_height: f32,
-) -> Result<()> {
+) -> Result<f32> {
     let Some(stroke) = opts.stroke.filter(|s| s.width_px > 0.0 && s.color[3] > 0) else {
-        return Ok(());
+        return Ok(0.0);
     };
     let mut fill_opts = opts.clone();
     fill_opts.stroke = None;
@@ -177,15 +177,20 @@ pub(crate) fn apply(
         .filter_map(|(_, b)| b.map(Bounds::height))
         .sum();
     let gaps = layout.lines.len().saturating_sub(1) as i32;
-    // Keep fractional baselines: the requested half-pixel leading is
+    // Keep fractional baselines: the requested subpixel leading is
     // rasterized with antialiasing, not rounded to whole pixel rows.
-    let gap = 0.5f32;
+    let gap = 0.3f32;
+    // Give overflowing outlines room on both sides without changing the page axis.
+    let widest = measurements.iter().filter_map(|(_, b)| b.map(Bounds::width))
+        .max().unwrap_or(0) as f32;
+    let horizontal_pad = ((widest - region_width).max(0.0) / 2.0).ceil();
+    let canvas_width = region_width + horizontal_pad * 2.0;
     let total = heights as f32 + gaps as f32 * gap;
     let mut top = ((region_height - total) / 2.0).floor().max(0.0);
     for (i, (line, (_, outer))) in layout.lines.iter_mut().zip(&measurements).enumerate() {
         if let Some(b) = outer {
             line.baseline = (
-                ((region_width - b.width() as f32) / 2.0).floor() - b.left as f32,
+                ((canvas_width - b.width() as f32) / 2.0).floor() - b.left as f32,
                 top - b.top as f32,
             );
             let (fill, outer) = measurements[i];
@@ -210,7 +215,7 @@ pub(crate) fn apply(
             "outlined lines exceed unchanged region"
         );
     }
-    layout.width = layout.width.max(region_width);
+    layout.width = layout.width.max(canvas_width);
     layout.height = layout.height.max(region_height).max(top as f32);
     tracing::info!(block_id, report=%report, "connected lettering geometry");
     if let Ok(dir) = std::env::var("KOHARU_DEBUG_LETTERING") {
@@ -238,13 +243,39 @@ pub(crate) fn apply(
         debug.save(dir.join(format!("{block_id}-bounds.png")))?;
         std::fs::write(dir.join(format!("{block_id}.log")), report)?;
     }
-    Ok(())
+    Ok(horizontal_pad)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{font::FontBook, layout::TextLayout, renderer::RenderStrokeOptions};
+
+    #[test]
+    #[ignore = "requires the installed ChalkboardSE-Bold regression font"]
+    fn uppercase_overflow_keeps_first_letter_and_outline() -> Result<()> {
+        let font = FontBook::new().query("ChalkboardSE-Bold")?;
+        let renderer = TinySkiaRenderer::new()?;
+        let text = "CỦA TÔI RỒI...";
+        let mut layout = TextLayout::new(&font, Some(30.0))
+            .with_max_width(600.0).with_max_height(100.0).run(text)?;
+        assert_eq!(layout.lines.len(), 1);
+        let opts = RenderOptions {
+            font_size: layout.font_size,
+            stroke: Some(RenderStrokeOptions { color: [255; 4], width_px: 6.9 }),
+            ..Default::default()
+        };
+        let pad = apply(&renderer, &mut layout, &opts, text, "overflow", 80.0, 100.0)?;
+        assert!(pad > 0.0);
+        let line = &layout.lines[0];
+        let expected = probe(&renderer, line, layout.font_size, &opts)?.unwrap();
+        let actual = bounds(&renderer.render(&layout, WritingMode::Horizontal, &opts)?).unwrap();
+        assert_eq!(actual.width(), expected.width(), "first or last glyph clipped");
+        assert_eq!(actual.height(), expected.height(), "outline clipped");
+        let page_center = (actual.left + actual.right) as f32 / 2.0 - pad;
+        assert!((page_center - 40.0).abs() <= 0.5, "page axis moved");
+        Ok(())
+    }
 
     #[test]
     #[ignore = "requires the installed HL-Comic1unicode-Normal regression font"]
@@ -287,8 +318,8 @@ mod tests {
                 let b = local.shifted(line.baseline.0 as i32, line.baseline.1 as i32);
                 if let Some(previous) = bottom {
                     assert!(
-                        (visual_top - previous - 0.5f32).abs() < 0.001,
-                        "half-pixel leading lost"
+                        (visual_top - previous - 0.3f32).abs() < 0.001,
+                        "subpixel leading lost"
                     );
                 }
                 assert!(
