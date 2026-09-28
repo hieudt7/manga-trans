@@ -323,13 +323,29 @@ impl Renderer {
                 .map(|s| s.color)
                 .or(source_color)
                 .unwrap_or(color);
-            // Controlled colour integration: retain the known-good replay's
-            // 3px geometry. Automatic source width is a separate future step.
+            // Reference lettering style: substantial outline relative to type size.
+            // This is a typography parameter, not source-width detection.
             let source_stroke = text_block.font_prediction.as_ref().map(|p| TextStrokeStyle {
                 enabled: true,
                 color: [p.stroke_color[0], p.stroke_color[1], p.stroke_color[2], 255],
-                width_px: Some(3.0),
+                width_px: Some(layout.font_size * 0.23),
             });
+            // Freeze wrapping with the established face, then replace only
+            // the glyphs within each chosen line with a real bold comic face.
+            let lettering_font = self.fontbook.lock()
+                .map_err(|_| anyhow::anyhow!("Failed to lock fontbook"))?
+                .query("ChalkboardSE-Bold").ok();
+            let lettering_text = if let Some(face) = &lettering_font {
+                crate::lettering::restyle(&mut layout, &translation, face)?
+            } else { normalized_translation.clone() };
+            if writing_mode == WritingMode::Horizontal {
+                let stroke = resolve_stroke_style(text_block, style.stroke.as_ref(),
+                    global_stroke.as_ref().or(source_stroke.as_ref()), layout.font_size);
+                let opts = RenderOptions { font_size: layout.font_size, color: free_color,
+                    effect: block_effect, stroke, ..Default::default() };
+                crate::lettering::apply(&self.renderer, &mut layout, &opts,
+                    &lettering_text, &text_block.id, region.width, region.height)?;
+            }
             return self.paint_block(PaintBlock {
                 text_block,
                 set_text: None,
@@ -340,7 +356,7 @@ impl Renderer {
                 color: free_color,
                 effect: block_effect,
                 global_stroke: global_stroke.as_ref().or(source_stroke.as_ref()),
-                font: &font,
+                font: lettering_font.as_ref().unwrap_or(&font),
             });
         }
 
