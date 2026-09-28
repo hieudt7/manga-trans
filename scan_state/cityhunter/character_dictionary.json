@@ -855,6 +855,53 @@
             "address": "tôi/mày (我/你)"
           }
         ]
+      },
+      {
+        "id": "ogino",
+        "name": "Ogino",
+        "nameJa": "荻野俊一",
+        "aliases": [
+          "A Tuấn",
+          "阿俊"
+        ],
+        "gender": "male",
+        "ageGroup": "young_adult",
+        "role": "Vận động viên chạy việt dã/quyền anh vừa được đề cử vào giải vô địch, bạn tập thân thiết của cô gái đạp xe cùng anh; bị Inagaki Kouji bắn trọng thương ở tr.010, trăn trối ở tr.011.",
+        "personality": "Nhiệt huyết, có phần căng thẳng chuyện tập luyện/thi đấu; thân mật, hay đùa với bạn tập.",
+        "speech": "Tiếng Việt: xưng 'tôi', gọi bạn tập bằng 'cô' khi trang trọng; đã có biệt danh thân mật 'A Tuấn' do bạn tập gọi.",
+        "selfTerms": [
+          "tôi (僕/俺)"
+        ],
+        "appearances": 9,
+        "relations": [
+          {
+            "to": "co-gai-dap-xe",
+            "relation": "bạn tập chạy việt dã thân thiết",
+            "address": "tôi/cô (trang trọng); được gọi biệt danh 'A Tuấn' khi thân mật — KHÔNG dùng 'tôi/cậu' cho cô ấy gọi anh, đây là 2 người lớn ngang hàng"
+          }
+        ]
+      },
+      {
+        "id": "co-gai-dap-xe",
+        "name": "Cô gái đạp xe",
+        "nameJa": "",
+        "aliases": [],
+        "gender": "female",
+        "ageGroup": "young_adult",
+        "role": "Bạn tập chạy việt dã của Ogino, đạp xe đạp có giỏ đi cùng anh tập luyện; tên thật chưa xác định (Ogino gọi cô bằng một âm bắt đầu \"…稻…\" bị cắt ngang ở tr.010, chưa đủ để chốt tên).",
+        "personality": "Quan tâm, hay nhắc nhở Ogino giữ sức sau chấn thương; hoảng loạn khi anh bị bắn.",
+        "speech": "Tiếng Việt: xưng 'tôi', gọi Ogino là 'anh' khi trang trọng, gọi biệt danh 'A Tuấn' khi thân mật — KHÔNG xưng 'tôi/cậu' với anh, đây là 2 người lớn ngang hàng chưa rõ đã tới mức anh/em.",
+        "selfTerms": [
+          "tôi (私/僕)"
+        ],
+        "appearances": 3,
+        "relations": [
+          {
+            "to": "ogino",
+            "relation": "bạn tập chạy việt dã thân thiết",
+            "address": "tôi/anh (trang trọng); gọi biệt danh 'A Tuấn' khi thân mật"
+          }
+        ]
       }
     ]
   },
