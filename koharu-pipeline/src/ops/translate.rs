@@ -621,7 +621,7 @@ mod render_sample {
         let llm = koharu_llm::facade::Model::new(false, backend);
         runtime.block_on(llm.load_api(
             "gemini",
-            "gemini-3.1-flash-lite-preview",
+            "gemini-3.5-flash-lite",
             koharu_llm::providers::ProviderConfig {
                 api_key: None,
                 base_url: None,

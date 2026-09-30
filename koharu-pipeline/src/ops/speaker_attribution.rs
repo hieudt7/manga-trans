@@ -27,7 +27,7 @@ use koharu_types::TextBlock;
 use serde::Deserialize;
 
 const VISION_PROVIDER: &str = "gemini";
-const VISION_MODEL: &str = "gemini-3.1-flash-lite-preview";
+const VISION_MODEL: &str = "gemini-3.5-flash-lite";
 /// Long side a page is downscaled to before sending — plenty to read balloon
 /// text and panel layout, a fraction of the tokens a full-resolution scan
 /// image would cost.

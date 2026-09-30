@@ -455,7 +455,7 @@ Không thêm bất kỳ lời giải thích nào.";
                 READ_PROMPT,
                 &crops,
                 "image/png",
-                "gemini-3.1-flash-lite-preview",
+                "gemini-3.5-flash-lite",
             )
             .await?;
         Ok(split_readings(&reply, boxes.len()))
@@ -512,7 +512,7 @@ Không thêm bất kỳ lời giải thích nào.";
         let profile = runtime.block_on(super::style::learn(
             &*provider,
             &pairs,
-            "gemini-3.1-flash-lite-preview",
+            "gemini-3.5-flash-lite",
         ))?;
 
         println!("\n{}", serde_json::to_string_pretty(&profile)?);
