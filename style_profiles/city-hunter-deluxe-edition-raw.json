@@ -455,13 +455,13 @@
       },
       {
         "id": "trum-buruo-isutan",
-        "name": "A Hổ",
+        "name": "Torakichi",
         "nameJa": "阿虎",
         "aliases": [
           "寅吉",
           "阿寅",
           "小虎",
-          "Torakichi"
+          "A Hổ"
         ],
         "gender": "male",
         "ageGroup": "adult",
@@ -770,8 +770,7 @@
         "name": "Trùm vừa ra tù",
         "nameJa": "",
         "aliases": [
-          "阿辰",
-          "A Thần"
+          "阿辰"
         ],
         "gender": "male",
         "ageGroup": "adult",
@@ -861,14 +860,14 @@
         "name": "Ogino",
         "nameJa": "荻野俊一",
         "aliases": [
-          "A Tuấn",
+          "Shun",
           "阿俊"
         ],
         "gender": "male",
         "ageGroup": "young_adult",
         "role": "Vận động viên chạy việt dã/quyền anh vừa được đề cử vào giải vô địch, bạn tập thân thiết của cô gái đạp xe cùng anh; bị Inagaki Kouji bắn trọng thương ở tr.010, trăn trối ở tr.011.",
         "personality": "Nhiệt huyết, có phần căng thẳng chuyện tập luyện/thi đấu; thân mật, hay đùa với bạn tập.",
-        "speech": "Tiếng Việt: xưng 'tôi', gọi bạn tập bằng 'cô' khi trang trọng; đã có biệt danh thân mật 'A Tuấn' do bạn tập gọi.",
+        "speech": "Tiếng Việt: xưng 'tôi', gọi bạn tập bằng 'cô' khi trang trọng; đã có biệt danh thân mật 'Shun' do bạn tập gọi (阿俊 là cách bản Hoa gọi thân mật, KHÔNG dịch âm Hán Việt 'A Tuấn' — dùng tên/biệt danh Nhật).",
         "selfTerms": [
           "tôi (僕/俺)"
         ],
@@ -877,7 +876,7 @@
           {
             "to": "co-gai-dap-xe",
             "relation": "bạn tập chạy việt dã thân thiết",
-            "address": "tôi/cô (trang trọng); được gọi biệt danh 'A Tuấn' khi thân mật — KHÔNG dùng 'tôi/cậu' cho cô ấy gọi anh, đây là 2 người lớn ngang hàng"
+            "address": "tôi/cô (trang trọng); được gọi biệt danh 'Shun' khi thân mật — KHÔNG dùng 'tôi/cậu' cho cô ấy gọi anh, đây là 2 người lớn ngang hàng"
           }
         ]
       },
