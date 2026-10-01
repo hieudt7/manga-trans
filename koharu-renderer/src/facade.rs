@@ -20,8 +20,9 @@ use crate::{
             expand_latin_layout_box_strict, fill_ratio, free_text_region, grow_box_within,
             is_emphatic_lettering, is_expanded_layout_box, is_stackable_shout,
             latin_layout_underfilled, latin_width_overflow_factor, layout_box_area,
-            layout_box_from_block, pick_better_latin_candidate, preferred_font_size,
-            shorten_elongation, source_glyph_size,
+            layout_box_from_block, page_typography_baseline, pick_better_latin_candidate,
+            preferred_font_size_for_block, resolve_block_style, shorten_elongation,
+            source_glyph_size,
         },
         script::{
             font_families_for_text, is_latin_only, normalize_translation_for_layout,
@@ -87,6 +88,10 @@ impl Renderer {
         };
 
         let page_height = bubble_map.height() as f32;
+        // What "normal" source lettering size looks like on this specific
+        // page — see `page_typography_baseline` for why this replaced a
+        // fixed ratio of page height.
+        let page_baseline = page_typography_baseline(&document.text_blocks, page_height);
         // Centres of *every* block on the page, taken before the mutable borrow
         // below. Re-rendering a single block must still know where its
         // neighbours are, or a block sharing a merged balloon would trace
@@ -122,6 +127,7 @@ impl Renderer {
                 font_family,
                 Some(&bubble_map),
                 page_height,
+                page_baseline,
                 &block_centres,
                 &balloons,
             );
@@ -161,6 +167,7 @@ impl Renderer {
         font_family: Option<&str>,
         bubble_map: Option<&GrayImage>,
         page_height: f32,
+        page_baseline: f32,
         sibling_centres: &[(f32, f32)],
         balloons: &[(f32, f32, f32, f32)],
     ) -> Result<()> {
@@ -296,7 +303,27 @@ impl Renderer {
             text_block.text.as_deref(),
             text_block.detected_font_size_px,
         );
-        let target_font_size = preferred_font_size(page_height, source_glyph, in_balloon);
+        let resolved_style = resolve_block_style(text_block, page_baseline, source_glyph);
+        text_block.style_resolution = Some(resolved_style.clone());
+        let target_font_size =
+            preferred_font_size_for_block(page_height, source_glyph, in_balloon, &resolved_style);
+        tracing::info!(
+            block_id = %text_block.id,
+            x = text_block.x,
+            y = text_block.y,
+            source_text = text_block.text.as_deref().unwrap_or(""),
+            translation = ?normalized_translation,
+            in_balloon,
+            source_glyph_px = source_glyph,
+            page_baseline_px = page_baseline,
+            balloon_shape_hint = ?text_block.balloon_shape_hint,
+            speech_state_hint = ?text_block.speech_state_hint,
+            resolved_kind = ?resolved_style.resolved.kind,
+            resolved_confidence = resolved_style.resolved.confidence,
+            preset_ceiling_px = page_height * resolved_style.target.font_size_ratio,
+            target_font_size,
+            "speech style resolution"
+        );
 
         // Free text owns a logical region, not the disconnected strokes of the
         // original CJK glyphs. Respect explicitly positioned manual layouts.
@@ -340,7 +367,7 @@ impl Renderer {
             } else { normalized_translation.clone() };
             if writing_mode == WritingMode::Horizontal {
                 let stroke = resolve_stroke_style(text_block, style.stroke.as_ref(),
-                    global_stroke.as_ref().or(source_stroke.as_ref()), layout.font_size);
+                    global_stroke.as_ref().or(source_stroke.as_ref()), layout.font_size, 1.0);
                 let opts = RenderOptions { font_size: layout.font_size, color: free_color,
                     effect: block_effect, stroke, ..Default::default() };
                 let horizontal_pad = crate::lettering::apply(&self.renderer, &mut layout, &opts,
@@ -359,6 +386,7 @@ impl Renderer {
                 effect: block_effect,
                 global_stroke: global_stroke.as_ref().or(source_stroke.as_ref()),
                 font: lettering_font.as_ref().unwrap_or(&font),
+                stroke_scale: 1.0,
             });
         }
 
@@ -649,6 +677,7 @@ impl Renderer {
                     effect: block_effect,
                     global_stroke: global_stroke.as_ref(),
                     font: &font,
+                    stroke_scale: resolved_style.target.stroke_scale,
                 });
             }
         }
@@ -703,6 +732,7 @@ impl Renderer {
             effect: block_effect,
             global_stroke: global_stroke.as_ref(),
             font: &font,
+            stroke_scale: resolved_style.target.stroke_scale,
         })
     }
 
@@ -718,6 +748,7 @@ impl Renderer {
             effect,
             global_stroke,
             font,
+            stroke_scale,
         } = paint;
 
         let resolved_stroke = resolve_stroke_style(
@@ -725,6 +756,7 @@ impl Renderer {
             style.stroke.as_ref(),
             global_stroke,
             layout.font_size,
+            stroke_scale,
         );
         tracing::info!(block_id = %text_block.id, x = layout_box.x, y = layout_box.y,
             fill_rgb = ?color, stroke = ?resolved_stroke.as_ref().map(|s| (s.color, s.width_px)),
@@ -890,6 +922,13 @@ struct PaintBlock<'block, 'layout> {
     effect: TextShaderEffect,
     global_stroke: Option<&'block TextStrokeStyle>,
     font: &'block Font,
+    /// Multiplier on the synthetic default stroke width — the HL Comic
+    /// preset's stand-in for "weight" (see `koharu_types::style::TargetStyle`),
+    /// since HL Comic itself ships in only one weight. Only scales the
+    /// fallback stroke computed from font size; an explicit block/global
+    /// stroke override or a stroke width actually detected from the source
+    /// pixels is left alone.
+    stroke_scale: f32,
 }
 
 fn resolve_stroke_style(
@@ -897,6 +936,7 @@ fn resolve_stroke_style(
     block_stroke: Option<&TextStrokeStyle>,
     global_stroke: Option<&TextStrokeStyle>,
     font_size: f32,
+    stroke_scale: f32,
 ) -> Option<RenderStrokeOptions> {
     if let Some(stroke) = block_stroke {
         if !stroke.enabled {
@@ -938,7 +978,7 @@ fn resolve_stroke_style(
 
     Some(RenderStrokeOptions {
         color: [255, 255, 255, 255],
-        width_px: default_stroke_width(font_size),
+        width_px: default_stroke_width(font_size) * stroke_scale,
     })
 }
 

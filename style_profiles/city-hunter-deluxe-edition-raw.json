@@ -87,7 +87,7 @@
           {
             "to": "makimura",
             "relation": "cộng sự thân thiết, luôn cãi cọ nhưng hết lòng bảo bọc",
-            "address": "tôi/Makimura (我/槙村); tôi/Hương (我/阿香); tôi/cậu; tôi/em"
+            "address": "tôi/Kaori; tôi/cô khi bình thường; anh/em khi cảnh thể hiện sự gần gũi sâu sắc"
           },
           {
             "to": "con-gai-ryujin-nobuo",
@@ -404,6 +404,11 @@
             "to": "ryo",
             "relation": "đối thủ",
             "address": "tao/mày"
+          },
+          {
+            "to": "ogino",
+            "relation": "kẻ đe dọa và bắn Ogino",
+            "address": "tao/mày, giọng uy hiếp lạnh lùng"
           }
         ]
       },
@@ -887,9 +892,9 @@
         "aliases": [],
         "gender": "female",
         "ageGroup": "young_adult",
-        "role": "Bạn tập chạy việt dã của Ogino, đạp xe đạp có giỏ đi cùng anh tập luyện; tên thật chưa xác định (Ogino gọi cô bằng một âm bắt đầu \"…稻…\" bị cắt ngang ở tr.010, chưa đủ để chốt tên).",
+        "role": "Bạn tập chạy việt dã của Ogino, đạp xe đạp có giỏ đi cùng anh tập luyện; tên thật chưa xác định. Ở tr.010, Ogino thều thào tên kẻ bắn mình (稻…稻垣 / Inagaki), không phải tên cô.",
         "personality": "Quan tâm, hay nhắc nhở Ogino giữ sức sau chấn thương; hoảng loạn khi anh bị bắn.",
-        "speech": "Tiếng Việt: xưng 'tôi', gọi Ogino là 'anh' khi trang trọng, gọi biệt danh 'A Tuấn' khi thân mật — KHÔNG xưng 'tôi/cậu' với anh, đây là 2 người lớn ngang hàng chưa rõ đã tới mức anh/em.",
+        "speech": "Tiếng Việt: xưng 'tôi', gọi Ogino là 'anh' khi trang trọng, — KHÔNG xưng 'tôi/cậu' với anh, đây là 2 người lớn ngang hàng chưa rõ đã tới mức anh/em.",
         "selfTerms": [
           "tôi (私/僕)"
         ],
@@ -898,7 +903,7 @@
           {
             "to": "ogino",
             "relation": "bạn tập chạy việt dã thân thiết",
-            "address": "tôi/anh (trang trọng); gọi biệt danh 'A Tuấn' khi thân mật"
+            "address": "tôi/anh (trang trọng)"
           }
         ]
       }

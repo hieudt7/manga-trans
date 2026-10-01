@@ -90,6 +90,16 @@ struct BlockRead {
     /// active profile.
     #[serde(default, rename = "speakerGender")]
     speaker_gender: Option<String>,
+    /// How this region's text is "performed" in the source — one of the
+    /// `SpeechStyleKind` values, asked for regardless of whether a character
+    /// profile is active (this is about the line's delivery, not who says
+    /// it). Free text so an unparsable answer degrades to `None` instead of
+    /// failing the whole page's JSON.
+    #[serde(default, rename = "speechState")]
+    speech_state: Option<String>,
+    /// The container's drawn shape for this region, same reasoning.
+    #[serde(default, rename = "balloonShape")]
+    balloon_shape: Option<String>,
 }
 
 /// Text block indices in manga reading order — top to bottom, right to left
@@ -125,6 +135,23 @@ fn reading_order(text_blocks: &[TextBlock]) -> Vec<usize> {
     ordered
 }
 
+/// Shared by both `read_page` prompt variants: asking for a region's
+/// delivery and its container's shape is unrelated to whether a character
+/// roster is available, so both branches ask for it the same way.
+const STYLE_QUESTIONS: &str = "classify how this region's text is performed into \
+     \"speechState\" — one of NORMAL (ordinary delivery), QUIET (soft, hesitant), WHISPER \
+     (barely audible, secretive), EMPHASIS (stressed but not shouted), SHOUT (yelled, shocked, \
+     a loud sound effect), THOUGHT (unspoken inner monologue), TREMBLING (shaking with fear, \
+     panic, or cold), or NARRATION (a storytelling caption, not a character's voice); judge \
+     this from the lettering's size and weight, the punctuation, and the scene, not from the \
+     balloon shape alone; classify the container's own drawn shape into \"balloonShape\" — one \
+     of NORMAL_OVAL (an ordinary rounded balloon), JAGGED (a spiky, explosion-like outline), \
+     CLOUD (a bubbly outline with rounded bumps, a thought balloon), DASHED (a dotted or dashed \
+     outline), WAVY (a wobbly, trembling outline), RECTANGULAR (a bordered caption/narration \
+     box), or NONE (no drawn container at all — free-floating lettering on the art); judge this \
+     from the outline actually drawn around the region, independent of what you answered for \
+     speechState.";
+
 /// `BlockRead::block_id` as a list index, accepting either a JSON number or a
 /// numeral quoted as a string.
 fn block_index(value: &serde_json::Value) -> Option<usize> {
@@ -142,6 +169,14 @@ fn block_index(value: &serde_json::Value) -> Option<usize> {
 pub struct PageRead {
     pub texts: HashMap<String, String>,
     pub context: Option<String>,
+    /// How each region was "performed" — hét, thì thầm, suy nghĩ, v.v. — the
+    /// same model call's read of the page, kept separate from `texts` so a
+    /// region it transcribed but could not classify (or vice versa) does not
+    /// lose the half it did answer. Font-size fusion (see `koharu_types::style`)
+    /// treats this as one vote among several, not a rule.
+    pub speech_states: HashMap<String, koharu_types::SpeechStyleKind>,
+    /// The container's drawn shape for each region, from the same call.
+    pub balloon_shapes: HashMap<String, koharu_types::BalloonShape>,
 }
 
 /// Who speaks on this page, and how they talk — as a `page_context` string,
@@ -434,7 +469,7 @@ pub async fn read_page(
              when you are unsure who it is; (4) always give your best guess of that speaker's \
              apparent gender in \"speakerGender\" as \"male\", \"female\", or \"unknown\", \
              regardless of whether you also named a speaker or drew a face box — it is the \
-             fallback when those disagree or neither identifies anyone.\n\n\
+             fallback when those disagree or neither identifies anyone; (5) {style_questions}\n\n\
              Return ONLY a JSON array with exactly {count} entries, reading the page in that same \
              order, one entry per region — the 1st entry is region 0 (the first thing you read on \
              the page), the 2nd is region 1, and so on. This should already be the order you are \
@@ -447,10 +482,12 @@ pub async fn read_page(
              actually used to match each answer back to its region:\n\
              [{{\"blockId\": 0, \"text\": \"...\", \"speaker\": \"id or unknown\", \
              \"listener\": \"id or unknown\", \"speakerFaceBox\": [x, y, width, height] or \
-             omitted, \"speakerGender\": \"male\", \"female\", or \"unknown\"}}]",
+             omitted, \"speakerGender\": \"male\", \"female\", or \"unknown\", \"speechState\": \
+             \"NORMAL\", \"balloonShape\": \"NORMAL_OVAL\"}}]",
             roster = roster_text(&profile.characters),
             last = ids.len().saturating_sub(1),
             count = ids.len(),
+            style_questions = STYLE_QUESTIONS,
         ),
         None => format!(
             "This manga page has these text regions, numbered 0 to {last} IN READING ORDER — the \
@@ -463,9 +500,10 @@ pub async fn read_page(
              boxes [x, y, width, height] (top-left 0,0 to bottom-right 1,1) are given too, only as \
              a fallback for a tag hidden behind art:\n\
              {box_list}\n\n\
-             For each region, transcribe the exact source-language text inside it into \"text\" — \
-             dialogue, narration, captions, sound effects, everything, verbatim, even if partly \
-             obscured; leave \"text\" empty only if the region is truly blank.\n\n\
+             For each region: (1) transcribe the exact source-language text inside it into \
+             \"text\" — dialogue, narration, captions, sound effects, everything, verbatim, even \
+             if partly obscured; leave \"text\" empty only if the region is truly blank; (2) \
+             {style_questions}\n\n\
              Return ONLY a JSON array with exactly {count} entries, reading the page in that same \
              order, one entry per region — the 1st entry is region 0 (the first thing you read on \
              the page), the 2nd is region 1, and so on. This should already be the order you are \
@@ -476,9 +514,11 @@ pub async fn read_page(
              never let a neighboring region's text leak into it or swap places with it. Also \
              include the region's number as \"blockId\", but the array's own order is what is \
              actually used to match each answer back to its region:\n\
-             [{{\"blockId\": 0, \"text\": \"...\"}}]",
+             [{{\"blockId\": 0, \"text\": \"...\", \"speechState\": \"NORMAL\", \"balloonShape\": \
+             \"NORMAL_OVAL\"}}]",
             last = ids.len().saturating_sub(1),
             count = ids.len(),
+            style_questions = STYLE_QUESTIONS,
         ),
     };
 
@@ -535,6 +575,8 @@ pub async fn read_page(
     // only as a diagnostic: how often it disagrees with the position is
     // logged, not acted on.
     let mut texts: HashMap<String, String> = HashMap::new();
+    let mut speech_states: HashMap<String, koharu_types::SpeechStyleKind> = HashMap::new();
+    let mut balloon_shapes: HashMap<String, koharu_types::BalloonShape> = HashMap::new();
     if reads.len() == ids.len() {
         let mut mislabeled = 0usize;
         for (i, r) in reads.iter().enumerate() {
@@ -543,6 +585,20 @@ pub async fn read_page(
             }
             let text = r.text.as_deref().unwrap_or("").trim().to_string();
             texts.insert(ids[i].to_string(), text);
+            if let Some(state) = r
+                .speech_state
+                .as_deref()
+                .and_then(koharu_types::SpeechStyleKind::parse_loose)
+            {
+                speech_states.insert(ids[i].to_string(), state);
+            }
+            if let Some(shape) = r
+                .balloon_shape
+                .as_deref()
+                .and_then(koharu_types::BalloonShape::parse_loose)
+            {
+                balloon_shapes.insert(ids[i].to_string(), shape);
+            }
         }
         if mislabeled > 0 {
             tracing::warn!(
@@ -562,6 +618,20 @@ pub async fn read_page(
                 Some(&id) => {
                     let text = r.text.as_deref().unwrap_or("").trim().to_string();
                     texts.insert(id.to_string(), text);
+                    if let Some(state) = r
+                        .speech_state
+                        .as_deref()
+                        .and_then(koharu_types::SpeechStyleKind::parse_loose)
+                    {
+                        speech_states.insert(id.to_string(), state);
+                    }
+                    if let Some(shape) = r
+                        .balloon_shape
+                        .as_deref()
+                        .and_then(koharu_types::BalloonShape::parse_loose)
+                    {
+                        balloon_shapes.insert(id.to_string(), shape);
+                    }
                 }
                 None => bad_indices += 1,
             }
@@ -667,11 +737,18 @@ pub async fn read_page(
     tracing::info!(
         blocks = reads.len(),
         texts = texts.len(),
+        speech_states = speech_states.len(),
+        balloon_shapes = balloon_shapes.len(),
         has_context = context.is_some(),
         "page read: vision OCR+attribution succeeded"
     );
 
-    Some(PageRead { texts, context })
+    Some(PageRead {
+        texts,
+        context,
+        speech_states,
+        balloon_shapes,
+    })
 }
 
 /// A tiny 3x5 bitmap digit font, one row of "on" bits per glyph row — just

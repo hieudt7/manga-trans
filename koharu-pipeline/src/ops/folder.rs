@@ -447,6 +447,10 @@ async fn process_single_file(
                             if let Some(text) = page_read.texts.get(&block.id) {
                                 block.text = (!text.is_empty()).then(|| text.clone());
                             }
+                            block.speech_state_hint =
+                                page_read.speech_states.get(&block.id).copied();
+                            block.balloon_shape_hint =
+                                page_read.balloon_shapes.get(&block.id).copied();
                         }
                         vision_context = page_read.context;
                     }

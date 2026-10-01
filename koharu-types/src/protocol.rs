@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::{
-    BalloonDetection, Document, FontPrediction, TextBlock, TextShaderEffect, TextStrokeStyle,
-    TextStyle,
+    BalloonDetection, BalloonShape, Document, FontPrediction, SpeechStyleKind, StyleResolution,
+    TextBlock, TextShaderEffect, TextStrokeStyle, TextStyle,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, JsonSchema, TS)]
@@ -79,6 +79,9 @@ pub struct TextBlockDetail {
     pub translation: Option<String>,
     pub style: Option<TextStyle>,
     pub font_prediction: Option<FontPrediction>,
+    pub speech_state_hint: Option<SpeechStyleKind>,
+    pub balloon_shape_hint: Option<BalloonShape>,
+    pub style_resolution: Option<StyleResolution>,
 }
 
 impl From<&TextBlock> for TextBlockDetail {
@@ -101,6 +104,9 @@ impl From<&TextBlock> for TextBlockDetail {
             translation: block.translation.clone(),
             style: block.style.clone(),
             font_prediction: block.font_prediction.clone(),
+            speech_state_hint: block.speech_state_hint,
+            balloon_shape_hint: block.balloon_shape_hint,
+            style_resolution: block.style_resolution.clone(),
         }
     }
 }

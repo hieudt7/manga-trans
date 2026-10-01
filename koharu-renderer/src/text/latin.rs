@@ -7,7 +7,7 @@ use imageproc::{
     morphology::{dilate, erode},
     region_labelling::{Connectivity, connected_components},
 };
-use koharu_types::TextBlock;
+use koharu_types::{StyleResolution, TextBlock};
 
 use crate::layout::LayoutRun;
 
@@ -531,10 +531,14 @@ pub fn grow_box_within(rect: LayoutBox, bounds: (f32, f32, f32, f32)) -> LayoutB
 /// Dialogue size as a fraction of page height. Scanlation practice puts normal
 /// dialogue at 12-14px on a 1200px-tall page; 14/1200 keeps that proportion at
 /// any scan resolution, which a fixed pixel size would not.
-pub const DIALOGUE_FONT_HEIGHT_RATIO: f32 = 14.0 / 1200.0;
+///
+/// Defined in `koharu_types::style` (re-exported here) so the speech-style
+/// fusion's "chapter baseline" and this renderer's own dialogue sizing never
+/// drift apart into two different ideas of "normal size".
+pub use koharu_types::style::DIALOGUE_FONT_HEIGHT_RATIO;
 
 /// Never aim below this: smaller than this is not worth reading.
-pub const DIALOGUE_MIN_FONT_SIZE: f32 = 11.0;
+pub use koharu_types::style::DIALOGUE_MIN_FONT_SIZE;
 
 /// How far past the nominal reading size dialogue may grow to fill its balloon.
 ///
@@ -921,6 +925,86 @@ pub fn preferred_font_size(
         Some(source) if !in_balloon => source.clamp(DIALOGUE_MIN_FONT_SIZE, big_ceiling),
         Some(source) if source >= dialogue * BIG_SOURCE_TEXT_FACTOR => source.min(big_ceiling),
         _ => (dialogue * DIALOGUE_FILL_FACTOR).min(big_ceiling),
+    }
+}
+
+/// The chapter/page baseline typography evidence is measured against — the
+/// median measured source glyph size across every block on this page, not a
+/// fixed guess. A fixed ratio of page height (what this used before) turned
+/// out to misjudge nearly every block on a real scan as "drawn larger than
+/// normal": that ratio was tuned for how big *translated Vietnamese output*
+/// should render, not for how big the *source* lettering measures on a given
+/// scan, and the two can be off by 2x or more depending on resolution and
+/// the artist's own lettering style. The page's own blocks are the only
+/// thing that actually knows what "normal" looks like here.
+///
+/// Falls back to the old fixed ratio only when nothing on the page is
+/// measurable at all (a blank page, or every block missing both text and a
+/// detected size).
+pub fn page_typography_baseline(blocks: &[TextBlock], page_height: f32) -> f32 {
+    let mut sizes: Vec<f32> = blocks
+        .iter()
+        .filter_map(|block| {
+            source_glyph_size(block.width, block.height, block.text.as_deref(), block.detected_font_size_px)
+        })
+        .filter(|size| size.is_finite() && *size > 0.0)
+        .collect();
+    sizes.sort_by(f32::total_cmp);
+    let median = match sizes.len() {
+        0 => None,
+        len if len % 2 == 1 => Some(sizes[len / 2]),
+        len => Some((sizes[len / 2 - 1] + sizes[len / 2]) / 2.0),
+    };
+    median
+        .unwrap_or_else(|| page_height * DIALOGUE_FONT_HEIGHT_RATIO)
+        .max(DIALOGUE_MIN_FONT_SIZE)
+}
+
+/// Fuse a block's balloon shape, source typography, and the vision model's
+/// own read of its speech state into one canonical style (see
+/// `koharu_types::style` and `.claude/ReSizeFont.md`).
+///
+/// `source_glyph_px` is the same measured size `preferred_font_size` takes;
+/// `page_baseline` is [`page_typography_baseline`]'s output for this page —
+/// together they are the typography evidence source.
+pub fn resolve_block_style(block: &TextBlock, page_baseline: f32, source_glyph_px: Option<f32>) -> StyleResolution {
+    let relative_size = source_glyph_px.map(|glyph| glyph / page_baseline).unwrap_or(1.0);
+    let stroke_ratio = block
+        .font_prediction
+        .as_ref()
+        .filter(|prediction| prediction.font_size_px > 0.0)
+        .map(|prediction| prediction.stroke_width_px / prediction.font_size_px)
+        .unwrap_or(0.1);
+    koharu_types::style::resolve_speech_style(
+        relative_size,
+        stroke_ratio,
+        block.balloon_shape_hint,
+        block.speech_state_hint,
+    )
+}
+
+/// Like [`preferred_font_size`], but for the ordinary "normalise every
+/// balloon to one dialogue size" case, sizes to the canonical speech style
+/// resolved by [`resolve_block_style`] instead of a single fixed size for
+/// every balloon on the page — this is what actually fixes text coming out a
+/// different size balloon to balloon. The two "keep the original's own
+/// scale" branches above are untouched: those exist to avoid overflowing the
+/// artwork, which has nothing to do with which voice a line was said in.
+pub fn preferred_font_size_for_block(
+    page_height: f32,
+    source_glyph_px: Option<f32>,
+    in_balloon: bool,
+    resolved_style: &StyleResolution,
+) -> f32 {
+    let dialogue = (page_height * DIALOGUE_FONT_HEIGHT_RATIO).max(DIALOGUE_MIN_FONT_SIZE);
+    let big_ceiling = (page_height * BIG_TEXT_MAX_HEIGHT_RATIO).max(dialogue);
+
+    match source_glyph_px {
+        Some(source) if !in_balloon => source.clamp(DIALOGUE_MIN_FONT_SIZE, big_ceiling),
+        Some(source) if source >= dialogue * BIG_SOURCE_TEXT_FACTOR => source.min(big_ceiling),
+        _ => (page_height * resolved_style.target.font_size_ratio)
+            .max(DIALOGUE_MIN_FONT_SIZE)
+            .min(big_ceiling),
     }
 }
 

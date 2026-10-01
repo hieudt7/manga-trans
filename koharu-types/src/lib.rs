@@ -7,6 +7,7 @@ pub mod views;
 mod effect;
 mod font;
 mod image;
+pub mod style;
 
 pub use commands::*;
 pub use effect::TextShaderEffect;
@@ -14,6 +15,7 @@ pub use events::*;
 pub use font::{FontPrediction, NamedFontPrediction, TextDirection};
 pub use image::SerializableDynamicImage;
 pub use protocol::*;
+pub use style::{BalloonShape, SpeechStyleKind, StyleResolution};
 
 use std::{path::PathBuf, sync::Arc};
 
@@ -219,6 +221,21 @@ pub struct TextBlock {
     pub translation: Option<String>,
     pub style: Option<TextStyle>,
     pub font_prediction: Option<FontPrediction>,
+    /// How this block was "performed" in the source — hét, thì thầm, suy
+    /// nghĩ, v.v. — read by the folder pipeline's vision OCR call
+    /// (`read_page`) alongside the transcription itself. `None` when that
+    /// call did not run (character context off) or did not answer for this
+    /// block.
+    #[serde(default)]
+    pub speech_state_hint: Option<style::SpeechStyleKind>,
+    /// The container's drawn shape, from the same vision call.
+    #[serde(default)]
+    pub balloon_shape_hint: Option<style::BalloonShape>,
+    /// How `speech_state_hint`/`balloon_shape_hint`/source typography were
+    /// fused into this block's rendered size — computed and stored at
+    /// render time, for debugging why a block came out the size it did.
+    #[serde(default)]
+    pub style_resolution: Option<style::StyleResolution>,
     pub rendered: Option<SerializableDynamicImage>,
     #[serde(skip)]
     pub lock_layout_box: bool,
