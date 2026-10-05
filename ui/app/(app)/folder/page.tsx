@@ -211,8 +211,8 @@ function FolderFileCard({
 
         {/* Result badge */}
         {file.hasResult && (
-          <div className='absolute top-1.5 right-1.5'>
-            <CheckCircle2Icon className='size-4 fill-green-500 text-white drop-shadow' />
+          <div className='absolute top-1.5 right-1.5 rounded-full bg-white p-0.5 shadow'>
+            <CheckCircle2Icon className='size-4 fill-green-600 text-white' />
           </div>
         )}
 
