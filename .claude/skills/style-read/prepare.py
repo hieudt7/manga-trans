@@ -197,7 +197,9 @@ def reading_copy(source, target):
     made = []
     if not fresh(target, source):
         image = Image.open(source).convert("RGB")
-        fit(image).save(target, quality=90)
+        # A portrait scan is a single page, not a spread: it is read whole,
+        # so it gets the enlargement a half would otherwise get.
+        fit(image, enlarge=image.width < image.height).save(target, quality=90)
         made.append(target)
     stem, extension = os.path.splitext(target)
     halves = {}
